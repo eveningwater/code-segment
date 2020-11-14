@@ -11,3 +11,4 @@
 * [求一个函数传入参数的和、最大值、最小值、平均值--2020-11-12](codes/getMathValue.md)
 * [将RGB颜色转换成HSL颜色--2020-11-13](codes/RGBToHSL.md)
 * [将RGB颜色转换成Hex颜色模式--2020-11-14](codes/RGBToHex.md)
+* [将类数组转换成数组--2020-11-14](codes/toArray.md)
