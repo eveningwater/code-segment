@@ -1,0 +1,24 @@
+|  标题   | 标签  |
+|  ----  | ----  |
+| JSONToFile(JSON对象转成文件) | node,intermediate(node,两者之间) |
+
+将一个`JSON`对象写成一个文件。
+
+* 使用`fs.writeFileSync()`方法，引入的`fs`模块与[JSON.stringify()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)方法来将一个`JSON`对象写成一个文件
+
+
+> 代码如下:
+
+```js
+    const fs = require('fs);
+    const JSONToFile = (obj,fileName) => fs.writeFileSync(`${ fileName }.json`,JSON.stringify(obj,null,2)); 
+```
+
+> 调用方式:
+
+```js
+    JSONToFile({ test: 'is passed' }, 'testJsonFile');
+    // writes the object to 'testJsonFile.json'
+```
+
+> 应用场景
