@@ -10,23 +10,13 @@
 > 代码如下:
 
 ```js
-    const RGBToHex = (r,g,b) => {
-        r /= 255;
-        g /= 255;
-        b /= 255;
-        const v = Math.max(r,g,b);
-        const n = v - Math.min(r,g,b);
-        const h = n && v === r ? (g - b) / n : v === g ? 2 + (b - r) / n : 4 + (r - g) / n;
-        // h,s = n / v,b = v
-        return [60 * (h < 0 ? h + 6 : h), v && (n / v) * 100, v * 100];
-    }
+    const RGBToHex = (r,g,b) => ((r << 16) + (g << 8) + b).toString(16).padStart(6,'0');
 ```
 
 > 调用方式:
 
 ```js
-    RGBToHex(252, 111, 48);
-    // [18.529411764705856, 80.95238095238095, 98.82352941176471]
+    RGBToHex(255, 165, 1); // 'ffa501'
 ```
 
 > 应用场景
