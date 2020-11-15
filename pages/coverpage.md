@@ -1,12 +1,12 @@
 ![logo](https://docsify.js.org/_media/icon.svg)
 
-# 每日一段js代码
+# code-segment 代码段
 
-> 尽量每天更新一段`js`代码，享受原生`js`编程的魅力.
+> 这里是一些代码段的集合，可能是来自网上的，也可能是平时的积累.
 
-* 原生JavaScript编程
-* 无库无框架
-* 每一个功能即一个函数
+* 原生代码片段
+* 不需要添加库和框架
+* 每一个代码片段都是解决一个问题或实现一个功能
 
 [GitHub](https://github.com/eveningwater/js-code-segment.git)
 [Get Started](README.md)

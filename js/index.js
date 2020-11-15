@@ -1,5 +1,5 @@
 window.$docsify = {
-    name: '每日一段js代码',
+    name: 'code-segment 代码段',
     loadNavbar: true,
     loadNavbar: "./pages/nav.md",
     repo: 'https://github.com/eveningwater/js-code-segment',
