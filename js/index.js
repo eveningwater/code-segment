@@ -3,10 +3,12 @@ window.$docsify = {
     loadNavbar: true,
     loadNavbar: "./pages/nav.md",
     repo: 'https://github.com/eveningwater/js-code-segment',
-    loadSidebar: "./pages/sidebar.md",
+    // loadSidebar: "./pages/sidebar.md",
+    // loadSidebar: true,
+    subMaxLevel:3,
     alias: {
-        '/.*/sidebar.md': 'pages/sidebar.md',
-        '/.*/nav.md': 'pages/nav.md'
+        // '/.*/sidebar.md': 'pages/sidebar.md',
+        // '/.*/nav.md': 'pages/nav.md'
     },
     coverpage: "./pages/coverpage.md",
     autoHeader: true,
