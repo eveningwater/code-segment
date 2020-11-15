@@ -5,8 +5,8 @@ window.$docsify = {
     repo: 'https://github.com/eveningwater/code-segment',
     loadSidebar: "./pages/sidebar.md",
     alias: {
-        '/.*/sidebar.md': 'pages/sidebar.md',
-        '/.*/nav.md': 'pages/nav.md'
+        // '/.*/sidebar.md': 'pages/sidebar.md',
+        // '/.*/nav.md': 'pages/nav.md'
     },
     coverpage: "./pages/coverpage.md",
     autoHeader: true,
