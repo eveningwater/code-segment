@@ -2,7 +2,7 @@ window.$docsify = {
     name: 'code-segment 代码段',
     loadNavbar: true,
     loadNavbar: "./pages/nav.md",
-    repo: 'https://github.com/eveningwater/js-code-segment',
+    repo: 'https://github.com/eveningwater/code-segment',
     loadSidebar: "./pages/sidebar.md",
     alias: {
         '/.*/sidebar.md': 'pages/sidebar.md',
@@ -30,7 +30,7 @@ window.$docsify = {
         },
         (hook, vm) => {
             hook.beforeEach(function (html) {
-                const url = 'https://github.com/eveningwater/js-code-segment/blob/master/' + vm.route.file;
+                const url = 'https://github.com/eveningwater/code-segment/blob/master/' + vm.route.file;
                 const editHtml = '[📝 EDIT DOCUMENT](' + url + ')';
                 return (
                     html + '\n----\n' + 'Last modified {docsify-updated} ' + editHtml

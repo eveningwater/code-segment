@@ -3,7 +3,7 @@
 
 这里是一些代码段的集合，可能是来自网上的，也可能是平时的积累。
 
-[在线访问地址](https://www.eveningwater.com/project/js-code-segment/)
+[在线访问地址](https://www.eveningwater.com/project/code-segment/)
 
 ### 目录导航
 

@@ -8,5 +8,5 @@
 * 不需要添加库和框架
 * 每一个代码片段都是解决一个问题或实现一个功能
 
-[GitHub](https://github.com/eveningwater/js-code-segment.git)
+[GitHub](https://github.com/eveningwater/code-segment.git)
 [Get Started](README.md)
