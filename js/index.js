@@ -38,31 +38,13 @@ window.$docsify = {
             });
         }
     ],
-    search: 'auto', // 默认值
-    search: [
-        '/',
-        '/pages/sidebar.md',
-        '/pages/coverpage.md',
-        '/pages/nav.md'
-    ],
-
-    // 完整配置参数
     search: {
         maxAge: 86400000, // 过期时间，单位毫秒，默认一天
-        paths: [], // or 'auto'
-        // 支持本地化
-        placeholder: {
-            '/zh-cn/': '搜索',
-            '/': 'Type to search'
-        },
-        // 支持本地化
-        noData: {
-            '/zh-cn/': '找不到结果',
-            '/': 'No Results'
-        },
-        // 搜索标题的最大层级, 1 - 6
-        depth: 2,
-        hideOtherSidebarContent: false, // 是否隐藏其他侧边栏内容
+        paths: "auto", // or 'auto'
+        placeholder: '请输入需要搜索的内容',
+        noData: 'No Results!',
+        // 搜索标题的最大程级, 1 - 6
+        depth: 6
     },
     count: {
         countable: true,
