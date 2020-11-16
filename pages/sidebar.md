@@ -1,3 +1,6 @@
+## CSS代码段
++ [弹性盒子的水平垂直居中--2020-11-16](codes/css/flex-center.md)
+
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
 + [字符串转JSON对象--2020-11-5](codes/javascript/CSVToJSON.md)
@@ -16,3 +19,5 @@
 + [将给定的URL连接在一起并规范化URL--2020-11-15](codes/javascript/URLJoin.md)
 + [实现类似js中eval方法--2020-11-15](codes/javascript/equalEval.md)
 + [正则表达式数组去重--2020-11-15](codes/javascript/uniqueRegExp.md)
++ [非重随机数数组--2020-11-16](codes/javascript/nonrandom.md)
++ [生成UUID--2020-11-16](codes/javascript/UUIDGeneratorBrowser.md)
