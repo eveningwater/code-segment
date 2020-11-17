@@ -30,3 +30,4 @@
 + [正则表达式数组去重--2020-11-15](codes/javascript/uniqueRegExp.md)
 + [非重随机数数组--2020-11-16](codes/javascript/nonrandom.md)
 + [生成UUID--2020-11-16](codes/javascript/UUIDGeneratorBrowser.md)
++ [数组去前缀排序--2020-11-17](codes/javascript/removePrefixSort.md)
