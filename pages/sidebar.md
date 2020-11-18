@@ -1,5 +1,6 @@
 ## CSS代码段
 + [弹性盒子的水平垂直居中--2020-11-16](codes/css/flex-center.md)
++ [巧用outline实现九宫格之间分隔线段--2020-11-18](codes/css/ingenious-outline.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -23,3 +24,5 @@
 + [生成UUID--2020-11-16](codes/javascript/UUIDGeneratorBrowser.md)
 + [数组去前缀排序--2020-11-17](codes/javascript/removePrefixSort.md)
 + [在node.js中生成UUID--2020-11-17](codes/javascript/UUIDGeneratorNode.md)
++ [将连接符转为小驼峰--2020-11-18](codes/javascript/hyphenToLowerCamelCase.md)
++ [数组累加--2020-11-18](codes/javascript/accumulate.md)
