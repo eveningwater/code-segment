@@ -26,3 +26,5 @@
 + [在node.js中生成UUID--2020-11-17](codes/javascript/UUIDGeneratorNode.md)
 + [将连接符转为小驼峰--2020-11-18](codes/javascript/hyphenToLowerCamelCase.md)
 + [数组累加--2020-11-18](codes/javascript/accumulate.md)
++ [数组差集(此代码维护中)--2020-11-19](codes/javascript/difference.md)
++ [给定日期计算n天的日期--2020-11-19](codes/javascript/updateDateByDay.md)
