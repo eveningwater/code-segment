@@ -38,3 +38,4 @@
 + [多个一维数组之间的交集--2020-11-19](codes/javascript/intersect.md)
 + [给定日期计算n天的日期--2020-11-19](codes/javascript/updateDateByDay.md)
 + [多个事件添加器--2020-11-20](codes/javascript/addMultipleListeners.md)
++ [计算添加n个工作日（营业日）后的工作（营业）日期--2020-11-2·](codes/javascript/addBusinessDay.md)
