@@ -29,4 +29,6 @@
 + [多个一维数组之间的交集--2020-11-19](codes/javascript/intersect.md)
 + [给定日期计算n天的日期--2020-11-19](codes/javascript/updateDateByDay.md)
 + [多个事件添加器--2020-11-20](codes/javascript/addMultipleListeners.md)
-+ [计算添加n个工作日（营业日）后的工作（营业）日期--2020-11-2·](codes/javascript/addBusinessDay.md)
++ [计算添加n个工作日（营业日）后的工作（营业）日期--2020-11-21](codes/javascript/addBusinessDay.md)
++ [递归实现字符串和数组的全排列--2020-11-21](codes/javascript/stringAndArrayPermutations.md)
++ [返回一个元素集合是否符合给定条件--2020-11-22](codes/javascript/all.md)
