@@ -34,3 +34,4 @@
 + [返回一个元素集合是否符合给定条件--2020-11-22](codes/javascript/all.md)
 + [检查一个数组中是否每个元素都相等--2020-11-23(11-24补充)](codes/javascript/allEqual.md)
 + [根据提供的回调函数来检查数组中的所有元素是否相等--2020-11-24](codes/javascript/allEqualBy.md)
++ [检查数组中所有元素是否是唯一--2020-11-25](codes/javascript/allUnique.md)
