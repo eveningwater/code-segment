@@ -1,6 +1,6 @@
 |  标题   | 标签  |
 |  ----  | ----  |
-| allEqual(检查数组元素是否唯一) | array,beginner(数组，初学者) |
+| allUnique(检查数组元素是否唯一) | array,beginner(数组，初学者) |
 
 检查数组中所有元素是否是唯一。
 

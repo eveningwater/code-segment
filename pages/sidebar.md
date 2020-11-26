@@ -39,3 +39,4 @@
 + [根据提供的回调函数来检查数组中的所有元素是否相等--2020-11-24](codes/javascript/allEqualBy.md)
 + [检查数组中所有元素是否是唯一--2020-11-25](codes/javascript/allUnique.md)
 + [数字转金额格式--2020-11-26](codes/javascript/NumberToCurrency.md)
++ [根据提供的回调函数来检查数组元素是否唯一--2020-11-26](codes/javascript/allUniqueBy.md)
