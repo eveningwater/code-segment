@@ -11,13 +11,16 @@
 > 代码如下
 
 ```js
-10000000..toLocaleString('cmn-Hans-CN',{
-  style: 'currency',
-  currency: 'CNY'
-})
-// "￥10,000,000.00"
+ const toFormateNum = (num,format,options) => num.toLocaleString(format,options);
 ```
 
 > 调用方式
 
+```js
+  toFormateNum(10000000,'cmn-Hans-CN',{
+    style: 'currency',
+    currency: 'CNY'
+  });
+  // "￥10,000,000.00"
+```
 > 应用场景
