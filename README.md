@@ -49,3 +49,4 @@
 + [检查数组中所有元素是否是唯一--2020-11-25](codes/javascript/allUnique.md)
 + [数字转金额格式--2020-11-26](codes/javascript/NumberToCurrency.md)
 + [根据提供的回调函数来检查数组元素是否唯一--2020-11-26](codes/javascript/allUniqueBy.md)
++ [检查两个参数是否都为真--2020-11-27](codes/javascript/and.md)
