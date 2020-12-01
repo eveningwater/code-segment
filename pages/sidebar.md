@@ -44,3 +44,4 @@
 + [任意元素的检查--2020-11-28](codes/javascript/any.md)
 + [创建连续数组--2020-11-29](codes/javascript/aperture.md)
 + [检查两个数字是否近似相等--2020-11-30](codes/javascript/approximatelyEqual.md)
++ [倍数连续数字数组--2020-12-01](codes/javascript/arithmeticProgression.md)

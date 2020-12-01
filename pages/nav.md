@@ -10,4 +10,4 @@
     * [个人网站](https://www.eveningwater.com/)
     * [个人项目demo集合](https://www.eveningwater.com/my-web-projects/)
     * [门素材](https://www.17sucai.com/user/800544)
-    * [ewColorPicker](https://www.eveningwater.com/ewColorPicker/)
+    * [ewColorPicker](https://eveningwater.github.io/ew-color-picker/)
