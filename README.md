@@ -56,3 +56,4 @@
 + [倍数连续数字数组--2020-12-01](codes/javascript/arithmeticProgression.md)
 + [二维数组转成逗号分割字符串--2020-12-02](codes/javascript/arrayToCSV.md)
 + [生成一个列表--2020-12-13](codes/javascript/arrayToHTMLList.md)
++ [创建一个返回处理参数的函数--2020-12-21](codes/javascript/ary.md)
