@@ -59,3 +59,4 @@
 + [创建一个返回处理参数的函数--2020-12-21](codes/javascript/ary.md)
 + [监听iframe下载完成--2020-12-26](codes/javascript/downloadIframe.md)
 + [解码base64编码的字符串--2021-1-31](codes/javascript/atob.md)
++ [捕获错误--2021-2-1](codes/javascript/attempt.md)
