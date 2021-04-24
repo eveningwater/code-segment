@@ -52,3 +52,5 @@
 + [解码base64编码的字符串--2021-1-31](codes/javascript/atob.md)
 + [捕获错误--2021-2-1](codes/javascript/attempt.md)
 + [两个超大数字相加--2021-3-7](codes/javascript/bigNumberSum.md)
++ [用函数模拟实现一个new操作符的功能--2021-4-24](codes/javascript/myNew.md)
++ [解析URL参数--2021-4-24](codes/javascript/handleURLParam.md)
