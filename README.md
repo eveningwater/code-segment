@@ -64,3 +64,4 @@
 + [用函数模拟实现一个new操作符的功能--2021-4-24](codes/javascript/myNew.md)
 + [解析URL参数--2021-4-24](codes/javascript/handleURLParam.md)
 + [简易模板编译器--2021-6-08](codes/javascript/simpleTemplateCompiler.md)
++ [从IE浏览器跳转到chrome浏览器--2021-6-08](codes/javascript/IEToChrome.md)
