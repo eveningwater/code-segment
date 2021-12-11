@@ -57,3 +57,4 @@
 + [简易模板编译器--2021-6-08](codes/javascript/simpleTemplateCompiler.md)
 + [从IE浏览器跳转到chrome浏览器--2021-6-16](codes/javascript/IEToChrome.md)
 + [判断对象中是否包含属性名--2021-12-05](codes/javascript/assertValidKeys.md)
++ [求平均数--2021-12-11](codes/javascript/average.md)
