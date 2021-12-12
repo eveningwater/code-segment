@@ -1,0 +1,24 @@
+|  标题   | 标签  |
+|  ----  | ----  |
+| averageBy(求平均数) | math,array,intermediate(数学，数组，两者之间的) |
+
+使用提供的函数将每个元素映射到一个值后，计算数组的平均值。
+
+* 使用 `Array.prototype.map()` 将每个元素映射到 `handler` 返回的值。
+* 将结果数组除以其长度。
+
+> 代码如下:
+
+```js
+    //参数应该是一个回调函数或者字符串
+    const averageBy = (...nums,handler) => nums.map(typeof handler === "function" ? handler : val => val[handler]).reduce((acc,val) => acc + val,0) / nums.length;
+```
+
+> 调用方式:
+
+```js
+    averageBy([{ n: 4 }, { n: 2 }, { n: 8 }, { n: 6 }], o => o.n); // 5
+    averageBy([{ n: 4 }, { n: 2 }, { n: 8 }, { n: 6 }], 'n'); // 5
+```
+
+> 应用场景
