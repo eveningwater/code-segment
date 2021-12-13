@@ -59,3 +59,4 @@
 + [判断对象中是否包含属性名--2021-12-05](codes/javascript/assertValidKeys.md)
 + [求平均数--2021-12-11](codes/javascript/average.md)
 + [根据一个函数来求平均数--2021-12-12](codes/javascript/averageBy.md)
++ [划分数组--2021-12-13](codes/javascript/bifurcate.md)
