@@ -14,7 +14,7 @@
 ```js
     const binarySearch = (arr,item) => {
         let l = 0,r = arr.length - 1;
-        while(l < r){
+        while(l <= r){
             const m = Math.floor((l + r) / 2);
             if(arr[m] === item){
                 return m;
