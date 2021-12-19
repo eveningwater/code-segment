@@ -63,4 +63,5 @@
 + [根据过滤器函数划分数组--2021-12-14](codes/javascript/bifurcateBy.md)
 + [二个参数的函数--2021-12-15](codes/javascript/binary.md)
 + [二分查询--2021-12-17](codes/javascript/binarySearch.md)
-+ [函数绑定--2021-12-18](codes/javascript/bind.md)
++ [函数绑定-1--2021-12-18](codes/javascript/bind.md)
++ [函数绑定-2--2021-12-19](codes/javascript/bindAll.md)
