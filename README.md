@@ -80,3 +80,4 @@
 + [判断是否滚动到底部--2021-12-26](codes/javascript/bottomVisible.md)
 + [创建base-64字符--2021-12-27](codes/javascript/btoa.md)
 + [冒泡排序--2021-12-29](codes/javascript/bubbleSort.md)
++ [桶排序--2021-12-30](codes/javascript/bucketSort.md)
