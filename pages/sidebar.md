@@ -72,3 +72,4 @@
 + [创建base-64字符--2021-12-27](codes/javascript/btoa.md)
 + [冒泡排序--2021-12-29](codes/javascript/bubbleSort.md)
 + [桶排序--2021-12-30](codes/javascript/bucketSort.md)
++ [字节的大小--2021-12-31](codes/javascript/byteSize.md)
