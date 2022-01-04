@@ -75,3 +75,4 @@
 + [字节的大小--2021-12-31](codes/javascript/byteSize.md)
 + [凯撒密码--2022-01-02](codes/javascript/caesarCipher.md)
 + [函数调用--2022-01-03](codes/javascript/call.md)
++ [首字母大写--2022-01-04](codes/javascript/capitalize.md)
