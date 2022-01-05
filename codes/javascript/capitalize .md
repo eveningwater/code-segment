@@ -1,6 +1,6 @@
 |  标题   | 标签  |
 |  ----  | ----  |
-| capitalize(函数调用) | string,intermediate(字符串，两者之间的) |
+| capitalize(首字母大写) | string,intermediate(字符串，两者之间的) |
 
 将字符串的第一个字母大写。
 
