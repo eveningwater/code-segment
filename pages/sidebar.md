@@ -77,3 +77,4 @@
 + [函数调用--2022-01-03](codes/javascript/call.md)
 + [首字母大写--2022-01-04](codes/javascript/capitalize.md)
 + [所有单词首字母大写--2022-01-05](codes/javascript/capitalizeEveryWord.md)
++ [笛卡尔积--2022-01-06](codes/javascript/cartesianProduct.md)
