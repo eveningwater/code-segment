@@ -79,3 +79,4 @@
 + [所有单词首字母大写--2022-01-05](codes/javascript/capitalizeEveryWord.md)
 + [笛卡尔积--2022-01-06](codes/javascript/cartesianProduct.md)
 + [转换数组--2022-01-07](codes/javascript/castArray.md)
++ [摄氏度转华氏度--2022-01-08](codes/javascript/celsiusToFahrenheit.md)
