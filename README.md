@@ -90,3 +90,4 @@
 + [转换数组--2022-01-07](codes/javascript/castArray.md)
 + [摄氏度转华氏度--2022-01-08](codes/javascript/celsiusToFahrenheit.md)
 + [异步链--2022-01-09](codes/javascript/chainAsync.md)
++ [改变亮度--2022-01-10](codes/javascript/changeLightness.md)
