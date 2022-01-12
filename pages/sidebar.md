@@ -82,3 +82,4 @@
 + [摄氏度转华氏度--2022-01-08](codes/javascript/celsiusToFahrenheit.md)
 + [异步链--2022-01-09](codes/javascript/chainAsync.md)
 + [改变亮度--2022-01-10](codes/javascript/changeLightness.md)
++ [检查属性--2022-01-12](codes/javascript/checkProp.md)
