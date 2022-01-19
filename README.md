@@ -94,3 +94,4 @@
 + [检查属性--2022-01-12](codes/javascript/checkProp.md)
 + [数组分块--2022-01-16](codes/javascript/chunk.md)
 + [根据整数n来对数组分块--2022-01-17](codes/javascript/chunkIntoN.md)
++ [可迭代对象分块--2022-01-19](codes/javascript/chunkify.md)
