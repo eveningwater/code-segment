@@ -9,7 +9,7 @@
 > 代码如下:
 
 ```js
-    const cloneRegExp = regExp => new RegExp(regExp.source,regExp.flags);
+    const coalesce = (...args) => args.find(v => ![undefined, null].includes(v));
 ```
 
 > 调用方式:
