@@ -90,3 +90,4 @@
 + [正则表达式的复制--2022-01-21](codes/javascript/cloneRegExp.md)
 + [返回第一个非null和undefined参数的函数--2022-01-22](codes/javascript/coalesce.md)
 + [合并函数--2022-01-23](codes/javascript/coalesceFactory.md)
++ [处理输入参数的函数--2022-01-24](codes/javascript/collectInto.md)
