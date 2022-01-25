@@ -1,6 +1,6 @@
 |  标题   | 标签  |
 |  ----  | ----  |
-| 处理输入参数的函数(合并函数) | function,array,intermediate(函数，数组，两者之间的) |
+| collectInto(合并函数) | function,array,intermediate(函数，数组，两者之间的) |
 
 将接受数组的函数更改为可变参数函数。
 
