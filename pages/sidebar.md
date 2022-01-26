@@ -92,3 +92,4 @@
 + [合并函数--2022-01-23](codes/javascript/coalesceFactory.md)
 + [处理输入参数的函数--2022-01-24](codes/javascript/collectInto.md)
 + [控制台中以彩色字体打印特殊字符--2022-01-25](codes/javascript/colorize.md)
++ [合并数组--2022-01-26](codes/javascript/combine.md)
