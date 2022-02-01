@@ -95,3 +95,4 @@
 + [合并数组--2022-01-26](codes/javascript/combine.md)
 + [过滤数组--2022-01-30](codes/javascript/compact.md)
 + [过滤对象--2022-01-31](codes/javascript/compactObject.md)
++ [过滤空白--2022-02-01](codes/javascript/compactWhitespace.md)
