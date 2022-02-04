@@ -97,3 +97,4 @@
 + [过滤对象--2022-01-31](codes/javascript/compactObject.md)
 + [过滤空白--2022-02-01](codes/javascript/compactWhitespace.md)
 + [辅助函数--2022-02-03](codes/javascript/complement.md)
++ [执行任务的函数--2022-02-04](codes/javascript/compose.md)
