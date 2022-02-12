@@ -113,3 +113,4 @@
 + [复制数字符号--2022-02-08](codes/javascript/copySign.md)
 + [复制到剪贴板--2022-02-09](codes/javascript/copyToClipboard.md)
 + [异步复制到剪贴板--2022-02-11](codes/javascript/copyToClipboardAsync.md)
++ [根据参数条件来计数的函数--2022-02-12](codes/javascript/countBy.md)
