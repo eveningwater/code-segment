@@ -19,10 +19,10 @@ const countBy = (arr,handler) => arr.map(typeof handler === "function" ? handler
 > 调用方式:
 
 ```js
-// countBy([6.1, 4.2, 6.3], Math.floor); // {4: 1, 6: 2}
-// countBy(['one', 'two', 'three'], 'length'); // {3: 2, 5: 1}
-// countBy([{ count: 5 }, { count: 10 }, { count: 5 }], x => x.count)
-// // {5: 2, 10: 1}
+countBy([6.1, 4.2, 6.3], Math.floor); // {4: 1, 6: 2}
+countBy(['one', 'two', 'three'], 'length'); // {3: 2, 5: 1}
+countBy([{ count: 5 }, { count: 10 }, { count: 5 }], x => x.count)
+// {5: 2, 10: 1}
 ```
 
 > 应用场景
