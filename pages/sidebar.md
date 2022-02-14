@@ -106,3 +106,4 @@
 + [异步复制到剪贴板--2022-02-11](codes/javascript/copyToClipboardAsync.md)
 + [根据参数条件来计数的函数--2022-02-12](codes/javascript/countBy.md)
 + [计算数组项中出现的次数--2022-02-13](codes/javascript/countOccurrences.md)
++ [计算字符串中子字符串出现的次数--2022-02-14](codes/javascript/countSubstrings.md)
