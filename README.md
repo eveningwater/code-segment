@@ -115,3 +115,4 @@
 + [异步复制到剪贴板--2022-02-11](codes/javascript/copyToClipboardAsync.md)
 + [计算数组项中出现的次数--2022-02-13](codes/javascript/countOccurrences.md)
 + [计算字符串中子字符串出现的次数--2022-02-14](codes/javascript/countSubstrings.md)
++ [计算两个日期之间的工作日--2022-02-15](codes/javascript/countWeekDaysBetween.md)
