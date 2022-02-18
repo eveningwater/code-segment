@@ -110,3 +110,4 @@
 + [计算除工作日以外的天数--2022-02-15](codes/javascript/countWeekDaysBetween.md)
 + [定时计数器--2022-02-16](codes/javascript/counter.md)
 + [如果目录不存在创建目录--2022-02-17](codes/javascript/createDirIfNotExists.md)
++ [创建元素--2022-02-18](codes/javascript/createElement.md)
