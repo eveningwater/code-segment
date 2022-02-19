@@ -119,3 +119,4 @@
 + [定时计数器--2022-02-16](codes/javascript/counter.md)
 + [如果目录不存在创建目录--2022-02-17](codes/javascript/createDirIfNotExists.md)
 + [创建元素--2022-02-18](codes/javascript/createElement.md)
++ [创建事件（基于发布订阅模式）--2022-02-19](codes/javascript/createEventHub.md)
