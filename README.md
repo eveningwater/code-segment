@@ -121,3 +121,4 @@
 + [创建元素--2022-02-18](codes/javascript/createElement.md)
 + [创建事件（基于发布订阅模式）--2022-02-19](codes/javascript/createEventHub.md)
 + [当前路径--2022-02-20](codes/javascript/currentURL.md)
++ [柯里化函数--2022-02-21](codes/javascript/curry.md)
