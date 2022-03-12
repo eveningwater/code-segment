@@ -123,3 +123,4 @@
 + [一个月有多少天--2022-02-28](codes/javascript/daysInMonth.md)
 + [防抖函数--2022-03-04](codes/javascript/debounce.md)
 + [防抖期约函数--2022-03-05](codes/javascript/debouncePromise.md)
++ [取消单词首字母大写--2022-03-12](codes/javascript/decapitalize.md)
