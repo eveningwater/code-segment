@@ -133,4 +133,5 @@
 + [防抖期约函数--2022-03-05](codes/javascript/debouncePromise.md)
 + [取消单词首字母大写--2022-03-12](codes/javascript/decapitalize.md)
 + [深度克隆对象--2022-03-13](codes/javascript/deepClone.md)
-+ [深度扁平化数组--2022-03-14](codes/javascript/deepFlatten.md)
++ [深度数组降维--2022-03-14](codes/javascript/deepFlatten.md)
++ [深度冻结对象--2022-03-15](codes/javascript/deepFreeze.md)
