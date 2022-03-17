@@ -127,3 +127,4 @@
 + [深度克隆对象--2022-03-13](codes/javascript/deepClone.md)
 + [深度数组降维--2022-03-14](codes/javascript/deepFlatten.md)
 + [深度冻结对象--2022-03-15](codes/javascript/deepFreeze.md)
++ [深度查找对象的值--2022-03-17](codes/javascript/deepGet.md)
