@@ -134,3 +134,4 @@
 + [延迟调用函数--2022-03-25](codes/javascript/defer.md)
 + [角度转弧度--2022-03-26](codes/javascript/degreesToRads.md)
 + [延迟函数--2022-04-03](codes/javascript/delay.md)
++ [检测设备类型--2022-04-04](codes/javascript/detectDeviceType.md)
