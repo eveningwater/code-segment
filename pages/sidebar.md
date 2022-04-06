@@ -136,3 +136,4 @@
 + [延迟函数--2022-04-03](codes/javascript/delay.md)
 + [检测设备类型--2022-04-04](codes/javascript/detectDeviceType.md)
 + [检测语言类型--2022-04-05](codes/javascript/detectLanguage.md)
++ [计算数组的差集--2022-04-06](codes/javascript/difference.md)
