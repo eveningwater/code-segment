@@ -10,13 +10,13 @@
 > 代码如下:
 
 ```js
-    const simpleTemplateCompiler = template => data => template.replace(/\{\{(.*?\}\})/g,(match,key) => data[key.trim()]);
+    const simpleTemplateCompiler = template => data => template.replace(/\{\{(.*?)\}\}/g,(match,key) => data[key.trim()]);
 ```
 
 > 调用方式:
 
 ```js
-    render("{{ year }}-{{ month }}-{{ day }}")({ year:"2021",month:"06",day:"08" });
+    simpleTemplateCompiler("{{ year }}-{{ month }}-{{ day }}")({ year:"2021",month:"06",day:"08" });
     //2021-06-08
 ```
 
