@@ -151,3 +151,4 @@
 + [数字转换成数组--2022-04-15](codes/javascript/digitize.md)
 + [计算两点之间的距离--2022-04-19](codes/javascript/distance.md)
 + [求除法的商和模--2022-04-20](codes/javascript/divmod.md)
++ [截取数组--2022-04-21](codes/javascript/drop.md)
