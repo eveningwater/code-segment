@@ -146,3 +146,4 @@
 + [截取数组--2022-04-21](codes/javascript/drop.md)
 + [截取数组(2)--2022-04-22](codes/javascript/dropRight.md)
 + [截取数组(3)--2022-04-23](codes/javascript/dropRightWhile.md)
++ [二者之一--2022-04-25](codes/javascript/either.md)
