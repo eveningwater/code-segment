@@ -148,3 +148,4 @@
 + [截取数组(3)--2022-04-23](codes/javascript/dropRightWhile.md)
 + [二者之一--2022-04-25](codes/javascript/either.md)
 + [判断元素--2022-04-26](codes/javascript/elementContains.md)
++ [判断元素是否处于关注焦点状态--2022-04-27](codes/javascript/elementIsFocused.md)
