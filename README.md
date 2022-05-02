@@ -161,3 +161,4 @@
 + [检测元素是否在视口可见--2022-04-28](codes/javascript/elementIsVisibleInViewport.md)
 + [比较两个值是否相等--2022-04-29](codes/javascript/equals.md)
 + [转义字符串--2022-05-01](codes/javascript/escapeHTML.md)
++ [转义正则表达式--2022-05-02](codes/javascript/escapeRegExp.md)
