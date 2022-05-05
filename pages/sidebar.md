@@ -153,3 +153,4 @@
 + [比较两个值是否相等--2022-04-29](codes/javascript/equals.md)
 + [转义正则表达式--2022-05-02](codes/javascript/escapeRegExp.md)
 + [计算两点之间的距离--2022-05-04](codes/javascript/euclideanDistance.md)
++ [返回数组的第n个元素--2022-05-05](codes/javascript/everyNth.md)
