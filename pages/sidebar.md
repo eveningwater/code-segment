@@ -154,3 +154,4 @@
 + [转义正则表达式--2022-05-02](codes/javascript/escapeRegExp.md)
 + [计算两点之间的距离--2022-05-04](codes/javascript/euclideanDistance.md)
 + [返回数组的第n个元素--2022-05-05](codes/javascript/everyNth.md)
++ [将制表符转换为空格--2022-05-06](codes/javascript/expandTabs.md)
