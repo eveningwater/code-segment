@@ -155,3 +155,4 @@
 + [计算两点之间的距离--2022-05-04](codes/javascript/euclideanDistance.md)
 + [返回数组的第n个元素--2022-05-05](codes/javascript/everyNth.md)
 + [将制表符转换为空格--2022-05-06](codes/javascript/expandTabs.md)
++ [扩展hex颜色--2022-05-08](codes/javascript/extendHex.md)
