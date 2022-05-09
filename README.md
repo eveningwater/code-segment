@@ -166,3 +166,4 @@
 + [返回数组的第n个元素--2022-05-05](codes/javascript/everyNth.md)
 + [将制表符转换为空格--2022-05-06](codes/javascript/expandTabs.md)
 + [扩展hex颜色--2022-05-08](codes/javascript/extendHex.md)
++ [计算一个数的阶乘--2022-05-09](codes/javascript/factorial.md)
