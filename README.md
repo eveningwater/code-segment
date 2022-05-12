@@ -169,3 +169,4 @@
 + [计算一个数的阶乘--2022-05-09](codes/javascript/factorial.md)
 + [将华氏温度转换为摄氏温度--2022-05-10](codes/javascript/fahrenheitToCelsius.md)
 + [斐波那契数列--2022-05-11](codes/javascript/fibonacci.md)
++ [数组去重--2022-05-12](codes/javascript/filterNonUnique.md)
