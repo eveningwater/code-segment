@@ -160,3 +160,4 @@
 + [将华氏温度转换为摄氏温度--2022-05-10](codes/javascript/fahrenheitToCelsius.md)
 + [斐波那契数列--2022-05-11](codes/javascript/fibonacci.md)
 + [数组去重--2022-05-12](codes/javascript/filterNonUnique.md)
++ [数组去重（根据回调函数）--2022-05-13](codes/javascript/filterNonUniqueBy.md)
