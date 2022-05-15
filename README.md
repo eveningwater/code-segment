@@ -172,3 +172,4 @@
 + [数组去重--2022-05-12](codes/javascript/filterNonUnique.md)
 + [数组去重（根据回调函数）--2022-05-13](codes/javascript/filterNonUniqueBy.md)
 + [获取数组的交集--2022-05-14](codes/javascript/filterUnique.md)
++ [获取数组的交集(根据回调函数)--2022-05-15](codes/javascript/filterUniqueBy.md)
