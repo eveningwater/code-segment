@@ -165,3 +165,4 @@
 + [找到元素最近的锚点元素（即超链接元素）--2022-05-16](codes/javascript/findClosestAnchor.md)
 + [找到元素最近的匹配元素--2022-05-17](codes/javascript/findClosestMatchingNode.md)
 + [查找所有连续元素的数组--2022-05-18](codes/javascript/findConsecutive.md)
++ [查找根据回调函数返回真值的前n个元素--2022-05-19](codes/javascript/findFirstN.md)
