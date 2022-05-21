@@ -167,3 +167,4 @@
 + [查找所有连续元素的数组--2022-05-18](codes/javascript/findConsecutive.md)
 + [查找根据回调函数返回真值的前n个元素--2022-05-19](codes/javascript/findFirstN.md)
 + [根据回调函数指定的返回值查找对象属性名--2022-05-20](codes/javascript/findKey.md)
++ [根据指定值查找对象所有属性名--2022-05-21](codes/javascript/findKeys.md)
