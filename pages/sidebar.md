@@ -169,3 +169,4 @@
 + [根据回调函数指定的返回值查找对象属性名--2022-05-20](codes/javascript/findKey.md)
 + [根据指定值查找对象所有属性名--2022-05-21](codes/javascript/findKeys.md)
 + [查找提供的函数为其返回真值的最后一个元素--2022-05-22](codes/javascript/findLast.md)
++ [查找提供的函数为其返回真值的最后一个元素的索引--2022-05-23](codes/javascript/findLastIndex.md)
