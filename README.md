@@ -183,3 +183,4 @@
 + [查找提供的函数为其返回真值的最后一个元素的索引--2022-05-23](codes/javascript/findLastIndex.md)
 + [查找提供的函数为其返回真值的最后一个元素的属性名--2022-05-24](codes/javascript/findLastKey.md)
 + [新增类名--2022-05-25](codes/javascript/addClass.md)
++ [往日期里添加天数--2022-05-26](codes/javascript/addDaysToDate.md)
