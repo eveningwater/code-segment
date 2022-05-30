@@ -175,3 +175,4 @@
 + [往日期里添加天数--2022-05-26](codes/javascript/addDaysToDate.md)
 + [给所有元素添加点击事件--2022-05-27](codes/javascript/addEventListenerAll.md)
 + [往日期里添加分钟--2022-05-28](codes/javascript/addMinutesToDate.md)
++ [添加样式--2022-05-30](codes/javascript/addStyles.md)
