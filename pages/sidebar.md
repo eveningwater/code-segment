@@ -178,3 +178,4 @@
 + [添加样式--2022-05-30](codes/javascript/addStyles.md)
 + [添加周--2022-05-31](codes/javascript/addWeekDays.md)
 + [查找提供的函数为其返回真值的最后 n 个元素--2022-06-01](codes/javascript/findLastN.md)
++ [字符串数组转换为对象--2022-06-02](codes/javascript/flags.md)
