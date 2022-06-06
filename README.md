@@ -193,3 +193,4 @@
 + [根据指定值查找对象路径--2022-06-03](codes/javascript/findPath.md)
 + [不可变的数据插入--2022-06-03](codes/javascript/immutableInsert.md)
 + [扁平迭代器--2022-06-05](codes/javascript/flatIterator.md)
++ [扁平化数组--2022-06-06](codes/javascript/flatten.md)
