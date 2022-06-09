@@ -195,3 +195,4 @@
 + [扁平迭代器--2022-06-05](codes/javascript/flatIterator.md)
 + [扁平化数组--2022-06-06](codes/javascript/flatten.md)
 + [扁平化对象--2022-06-07](codes/javascript/flattenObject.md)
++ [翻转函数参数--2022-06-09](codes/javascript/flip.md)
