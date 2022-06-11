@@ -186,3 +186,4 @@
 + [扁平化对象--2022-06-07](codes/javascript/flattenObject.md)
 + [翻转函数参数--2022-06-09](codes/javascript/flip.md)
 + [倒转遍历数组--2022-06-10](codes/javascript/forEachRight.md)
++ [遍历对象每一个属性--2022-06-11](codes/javascript/forOwn.md)
