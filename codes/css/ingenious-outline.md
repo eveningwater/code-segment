@@ -32,3 +32,5 @@
 ```
 
 > 应用场景
+
+<iframe src="/codes/css/html/ingenious-outline.html"></iframe>
