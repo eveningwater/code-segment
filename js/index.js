@@ -33,7 +33,7 @@ window.$docsify = {
                 const url = 'https://github.com/eveningwater/code-segment/blob/master/' + vm.route.file;
                 const editHtml = '[📝 EDIT DOCUMENT](' + url + ')';
                 return (
-                    html + '\n----\n' + 'Last modified {docsify-updated} ' + editHtml
+                    html + '   \n----\n' + 'Last modified {docsify-updated} ' + editHtml
                 );
             });
         }
