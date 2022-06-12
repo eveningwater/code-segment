@@ -24,4 +24,4 @@
 
 > 应用场景
 
-<iframe src="/codes/css/html/flex-center.html"></iframe>
+<iframe src="codes/css/html/flex-center.html"></iframe>
