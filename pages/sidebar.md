@@ -189,3 +189,4 @@
 + [遍历对象每一个属性--2022-06-11](codes/javascript/forOwn.md)
 + [倒转遍历对象每一个属性--2022-06-12](codes/javascript/forOwnRight.md)
 + [计算一年过去了多少天--2022-06-13](codes/javascript/computedYearDays.md)
++ [表单对象转普通对象--2022-06-14](codes/javascript/formToObject.md)
