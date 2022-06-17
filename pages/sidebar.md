@@ -191,3 +191,4 @@
 + [计算一年过去了多少天--2022-06-13](codes/javascript/computedYearDays.md)
 + [表单对象转普通对象--2022-06-14](codes/javascript/formToObject.md)
 + [格式化时间--2022-06-14](codes/javascript/formatDuration.md)
++ [格式化数字--2022-06-17](codes/javascript/formatNumber.md)
