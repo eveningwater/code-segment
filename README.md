@@ -203,3 +203,4 @@
 + [表单对象转普通对象--2022-06-14](codes/javascript/formToObject.md)
 + [格式化时间--2022-06-14](codes/javascript/formatDuration.md)
 + [格式化数字--2022-06-17](codes/javascript/formatNumber.md)
++ [格式化秒--2022-06-18](codes/javascript/formatSeconds.md)
