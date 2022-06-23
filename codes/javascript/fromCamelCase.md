@@ -12,6 +12,15 @@ const fromCamelCase = (str, separator = '_') =>
   str.replace(/([a-z\d])([A-Z])/g, '$1' + separator + '$2').replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + separator + '$2').toLowerCase();
 ```
 
+### 命名捕获组
+
+* ?<修改的捕获组名>
+
+```js
+const fromCamelCase = (str, separator = '_') =>
+  str.replace(/(?<a>[a-z\d])(?<b>[A-Z])/g, '$<a>' + separator + '$<b>').replace(/(?<a>[A-Z]+)(?<b>[A-Z][a-z\d]+)/g, '$<a>' + separator + '$<b>').toLowerCase();
+```
+
 > 调用方式:
 
 ```js

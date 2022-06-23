@@ -197,3 +197,4 @@
 + [驼峰式转换成小写--2022-06-20](codes/javascript/fromCamelCase.md)
 + [时间戳转日期--2022-06-21](codes/javascript/fromTimestamp.md)
 + [冻结Set对象--2022-06-22](codes/javascript/frozenSet.md)
++ [全屏--2022-06-23](codes/javascript/fullscreen.md)
