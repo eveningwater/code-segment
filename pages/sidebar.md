@@ -198,3 +198,4 @@
 + [时间戳转日期--2022-06-21](codes/javascript/fromTimestamp.md)
 + [冻结Set对象--2022-06-22](codes/javascript/frozenSet.md)
 + [全屏--2022-06-23](codes/javascript/fullscreen.md)
++ [获取函数名--2022-06-24](codes/javascript/functionName.md)
