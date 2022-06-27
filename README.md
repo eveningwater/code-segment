@@ -212,3 +212,4 @@
 + [获取函数名--2022-06-24](codes/javascript/functionName.md)
 + [函数属性名数组--2022-06-25](codes/javascript/functions.md)
 + [最大公约数--2022-06-26](codes/javascript/gcd.md)
++ [使用给定函数生成给定数量元素的数组--2022-06-27](codes/javascript/generateItems.md)
