@@ -216,3 +216,4 @@
 + [生成满足条件新值的生成器--2022-06-28](codes/javascript/generateUntil.md)
 + [生成满足条件新值的生成器--2022-06-29](codes/javascript/generateWhile.md)
 + [生成红绿灯--2022-06-30](codes/javascript/generateRGYLight.md)
++ [生成器转数组--2022-07-01](codes/javascript/generatorToArray.md)
