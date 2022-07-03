@@ -218,3 +218,4 @@
 + [生成红绿灯--2022-06-30](codes/javascript/generateRGYLight.md)
 + [生成器转数组--2022-07-01](codes/javascript/generatorToArray.md)
 + [几何级数--2022-07-02](codes/javascript/geometricProgression.md)
++ [路径字符串中获取对象属性--2022-07-03](codes/javascript/get.md)
