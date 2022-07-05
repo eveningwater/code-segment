@@ -209,3 +209,4 @@
 + [几何级数--2022-07-02](codes/javascript/geometricProgression.md)
 + [路径字符串中获取对象属性--2022-07-03](codes/javascript/get.md)
 + [获取元素的祖先元素--2022-07-04](codes/javascript/getAncestors.md)
++ [获取过滤参数的路径--2022-07-05](codes/javascript/getBaseURL.md)
