@@ -22,3 +22,6 @@ addEventListenerAll(document.querySelectorAll('a'), 'click', () =>
 ```
 
 > 应用场景
+
+<iframe src="codes/javascript/html/addEventListenerAll.html"></iframe>
+
