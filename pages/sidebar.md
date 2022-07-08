@@ -212,3 +212,4 @@
 + [获取过滤参数的路径--2022-07-05](codes/javascript/getBaseURL.md)
 + [获取脚本的命令行参数--2022-07-06](codes/javascript/getCmdArgs.md)
 + [获取小时分钟秒--2022-07-07](codes/javascript/getColonTimeFromDate.md)
++ [获取日期之间的天数差--2022-07-08](codes/javascript/getDaysDiffBetweenDates.md)
