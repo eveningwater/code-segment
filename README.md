@@ -232,3 +232,4 @@
 + [获取整数的上午下午后缀--2022-07-12](codes/javascript/getMeridiemSuffixOfInteger.md)
 + [获取日期之间的分钟差-2022-07-13](codes/javascript/getMinutesDiffBetweenDates.md)
 + [获取日期之间的月份差-2022-07-14](codes/javascript/getMonthsDiffBetweenDates.md)
++ [获取父元素-2022-07-15](codes/javascript/getParentsUntil.md)
