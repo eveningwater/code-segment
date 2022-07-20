@@ -13,7 +13,7 @@ const getSelectedText = () => window.getSelection().toString();
 > 调用方式:
 
 ```js
-
+getSelectedText();//选中的文本
 ```
 
 
