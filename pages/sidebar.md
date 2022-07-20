@@ -224,3 +224,4 @@
 + [获取滚动坐标-2022-07-17](codes/javascript/getScrollPosition.md)
 + [计算窗口垂直滚动条的宽度-2022-07-18](codes/javascript/getScrollbarWidth.md)
 + [获取日期之间的秒数差-2022-07-19](codes/javascript/getSecondsDiffBetweenDates.md)
++ [获取选中的文本-2022-07-20](codes/javascript/getSelectedText.md)
