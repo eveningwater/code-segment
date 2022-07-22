@@ -239,3 +239,4 @@
 + [获取日期之间的秒数差-2022-07-19](codes/javascript/getSecondsDiffBetweenDates.md)
 + [获取选中的文本-2022-07-20](codes/javascript/getSelectedText.md)
 + [获取兄弟节点-2022-07-21](codes/javascript/getSiblings.md)
++ [获取样式-2022-07-22](codes/javascript/getStyle.md)
