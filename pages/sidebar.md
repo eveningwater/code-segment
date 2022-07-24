@@ -228,3 +228,4 @@
 + [获取兄弟节点-2022-07-21](codes/javascript/getSiblings.md)
 + [获取样式-2022-07-22](codes/javascript/getStyle.md)
 + [获取时间戳-2022-07-23](codes/javascript/getTimestamp.md)
++ [获取数据类型-2022-07-24](codes/javascript/getType.md)
