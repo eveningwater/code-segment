@@ -242,3 +242,4 @@
 + [获取样式-2022-07-22](codes/javascript/getStyle.md)
 + [获取时间戳-2022-07-23](codes/javascript/getTimestamp.md)
 + [获取数据类型-2022-07-24](codes/javascript/getType.md)
++ [获取路径参数-2022-07-25](codes/javascript/getURLParameters.md)
