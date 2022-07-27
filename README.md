@@ -244,3 +244,4 @@
 + [获取数据类型-2022-07-24](codes/javascript/getType.md)
 + [获取路径参数-2022-07-25](codes/javascript/getURLParameters.md)
 + [获取元素到文档顶部的距离-2022-07-26](codes/javascript/getVerticalOffset.md)
++ [元素分组-2022-07-27](codes/javascript/groupBy.md)
