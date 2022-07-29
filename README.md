@@ -246,3 +246,4 @@
 + [获取元素到文档顶部的距离-2022-07-26](codes/javascript/getVerticalOffset.md)
 + [元素分组-2022-07-27](codes/javascript/groupBy.md)
 + [汉明距离-2022-07-28](codes/javascript/hammingDistance.md)
++ [检查 HTML 元素是否有类名-2022-07-29](codes/javascript/hasClass.md)
