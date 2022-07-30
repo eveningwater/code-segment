@@ -247,3 +247,4 @@
 + [元素分组-2022-07-27](codes/javascript/groupBy.md)
 + [汉明距离-2022-07-28](codes/javascript/hammingDistance.md)
 + [检查 HTML 元素是否有类名-2022-07-29](codes/javascript/hasClass.md)
++ [检查数字是否有小数位-2022-07-30](codes/javascript/hasDecimals.md)
