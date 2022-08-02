@@ -253,3 +253,4 @@
 + [检查数字是否有小数位-2022-07-30](codes/javascript/hasDecimals.md)
 + [检查数组是否有重复项-2022-07-31](codes/javascript/hasDuplicates.md)
 + [检查当前进程是否包含指定的标识-2022-08-01](codes/javascript/hasFlags.md)
++ [检查对象中是否含有属性-2022-08-02](codes/javascript/hasKey.md)
