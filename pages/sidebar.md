@@ -242,3 +242,4 @@
 + [检查当前进程是否包含指定的标识-2022-08-01](codes/javascript/hasFlags.md)
 + [检查对象中是否含有属性-2022-08-02](codes/javascript/hasKey.md)
 + [匹配数组是否含有满足给定函数条件的数组项-2022-08-03](codes/javascript/hasMany.md)
++ [匹配数组是否含有满足给定函数条件的一个数组项-2022-08-04](codes/javascript/hasOne.md)
