@@ -245,3 +245,4 @@
 + [匹配数组是否含有满足给定函数条件的一个数组项-2022-08-04](codes/javascript/hasOne.md)
 + [基于浏览器的hash算法-2022-08-05](codes/javascript/hashBrowser.md)
 + [基于nodejs的hash算法-2022-08-06](codes/javascript/hashNode.md)
++ [判断两个数组是否含有相同的数组项-2022-08-07](codes/javascript/haveSameContents.md)
