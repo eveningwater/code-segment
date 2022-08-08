@@ -246,3 +246,4 @@
 + [基于浏览器的hash算法-2022-08-05](codes/javascript/hashBrowser.md)
 + [基于nodejs的hash算法-2022-08-06](codes/javascript/hashNode.md)
 + [判断两个数组是否含有相同的数组项-2022-08-07](codes/javascript/haveSameContents.md)
++ [查找数组当中的第一个数组项-2022-08-08](codes/javascript/head.md)
