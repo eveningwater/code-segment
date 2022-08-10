@@ -248,3 +248,4 @@
 + [判断两个数组是否含有相同的数组项-2022-08-07](codes/javascript/haveSameContents.md)
 + [查找数组当中的第一个数组项-2022-08-08](codes/javascript/head.md)
 + [堆排序算法-2022-08-09](codes/javascript/heapSort.md)
++ [HEX颜色转换成RGBA颜色-2022-08-10](codes/javascript/hexToRGB.md)
