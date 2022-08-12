@@ -250,3 +250,4 @@
 + [堆排序算法-2022-08-09](codes/javascript/heapSort.md)
 + [HEX颜色转换成RGBA颜色-2022-08-10](codes/javascript/hexToRGB.md)
 + [隐藏所有DOM元素-2022-08-11](codes/javascript/hide.md)
++ [Delete请求-2022-08-12](codes/javascript/httpDelete.md)
