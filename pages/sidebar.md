@@ -252,3 +252,4 @@
 + [隐藏所有DOM元素-2022-08-11](codes/javascript/hide.md)
 + [Delete请求-2022-08-12](codes/javascript/httpDelete.md)
 + [Get请求-2022-08-13](codes/javascript/httpGet.md)
++ [Post请求-2022-08-14](codes/javascript/httpPost.md)
