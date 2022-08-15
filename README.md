@@ -266,3 +266,4 @@
 + [Delete请求-2022-08-12](codes/javascript/httpDelete.md)
 + [Get请求-2022-08-13](codes/javascript/httpGet.md)
 + [Post请求-2022-08-14](codes/javascript/httpPost.md)
++ [Put请求-2022-08-15](codes/javascript/httpPut.md)

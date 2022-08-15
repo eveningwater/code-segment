@@ -1,6 +1,6 @@
 |  标题   | 标签  |
 |  ----  | ----  |
-| httpPost(Get请求) | browser(浏览器) |
+| httpPost(POST请求) | browser(浏览器) |
 
 向传递的 URL 发出 POST 请求。
 
