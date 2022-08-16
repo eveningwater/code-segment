@@ -267,3 +267,4 @@
 + [Get请求-2022-08-13](codes/javascript/httpGet.md)
 + [Post请求-2022-08-14](codes/javascript/httpPost.md)
 + [Put请求-2022-08-15](codes/javascript/httpPut.md)
++ [https重定向-2022-08-16](codes/javascript/httpsRedirect.md)
