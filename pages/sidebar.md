@@ -255,3 +255,4 @@
 + [Post请求-2022-08-14](codes/javascript/httpPost.md)
 + [https重定向-2022-08-16](codes/javascript/httpsRedirect.md)
 + [赫兹函数频率-2022-08-17](codes/javascript/hz.md)
++ [数字范围-2022-08-18](codes/javascript/inRange.md)
