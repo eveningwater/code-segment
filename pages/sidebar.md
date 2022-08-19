@@ -256,3 +256,4 @@
 + [https重定向-2022-08-16](codes/javascript/httpsRedirect.md)
 + [赫兹函数频率-2022-08-17](codes/javascript/hz.md)
 + [数字范围-2022-08-18](codes/javascript/inRange.md)
++ [包含所有元素-2022-08-19](codes/javascript/includesAll.md)
