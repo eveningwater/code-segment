@@ -7,7 +7,7 @@
 * 减去两个 Date 对象并除以一分钟的毫秒数，得到它们之间的差异（以分钟为单位）。
 
 ```js
-const getMinutesDiffBetweenDates = (dateInitial, dateFinal) => (dateInitial, dateFinal) / (1000 * 60)
+const getMinutesDiffBetweenDates = (dateInitial, dateFinal) => (dateFinal - dateInitial) / (1000 * 60)
 ```
 
 > 调用方式:

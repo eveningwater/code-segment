@@ -7,7 +7,7 @@
 * 减去两个 Date 对象并除以一天中的毫秒数，得到它们之间的差异（以天为单位）。
 
 ```js
-const getDaysDiffBetweenDates = (dateInitial, dateFinal) => (dateInitial, dateFinal) / (1000 * 3600 * 24)
+const getDaysDiffBetweenDates = (dateInitial, dateFinal) => (dateFinal - dateInitial) / (1000 * 3600 * 24)
 ```
 
 > 调用方式:

@@ -7,7 +7,7 @@
 * 减去两个 Date 对象并除以一小时内的毫秒数，得到它们之间的差异（以小时为单位）。
 
 ```js
-const getHoursDiffBetweenDates = (dateInitial, dateFinal) => (dateInitial, dateFinal) / (1000 * 3600)
+const getHoursDiffBetweenDates = (dateInitial, dateFinal) => (dateFinal - dateInitial) / (1000 * 3600)
 ```
 
 > 调用方式:
