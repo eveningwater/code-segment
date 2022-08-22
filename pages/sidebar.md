@@ -258,4 +258,5 @@
 + [数字范围-2022-08-18](codes/javascript/inRange.md)
 + [包含所有元素-2022-08-19](codes/javascript/includesAll.md)
 + [包含任一元素-2022-08-20](codes/javascript/includesAny.md)
-+ [包含字符（不区分大小写）-2022-08-20](codes/javascript/includesCaseInsensitive.md)
++ [包含字符（不区分大小写）-2022-08-21](codes/javascript/includesCaseInsensitive.md)
++ + [缩进字符串-2022-08-22](codes/javascript/indentString.md)
