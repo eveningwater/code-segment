@@ -274,3 +274,4 @@
 + [包含任一元素-2022-08-20](codes/javascript/includesAny.md)
 + [包含字符（不区分大小写）-2022-08-21](codes/javascript/includesCaseInsensitive.md)
 + [缩进字符串-2022-08-22](codes/javascript/indentString.md)
++ [基于函数将数组转换成对象-2022-08-23](codes/javascript/indexBy.md)
