@@ -26,5 +26,6 @@ indexBy([
 
 > 应用场景
 
+<iframe src="codes/javascript/html/indexBy.html"></iframe>
 
 
