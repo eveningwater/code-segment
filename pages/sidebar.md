@@ -263,3 +263,4 @@
 + [基于函数将数组转换成对象-2022-08-23](codes/javascript/indexBy.md)
 + [查找所有匹配的数组项-2022-08-24](codes/javascript/indexOfAll.md)
 + [查找字符串中子字符串的所有索引-2022-08-25](codes/javascript/indexOfSubstrings.md)
++ [根据提供的属性名将数组转成对象-2022-08-26](codes/javascript/indexOn.md)
