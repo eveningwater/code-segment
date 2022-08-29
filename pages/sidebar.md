@@ -266,3 +266,4 @@
 + [根据提供的属性名将数组转成对象-2022-08-26](codes/javascript/indexOn.md)
 + [截取除了最后一个元素的所有元素的数组-2022-08-27](codes/javascript/initial.md)
 + [初始化给定值的二维数组-2022-08-28](codes/javascript/initialize2DArray.md)
++ [生成范围连续数组-2022-08-29](codes/javascript/initializeArrayWithRange.md)
