@@ -19,6 +19,8 @@ initializeArrayWithValues(5, 2); // [2, 2, 2, 2, 2]
 
 > 应用场景
 
+<iframe src="codes/javascript/html/initializeArrayWithValues.html"></iframe>
+
 
 
 
