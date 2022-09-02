@@ -269,3 +269,4 @@
 + [生成范围连续数组-2022-08-29](codes/javascript/initializeArrayWithRange.md)
 + [生成范围连续数组（降序）-2022-08-30](codes/javascript/initializeArrayWithRangeRight.md)
 + [生成数组-2022-08-31](codes/javascript/initializeArrayWithValues.md)
++ [注入样式-2022-09-02](codes/javascript/injectCSS.md)
