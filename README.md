@@ -283,3 +283,4 @@
 + [生成范围连续数组（降序）-2022-08-30](codes/javascript/initializeArrayWithRangeRight.md)
 + [生成数组-2022-08-31](codes/javascript/initializeArrayWithValues.md)
 + [生成给定值的n维数组-2022-09-01](codes/javascript/initializeNDArray.md)
++ [注入样式-2022-09-02](codes/javascript/injectCSS.md)
