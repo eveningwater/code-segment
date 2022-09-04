@@ -271,3 +271,4 @@
 + [生成数组-2022-08-31](codes/javascript/initializeArrayWithValues.md)
 + [注入样式-2022-09-02](codes/javascript/injectCSS.md)
 + [后续插入元素-2022-09-03](codes/javascript/insertAfter.md)
++ [往数组特定索引中插入元素-2022-09-04](codes/javascript/insertAt.md)
