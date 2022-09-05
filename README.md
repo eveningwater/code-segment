@@ -286,3 +286,4 @@
 + [注入样式-2022-09-02](codes/javascript/injectCSS.md)
 + [后续插入元素-2022-09-03](codes/javascript/insertAfter.md)
 + [往数组特定索引中插入元素-2022-09-04](codes/javascript/insertAt.md)
++ [前面插入元素-2022-09-05](codes/javascript/insertBefore.md)
