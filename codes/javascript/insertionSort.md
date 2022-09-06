@@ -32,7 +32,7 @@ const insertionSort = arr => arr.reduce((res,i) => {
 > 调用方式:
 
 ```js
-
+insertionSort([6, 3, 4, 1]); // [1, 3, 4, 6]
 ```
 
 > 应用场景
