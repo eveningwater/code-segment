@@ -273,3 +273,4 @@
 + [后续插入元素-2022-09-03](codes/javascript/insertAfter.md)
 + [往数组特定索引中插入元素-2022-09-04](codes/javascript/insertAt.md)
 + [前面插入元素-2022-09-05](codes/javascript/insertBefore.md)
++ [插入排序-2022-09-06](codes/javascript/insertionSort.md)
