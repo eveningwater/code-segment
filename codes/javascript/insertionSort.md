@@ -35,6 +35,8 @@ const insertionSort = arr => arr.reduce((res,i) => {
 insertionSort([6, 3, 4, 1]); // [1, 3, 4, 6]
 ```
 
+插入排序算法另一种实现可以参考[这里](https://github.com/eveningwater/my-web-projects/blob/master/utils/insertSort.js)，也可以通过这里的实现来理清插入排序算法的实现原理。
+
 > 应用场景
 
 
