@@ -20,6 +20,7 @@
 + [border实现圆角效果--2022-7-31](codes/css/border-rounded-button.md)
 + [指定纵横比的响应式容器--2022-09-06](codes/css/aspect-ratio.md)
 + [对话框--2022-09-07](codes/css/border-with-top-triangle.md)
++ [弹跳加载器--2022-09-08](codes/css/bouncing-loader.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -291,3 +292,4 @@
 + [前面插入元素-2022-09-05](codes/javascript/insertBefore.md)
 + [插入排序-2022-09-06](codes/javascript/insertionSort.md)
 + [求数组交集-2022-09-07](codes/javascript/intersection.md)
++ [求数组交集(根据回调函数)-2022-09-08](codes/javascript/intersectionBy.md)
