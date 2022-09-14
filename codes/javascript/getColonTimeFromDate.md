@@ -4,10 +4,10 @@
 
 从 Date 对象返回 `HH:MM:SS` 形式的字符串。
 
-* 使用 Date.prototype.toTimeString() 和 String.prototype.slice() 获取给定 Date 对象的 HH:MM:SS 部分。
+* 使用 Date.prototype.toTimeString() 和 String.prototype.slice() 获取给定 Date 对象的 `HH:MM:SS` 部分。
 
 ```js
-const getColonTimeFromDate = date => date.toTimeString().slice(0,8)
+const getColonTimeFromDate = date => date.toTimeString().slice(0,8);
 ```
 
 > 调用方式:
