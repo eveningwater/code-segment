@@ -29,6 +29,7 @@
 + [收缩动画按钮--2022-09-14](codes/css/button-hover-shrink-animation.md)
 + [border等高布局--2022-09-14](codes/css/border-contour.md)
 + [棋盘背景图案--2022-09-15](codes/css/checkerboard-pattern.md)
++ [画圆--2022-09-16](codes/css/circle.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -308,3 +309,4 @@
 + [日期比较-2022-09-13](codes/javascript/isAfterDate.md)
 + [判断字符是否只包含字母-2022-09-14](codes/javascript/isAlpha.md)
 + [判断字符是否只包含字母和数字-2022-09-15](codes/javascript/isAlphaNumeric.md)
++ [判断变位词-2022-09-16](codes/javascript/isAnagram.md)
