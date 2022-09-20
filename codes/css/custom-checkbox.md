@@ -5,7 +5,7 @@
 创建带有状态更改动画的样式复选框。
 
 * 使用 `<svg>` 元素创建检查 `<symbol>` 并通过 `<use>` 元素将其插入以创建可重用的 SVG 图标。
-* 创建一个 .checkbox-container 并使用 flexbox 为复选框创建适当的布局。
+* 创建一个 .ew-checkbox-group 并使用 flexbox 为复选框创建适当的布局。
 * 隐藏 `<input>` 元素并使用与其关联的标签来显示复选框和提供的文本。
 * 使用 stroke-dashoffset 在状态更改时为检查符号设置动画。
 * 通过 CSS 动画使用 transform: scale(0.9) 创建缩放动画效果。
