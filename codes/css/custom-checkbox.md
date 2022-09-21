@@ -1,6 +1,6 @@
 | 标题                             | 标签           |
 | -------------------------------- | -------------- |
-| custom-checkbox(恒定的宽高比) | visual,animation(视觉的，动画) |
+| custom-checkbox(自定义复选框) | visual,animation(视觉的，动画) |
 
 创建带有状态更改动画的样式复选框。
 

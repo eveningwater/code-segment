@@ -23,6 +23,7 @@
 + [恒定的宽高比--2022-09-18](codes/css/constant-width-to-height-ratio.md)
 + [计数器--2022-09-19](codes/css/Counter.md)
 + [自定义复选框--2022-09-20](codes/css/custom-checkbox.md)
++ [自定义滚动条--2022-09-21](codes/css/custom-scrollbar.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -304,3 +305,4 @@
 + [是否异步函数-2022-09-18](codes/javascript/isAsyncFunction.md)
 + [日期比较（之前）-2022-09-19](codes/javascript/isBeforeDate.md)
 + [日期比较（范围之间）-2022-09-20](codes/javascript/isBetweenDates.md)
++ [判断是否是布尔值-2022-09-21](codes/javascript/isBoolean.md)
