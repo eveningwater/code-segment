@@ -24,6 +24,7 @@
 + [计数器--2022-09-19](codes/css/Counter.md)
 + [自定义复选框--2022-09-20](codes/css/custom-checkbox.md)
 + [自定义滚动条--2022-09-21](codes/css/custom-scrollbar.md)
++ [自定义文本选中--2022-09-22](codes/css/custom-text-selection.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -306,3 +307,4 @@
 + [日期比较（之前）-2022-09-19](codes/javascript/isBeforeDate.md)
 + [日期比较（范围之间）-2022-09-20](codes/javascript/isBetweenDates.md)
 + [判断是否是布尔值-2022-09-21](codes/javascript/isBoolean.md)
++ [判断是否是浏览器环境-2022-09-22](codes/javascript/isBrowser.md)
