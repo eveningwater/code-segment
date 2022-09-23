@@ -35,6 +35,7 @@
 + [自定义复选框--2022-09-20](codes/css/custom-checkbox.md)
 + [自定义滚动条--2022-09-21](codes/css/custom-scrollbar.md)
 + [自定义文本选中--2022-09-22](codes/css/custom-text-selection.md)
++ [禁止文本选中--2022-09-23](codes/css/disable-selection.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -320,3 +321,4 @@
 + [日期比较（之前）-2022-09-19](codes/javascript/isBeforeDate.md)
 + [判断是否是布尔值-2022-09-21](codes/javascript/isBoolean.md)
 + [判断是否是浏览器环境-2022-09-22](codes/javascript/isBrowser.md)
++ [检查页面的浏览器选项卡是否获得焦点-2022-09-23](codes/javascript/isBrowserTabFocused.md)
