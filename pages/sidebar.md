@@ -29,6 +29,7 @@
 + [水平垂直居中（表格布局）--2022-09-24](codes/css/display-table-centering.md)
 + [旋转加载--2022-09-25](codes/css/donut-spinner.md)
 + [首个字符样式设置--2022-09-26](codes/css/drop-cap.md)
++ [动态阴影--2022-09-27](codes/css/dynamic-shadow.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -315,3 +316,4 @@
 + [检查元素是被包含（无论顺序）-2022-09-24](codes/javascript/isContainedIn.md)
 + [是否可用日期-2022-09-25](codes/javascript/isDateValid.md)
 + [深度冻结对象-2022-09-26](codes/javascript/isDeepFrozen.md)
++ [检查两个对象是否相交（没有共同值）-2022-09-26](codes/javascript/isDisjoint.md)
