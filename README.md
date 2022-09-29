@@ -41,6 +41,7 @@
 + [首个字符样式设置--2022-09-26](codes/css/drop-cap.md)
 + [动态阴影--2022-09-27](codes/css/dynamic-shadow.md)
 + [蚀刻文字--2022-09-28](codes/css/etched-text.md)
++ [均匀分布子元素--2022-09-29](codes/css/evenly-distributed-children.md)
 
 ## JavaScript代码段
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -332,3 +333,4 @@
 + [深度冻结对象-2022-09-26](codes/javascript/isDeepFrozen.md)
 + [检查两个对象是否相交（没有共同值）-2022-09-27](codes/javascript/isDisjoint.md)
 + [是否可被整除-2022-09-28](codes/javascript/isDivisible.md)
++ [是否是流-2022-09-29](codes/javascript/isDuplexStream.md)
