@@ -1,4 +1,5 @@
 ## CSS代码段
+
 + [弹性盒子的水平垂直居中--2020-11-16](codes/css/flex-center.md)
 + [巧用outline实现九宫格之间分隔线段--2020-11-18](codes/css/ingenious-outline.md)
 + [圣杯布局--2020-11-26](codes/css/holy-grail.md)
@@ -36,6 +37,7 @@
 
 
 ## JavaScript代码段
+
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
 + [字符串转JSON对象--2020-11-5](codes/javascript/CSVToJSON.md)
 + [HSB颜色模式转RGB颜色模式--2020-11-6](codes/javascript/HSBToRGB.md)
@@ -324,3 +326,4 @@
 + [是否可被整除-2022-09-28](codes/javascript/isDivisible.md)
 + [是否是流-2022-09-29](codes/javascript/isDuplexStream.md)
 + [是否是空对象-2022-09-30](codes/javascript/isEmpty.md)
++ [是否偶数-2022-10-01](codes/javascript/isEven.md)
