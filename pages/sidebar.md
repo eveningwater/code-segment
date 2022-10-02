@@ -327,3 +327,4 @@
 + [是否是流-2022-09-29](codes/javascript/isDuplexStream.md)
 + [是否是空对象-2022-09-30](codes/javascript/isEmpty.md)
 + [是否偶数-2022-10-01](codes/javascript/isEven.md)
++ [是否是函数-2022-10-02](codes/javascript/isFunction.md)
