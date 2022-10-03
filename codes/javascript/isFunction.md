@@ -1,6 +1,6 @@
 |  标题   | 标签  |
 |  ----  | ----  |
-| isFunction(是否是偶数) | type,function(类型，函数) |
+| isFunction(是否是函数) | type,function(类型，函数) |
 
 检查给定的参数是否是一个函数。
 
