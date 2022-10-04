@@ -45,6 +45,7 @@
 + [均匀分布子元素--2022-09-29](codes/css/evenly-distributed-children.md)
 + [填充图片--2022-09-30](codes/css/fit-image-in-container.md)
 + [浮动列表标题--2022-10-03](codes/css/floating-list-titles.md)
++ [流体排版--2022-10-04](codes/css/fluid-typography.md)
 
 ## JavaScript代码段
 
@@ -2052,3 +2053,4 @@
 + [是否偶数-2022-10-01](codes/javascript/isEven.md)
 + [是否是函数-2022-10-02](codes/javascript/isFunction.md)
 + [是否是生成器函数-2022-10-03](codes/javascript/isGeneratorFunction.md)
++ [是否是合格的日期字符串-2022-10-04](codes/javascript/isISOString.md)
