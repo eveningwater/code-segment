@@ -37,6 +37,7 @@
 + [流体排版--2022-10-04](codes/css/fluid-typography.md)
 + [关注焦点--2022-10-05](codes/css/focus-within.md)
 + [全屏图像--2022-10-06](codes/css/full-width-image.md)
++ [全屏--2022-10-07](codes/css/fullscreen.md)
 
 ## JavaScript代码段
 
@@ -334,3 +335,4 @@
 + [是否是合格的日期字符串-2022-10-04](codes/javascript/isISOString.md)
 + [是否是闰年-2022-10-05](codes/javascript/isLeapYear.md)
 + [是否启用了本地存储-2022-10-06](codes/javascript/isLocalStorageEnabled.md)
++ [是否是小写-2022-10-07](codes/javascript/isLowerCase.md)
