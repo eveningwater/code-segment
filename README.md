@@ -48,6 +48,7 @@
 + [关注焦点--2022-10-05](codes/css/focus-within.md)
 + [全屏图像--2022-10-06](codes/css/full-width-image.md)
 + [全屏--2022-10-07](codes/css/fullscreen.md)
++ [渐变文本--2022-10-08](codes/css/gradient-text.md)
 
 ## JavaScript代码段
 
@@ -346,3 +347,4 @@
 + [是否是闰年-2022-10-05](codes/javascript/isLeapYear.md)
 + [是否启用了本地存储-2022-10-06](codes/javascript/isLocalStorageEnabled.md)
 + [是否是小写-2022-10-07](codes/javascript/isLowerCase.md)
++ [是否是负零-2022-10-08](codes/javascript/isNegativeZero.md)
