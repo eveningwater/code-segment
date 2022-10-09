@@ -39,7 +39,8 @@
 + [全屏图像--2022-10-06](codes/css/full-width-image.md)
 + [全屏--2022-10-07](codes/css/fullscreen.md)
 + [渐变文本--2022-10-08](codes/css/gradient-text.md)
-+ 
++ [网格水平垂直居中--2022-10-09](codes/css/grid-centering.md)
+
 ## JavaScript代码段
 
 + [字符串转数组--2020-11-4](codes/javascript/CSVToArray.md)
@@ -338,3 +339,4 @@
 + [是否启用了本地存储-2022-10-06](codes/javascript/isLocalStorageEnabled.md)
 + [是否是小写-2022-10-07](codes/javascript/isLowerCase.md)
 + [是否是负零-2022-10-08](codes/javascript/isNegativeZero.md)
++ [是否是null或者undefined-2022-10-09](codes/javascript/isNil.md)

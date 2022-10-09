@@ -13,7 +13,7 @@
 ```
 
 ```css
- .gradient-text {
+.gradient-text {
     background: linear-gradient(#70d6ff,#00072d);
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
