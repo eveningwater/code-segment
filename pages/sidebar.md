@@ -41,6 +41,7 @@
 + [渐变文本--2022-10-08](codes/css/gradient-text.md)
 + [网格水平垂直居中--2022-10-09](codes/css/grid-centering.md)
 + [汉堡按钮--2022-10-10](codes/css/hamburger-button.md)
++ [高度过渡效果--2022-10-11](codes/css/height-transition.md)
 
 ## JavaScript代码段
 
@@ -342,3 +343,4 @@
 + [是否是负零-2022-10-08](codes/javascript/isNegativeZero.md)
 + [是否是null或者undefined-2022-10-09](codes/javascript/isNil.md)
 + [是否是node环境-2022-10-10](codes/javascript/isNode.md)
++ [是否是null-2022-10-11](codes/javascript/isNull.md)
