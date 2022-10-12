@@ -344,3 +344,4 @@
 + [是否是null或者undefined-2022-10-09](codes/javascript/isNil.md)
 + [是否是node环境-2022-10-10](codes/javascript/isNode.md)
 + [是否是null-2022-10-11](codes/javascript/isNull.md)
++ [是否是一个数字-2022-10-12](codes/javascript/isNumber.md)
