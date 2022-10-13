@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>horizontal-gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .gallery-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        .thumbnails {
+            position: absolute;
+            bottom: 8px;
+            display: flex;
+            flex-direction: row;
+            gap: 6px;
+        }
+        .thumbnails-item {
+            width: 8px;
+            height: 8px;
+            cursor: pointer;
+            background-color: #ffffff;
+            border-radius: 50%;
+        }
+        .thumbnails-item.highlighted {
+            background-color: #2d2e2e;
+        }
+        .slides {
+            margin: 0 16px;
+            display: grid;
+            grid-auto-flow: column;
+            gap: 1rem;
+            width: 540px;
+            padding: 0 .25rem;
+            height: 720px;
+            overflow-y: auto;
+            overscroll-behavior-x: contain;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+        .slides-item {
+            scroll-snap-align: start;
+        }
+        .slides-item-img {
+            width: 540px;
+            object-fit: contain;
+        }
+        .slides::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gallery-container">
+        <div class="thumbnails"></div>
+        <div class="slides"></div>
+    </div>
+    <script>
+         const baseURL = "https://www.eveningwater.com/my-web-projects/js/26/img/";
+         const slideGallery = document.querySelector('.slides');
+         const createSlides = function(element,count = 15){
+             return new Promise((resolve) => {
+                let template = "";
+                for(let i = 0;i < count;i++){
+                    template += `<div class="slides-item"><img src="${baseURL + (i + 1)}.jpg" alt="图片加载中" class="slides-item-img"></div>`;
+                }
+                element.innerHTML = template;
+                resolve();
+             })
+         }
+         const createScroll = () => {
+             const slides = slideGallery.querySelectorAll('.slides-item'),
+                   thumbnailsContainer = document.querySelector('.thumbnails'),
+                   slideWidth = slides[0].offsetWidth,
+                   slideCount = slides.length;
+             const highlightThumbnail = () => {
+                 thumbnailsContainer.querySelectorAll('.thumbnails-item').forEach(el => el.classList.remove('highlighted'));
+                 const index = Math.floor(slideGallery.scrollLeft / slideWidth);
+                 thumbnailsContainer.querySelector(`div[data-id="${index}"]`)?.classList.add('highlighted');
+             }
+             const scrollElement = (el) => {
+                const index = parseInt(el.dataset.id,10);
+                slideGallery.scrollTo(index * slideWidth,0);
+             }
+
+             thumbnailsContainer.innerHTML += [...slides].map((slide,i) => `<div data-id="${i}" class="thumbnails-item"></div>`).join("");
+
+             thumbnailsContainer.querySelectorAll('.thumbnails-item').forEach(el => {
+                el.addEventListener('click',() => scrollElement(el));
+             });
+
+             slideGallery.addEventListener('scroll',e => highlightThumbnail());
+
+             highlightThumbnail();
+         }
+
+         createSlides(slideGallery).then(() => createScroll());
+    </script>
+</body>
+
+</html>

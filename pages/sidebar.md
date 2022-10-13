@@ -345,3 +345,4 @@
 + [是否是node环境-2022-10-10](codes/javascript/isNode.md)
 + [是否是null-2022-10-11](codes/javascript/isNull.md)
 + [是否是一个数字-2022-10-12](codes/javascript/isNumber.md)
++ [是否是一个对象-2022-10-13](codes/javascript/isObject.md)
