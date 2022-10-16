@@ -1,6 +1,6 @@
 | 标题                             | 标签           |
 | -------------------------------- | -------------- |
-| hover-additional-content(水平滚动) | visual(视觉的) |
+| hover-additional-content(悬浮附加内容) | visual(视觉的) |
 
 创建一个在悬停时显示附加内容的卡片。
 
