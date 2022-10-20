@@ -60,6 +60,7 @@
 + [悬浮阴影--2022-10-17](codes/css/hover-shadow-box-animation.md)
 + [悬浮下划线--2022-10-18](codes/css/hover-underline-animation.md)
 + [悬浮图片按钮--2022-10-19](codes/css/image-hover-menu)
++ [悬浮旋转图片--2022-10-20](codes/css/image-hover-rotate)
 
 ## JavaScript代码段
 
@@ -370,3 +371,4 @@
 + [是否是10的幂-2022-10-17](codes/javascript/isPowerOfTen.md)
 + [是否是2的幂-2022-10-18](codes/javascript/isPowerOfTwo.md)
 + [是否是质（素）数-2022-10-19](codes/javascript/isPrime.md)
++ [是否是原始数据-2022-10-20](codes/javascript/isPrimitive.md)

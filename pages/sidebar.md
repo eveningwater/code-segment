@@ -359,3 +359,4 @@
 + [是否是10的幂-2022-10-17](codes/javascript/isPowerOfTen.md)
 + [是否是2的幂-2022-10-18](codes/javascript/isPowerOfTwo.md)
 + [是否是质（素）数-2022-10-19](codes/javascript/isPrime.md)
++ [是否是原始数据-2022-10-20](codes/javascript/isPrimitive.md)
