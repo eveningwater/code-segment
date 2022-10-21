@@ -48,7 +48,9 @@
 + [悬浮变换--2022-10-16](codes/css/hover-pespective.md)
 + [悬浮阴影--2022-10-17](codes/css/hover-shadow-box-animation.md)
 + [悬浮下划线--2022-10-18](codes/css/hover-underline-animation.md)
-+ [悬浮图片按钮--2022-10-19](codes/css/image-hover-menu)
++ [悬浮图片按钮--2022-10-19](codes/css/image-hover-menu.md)
++ [悬浮旋转图片--2022-10-20](codes/css/image-hover-rotate.md)
++ [响应式图片--2022-10-21](codes/css/image-mosaic.md)
 
 ## JavaScript代码段
 
@@ -360,3 +362,4 @@
 + [是否是2的幂-2022-10-18](codes/javascript/isPowerOfTwo.md)
 + [是否是质（素）数-2022-10-19](codes/javascript/isPrime.md)
 + [是否是原始数据-2022-10-20](codes/javascript/isPrimitive.md)
++ [是否是一个期约-2022-10-21](codes/javascript/isPromiseLike.md)
