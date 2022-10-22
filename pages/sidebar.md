@@ -51,6 +51,7 @@
 + [悬浮图片按钮--2022-10-19](codes/css/image-hover-menu.md)
 + [悬浮旋转图片--2022-10-20](codes/css/image-hover-rotate.md)
 + [响应式图片--2022-10-21](codes/css/image-mosaic.md)
++ [悬浮覆盖图片--2022-10-22](codes/css/image-overlay-hover.md)
 
 ## JavaScript代码段
 
@@ -363,3 +364,4 @@
 + [是否是质（素）数-2022-10-19](codes/javascript/isPrime.md)
 + [是否是原始数据-2022-10-20](codes/javascript/isPrimitive.md)
 + [是否是一个期约-2022-10-21](codes/javascript/isPromiseLike.md)
++ [是否是可读的流-2022-10-22](codes/javascript/isReadableStream.md)
