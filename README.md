@@ -65,6 +65,7 @@
 + [悬浮覆盖图片--2022-10-22](codes/css/image-overlay-hover.md)
 + [前缀输入框--2022-10-23](codes/css/input-with-prefix.md)
 + [等轴测卡片--2022-10-24](codes/css/isometric-card.md)
++ [多行文本限制行数--2022-10-25](codes/css/line-clamp.md)
 
 ## JavaScript代码段
 
@@ -380,3 +381,4 @@
 + [是否是可读的流-2022-10-22](codes/javascript/isReadableStream.md)
 + [是否是相同的日期-2022-10-23](codes/javascript/isSameDate.md)
 + [是否是同源url-2022-10-24](codes/javascript/isSameOrigin.md)
++ [是否支持会话存储-2022-10-25](codes/javascript/isSessionStorageEnabled.md)
