@@ -29,3 +29,4 @@ isSessionStorageEnabled(); // true, if sessionStorage is accessible
 > 应用场景
 
 <iframe src="codes/javascript/html/isSessionStorageEnabled.html"></iframe>
+

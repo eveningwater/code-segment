@@ -55,6 +55,7 @@
 + [前缀输入框--2022-10-23](codes/css/input-with-prefix.md)
 + [等轴测卡片--2022-10-24](codes/css/isometric-card.md)
 + [多行文本限制行数--2022-10-25](codes/css/line-clamp.md)
++ [砌体布局--2022-10-26](codes/css/masonry-layout.md)
 
 ## JavaScript代码段
 
@@ -371,3 +372,4 @@
 + [是否是相同的日期-2022-10-23](codes/javascript/isSameDate.md)
 + [是否是同源url-2022-10-24](codes/javascript/isSameOrigin.md)
 + [是否支持会话存储-2022-10-25](codes/javascript/isSessionStorageEnabled.md)
++ [数值数组是否排序-2022-10-26](codes/javascript/isSorted.md)
