@@ -57,6 +57,7 @@
 + [多行文本限制行数--2022-10-25](codes/css/line-clamp.md)
 + [砌体布局--2022-10-26](codes/css/masonry-layout.md)
 + [鼠标悬浮渐变--2022-10-27](codes/css/mouse-cursor-gradient-tracking.md)
++ [导航列表悬浮关注焦点效果--2022-10-28](codes/css/navigation-list-item-hover-and-focus-effect.md)
 
 ## JavaScript代码段
 
@@ -375,3 +376,4 @@
 + [是否支持会话存储-2022-10-25](codes/javascript/isSessionStorageEnabled.md)
 + [数值数组是否排序-2022-10-26](codes/javascript/isSorted.md)
 + [是否是一个流-2022-10-27](codes/javascript/isStream.md)
++ [是否是字符串-2022-10-28](codes/javascript/isString.md)
