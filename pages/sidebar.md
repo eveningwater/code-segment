@@ -60,6 +60,7 @@
 + [导航列表悬浮关注焦点效果--2022-10-28](codes/css/navigation-list-item-hover-and-focus-effect.md)
 + [离屏--2022-10-29](codes/css/offscreen.md)
 + [渐变滚动--2022-10-30](codes/css/overflow-scroll-gradient.md)
++ [圆点背景图案--2022-10-31](codes/css/polka-dot-pattern.md)
 
 ## JavaScript代码段
 
@@ -381,3 +382,4 @@
 + [是否是字符串-2022-10-28](codes/javascript/isString.md)
 + [是否是symbol-2022-10-29](codes/javascript/isSymbol.md)
 + [是否是Travis CI-2022-10-30](codes/javascript/isTravisCI.md)
++ [是否是未初始化值 CI-2022-10-31](codes/javascript/isUndefined.md)
