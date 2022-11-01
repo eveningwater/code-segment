@@ -72,6 +72,7 @@
 + [离屏--2022-10-29](codes/css/offscreen.md)
 + [渐变滚动--2022-10-30](codes/css/overflow-scroll-gradient.md)
 + [圆点背景图案--2022-10-31](codes/css/polka-dot-pattern.md)
++ [弹出菜单--2022-11-01](codes/css/popout-menu.md)
 
 ## JavaScript代码段
 
@@ -393,4 +394,5 @@
 + [是否是字符串-2022-10-28](codes/javascript/isString.md)
 + [是否是symbol-2022-10-29](codes/javascript/isSymbol.md)
 + [是否是Travis CI-2022-10-30](codes/javascript/isTravisCI.md)
-+ [是否是未初始化值 CI-2022-10-31](codes/javascript/isUndefined.md)
++ [是否是未初始化值-2022-10-31](codes/javascript/isUndefined.md)
++ [是否是大写字母-2022-11-01](codes/javascript/isUpperCase.md)
