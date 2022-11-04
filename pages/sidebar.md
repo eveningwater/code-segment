@@ -64,6 +64,7 @@
 + [弹出菜单--2022-11-01](codes/css/popout-menu.md)
 + [漂亮的文本下划线--2022-11-02](codes/css/pretty-text-underline.md)
 + [脉冲效果加载器--2022-11-03](codes/css/pulse-loader.md)
++ [重置所有样式--2022-11-04](codes/css/reset-all-styles.md)
 
 ## JavaScript代码段
 
@@ -389,3 +390,4 @@
 + [是否是大写字母-2022-11-01](codes/javascript/isUpperCase.md)
 + [是否是合格的JSON数据结构-2022-11-02](codes/javascript/isValidJSON.md)
 + [是否是工作日-2022-11-03](codes/javascript/isWeekday.md)
++ [是否是周末-2022-11-04](codes/javascript/isWeekend.md)
