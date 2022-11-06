@@ -66,7 +66,7 @@
 + [脉冲效果加载器--2022-11-03](codes/css/pulse-loader.md)
 + [重置所有样式--2022-11-04](codes/css/reset-all-styles.md)
 + [响应式布局--2022-11-05](codes/css/responsive-layout-sidebar.md)
-
++ [旋转卡片--2022-11-06](codes/css/rotating-card.md)
 
 ## JavaScript代码段
 
@@ -394,3 +394,4 @@
 + [是否是工作日-2022-11-03](codes/javascript/isWeekday.md)
 + [是否是周末-2022-11-04](codes/javascript/isWeekend.md)
 + [是否是可写流-2022-11-05](codes/javascript/isWritableStream.md)
++ [数组转字符串-2022-11-06](codes/javascript/join.md)
