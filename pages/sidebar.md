@@ -68,6 +68,7 @@
 + [响应式布局--2022-11-05](codes/css/responsive-layout-sidebar.md)
 + [旋转卡片--2022-11-06](codes/css/rotating-card.md)
 + [滚动进度条--2022-11-07](codes/css/scroll-progress-bar.md)
++ [摇动无效输入框--2022-11-08](codes/css/shake-invalid-input.md)
 
 ## JavaScript代码段
 
@@ -397,3 +398,4 @@
 + [是否是可写流-2022-11-05](codes/javascript/isWritableStream.md)
 + [数组转字符串-2022-11-06](codes/javascript/join.md)
 + [并列函数-2022-11-07](codes/javascript/juxt.md)
++ [K均值聚类算法-2022-11-08](codes/javascript/kMeans.md)
