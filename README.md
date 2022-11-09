@@ -80,6 +80,7 @@
 + [旋转卡片--2022-11-06](codes/css/rotating-card.md)
 + [滚动进度条--2022-11-07](codes/css/scroll-progress-bar.md)
 + [摇动无效输入框--2022-11-08](codes/css/shake-invalid-input.md)
++ [形状分隔符--2022-11-09](codes/css/shape-separator.md)
 
 ## JavaScript代码段
 
@@ -410,3 +411,4 @@
 + [数组转字符串-2022-11-06](codes/javascript/join.md)
 + [并列函数-2022-11-07](codes/javascript/juxt.md)
 + [K均值聚类算法-2022-11-08](codes/javascript/kMeans.md)
++ [k近邻算法-2022-11-09](codes/javascript/kNearestNeighbors.md)
