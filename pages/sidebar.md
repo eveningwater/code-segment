@@ -73,6 +73,7 @@
 + [悬浮渐隐兄弟元素--2022-11-10](codes/css/sibling-fade.md)
 + [交错动画--2022-11-11](codes/css/staggered-animation.md)
 + [固定标题列表--2022-11-12](codes/css/sticky-list-titles.md)
++ [条纹背景--2022-11-13](codes/css/stripes-pattern.md)
 
 ## JavaScript代码段
 
@@ -407,3 +408,4 @@
 + [公里转换成英里-2022-11-10](codes/javascript/kmToMiles.md)
 + [最后一个数组项-2022-11-11](codes/javascript/last.md)
 + [每月最后一天-2022-11-12](codes/javascript/lastDateOfMonth.md)
++ [最后n个元素-2022-11-13](codes/javascript/lastN.md)
