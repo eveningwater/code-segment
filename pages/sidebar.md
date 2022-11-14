@@ -74,6 +74,7 @@
 + [交错动画--2022-11-11](codes/css/staggered-animation.md)
 + [固定标题列表--2022-11-12](codes/css/sticky-list-titles.md)
 + [条纹背景--2022-11-13](codes/css/stripes-pattern.md)
++ [引号标记样式--2022-11-14](codes/css/stylized-quotation-marks.md)
 
 ## JavaScript代码段
 
@@ -409,3 +410,4 @@
 + [最后一个数组项-2022-11-11](codes/javascript/last.md)
 + [每月最后一天-2022-11-12](codes/javascript/lastDateOfMonth.md)
 + [最后n个元素-2022-11-13](codes/javascript/lastN.md)
++ [最小公倍数-2022-11-14](codes/javascript/lcm.md)
