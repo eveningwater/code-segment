@@ -75,6 +75,7 @@
 + [固定标题列表--2022-11-12](codes/css/sticky-list-titles.md)
 + [条纹背景--2022-11-13](codes/css/stripes-pattern.md)
 + [引号标记样式--2022-11-14](codes/css/stylized-quotation-marks.md)
++ [系统字体栈--2022-11-15](codes/css/system-font-stack.md)
 
 ## JavaScript代码段
 
@@ -411,3 +412,4 @@
 + [每月最后一天-2022-11-12](codes/javascript/lastDateOfMonth.md)
 + [最后n个元素-2022-11-13](codes/javascript/lastN.md)
 + [最小公倍数-2022-11-14](codes/javascript/lcm.md)
++ [从左边开始截取字符串生成器-2022-11-15](codes/javascript/leftSubstrGenerator.md)
