@@ -90,7 +90,8 @@
 + [文本背景覆盖--2022-11-16](codes/css/text-backdrop-overlay.md)
 + [内联块平铺布局--2022-11-17](codes/css/tile-layout-using-inline-block.md)
 + [开关切换--2022-11-18](codes/css/toggle-switch.md)
-+ [位移居中--2022-11-18](codes/css/transform-centering.md)
++ [位移居中--2022-11-19](codes/css/transform-centering.md)
++ [三角形--2022-11-20](codes/css/triangle.md)
 
 ## JavaScript代码段
 
@@ -432,3 +433,4 @@
 + [线性搜索-2022-11-17](codes/javascript/linearSearch.md)
 + [监听一次事件-2022-11-18](codes/javascript/listenOnce.md)
 + [计算给定基数的对数-2022-11-19](codes/javascript/logBase.md)
++ [最长的项-2022-11-20](codes/javascript/longestItem.md)
