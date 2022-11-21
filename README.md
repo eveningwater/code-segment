@@ -92,6 +92,7 @@
 + [开关切换--2022-11-18](codes/css/toggle-switch.md)
 + [位移居中--2022-11-19](codes/css/transform-centering.md)
 + [三角形--2022-11-20](codes/css/triangle.md)
++ [截断多行文本--2022-11-21](codes/css/truncate-text-multiline.md)
 
 ## JavaScript代码段
 
@@ -434,3 +435,4 @@
 + [监听一次事件-2022-11-18](codes/javascript/listenOnce.md)
 + [计算给定基数的对数-2022-11-19](codes/javascript/logBase.md)
 + [最长的项-2022-11-20](codes/javascript/longestItem.md)
++ [属性名小写-2022-11-21](codes/javascript/lowercaseKeys.md)
