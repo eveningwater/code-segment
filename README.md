@@ -94,6 +94,7 @@
 + [三角形--2022-11-20](codes/css/triangle.md)
 + [截断多行文本--2022-11-21](codes/css/truncate-text-multiline.md)
 + [单行文本截断--2022-11-22](codes/css/truncate-text.md)
++ [打字效果--2022-11-23](codes/css/typewriter-effect.md)
 
 ## JavaScript代码段
 
@@ -438,3 +439,4 @@
 + [最长的项-2022-11-20](codes/javascript/longestItem.md)
 + [属性名小写-2022-11-21](codes/javascript/lowercaseKeys.md)
 + [模10算法-2022-11-22](codes/javascript/luhnCheck.md)
++ [映射连续元素-2022-11-23](codes/javascript/mapConsecutive.md)
