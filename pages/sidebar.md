@@ -429,3 +429,4 @@
 + [属性名小写-2022-11-21](codes/javascript/lowercaseKeys.md)
 + [模10算法-2022-11-22](codes/javascript/luhnCheck.md)
 + [映射连续元素-2022-11-23](codes/javascript/mapConsecutive.md)
++ [映射属性-2022-11-24](codes/javascript/mapKeys.md)
