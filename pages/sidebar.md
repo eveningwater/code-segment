@@ -430,3 +430,4 @@
 + [模10算法-2022-11-22](codes/javascript/luhnCheck.md)
 + [映射连续元素-2022-11-23](codes/javascript/mapConsecutive.md)
 + [映射属性-2022-11-24](codes/javascript/mapKeys.md)
++ [映射数字从当前范围到另一个范围-2022-11-25](codes/javascript/mapNumRange.md)
