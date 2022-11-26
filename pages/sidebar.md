@@ -84,6 +84,9 @@
 + [截断多行文本--2022-11-21](codes/css/truncate-text-multiline.md)
 + [单行文本截断--2022-11-22](codes/css/truncate-text.md)
 + [打字效果--2022-11-23](codes/css/typewriter-effect.md)
++ [垂直画廊--2022-11-24](codes/css/vertical-gallery.md)
++ [垂直滚动捕捉--2022-11-25](codes/css/vertical-scroll-snap.md)
++ [斑马条纹列表--2022-11-26](codes/css/zebra-striped-list.md)
 
 ## JavaScript代码段
 
@@ -431,3 +434,4 @@
 + [映射连续元素-2022-11-23](codes/javascript/mapConsecutive.md)
 + [映射属性-2022-11-24](codes/javascript/mapKeys.md)
 + [映射数字从当前范围到另一个范围-2022-11-25](codes/javascript/mapNumRange.md)
++ [映射数组元素到对象-2022-11-26](codes/javascript/mapObject.md)
