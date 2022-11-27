@@ -98,6 +98,7 @@
 + [垂直画廊--2022-11-24](codes/css/vertical-gallery.md)
 + [垂直滚动捕捉--2022-11-25](codes/css/vertical-scroll-snap.md)
 + [斑马条纹列表--2022-11-26](codes/css/zebra-striped-list.md)
++ [锯齿形背景图案--2022-11-27](codes/css/zig-zag-pattern.md)
 
 ## JavaScript代码段
 
@@ -446,3 +447,4 @@
 + [映射属性-2022-11-24](codes/javascript/mapKeys.md)
 + [映射数字从当前范围到另一个范围-2022-11-25](codes/javascript/mapNumRange.md)
 + [映射数组元素到对象-2022-11-26](codes/javascript/mapObject.md)
++ [映射字符串-2022-11-27](codes/javascript/mapString.md)
