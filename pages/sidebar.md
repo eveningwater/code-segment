@@ -437,3 +437,4 @@
 + [映射数字从当前范围到另一个范围-2022-11-25](codes/javascript/mapNumRange.md)
 + [映射数组元素到对象-2022-11-26](codes/javascript/mapObject.md)
 + [映射字符串-2022-11-27](codes/javascript/mapString.md)
++ [映射转成对象-2022-11-28](codes/javascript/mapToObject.md)
