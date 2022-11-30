@@ -451,3 +451,4 @@
 + [映射字符串-2022-11-27](codes/javascript/mapString.md)
 + [映射转成对象-2022-11-28](codes/javascript/mapToObject.md)
 + [映射对象值-2022-11-29](codes/javascript/mapValues.md)
++ [遮盖一些字符-2022-11-30](codes/javascript/mask.md)
