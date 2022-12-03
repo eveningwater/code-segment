@@ -453,4 +453,5 @@
 + [映射对象值-2022-11-29](codes/javascript/mapValues.md)
 + [遮盖一些字符-2022-11-30](codes/javascript/mask.md)
 + [匹配对象属性-2022-12-01](codes/javascript/matches.md)
-+ [通过回调函数匹配对象属性-2022-12-01](codes/javascript/matchesWith.md)
++ [通过回调函数匹配对象属性-2022-12-02](codes/javascript/matchesWith.md)
++ [通过回调函数查找数组的最大值-2022-12-03](codes/javascript/maxBy.md)
