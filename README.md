@@ -456,3 +456,4 @@
 + [通过回调函数匹配对象属性-2022-12-02](codes/javascript/matchesWith.md)
 + [通过回调函数查找数组的最大值-2022-12-03](codes/javascript/maxBy.md)
 + [查找最大日期-2022-12-04](codes/javascript/maxDate.md)
++ [返回数组中n个最大元素-2022-12-04](codes/javascript/maxN.md)
