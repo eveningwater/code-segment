@@ -100,6 +100,7 @@
 + [斑马条纹列表--2022-11-26](codes/css/zebra-striped-list.md)
 + [锯齿形背景图案--2022-11-27](codes/css/zig-zag-pattern.md)
 + [放大缩小动画--2022-11-28](codes/css/zoomin-zoomout-animation.md)
++ [自定义单选框--2022-12-06](codes/css/custom-radio.md)
 
 ## JavaScript代码段
 
