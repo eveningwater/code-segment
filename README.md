@@ -457,3 +457,4 @@
 + [通过回调函数查找数组的最大值-2022-12-03](codes/javascript/maxBy.md)
 + [查找最大日期-2022-12-04](codes/javascript/maxDate.md)
 + [返回数组中n个最大元素-2022-12-04](codes/javascript/maxN.md)
++ [在数字数组中查找具有最大总和的连续子数组-2022-12-04](codes/javascript/maxSubarray.md)
