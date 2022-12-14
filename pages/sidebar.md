@@ -455,3 +455,4 @@
 + [归并排序合并数组-2022-12-11](codes/javascript/mergeSortedArrays.md)
 + [两对点之间的中点-2022-12-12](codes/javascript/midpoint.md)
 + [英里转换成公里-2022-12-13](codes/javascript/milesToKm.md)
++ [根据回调函数查找数组中的最小值-2022-12-14](codes/javascript/minBy.md)
