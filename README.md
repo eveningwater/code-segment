@@ -469,3 +469,4 @@
 + [根据回调函数查找数组中的最小值-2022-12-14](codes/javascript/minBy.md)
 + [查找最小日期-2022-12-15](codes/javascript/minDate.md)
 + [返回数组中n个最小元素-2022-12-16](codes/javascript/minN.md)
++ [返回数组中出现最多次数的元素-2022-12-17](codes/javascript/mostFrequent.md)
