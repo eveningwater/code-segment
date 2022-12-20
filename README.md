@@ -471,4 +471,4 @@
 + [返回数组中n个最小元素-2022-12-16](codes/javascript/minN.md)
 + [返回数组中出现最多次数的元素-2022-12-17](codes/javascript/mostFrequent.md)
 + [性能最强的函数-2022-12-18](codes/javascript/mostPerformant.md)
-+ [否定函数-2022-12-19](codes/javascript/negate.md)
++ [嵌套相互链接的对象-2022-12-20](codes/javascript/nest.md)
