@@ -473,3 +473,4 @@
 + [性能最强的函数-2022-12-18](codes/javascript/mostPerformant.md)
 + [嵌套相互链接的对象-2022-12-20](codes/javascript/nest.md)
 + [节点列表转成节点数组-2022-12-21](codes/javascript/nodeListToArray.md)
++ [检查所有数组项是否为false-2022-12-22](codes/javascript/none.md)
