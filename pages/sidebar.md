@@ -466,3 +466,4 @@
 + [检查所有数组项是否为false-2022-12-22](codes/javascript/none.md)
 + [逻辑或-2022-12-23](codes/javascript/nor.md)
 + [规范化行尾-2022-12-24](codes/javascript/normalizeLineEndings.md)
++ [逻辑非-2022-12-25](codes/javascript/not.md)
