@@ -477,3 +477,4 @@
 + [逻辑或-2022-12-23](codes/javascript/nor.md)
 + [规范化行尾-2022-12-24](codes/javascript/normalizeLineEndings.md)
 + [逻辑非-2022-12-25](codes/javascript/not.md)
++ [第n个参数-2022-12-26](codes/javascript/nthArg.md)
