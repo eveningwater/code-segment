@@ -479,3 +479,4 @@
 + [逻辑非-2022-12-25](codes/javascript/not.md)
 + [第n个参数-2022-12-26](codes/javascript/nthArg.md)
 + [第n个数组元素-2022-12-27](codes/javascript/nthElement.md)
++ [n次方根-2022-12-28](codes/javascript/nthRoot.md)
