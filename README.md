@@ -480,3 +480,4 @@
 + [第n个参数-2022-12-26](codes/javascript/nthArg.md)
 + [第n个数组元素-2022-12-27](codes/javascript/nthElement.md)
 + [n次方根-2022-12-28](codes/javascript/nthRoot.md)
++ [从给定键值对创建对象-2022-12-29](codes/javascript/objectFromPairs.md)
