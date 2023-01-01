@@ -483,3 +483,4 @@
 + [从给定键值对创建对象-2022-12-29](codes/javascript/objectFromPairs.md)
 + [从给定对象创建键值对-2022-12-30](codes/javascript/objectToEntries.md)
 + [将对象转成map数据结构-2022-12-31](codes/javascript/objectToMap.md)
++ [从对象创建键值对-2023-01-01](codes/javascript/objectToPairs.md)
