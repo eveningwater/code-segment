@@ -475,3 +475,4 @@
 + [将对象转成map数据结构-2022-12-31](codes/javascript/objectToMap.md)
 + [从对象创建键值对-2023-01-01](codes/javascript/objectToPairs.md)
 + [序列化对象-2023-01-02](codes/javascript/objectToQueryString.md)
++ [生成同色系颜色-2023-01-03](codes/javascript/generateLikeColor.md)
