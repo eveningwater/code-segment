@@ -486,3 +486,4 @@
 + [从对象创建键值对-2023-01-01](codes/javascript/objectToPairs.md)
 + [序列化对象-2023-01-02](codes/javascript/objectToQueryString.md)
 + [生成同色系颜色-2023-01-03](codes/javascript/generateLikeColor.md)
++ [将数组映射成对象-2023-01-04](codes/javascript/objectify.md)
