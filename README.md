@@ -487,3 +487,4 @@
 + [序列化对象-2023-01-02](codes/javascript/objectToQueryString.md)
 + [生成同色系颜色-2023-01-03](codes/javascript/generateLikeColor.md)
 + [将数组映射成对象-2023-01-04](codes/javascript/objectify.md)
++ [突变侦听器-2023-01-05](codes/javascript/observeMutations.md)
