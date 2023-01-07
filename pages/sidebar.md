@@ -479,3 +479,4 @@
 + [将数组映射成对象-2023-01-04](codes/javascript/objectify.md)
 + [突变侦听器-2023-01-05](codes/javascript/observeMutations.md)
 + [移除事件监听器-2023-01-06](codes/javascript/off.md)
++ [偏移数组元素-2023-01-07](codes/javascript/offset.md)
