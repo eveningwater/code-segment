@@ -490,3 +490,4 @@
 + [突变侦听器-2023-01-05](codes/javascript/observeMutations.md)
 + [移除事件监听器-2023-01-06](codes/javascript/off.md)
 + [偏移数组元素-2023-01-07](codes/javascript/offset.md)
++ [通过给定数组键值删除对象属性-2023-01-08](codes/javascript/omit.md)
