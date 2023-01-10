@@ -492,3 +492,4 @@
 + [偏移数组元素-2023-01-07](codes/javascript/offset.md)
 + [通过给定数组键值删除对象属性-2023-01-08](codes/javascript/omit.md)
 + [通过给定函数删除对象属性-2023-01-09](codes/javascript/omitBy.md)
++ [添加事件监听器-2023-01-10](codes/javascript/on.md)
