@@ -488,3 +488,4 @@
 + [用户输入更改-2023-01-13](codes/javascript/onUserInputChange.md)
 + [调用一次的函数-2023-01-14](codes/javascript/once.md)
 + [逻辑或-2023-01-15](codes/javascript/or.md)
++ [根据给定属性列表和排序列表对数组排序-2023-01-16](codes/javascript/orderBy.md)
