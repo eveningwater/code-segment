@@ -28,7 +28,25 @@ const orderWith = (arr,prop,orders) => {
 > 调用方式:
 
 ```js
-
+const users = [
+  { name: 'fred', language: 'Javascript' },
+  { name: 'barney', language: 'TypeScript' },
+  { name: 'frannie', language: 'Javascript' },
+  { name: 'anna', language: 'Java' },
+  { name: 'jimmy' },
+  { name: 'nicky', language: 'Python' },
+];
+orderWith(users, 'language', ['Javascript', 'TypeScript', 'Java']);
+/*
+[
+  { name: 'fred', language: 'Javascript' },
+  { name: 'frannie', language: 'Javascript' },
+  { name: 'barney', language: 'TypeScript' },
+  { name: 'anna', language: 'Java' },
+  { name: 'jimmy' },
+  { name: 'nicky', language: 'Python' }
+]
+*/
 ```
 
 > 应用场景
