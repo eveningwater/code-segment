@@ -501,3 +501,4 @@
 + [根据给定属性列表和排序列表对数组排序-2023-01-16](codes/javascript/orderBy.md)
 + [根据属性列表的顺序对数组排序-2023-01-17](codes/javascript/orderWith.md)
 + [根据参数调用函数-2023-01-18](codes/javascript/over.md)
++ [转换函数参数-2023-01-18](codes/javascript/overArgs.md)
