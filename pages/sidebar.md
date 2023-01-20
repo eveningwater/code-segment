@@ -492,3 +492,4 @@
 + [根据属性列表的顺序对数组排序-2023-01-17](codes/javascript/orderWith.md)
 + [根据参数调用函数-2023-01-18](codes/javascript/over.md)
 + [转换函数参数-2023-01-18](codes/javascript/overArgs.md)
++ [为字符串两边填充字符-2023-01-19](codes/javascript/pad.md)
