@@ -506,3 +506,4 @@
 + [填充数字-2023-01-21](codes/javascript/padNumber.md)
 + [是否是回文字符串-2023-01-22](codes/javascript/palindrome.md)
 + [解析cookie-2023-01-23](codes/javascript/parseCookie.md)
++ [前置函数参数-2023-01-24](codes/javascript/partial.md)
