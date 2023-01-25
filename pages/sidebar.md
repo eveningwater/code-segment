@@ -497,3 +497,4 @@
 + [是否是回文字符串-2023-01-22](codes/javascript/palindrome.md)
 + [解析cookie-2023-01-23](codes/javascript/parseCookie.md)
 + [前置函数参数-2023-01-24](codes/javascript/partial.md)
++ [后置函数参数-2023-01-25](codes/javascript/partialRight.md)
