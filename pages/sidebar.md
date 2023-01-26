@@ -498,3 +498,4 @@
 + [解析cookie-2023-01-23](codes/javascript/parseCookie.md)
 + [前置函数参数-2023-01-24](codes/javascript/partial.md)
 + [后置函数参数-2023-01-25](codes/javascript/partialRight.md)
++ [分区数组-2023-01-26](codes/javascript/partition.md)
