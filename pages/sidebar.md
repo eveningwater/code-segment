@@ -501,3 +501,4 @@
 + [分区数组-2023-01-26](codes/javascript/partition.md)
 + [根据回调函数分区数组-2023-01-27](codes/javascript/partitionBy.md)
 + [计算百分比-2023-01-28](codes/javascript/percentile.md)
++ [数组排列-2023-01-29](codes/javascript/permutations.md)
