@@ -502,3 +502,4 @@
 + [根据回调函数分区数组-2023-01-27](codes/javascript/partitionBy.md)
 + [计算百分比-2023-01-28](codes/javascript/percentile.md)
 + [数组排列-2023-01-29](codes/javascript/permutations.md)
++ [从对象中选取给定的键值对-2023-01-30](codes/javascript/pick.md)
