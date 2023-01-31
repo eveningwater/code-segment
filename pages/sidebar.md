@@ -503,3 +503,4 @@
 + [计算百分比-2023-01-28](codes/javascript/percentile.md)
 + [数组排列-2023-01-29](codes/javascript/permutations.md)
 + [从对象中选取给定的键值对-2023-01-30](codes/javascript/pick.md)
++ [从对象中选取符合回调函数的键值对-2023-01-31](codes/javascript/pickBy.md)
