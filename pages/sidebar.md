@@ -505,3 +505,4 @@
 + [从对象中选取给定的键值对-2023-01-30](codes/javascript/pick.md)
 + [从对象中选取符合回调函数的键值对-2023-01-31](codes/javascript/pickBy.md)
 + [异步执行函数-2023-02-01](codes/javascript/pipeAsyncFunctions.md)
++ [同步执行函数-2023-02-02](codes/javascript/pipeFunctions.md)
