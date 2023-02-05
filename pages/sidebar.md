@@ -508,3 +508,4 @@
 - [同步执行函数-2023-02-02](codes/javascript/pipeFunctions.md)
 - [对象数组中提取值-2023-02-03](codes/javascript/pluck.md)
 - [字符串复数-2023-02-04](codes/javascript/pluralize.md)
+- [数组幂集-2023-02-05](codes/javascript/powerset.md)
