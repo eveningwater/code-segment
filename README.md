@@ -519,3 +519,4 @@
 - [对象数组中提取值-2023-02-03](codes/javascript/pluck.md)
 - [字符串复数-2023-02-04](codes/javascript/pluralize.md)
 - [数组幂集-2023-02-05](codes/javascript/powerset.md)
+- [检查用户是否使用暗黑主题-2023-02-06](codes/javascript/prefersDarkColorScheme.md)
