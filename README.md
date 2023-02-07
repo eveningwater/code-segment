@@ -520,3 +520,4 @@
 - [字符串复数-2023-02-04](codes/javascript/pluralize.md)
 - [数组幂集-2023-02-05](codes/javascript/powerset.md)
 - [检查用户是否使用暗黑主题-2023-02-06](codes/javascript/prefersDarkColorScheme.md)
+- [检查用户是否使用明亮主题-2023-02-07](codes/javascript/prefersLightColorScheme.md)
