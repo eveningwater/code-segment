@@ -511,3 +511,4 @@
 - [数组幂集-2023-02-05](codes/javascript/powerset.md)
 - [检查用户是否使用暗黑主题-2023-02-06](codes/javascript/prefersDarkColorScheme.md)
 - [检查用户是否使用明亮主题-2023-02-07](codes/javascript/prefersLightColorScheme.md)
+- [添加前缀-2023-02-08](codes/javascript/prefix.md)
