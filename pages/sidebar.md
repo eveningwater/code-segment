@@ -513,3 +513,4 @@
 - [检查用户是否使用明亮主题-2023-02-07](codes/javascript/prefersLightColorScheme.md)
 - [添加前缀-2023-02-08](codes/javascript/prefix.md)
 - [格式化字节数-2023-02-09](codes/javascript/prettyBytes.md)
+- [质因数-2023-02-10](codes/javascript/primeFactors.md)
