@@ -525,3 +525,4 @@
 - [格式化字节数-2023-02-09](codes/javascript/prettyBytes.md)
 - [质因数-2023-02-10](codes/javascript/primeFactors.md)
 - [质数-2023-02-11](codes/javascript/primes.md)
+- [求数值数组的乘积-2023-02-11](codes/javascript/prod.md)
