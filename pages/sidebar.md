@@ -518,3 +518,4 @@
 - [求数值数组的乘积-2023-02-12](codes/javascript/prod.md)
 - [期约函数-2023-02-13](codes/javascript/promisify.md)
 - [过滤数组-2023-02-14](codes/javascript/pull.md)
+- [根据索引过滤数组-2023-02-15](codes/javascript/pullAtIndex.md)
