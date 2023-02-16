@@ -9,12 +9,12 @@
 - 使用 Array.prototype.push() 仅使用拉取的值重新填充它。
 
 ```js
-const pull => (arr,...args) => {
-    let argState = Array.isArray(args[0]) ? args[0] : args;
-    let pulled = arr.filter(v => !argState.includes(v));
-    arr.length = 0;
-    pulled.forEach(v => arr.push(v));
-}
+const pull = (arr, ...args) => {
+  let argState = Array.isArray(args[0]) ? args[0] : args;
+  let pulled = arr.filter(v => !argState.includes(v));
+  arr.length = 0;
+  pulled.forEach(v => arr.push(v));
+};
 ```
 
 > 调用方式:
