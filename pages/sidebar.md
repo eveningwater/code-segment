@@ -526,3 +526,4 @@
 - [快速排序算法-2023-02-20](codes/javascript/quickSort.md)
 - [弧度转度-2023-02-21](codes/javascript/radsToDegrees.md)
 - [随机验证码-2023-02-22](codes/javascript/randomAlphaNumeric.md)
+- [随机布尔值-2023-02-23](codes/javascript/randomBoolean.md)
