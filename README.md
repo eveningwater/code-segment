@@ -538,3 +538,4 @@
 - [随机验证码-2023-02-22](codes/javascript/randomAlphaNumeric.md)
 - [随机布尔值-2023-02-23](codes/javascript/randomBoolean.md)
 - [随机生成颜色-2023-02-24](codes/javascript/randomHexColorCode.md)
+- [随机生成整数数组-2023-02-24](codes/javascript/randomIntArrayInRange.md)
