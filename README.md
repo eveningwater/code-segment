@@ -540,3 +540,4 @@
 - [随机生成颜色-2023-02-24](codes/javascript/randomHexColorCode.md)
 - [随机生成范围内的整数数组-2023-02-25](codes/javascript/randomIntArrayInRange.md)
 - [随机生成范围内的整数-2023-02-26](codes/javascript/randomIntegerInRange.md)
+- [随机生成范围内的数值-2023-02-27](codes/javascript/randomNumberInRange.md)
