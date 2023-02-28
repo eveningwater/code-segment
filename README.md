@@ -541,3 +541,4 @@
 - [随机生成范围内的整数数组-2023-02-25](codes/javascript/randomIntArrayInRange.md)
 - [随机生成范围内的整数-2023-02-26](codes/javascript/randomIntegerInRange.md)
 - [随机生成范围内的数值-2023-02-27](codes/javascript/randomNumberInRange.md)
+- [范围生成器-2023-02-28](codes/javascript/rangeGenerator.md)
