@@ -544,3 +544,4 @@
 - [范围生成器-2023-02-28](codes/javascript/rangeGenerator.md)
 - [数组比较-2023-03-01](codes/javascript/ranking.md)
 - [读取文件行-2023-03-02](codes/javascript/readFileLines.md)
+- [重新排列函数参数-2023-03-03](codes/javascript/rearg.md)
