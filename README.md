@@ -546,3 +546,4 @@
 - [读取文件行-2023-03-02](codes/javascript/readFileLines.md)
 - [重新排列函数参数-2023-03-03](codes/javascript/rearg.md)
 - [记录动画帧-2023-03-04](codes/javascript/recordAnimationFrames.md)
+- [重定向-2023-03-05](codes/javascript/redirect.md)
