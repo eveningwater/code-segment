@@ -538,3 +538,4 @@
 - [记录动画帧-2023-03-04](codes/javascript/recordAnimationFrames.md)
 - [重定向-2023-03-05](codes/javascript/redirect.md)
 - [对数组每个元素执行相应的回调-2023-03-06](codes/javascript/reduceSuccessive.md)
+- [根据提供的回调函数对数组元素重新排列-2023-03-07](codes/javascript/reduceWhich.md)
