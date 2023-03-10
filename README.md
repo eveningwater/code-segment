@@ -549,3 +549,4 @@
 - [重定向-2023-03-05](codes/javascript/redirect.md)
 - [对数组每个元素执行相应的回调-2023-03-06](codes/javascript/reduceSuccessive.md)
 - [匹配不符合条件的数组元素-2023-03-09](codes/javascript/reject.md)
+- [移除数组元素-2023-03-10](codes/javascript/remove.md)
