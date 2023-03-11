@@ -542,3 +542,4 @@
 - [根据回调函数对数组元素过滤-2023-03-08](codes/javascript/reducedFilter.md)
 - [匹配不符合条件的数组元素-2023-03-09](codes/javascript/reject.md)
 - [移除数组元素-2023-03-10](codes/javascript/remove.md)
+- [从字符串中删除重音-2023-03-11](codes/javascript/removeAccents.md)
