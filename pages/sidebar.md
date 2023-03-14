@@ -545,3 +545,4 @@
 - [从字符串中删除重音-2023-03-11](codes/javascript/removeAccents.md)
 - [移除元素的所有属性-2023-03-12](codes/javascript/removeAttributes.md)
 - [移除元素类名-2023-03-13](codes/javascript/removeClass.md)
+- [移除元素-2023-03-14](codes/javascript/removeElement.md)
