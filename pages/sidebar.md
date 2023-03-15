@@ -546,3 +546,4 @@
 - [移除元素的所有属性-2023-03-12](codes/javascript/removeAttributes.md)
 - [移除元素类名-2023-03-13](codes/javascript/removeClass.md)
 - [移除元素-2023-03-14](codes/javascript/removeElement.md)
+- [移除元素的所有事件-2023-03-15](codes/javascript/removeEventListenerAll.md)
