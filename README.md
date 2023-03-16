@@ -555,3 +555,4 @@
 - [移除元素类名-2023-03-13](codes/javascript/removeClass.md)
 - [移除元素-2023-03-14](codes/javascript/removeElement.md)
 - [移除元素的所有事件-2023-03-15](codes/javascript/removeEventListenerAll.md)
+- [移除 ASCII 字符-2023-03-16](codes/javascript/removeNonASCII.md)
