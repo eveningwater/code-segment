@@ -549,3 +549,4 @@
 - [移除元素的所有事件-2023-03-15](codes/javascript/removeEventListenerAll.md)
 - [移除 ASCII 字符-2023-03-16](codes/javascript/removeNonASCII.md)
 - [移除字符串的空白-2023-03-17](codes/javascript/removeWhitespace.md)
+- [重命名对象属性-2023-03-18](codes/javascript/renameKeys.md)
