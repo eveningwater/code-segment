@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>renderElement</title>
+</head>
+
+<body>
+    <script>
+        const renderElement = (vNodeObj, container = document.body) => {
+            let _container = typeof container === 'string' ? document.querySelector(container) : container;
+            if (!_container) {
+                _container = document.body;
+            }
+            const { type, children, props = {} } = vNodeObj;
+            const isTextElement = !type || type === 'text';
+            const element = isTextElement ? document.createTextNode('') : document.createElement(type);
+            const isListener = p => p.startsWith('on');
+            const isAttribute = p => p !== 'children' && !isListener(p);
+            Object.keys(props).forEach(p => {
+                if (isAttribute(p)) {
+                    element[p] = props[p];
+                }
+                if (!isTextElement && isListener(p)) {
+                    element.addEventListener(p.toLowerCase().slice(2), props[p]);
+                }
+            });
+            if (!isTextElement && Array.isArray(children) && children.length) {
+                children.forEach(child => renderElement(child, element))
+            }
+            _container.appendChild(element);
+        }
+        const myElement = {
+            type: 'div',
+            props: {
+                className: 'container'
+            },
+            children: [
+                {
+                    type: 'button',
+                    props: {
+                        className: 'btn',
+                        type: 'button',
+                        onClick: () => alert('Clicked!')
+                    },
+                    children: [
+                        {
+                            props: { nodeValue: 'click me!' }
+                        }
+                    ]
+                }
+            ]
+        };
+        renderElement(myElement);
+    </script>
+</body>
+
+</html>
