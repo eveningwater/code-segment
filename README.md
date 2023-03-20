@@ -559,3 +559,4 @@
 - [移除字符串的空白-2023-03-17](codes/javascript/removeWhitespace.md)
 - [重命名对象属性-2023-03-18](codes/javascript/renameKeys.md)
 - [渲染元素-2023-03-19](codes/javascript/renderElement.md)
+- [重复生成器-2023-03-20](codes/javascript/repeatGenerator.md)
