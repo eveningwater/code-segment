@@ -553,3 +553,4 @@
 - [重复生成器-2023-03-20](codes/javascript/repeatGenerator.md)
 - [替换最后一个匹配字符-2023-03-21](codes/javascript/replaceLast.md)
 - [添加或替换数组的值-2023-03-22](codes/javascript/replaceOrAppend.md)
+- [加载未缓存模块-2023-03-23](codes/javascript/requireUncached.md)
