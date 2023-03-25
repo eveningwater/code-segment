@@ -555,3 +555,4 @@
 - [添加或替换数组的值-2023-03-22](codes/javascript/replaceOrAppend.md)
 - [加载未缓存模块-2023-03-23](codes/javascript/requireUncached.md)
 - [延迟加载期约的解决-2023-03-24](codes/javascript/resolveAfter.md)
+- [反转数字-2023-03-245](codes/javascript/reverseNumber.md)
