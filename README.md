@@ -566,3 +566,4 @@
 - [延迟加载期约的解决-2023-03-24](codes/javascript/resolveAfter.md)
 - [反转数字-2023-03-25](codes/javascript/reverseNumber.md)
 - [反转字符串-2023-03-26](codes/javascript/reverseString.md)
+- [从右开始截取字符串生成器-2023-03-27](codes/javascript/rightSubstrGenerator.md)
