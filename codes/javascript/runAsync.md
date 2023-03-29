@@ -54,4 +54,4 @@ runAsync(() => typeof outsideVariable).then(console.log); // undefined
 
 > 应用场景
 
-<iframe src="codes/css/html/runAsync.html"></iframe>
+<iframe src="codes/javascript/html/runAsync.html"></iframe>
