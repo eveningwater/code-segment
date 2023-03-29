@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>runAsync</title>
+</head>
+
+<body>
+    <script>
+        const runAsync = fn => {
+            const worker = new Worker(URL.createObjectURL(new Blob([`postMessage((${fn})());`], {
+                type: 'application/javascript;charset=utf-8'
+            })));
+            return new Promise((resolve, reject) => {
+                worker.onmessage = ({ data }) => {
+                    resolve(data), worker.terminate();
+                }
+                worker.onerror = err => {
+                    reject(err), worker.terminate();
+                }
+            })
+        }
+        const longRunningFunction = () => {
+            let result = 0;
+            for (let i = 0; i < 1000; i++) {
+                for (let j = 0; j < 700; j++) {
+                    for (let k = 0; k < 300; k++) {
+                        result = result + i + j + k;
+                    }
+                }
+            }
+            return result;
+        }
+        runAsync(longRunningFunction).then(console.log);
+        runAsync(() => 10 ** 3).then(console.log);
+        let outsideVariable = 50;
+        runAsync(() => typeof outsideVariable).then(console.log);
+    </script>
+</body>
+
+</html>
