@@ -55,3 +55,5 @@ runAsync(() => typeof outsideVariable).then(console.log); // undefined
 > 应用场景
 
 <iframe src="codes/javascript/html/runAsync.html"></iframe>
+
+> ps: 这是一个不错的函数
