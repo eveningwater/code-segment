@@ -570,3 +570,4 @@
 - [四舍五入数字-2023-03-28](codes/javascript/round.md)
 - [异步运行函数-2023-03-29](codes/javascript/runAsync.md)
 - [连续运行期约-2023-03-30](codes/javascript/runPromisesInSeries.md)
+- [随机从数组中取元素-2023-03-31](codes/javascript/sample.md)
