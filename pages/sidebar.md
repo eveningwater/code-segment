@@ -562,3 +562,4 @@
 - [异步运行函数-2023-03-29](codes/javascript/runAsync.md)
 - [连续运行期约-2023-03-30](codes/javascript/runPromisesInSeries.md)
 - [随机从数组中取元素-2023-03-31](codes/javascript/sample.md)
+- [随机从数组中取出 n 个元素-2023-04-01](codes/javascript/sampleSize.md)
