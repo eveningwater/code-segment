@@ -573,3 +573,4 @@
 - [随机从数组中取元素-2023-03-31](codes/javascript/sample.md)
 - [随机从数组中取出 n 个元素-2023-04-01](codes/javascript/sampleSize.md)
 - [回到顶部-2023-04-02](codes/javascript/scrollToTop.md)
+- [hash 字符串转数字-2023-04-03](codes/javascript/sdbm.md)
