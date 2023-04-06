@@ -576,3 +576,4 @@
 - [hash 字符串转数字-2023-04-03](codes/javascript/sdbm.md)
 - [选择排序算法-2023-04-04](codes/javascript/selectionSort.md)
 - [序列化 cookie-2023-04-05](codes/javascript/serializeCookie.md)
+- [序列化表单对象-2023-04-06](codes/javascript/serializeForm.md)
