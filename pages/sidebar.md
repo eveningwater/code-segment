@@ -568,3 +568,4 @@
 - [选择排序算法-2023-04-04](codes/javascript/selectionSort.md)
 - [序列化 cookie-2023-04-05](codes/javascript/serializeCookie.md)
 - [序列化表单对象-2023-04-06](codes/javascript/serializeForm.md)
+- [设置样式-2023-04-07](codes/javascript/setStyle.md)
