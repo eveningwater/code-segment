@@ -582,3 +582,4 @@
 - [实现数组的 splice 方法,但不改变原数组--2023-04-09](codes/javascript/shank.md)
 - [显示所有元素--2023-04-10](codes/javascript/show.md)
 - [随机打乱数组--2023-04-11](codes/javascript/shuffle.md)
+- [求数组交集--2023-04-12](codes/javascript/similarity.md)
