@@ -583,3 +583,4 @@
 - [显示所有元素--2023-04-10](codes/javascript/show.md)
 - [随机打乱数组--2023-04-11](codes/javascript/shuffle.md)
 - [求数组交集--2023-04-12](codes/javascript/similarity.md)
+- [求大小--2023-04-13](codes/javascript/size.md)
