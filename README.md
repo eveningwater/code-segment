@@ -584,3 +584,4 @@
 - [随机打乱数组--2023-04-11](codes/javascript/shuffle.md)
 - [求数组交集--2023-04-12](codes/javascript/similarity.md)
 - [求大小--2023-04-13](codes/javascript/size.md)
+- [延迟异步函数--2023-04-14](codes/javascript/sleep.md)
