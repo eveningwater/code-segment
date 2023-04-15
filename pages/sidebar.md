@@ -576,3 +576,4 @@
 - [求数组交集--2023-04-12](codes/javascript/similarity.md)
 - [求大小--2023-04-13](codes/javascript/size.md)
 - [延迟异步函数--2023-04-14](codes/javascript/sleep.md)
+- [将字符串用短横线连接--2023-04-15](codes/javascript/slugify.md)
