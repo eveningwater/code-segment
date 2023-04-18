@@ -588,3 +588,4 @@
 - [将字符串用短横线连接--2023-04-15](codes/javascript/slugify.md)
 - [平滑滚动--2023-04-16](codes/javascript/smoothScroll.md)
 - [对字符串排序--2023-04-17](codes/javascript/sortCharactersInString.md)
+- [排序索引值--2023-04-18](codes/javascript/sortedIndex.md)
