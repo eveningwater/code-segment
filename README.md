@@ -590,3 +590,4 @@
 - [对字符串排序--2023-04-17](codes/javascript/sortCharactersInString.md)
 - [排序索引值--2023-04-18](codes/javascript/sortedIndex.md)
 - [根据回调函数查找排序索引值--2023-04-19](codes/javascript/sortedIndexBy.md)
+- [查找排序最后插入索引值--2023-04-19](codes/javascript/sortedLastIndex.md)
