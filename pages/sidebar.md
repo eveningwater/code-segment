@@ -583,3 +583,4 @@
 - [根据回调函数查找排序索引值--2023-04-19](codes/javascript/sortedIndexBy.md)
 - [查找排序最后插入索引值--2023-04-20](codes/javascript/sortedLastIndex.md)
 - [根据回调函数查找排序最后插入索引值--2023-04-21](codes/javascript/sortedLastIndexBy.md)
+- [字符串分割成数组--2023-04-22](codes/javascript/splitLines.md)
