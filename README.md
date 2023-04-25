@@ -595,3 +595,4 @@
 - [字符串分割成数组--2023-04-22](codes/javascript/splitLines.md)
 - [处理参数的函数--2023-04-23](codes/javascript/spreadOver.md)
 - [稳定排序--2023-04-24](codes/javascript/stableSort.md)
+- [标准差--2023-04-25](codes/javascript/standardDeviation.md)
