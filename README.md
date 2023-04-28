@@ -598,3 +598,4 @@
 - [标准差--2023-04-25](codes/javascript/standardDeviation.md)
 - [字符串以子字符串开头--2023-04-26](codes/javascript/startsWithSubstring.md)
 - [字符串排列--2023-04-27](codes/javascript/stringPermutations.md)
+- [将循环对象序列化成字符串--2023-04-28](codes/javascript/stringifyCircularJSON.md)
