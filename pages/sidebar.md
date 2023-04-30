@@ -591,3 +591,4 @@
 - [字符串排列--2023-04-27](codes/javascript/stringPermutations.md)
 - [将循环对象序列化成字符串--2023-04-28](codes/javascript/stringifyCircularJSON.md)
 - [从字符串删除 HTML 标签--2023-04-29](codes/javascript/stripHTMLTags.md)
+- [迭代对象中查找交集--2023-04-30](codes/javascript/subSet.md)
