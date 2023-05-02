@@ -602,3 +602,4 @@
 - [从字符串删除 HTML 标签--2023-04-29](codes/javascript/stripHTMLTags.md)
 - [迭代对象中查找交集--2023-04-30](codes/javascript/subSet.md)
 - [根据回调函数求和--2023-05-01](codes/javascript/sumBy.md)
+- [前 n 项和--2023-05-02](codes/javascript/sumN.md)
