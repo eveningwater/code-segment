@@ -604,3 +604,4 @@
 - [根据回调函数求和--2023-05-01](codes/javascript/sumBy.md)
 - [前 n 项和--2023-05-02](codes/javascript/sumN.md)
 - [范围幂和--2023-05-03](codes/javascript/sumPower.md)
+- [求和--2023-05-04](codes/javascript/sum.md)
