@@ -598,3 +598,4 @@
 - [求和--2023-05-04](codes/javascript/sum.md)
 - [迭代对象中查找交集-2--2023-05-05](codes/javascript/superSet.md)
 - [判断是否支持触摸事件--2023-05-06](codes/javascript/supportsTouchEvents.md)
+- [字符串大小写交换--2023-05-07](codes/javascript/swapCase.md)
