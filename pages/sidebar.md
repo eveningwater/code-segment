@@ -600,3 +600,4 @@
 - [判断是否支持触摸事件--2023-05-06](codes/javascript/supportsTouchEvents.md)
 - [字符串大小写交换--2023-05-07](codes/javascript/swapCase.md)
 - [将对象属性转换成符号属性--2023-05-08](codes/javascript/symbolizeKeys.md)
+- [数组元素差集--2023-05-09](codes/javascript/symmetricDifferenceBy.md)
