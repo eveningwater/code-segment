@@ -611,3 +611,4 @@
 - [将对象属性转换成符号属性--2023-05-08](codes/javascript/symbolizeKeys.md)
 - [数组元素差集 1--2023-05-09](codes/javascript/symmetricDifferenceBy.md)
 - [数组元素差集 2--2023-05-10](codes/javascript/symmetricDifferenceWith.md)
+- [数组元素差集 3--2023-05-11](codes/javascript/symmetricDifference.md)
