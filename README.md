@@ -612,3 +612,4 @@
 - [数组元素差集 1--2023-05-09](codes/javascript/symmetricDifferenceBy.md)
 - [数组元素差集 2--2023-05-10](codes/javascript/symmetricDifferenceWith.md)
 - [数组元素差集 3--2023-05-11](codes/javascript/symmetricDifference.md)
+- [移除数组第一个元素--2023-05-12](codes/javascript/tail.md)
