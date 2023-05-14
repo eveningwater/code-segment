@@ -613,4 +613,5 @@
 - [数组元素差集 2--2023-05-10](codes/javascript/symmetricDifferenceWith.md)
 - [数组元素差集 3--2023-05-11](codes/javascript/symmetricDifference.md)
 - [移除数组第一个元素--2023-05-12](codes/javascript/tail.md)
-- [截取满足条件的数组--2023-05-13](codes/javascript/takeRightUntil.md)
+- [截取满足条件的数组 1--2023-05-13](codes/javascript/takeRightUntil.md)
+- [截取满足条件的数组 2--2023-05-14](codes/javascript/takeRightWhile.md)
