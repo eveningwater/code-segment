@@ -609,3 +609,4 @@
 - [截取规定长度的数组--2023-05-15](codes/javascript/takeRight.md)
 - [截取不满足规定条件的元素数组--2023-05-16](codes/javascript/takeUntil.md)
 - [截取满足规定条件的元素数组--2023-05-17](codes/javascript/takeWhile.md)
+- [截取元素数组--2023-05-18](codes/javascript/take.md)
