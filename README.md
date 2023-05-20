@@ -620,3 +620,4 @@
 - [截取满足规定条件的元素数组--2023-05-17](codes/javascript/takeWhile.md)
 - [截取元素数组--2023-05-18](codes/javascript/take.md)
 - [节流--2023-05-19](codes/javascript/throttle.md)
+- [消耗时间--2023-05-20](codes/javascript/timeTaken.md)
