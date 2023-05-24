@@ -624,3 +624,4 @@
 - [驼峰大小写--2023-05-21](codes/javascript/toCamelCase.md)
 - [字符串转数组--2023-05-22](codes/javascript/toCharArray.md)
 - [颜色字符串转成数组--2023-05-23](codes/javascript/toHSLArray.md)
+- [颜色字符串转成对象--2023-05-24](codes/javascript/toHSLObject.md)
