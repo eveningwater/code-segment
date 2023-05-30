@@ -630,3 +630,4 @@
 - [对象成对数组--2023-05-27](codes/javascript/toPairs.md)
 - [转成首字母大小写的字符串--2023-05-28](codes/javascript/toPascalCase.md)
 - [rgb 颜色字符串转成数组--2023-05-28](codes/javascript/toRGBArray.md)
+- [rgb 颜色字符串转成对象--2023-05-29](codes/javascript/toRGBObject.md)
