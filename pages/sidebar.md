@@ -623,3 +623,4 @@
 - [rgb 颜色字符串转成数组--2023-05-29](codes/javascript/toRGBArray.md)
 - [rgb 颜色字符串转成对象--2023-05-30](codes/javascript/toRGBObject.md)
 - [数字转成罗马数字--2023-05-31](codes/javascript/toRomanNumeral.md)
+- [安全整数值--2023-06-01](codes/javascript/toSafeInteger.md)
