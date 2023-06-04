@@ -635,3 +635,5 @@
 - [安全整数值--2023-06-01](codes/javascript/toSafeInteger.md)
 - [句子大小写字符串--2023-06-02](codes/javascript/toSentenceCase.md)
 - [下划线字符串--2023-06-03](codes/javascript/toSnakeCase.md)
+- [下划线字符串--2023-06-03](codes/javascript/toSnakeCase.md)
+- [首字母大写字符串--2023-06-04](codes/javascript/toTitleCase.md)
