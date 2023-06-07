@@ -639,3 +639,4 @@
 - [首字母大写字符串--2023-06-04](codes/javascript/toTitleCase.md)
 - [往数组中移除或添加元素--2023-06-05](codes/javascript/toggleElement.md)
 - [移除或添加元素类名--2023-06-06](codes/javascript/toggleClass.md)
+- [对象转换--2023-06-07](codes/javascript/transform.md)
