@@ -630,3 +630,4 @@
 - [往数组中移除或添加元素--2023-06-05](codes/javascript/toggleElement.md)
 - [移除或添加元素类名--2023-06-06](codes/javascript/toggleClass.md)
 - [对象转换--2023-06-07](codes/javascript/transform.md)
+- [矩阵转换--2023-06-08](codes/javascript/transpose.md)
