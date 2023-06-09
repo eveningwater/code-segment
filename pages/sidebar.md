@@ -631,3 +631,4 @@
 - [移除或添加元素类名--2023-06-06](codes/javascript/toggleClass.md)
 - [对象转换--2023-06-07](codes/javascript/transform.md)
 - [矩阵转换--2023-06-08](codes/javascript/transpose.md)
+- [触发事件--2023-06-09](codes/javascript/triggerEvent.md)
