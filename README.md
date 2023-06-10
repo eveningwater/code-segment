@@ -642,3 +642,4 @@
 - [对象转换--2023-06-07](codes/javascript/transform.md)
 - [矩阵转换--2023-06-08](codes/javascript/transpose.md)
 - [触发事件--2023-06-09](codes/javascript/triggerEvent.md)
+- [截断字符串保留空格--2023-06-10](codes/javascript/truncateStringAtWhitespace.md)
