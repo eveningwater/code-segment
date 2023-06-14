@@ -636,3 +636,4 @@
 - [截断字符串--2023-06-11](codes/javascript/truncateString.md)
 - [检查数组中是否存在元素--2023-06-12](codes/javascript/truthCheckCollection.md)
 - [一个参数的函数--2023-06-13](codes/javascript/unary.md)
+- [反柯里化函数--2023-06-14](codes/javascript/uncurry.md)
