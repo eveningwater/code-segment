@@ -650,3 +650,4 @@
 - [转义 HTML 字符--2023-06-15](codes/javascript/unescapeHTML.md)
 - [键路径展开对象--2023-06-16](codes/javascript/unflattenObject.md)
 - [未折叠的数组--2023-06-17](codes/javascript/unfold.md)
+- [将数组根据回调函数展开--2023-06-18](codes/javascript/unzipWith.md)
