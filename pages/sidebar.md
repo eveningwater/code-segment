@@ -643,3 +643,4 @@
 - [将数组根据回调函数展开--2023-06-18](codes/javascript/unzipWith.md)
 - [将数组元素按照相同类型分类并展开--2023-06-19](codes/javascript/unzip.md)
 - [数组去重--2023-06-20](codes/javascript/uniqueElements.md)
+- [展开对象生成对象数组--2023-06-21](codes/javascript/unwind.md)
