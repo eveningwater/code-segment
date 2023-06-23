@@ -645,3 +645,4 @@
 - [数组去重--2023-06-20](codes/javascript/uniqueElements.md)
 - [展开对象生成对象数组--2023-06-21](codes/javascript/unwind.md)
 - [对象属性大写--2023-06-22](codes/javascript/upperize.md)
+- [验证是否是数字--2023-06-23](codes/javascript/validateNumber.md)
