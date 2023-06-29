@@ -650,4 +650,5 @@
 - [向量距离--2023-06-25](codes/javascript/vectorDistance.md)
 - [遍历对象--2023-06-26](codes/javascript/walkThrough.md)
 - [日期周--2023-06-27](codes/javascript/weekOfYear.md)
-- [加权平均值--2023-06-28](codes/javascript/weightedAv
+- [加权平均值--2023-06-28](codes/javascript/weightedAverage.md)
+- [根据概率获取数组中的元素--2023-06-29](codes/javascript/weightedSample.md)
