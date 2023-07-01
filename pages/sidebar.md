@@ -652,4 +652,5 @@
 - [日期周--2023-06-27](codes/javascript/weekOfYear.md)
 - [加权平均值--2023-06-28](codes/javascript/weightedAverage.md)
 - [根据概率获取数组中的元素--2023-06-29](codes/javascript/weightedSample.md)
-- [字符串换行--2023-06-29](codes/javascript/wordWrap.md)
+- [字符串换行--2023-06-30](codes/javascript/wordWrap.md)
+- [检查只有一个值为真--2023-07-01](codes/javascript/xor.md)
