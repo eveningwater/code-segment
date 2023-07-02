@@ -654,3 +654,4 @@
 - [根据概率获取数组中的元素--2023-06-29](codes/javascript/weightedSample.md)
 - [字符串换行--2023-06-30](codes/javascript/wordWrap.md)
 - [检查只有一个值为真--2023-07-01](codes/javascript/xor.md)
+- [检查 yes/no 字符串--2023-07-02](codes/javascript/yesNo.md)
