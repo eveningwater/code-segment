@@ -656,3 +656,4 @@
 - [检查只有一个值为真--2023-07-01](codes/javascript/xor.md)
 - [检查 yes/no 字符串--2023-07-02](codes/javascript/yesNo.md)
 - [随机函数的实现--2023-07-04](codes/javascript/randomFloat.md)
+- [模拟定时器--2023-07-05](codes/javascript/defineSetInterval.md)
