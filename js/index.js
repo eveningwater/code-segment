@@ -44,11 +44,12 @@ window.$docsify = {
           if (allEditors) {
             allEditors.forEach(editor => {
               const dataUrl = editor.getAttribute('data-url');
+              const language = editor.getAttribute('data-language');
               axios.get(dataUrl).then(res => {
                 require(['vs/editor/editor.main'], function () {
                   monaco.editor.create(editor, {
                     value: res.data,
-                    language: 'typescript',
+                    language,
                     theme: 'vs-dark'
                   });
                 });

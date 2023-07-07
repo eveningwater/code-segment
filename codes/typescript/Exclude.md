@@ -29,4 +29,4 @@ type F = Exclude<D, string | number>; // never
 
 如下所示,鼠标悬浮到对应的类型变量可以查看类型。
 
-<div class="code-editor" data-url="codes/typescript/demo/Exclude.ts"></div>
+<div class="code-editor" data-url="codes/typescript/demo/Exclude.ts" data-language="typescript"></div>
