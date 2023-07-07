@@ -669,8 +669,8 @@
 - [随机函数的实现--2023-07-04](codes/javascript/randomFloat.md)
 - [模拟定时器--2023-07-05](codes/javascript/defineSetInterval.md)
 - [模拟通过类名查找 dom 元素方法--2023-07-06](codes/javascript/getElementsByClassName.md)
+- [ready 函数--2023-07-07](codes/javascript/ready.md)
 
-## typescript代码段
+## typescript 代码段
 
 - [排除类型--2023-07-07](codes/typescript/Exclude.md)
-
