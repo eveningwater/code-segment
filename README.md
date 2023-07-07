@@ -672,5 +672,5 @@
 
 ## typescript代码段
 
-- [排除类型--2023-07-07](codes/javascript/Exclude.md)
+- [排除类型--2023-07-07](codes/typescript/Exclude.md)
 
