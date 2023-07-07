@@ -14,7 +14,7 @@ type Exclude<T,U> = T extends U ? never: T;
 
 > 使用方式:
 
-```js
+```ts
 type A = string | boolean | number;
 type B = string;
 type C = Exclude<A,B>; // boolean | number;
@@ -27,4 +27,4 @@ type F = Exclude<D,string | number>; // never
 
 > 应用场景
 
-详情查看[demo](codes/typescript/demo/Exclude.ts)。
+详情查看[demo](./demo/Exclude.ts)。
