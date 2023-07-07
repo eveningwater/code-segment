@@ -38,6 +38,25 @@ window.$docsify = {
           html + '\n\n----\n' + 'Last modified {docsify-updated} ' + editHtml
         );
       });
+      hook.afterEach(() => {
+        setTimeout(() => {
+          const allEditors = document.querySelectorAll('.code-editor');
+          if (allEditors) {
+            allEditors.forEach(editor => {
+              const dataUrl = editor.getAttribute('data-url');
+              axios.get(dataUrl).then(res => {
+                require(['vs/editor/editor.main'], function () {
+                  monaco.editor.create(editor, {
+                    value: res.data,
+                    language: 'typescript',
+                    theme: 'vs-dark'
+                  });
+                });
+              });
+            });
+          }
+        });
+      });
     }
   ],
   search: {
