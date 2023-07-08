@@ -664,3 +664,4 @@
 ## typescript 代码段
 
 - [排除类型--2023-07-07](codes/typescript/Exclude.md)
+- [提取类型--2023-07-08](codes/typescript/Extract.md)
