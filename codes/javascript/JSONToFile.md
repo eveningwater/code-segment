@@ -23,7 +23,7 @@ JSONToFile({ test: 'is passed' }, 'testJsonFile');
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/node/JSONToFile.js" data-language="javascript"></div>
+<div class="code-editor" data-url="codes/javascript/node/JSONToFile.js" data-language="javascript" style="min-height:150px;"></div>
 
 在当前文件路径下打开终端，执行命令:
 
@@ -33,4 +33,4 @@ node JSONToFile.js
 
 然后就会看到如下文件内容:
 
-<div class="code-editor" data-url="codes/javascript/node/testJsonFile.json" data-language="json"></div>
+<div class="code-editor" data-url="codes/javascript/node/testJsonFile.json" data-language="json" style="min-height:30px;"></div>

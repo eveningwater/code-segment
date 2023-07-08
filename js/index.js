@@ -48,7 +48,10 @@ window.$docsify = {
               axios.get(dataUrl).then(res => {
                 require(['vs/editor/editor.main'], function () {
                   monaco.editor.create(editor, {
-                    value: res.data,
+                    value:
+                      typeof res.data === 'string'
+                        ? res.data
+                        : JSON.stringify(res.data),
                     language,
                     theme: 'vs-dark'
                   });
