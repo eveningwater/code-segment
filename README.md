@@ -671,6 +671,7 @@
 - [模拟通过类名查找 dom 元素方法--2023-07-06](codes/javascript/getElementsByClassName.md)
 - [ready 函数--2023-07-07](codes/javascript/ready.md)
 - [通过 id 获取元素--2023-07-08](codes/javascript/getElementById.md)
+- [异步执行任务的函数--2023-07-09](codes/javascript/composePromise.md)
 
 ## typescript 代码段
 
