@@ -672,6 +672,7 @@
 - [ready 函数--2023-07-07](codes/javascript/ready.md)
 - [通过 id 获取元素--2023-07-08](codes/javascript/getElementById.md)
 - [异步执行任务的函数--2023-07-09](codes/javascript/composePromise.md)
+- [获取序列化后的字符串查询参数--2023-07-10](codes/javascript/getQueryStringArgs.md)
 
 ## typescript 代码段
 
