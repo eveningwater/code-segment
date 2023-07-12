@@ -8,7 +8,7 @@
 - 使用 Array.prototype.join() 组合字符以获得字符串。
 
 ```js
-const reverseString = (str = [...str].reverse().join(''));
+const reverseString = str => [...str].reverse().join('');
 ```
 
 > 调用方式:
