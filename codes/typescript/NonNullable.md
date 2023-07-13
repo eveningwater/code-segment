@@ -1,5 +1,5 @@
-| 标题              | 标签                       |
-| ----------------- | -------------------------- |
+| 标题                                | 标签                          |
+| ----------------------------------- | ----------------------------- |
 | NonNullable(排除空值与未定义值类型) | null,undefined(空值,未定义值) |
 
 排除空值与未定义值类型。
@@ -15,8 +15,8 @@ type NonNullable<T> = T & {};
 > 使用方式:
 
 ```ts
-type A = null | undefined | string;
-type B = NonNullable<A>; // string
+type NonNullableA = null | undefined | string;
+type NonNullableB = NonNullable<NonNullableA>; // string
 ```
 
 > 应用场景

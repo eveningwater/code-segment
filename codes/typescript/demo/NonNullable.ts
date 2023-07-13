@@ -1,5 +1,5 @@
 // @ts-ignore
 type NonNullable<T> = T & {};
 
-type A = null | undefined | string;
-type B = NonNullable<A>;
+type NonNullableA = null | undefined | string;
+type NonNullableB = NonNullable<NonNullableA>;

@@ -15,14 +15,12 @@ type Exclude<T, U> = T extends U ? never : T;
 > 使用方式:
 
 ```ts
-type A = string | boolean | number;
-type B = string;
-type C = Exclude<A, B>; // boolean | number;
-
-type D = string | number;
-type E = Exclude<D, number>; // string
-
-type F = Exclude<D, string | number>; // never
+type ExcludeA = string | boolean | number;
+type ExcludeB = string;
+type ExcludeC = Exclude<ExcludeA,ExcludeB>; // boolean | number;
+type ExcludeD = string | number;
+type ExcludeE = Exclude<ExcludeD,number>; // string
+type ExcludeF = Exclude<ExcludeD,string | number>; // never
 ```
 
 > 应用场景

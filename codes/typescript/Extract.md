@@ -15,15 +15,15 @@ type Extract<T, U> = T extends U ? T : never;
 > 使用方式:
 
 ```ts
-type A = string | boolean | number;
-type B = string;
-type C = Extract<A, B>; // string;
+type ExtractA = string | boolean | number;
+type ExtractB = string;
+type ExtractC = Extract<ExtractA, ExtractB>; // string;
 
-type D = string | number;
-type E = Extract<D, number>; // number
+type ExtractD = string | number;
+type ExtractE = Extract<ExtractD, number>; // number
 
-type F = Extract<D, string | number>; // string | number
-type G = Extract<A, string & number>; // never
+type ExtractF = Extract<ExtractD, string | number>; // string | number
+type ExtractG = Extract<ExtractA, string & number>; // never
 ```
 
 > 应用场景

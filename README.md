@@ -681,3 +681,4 @@
 - [提取类型--2023-07-08](codes/typescript/Extract.md)
 - [排除空值与未定义值类型--2023-07-10](codes/typescript/NonNullable.md)
 - [提取数组中的元素类型--2023-07-12](codes/typescript/InferArrayItem.md)
+- [提取接口类型--2023-07-13](codes/typescript/Pick.md)
