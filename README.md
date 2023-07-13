@@ -674,6 +674,7 @@
 - [获取序列化后的字符串查询参数--2023-07-10](codes/javascript/getQueryStringArgs.md)
 - [检测浏览器插件--2023-07-11](codes/javascript/hasPlugin.md)
 - [动态插入脚本--2023-07-12](codes/javascript/loadScriptString.md)
+- [检测多个值是否相等--2023-07-13](codes/javascript/recursivelyCheckEqual.md)
 
 ## typescript 代码段
 
