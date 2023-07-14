@@ -675,6 +675,7 @@
 - [检测浏览器插件--2023-07-11](codes/javascript/hasPlugin.md)
 - [动态插入脚本--2023-07-12](codes/javascript/loadScriptString.md)
 - [检测多个值是否相等--2023-07-13](codes/javascript/recursivelyCheckEqual.md)
+- [寄生组合式继承--2023-07-14](codes/javascript/inheritPrototype.md)
 
 ## typescript 代码段
 
