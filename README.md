@@ -683,3 +683,4 @@
 - [排除空值与未定义值类型--2023-07-10](codes/typescript/NonNullable.md)
 - [提取数组中的元素类型--2023-07-12](codes/typescript/InferArrayItem.md)
 - [提取接口类型--2023-07-13](codes/typescript/Pick.md)
+- [让接口类型属性只读--2023-07-14](codes/typescript/Readonly.md)

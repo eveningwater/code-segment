@@ -665,9 +665,12 @@
 - [检测浏览器插件--2023-07-11](codes/javascript/hasPlugin.md)
 - [动态插入脚本--2023-07-12](codes/javascript/loadScriptString.md)
 - [检测多个值是否相等--2023-07-13](codes/javascript/recursivelyCheckEqual.md)
+
 ## typescript 代码段
 
 - [排除类型--2023-07-07](codes/typescript/Exclude.md)
 - [提取类型--2023-07-08](codes/typescript/Extract.md)
 - [排除空值与未定义值类型--2023-07-10](codes/typescript/NonNullable.md)
 - [提取数组中的元素类型--2023-07-12](codes/typescript/InferArrayItem.md)
+- [提取接口类型--2023-07-13](codes/typescript/Pick.md)
+- [让接口类型属性只读--2023-07-14](codes/typescript/Readonly.md)

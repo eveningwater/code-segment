@@ -15,12 +15,12 @@
 > 代码如下:
 
 ```js
-const CSVToJSON = (str, delimiter = ',') => {
-  const titles = str.slice(0, str.indexOf('\n')).split(delimiter);
+const CSVToJSON = (str, delimiter = ",") => {
+  const titles = str.slice(0, str.indexOf("\n")).split(delimiter);
   return str
-    .slice(str.indexOf('\n') + 1)
-    .split('\n')
-    .map(v => {
+    .slice(str.indexOf("\n") + 1)
+    .split("\n")
+    .map((v) => {
       const values = v.split(delimiter);
       return titles.reduce(
         (obj, title, index) => ((obj[title] = values[index]), obj),
@@ -33,12 +33,16 @@ const CSVToJSON = (str, delimiter = ',') => {
 > 调用方式:
 
 ```js
-CSVToJSON('col1,col2\na,b\nc,d');
+CSVToJSON("col1,col2\na,b\nc,d");
 // [{'col1': 'a', 'col2': 'b'}, {'col1': 'c', 'col2': 'd'}];
-CSVToJSON('col1;col2\na;b\nc;d', ';');
+CSVToJSON("col1;col2\na;b\nc;d", ";");
 // [{'col1': 'a', 'col2': 'b'}, {'col1': 'c', 'col2': 'd'}];
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/CSVToJSON.html" data-language="html"></div>
+
+结果如下:
 
 <iframe src="codes/javascript/html/CSVToJSON.html"></iframe>
