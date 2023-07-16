@@ -30,7 +30,12 @@ loadStyles('loadStyles.css'); // 页面字体元素将会是#2396ef;
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/loadStyles.css" data-language="css"></div>
+loadStyles.css 如下:
+
+<div class="code-editor" data-url="codes/javascript/html/loadStyles.css" data-language="css" style="min-height: 70px;margin-bottom: 35px"></div>
+
+loadStyles.html 如下:
+
 <div class="code-editor" data-url="codes/javascript/html/loadStyles.html" data-language="html"></div>
 
 结果如下:
