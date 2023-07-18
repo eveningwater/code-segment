@@ -4,7 +4,7 @@
 
 实现一个判断父节点是否包含子节点的方法。
 
-- 使用[Document.compareDocumentPosition](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement)方法比较两个元素得到定位值。
+- 使用[Document.compareDocumentPosition](https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition)方法比较两个元素得到定位值。
 - 计算方法得到的结果与 0X10 执行按位与&操作符得到后的结果，在调用 Boolean 方法转换成布尔值。
 
 > 代码如下:
