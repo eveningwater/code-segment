@@ -670,6 +670,7 @@
 - [加载样式--2023-07-16](codes/javascript/loadStyles.md)
 - [加载样式代码--2023-07-17](codes/javascript/loadStyleString.md)
 - [包含方法--2023-07-18](codes/javascript/domContains.md)
+- [合并对象--2023-07-19](codes/javascript/assignObj.md)
 
 ## typescript 代码段
 
@@ -682,3 +683,4 @@
 - [将元组转换成对象--2023-07-15](codes/typescript/TupleToObject.md)
 - [提取数组第一项--2023-07-16](codes/typescript/FirstArray.md)
 - [等待类型--2023-07-18](codes/typescript/Awaited.md)
+- [条件判断类型--2023-07-19](codes/typescript/If.md)
