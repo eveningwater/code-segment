@@ -681,6 +681,7 @@
 - [加载样式代码--2023-07-17](codes/javascript/loadStyleString.md)
 - [包含方法--2023-07-18](codes/javascript/domContains.md)
 - [合并对象--2023-07-19](codes/javascript/assignObj.md)
+- [规范化类名--2023-07-20](codes/javascript/classnames.md)
 
 ## typescript 代码段
 
@@ -695,3 +696,4 @@
 - [获取数组长度--2023-07-17](codes/typescript/ArrayLength.md)
 - [等待类型--2023-07-18](codes/typescript/Awaited.md)
 - [条件判断类型--2023-07-19](codes/typescript/If.md)
+- [合并数组元素--2023-07-20](codes/typescript/Concat.md)
