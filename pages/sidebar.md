@@ -97,7 +97,6 @@
 - [字符串转 JSON 对象--2020-11-5](codes/javascript/CSVToJSON.md)
 - [HSB 颜色模式转 RGB 颜色模式--2020-11-6](codes/javascript/HSBToRGB.md)
 - [HSL 颜色模式转 RGB 颜色模式--2020-11-7](codes/javascript/HSLToRGB.md)
-- [JSON 数据转换成文件--2020-11-8](codes/javascript/JSONToFile.md)
 - [判断属性名存在于实例对象还是原型对象--2020-11-9](codes/javascript/HasPrototypeObject.md)
 - [将 JSON 对象数组转换成字符串--2020-11-10](codes/javascript/JSONtoCSV.md)
 - [将 RGB 颜色转换成 HSB 颜色--2020-11-11](codes/javascript/RGBToHSB.md)
@@ -672,6 +671,7 @@
 - [包含方法--2023-07-18](codes/javascript/domContains.md)
 - [合并对象--2023-07-19](codes/javascript/assignObj.md)
 - [规范化类名--2023-07-20](codes/javascript/classnames.md)
+- [生成随机 IP--2023-07-21](codes/javascript/generateRandomIP.md)
 
 ## typescript 代码段
 
@@ -686,3 +686,8 @@
 - [等待类型--2023-07-18](codes/typescript/Awaited.md)
 - [条件判断类型--2023-07-19](codes/typescript/If.md)
 - [合并数组元素--2023-07-20](codes/typescript/Concat.md)
+- [判断数组中是否存在元素--2023-07-21](codes/typescript/Includes.md)
+
+## node.js 代码段
+
+- [JSON 数据转换成文件--2020-11-8](codes/node/JSONToFile.md)

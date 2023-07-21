@@ -1,13 +1,14 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                  | 标签                                               |
+| --------------------- | -------------------------------------------------- |
 | isEmpty(是否是空对象) | type,array,object,string(类型，数组，对象，字符串) |
 
 检查 a 值是否为空对象/集合、没有可枚举属性或任何不被视为集合的类型。
 
-* 检查提供的值是否为 null 或其长度是否等于 0。
+- 检查提供的值是否为 null 或其长度是否等于 0。
 
 ```js
 const isEmpty = val => val === null || !(Object.keys(val) || val).length;
+// const isEmpty = obj => Reflect.ownKeys(obj).length === 0 && obj.constructor === Object
 ```
 
 > 调用方式:
