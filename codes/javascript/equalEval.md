@@ -1,22 +1,27 @@
-|  标题   | 标签  |
-|  ----  | ----  |
-| equalEval(实现类似js中eval方法) | eval,Function(输出，函数) |
+| 标题                                | 标签                      |
+| ----------------------------------- | ------------------------- |
+| equalEval(实现类似 js 中 eval 方法) | eval,Function(输出，函数) |
 
 将给定字符串转化为可运行的`javascript`代码。
 
-* 使用`new Function()`构造函数以及返回该字符串即可实现
+- 使用`new Function()`构造函数以及返回该字符串即可实现
 
 > 代码如下:
 
 ```js
-    const equalEval = (value) => new Function('return ' + str)();
+const equalEval = str => new Function('return ' + str)();
 ```
 
 > 调用方式:
 
 ```js
-    equalEval('let a = 1;')
-    // let a = 1;
+equalEval('console.log(123)'); // 123
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/equalEval.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/equalEval.html"></iframe>
