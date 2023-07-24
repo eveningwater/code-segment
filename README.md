@@ -683,6 +683,7 @@
 - [规范化类名--2023-07-20](codes/javascript/classnames.md)
 - [生成随机 IP--2023-07-21](codes/javascript/generateRandomIP.md)
 - [判断是否是一个 dom 元素--2023-07-23](codes/javascript/isDom.md)
+- [补 0 函数--2023-07-24](codes/javascript/fillZero.md)
 
 ## typescript 代码段
 
@@ -699,7 +700,8 @@
 - [条件判断类型--2023-07-19](codes/typescript/If.md)
 - [合并数组元素--2023-07-20](codes/typescript/Concat.md)
 - [判断数组中是否存在元素--2023-07-21](codes/typescript/Includes.md)
-- [数组中添加元素--2023-07-23](codes/typescript/Push.md)
+- [数组中添加元素 1--2023-07-23](codes/typescript/Push.md)
+- [数组中添加元素 2--2023-07-24](codes/typescript/Unshift.md)
 
 ## node.js 代码段
 
