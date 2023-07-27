@@ -21,7 +21,7 @@ CSS 实现一个柱状图。
 }
 .box::before,
 .box::after {
-  content: "";
+  content: '';
   display: inline-block;
 }
 .box::before {
@@ -94,26 +94,26 @@ CSS 实现一个柱状图。
 > 特别说明: 子元素可以使用 javascript 动态生成，包括高度和背景颜色的设置，可以使用如下的 javascript 代码。
 
 ```js
-const eleBox = document.querySelector(".box");
+const eleBox = document.querySelector('.box');
 // 目前柱子元素和个数
-const eleBars = document.querySelectorAll(".bar");
+const eleBars = document.querySelectorAll('.bar');
 let lenBar = eleBars.length;
 if (eleBox && lenBar) {
   for (let indexBar = 0; indexBar < lenBar; indexBar += 1) {
     // 柱形图的柱子高度和背景色随机
-    eleBars[indexBar].style.height = Math.ceil(256 * Math.random()) + "px";
+    eleBars[indexBar].style.height = Math.ceil(256 * Math.random()) + 'px';
     eleBars[indexBar].style.backgroundColor =
-      "#" + (Math.random() + "").slice(-6);
+      '#' + (Math.random() + '').slice(-6);
   }
 }
 
 // 增加数据,此处可以添加一个id为button的按钮，使用点击事件
-const eleBtn = document.getElementById("button");
+const eleBtn = document.getElementById('button');
 if (eleBtn && lenBar) {
   eleBtn.onclick = function () {
     // 随机高度和背景色
-    const height = Math.ceil(256 * Math.random()) + "px";
-    const backgroundColor = "#" + (Math.random() + "").slice(-6);
+    const height = Math.ceil(256 * Math.random()) + 'px';
+    const backgroundColor = '#' + (Math.random() + '').slice(-6);
 
     // 创建柱子元素
     const eleClone = eleBars[0].cloneNode();
@@ -124,7 +124,7 @@ if (eleBtn && lenBar) {
     lenBar += 1;
     // 最多10条数据
     if (lenBar == 10) {
-      this.setAttribute("disabled", "disabled");
+      this.setAttribute('disabled', 'disabled');
     }
   };
 }
@@ -132,6 +132,8 @@ if (eleBtn && lenBar) {
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/css/html/css-bar.html" data-language="html"></div>
+
+结果如下:
+
 <iframe src="codes/css/html/css-bar.html"></iframe>
-
-
