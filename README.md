@@ -686,6 +686,7 @@
 - [补 0 函数--2023-07-24](codes/javascript/fillZero.md)
 - [遍历对象--2023-07-26](codes/javascript/forEachObject.md)
 - [映射数值范围--2023-07-27](codes/javascript/rangeNumber.md)
+- [超链接实现下载--2023-07-28](codes/javascript/downloadByAnchor.md)
 
 ## typescript 代码段
 
@@ -706,6 +707,7 @@
 - [数组中添加元素 2--2023-07-24](codes/typescript/Unshift.md)
 - [获取函数参数类型--2023-07-26](codes/typescript/Parameters.md)
 - [获取函数的返回值--2023-07-27](codes/typescript/ReturnType.md)
+- [忽略类型--2023-07-28](codes/typescript/Omit.md)
 
 ## node.js 代码段
 
