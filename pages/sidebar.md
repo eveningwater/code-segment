@@ -112,7 +112,6 @@
 - [非重随机数数组--2020-11-16](codes/javascript/nonrandom.md)
 - [生成 UUID--2020-11-16](codes/javascript/UUIDGeneratorBrowser.md)
 - [数组去前缀排序--2020-11-17](codes/javascript/removePrefixSort.md)
-- [在 node.js 中生成 UUID--2020-11-17](codes/javascript/UUIDGeneratorNode.md)
 - [将连接符转为小驼峰--2020-11-18](codes/javascript/hyphenToLowerCamelCase.md)
 - [数组累加--2020-11-18](codes/javascript/accumulate.md)
 - [多个一维数组之间的交集--2020-11-19](codes/javascript/intersect.md)
@@ -677,6 +676,7 @@
 - [遍历对象--2023-07-26](codes/javascript/forEachObject.md)
 - [映射数值范围--2023-07-27](codes/javascript/rangeNumber.md)
 - [超链接实现下载--2023-07-28](codes/javascript/downloadByAnchor.md)
+- [倒计时--2023-07-29](codes/javascript/activityCountDown.md)
 
 ## typescript 代码段
 
@@ -701,3 +701,4 @@
 ## node.js 代码段
 
 - [JSON 数据转换成文件--2020-11-8](codes/node/JSONToFile.md)
+- [在 node.js 中生成 UUID--2020-11-17](codes/node/UUIDGeneratorNode.md)
