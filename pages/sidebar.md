@@ -697,6 +697,7 @@
 - [获取函数参数类型--2023-07-26](codes/typescript/Parameters.md)
 - [获取函数的返回值--2023-07-27](codes/typescript/ReturnType.md)
 - [忽略类型--2023-07-28](codes/typescript/Omit.md)
+- [可选只读类型--2023-07-29](codes/typescript/SelectReadonly.md)
 
 ## node.js 代码段
 
