@@ -687,7 +687,7 @@
 - [映射数值范围--2023-07-27](codes/javascript/rangeNumber.md)
 - [超链接实现下载--2023-07-28](codes/javascript/downloadByAnchor.md)
 - [倒计时--2023-07-29](codes/javascript/activityCountDown.md)
-- [定时器管理器--2023-07-30](codes/javascript/TimerManager.md)
+- [定时器管理器--2023-07-30](codes/javascript/timerManager.md)
 
 ## typescript 代码段
 
