@@ -678,6 +678,7 @@
 - [超链接实现下载--2023-07-28](codes/javascript/downloadByAnchor.md)
 - [倒计时--2023-07-29](codes/javascript/activityCountDown.md)
 - [定时器管理器--2023-07-30](codes/javascript/timerManager.md)
+- [向下滑动函数--2023-07-31](codes/javascript/slideDown.md)
 
 ## typescript 代码段
 
@@ -700,6 +701,7 @@
 - [忽略类型--2023-07-28](codes/typescript/Omit.md)
 - [可选只读类型--2023-07-29](codes/typescript/SelectReadonly.md)
 - [深度只读类型--2023-07-30](codes/typescript/DeepReadonly.md)
+- [元组转联合类型--2023-07-31](codes/typescript/TupleToUnion.md)
 
 ## node.js 代码段
 

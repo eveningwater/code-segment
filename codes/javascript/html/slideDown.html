@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slideDown</title>
+    <style>
+        .panel {
+            width: 200px;
+            height: 200px;
+            background-color: #2396ef;
+            border-radius: 15px;
+            display: none;
+            margin-top: 15px;
+        }
+
+        .btn {
+            width: 70px;
+            border: 1px solid #616161;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #535455;
+            cursor: pointer;
+            text-align: center;
+            transition: height .1ms;
+        }
+
+        .btn:hover {
+            color: #2396ef;
+            border-color: #2396ef;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="btn">点击我</div>
+    <div class="panel"></div>
+    <script>
+        class TimerManager {
+            constructor() {
+                this.timerList = [];
+                this.params = [];
+                this.isRunTimer = false;
+            }
+            static makeTimerManage(element) {
+                if (
+                    !element.makeTimerManage ||
+                    element.TimerManager.constructor !== TimerManager
+                ) {
+                    element.TimerManager = new TimerManager();
+                }
+            }
+            add(timer, args) {
+                this.timerList.push(timer);
+                this.params.push(args);
+                this.runTimer();
+            }
+            runTimer() {
+                if (!this.isRunTimer) {
+                    const timer = this.timerList.shift(),
+                        args = this.params.shift();
+                    if (timer && args) {
+                        this.isRunTimer = true;
+                        timer(...args);
+                    }
+                }
+            }
+            next() {
+                this.isRunTimer = false;
+                this.runTimer();
+            }
+        }
+        const slideDown = (element, ...args) => {
+            const runNextHandler = () => {
+                const TimerManager = element.TimerManager;
+                if (TimerManager && TimerManager.constructor == TimerManager) {
+                    TimerManager.next();
+                }
+            };
+            const _slideDown = (e, t) => {
+                if (e.offsetHeight === 0) {
+                    t = Math.min(
+                        100,
+                        Math.max(
+                            0,
+                            typeof t === 'number' ? t : Number.isNaN(Number(t)) ? 10 : Number(t)
+                        )
+                    );
+                    e.style.display = 'block';
+                    e.style.overflow = 'hidden';
+                    e.style.transition = `height ${/^\s$/ + t + /^\s$/}ms`;
+                    const interval = 10,
+                        h = parseInt(e.offsetHeight),
+                        rh = h / (t / interval);
+                    let ch = 0,
+                        timer = null;
+                    const handler = () => {
+                        ch += rh;
+                        e.style.height = `${ch}px`;
+                        if (ch >= h) {
+                            clearTimeout(timer);
+                            e.style.height = `${h}px`;
+                            runNextHandler();
+                        } else {
+                            timer = setTimeout(handler, interval);
+                        }
+                    };
+                    handler();
+                } else {
+                    runNextHandler();
+                }
+            };
+            TimerManager.makeTimerManage(element);
+            element.TimerManager.add(_slideDown, [element, ...args]);
+        };
+        const btn = document.querySelector('.btn');
+        const panel = document.querySelector('.panel');
+        btn.addEventListener('click', () => {
+            slideDown(panel, 600);
+        })
+    </script>
+</body>
+
+</html>
