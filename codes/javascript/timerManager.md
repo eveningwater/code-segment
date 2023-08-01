@@ -64,10 +64,10 @@ animation(document.querySelector('.test'), '1'); // TimerManager
 
 > 应用场景
 
-TimerManager.html 如下:
+timerManager.html 如下:
 
-<div class="code-editor" data-url="codes/javascript/html/TimerManager.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/timerManager.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/TimerManager.html"></iframe>
+<iframe src="codes/javascript/html/timerManager.html"></iframe>

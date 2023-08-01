@@ -689,6 +689,7 @@
 - [倒计时--2023-07-29](codes/javascript/activityCountDown.md)
 - [定时器管理器--2023-07-30](codes/javascript/timerManager.md)
 - [向下滑动函数--2023-07-31](codes/javascript/slideDown.md)
+- [向上滑动函数--2023-08-01](codes/javascript/slideUp.md)
 
 ## typescript 代码段
 
@@ -713,6 +714,7 @@
 - [可选只读类型--2023-07-29](codes/typescript/SelectReadonly.md)
 - [深度只读类型--2023-07-30](codes/typescript/DeepReadonly.md)
 - [元组转联合类型--2023-07-31](codes/typescript/TupleToUnion.md)
+- [可串联构造器--2023-08-01](codes/typescript/Chainable.md)
 
 ## node.js 代码段
 

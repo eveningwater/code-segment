@@ -61,7 +61,11 @@ const slideDown = (element, ...args) => {
 > 调用方式:
 
 ```js
-
+const btn = document.querySelector('.btn');
+const panel = document.querySelector('.panel');
+btn.addEventListener('click', () => {
+  slideDown(panel, 600);
+}); // 面板将会展开
 ```
 
 > 应用场景

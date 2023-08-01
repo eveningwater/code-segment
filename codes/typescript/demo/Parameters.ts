@@ -5,6 +5,6 @@ type Parameters<T extends (...args: any[]) => any> = T extends (
   ? A
   : never;
 
-const foo = (arg1: string, arg2: number): void => {};
+const parametersFoo = (arg1: string, arg2: number): void => {};
 
-type fooFunctionParamsType = Parameters<typeof foo>; // [arg1: string, arg2: number]
+type fooFunctionParamsType = Parameters<typeof parametersFoo>; // [arg1: string, arg2: number]
