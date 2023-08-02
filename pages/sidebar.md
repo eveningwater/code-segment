@@ -680,6 +680,7 @@
 - [定时器管理器--2023-07-30](codes/javascript/timerManager.md)
 - [向下滑动函数--2023-07-31](codes/javascript/slideDown.md)
 - [向上滑动函数--2023-08-01](codes/javascript/slideUp.md)
+- [错误处理函数--2023-08-02](codes/javascript/errorUtils.md)
 
 ## typescript 代码段
 

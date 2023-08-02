@@ -5,22 +5,23 @@ type Chainable<T = {}> = {
   ) => Chainable<{ [P in K]: V } & Omit<T, K>>;
   get: () => T;
 };
+
 declare const chainableConfig: Chainable;
 
-const result = chainableConfig
+const chainableResult = chainableConfig
   .option('foo', 123)
   .option('name', 'type-challenges')
   .option('bar', { value: 'Hello World' })
   .get();
 
-// 期望 result 的类型是：
-// interface Result {
+// 期望 chainableResult 的类型是：
+// interface ChainableResult {
 //   foo: number;
 //   name: string;
 //   bar: {
 //     value: string;
 //   };
 // }
-// result.name;
-// result.foo;
-// result.bar.value
+// chainableResult.name;
+// chainableResult.foo;
+// chainableResult.bar.value
