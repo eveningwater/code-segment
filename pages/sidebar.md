@@ -705,6 +705,8 @@
 - [深度只读类型--2023-07-30](codes/typescript/DeepReadonly.md)
 - [元组转联合类型--2023-07-31](codes/typescript/TupleToUnion.md)
 - [可串联构造器--2023-08-01](codes/typescript/Chainable.md)
+- [数组最后一项--2023-08-02](codes/typescript/Last.md)
+- [删除数组最后一项--2023-08-03](codes/typescript/Pop.md)
 
 ## node.js 代码段
 
