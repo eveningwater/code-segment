@@ -681,6 +681,7 @@
 - [向下滑动函数--2023-07-31](codes/javascript/slideDown.md)
 - [向上滑动函数--2023-08-01](codes/javascript/slideUp.md)
 - [错误处理函数--2023-08-02](codes/javascript/errorUtils.md)
+- [16 进制颜色高亮函数--2023-08-04](codes/javascript/lightColor.md)
 
 ## typescript 代码段
 
