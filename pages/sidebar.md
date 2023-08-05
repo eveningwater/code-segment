@@ -682,6 +682,7 @@
 - [向上滑动函数--2023-08-01](codes/javascript/slideUp.md)
 - [错误处理函数--2023-08-02](codes/javascript/errorUtils.md)
 - [16 进制颜色高亮函数--2023-08-04](codes/javascript/lightColor.md)
+- [波纹按钮--2023-08-05](codes/javascript/rippleButton.md)
 
 ## typescript 代码段
 
@@ -709,6 +710,7 @@
 - [数组最后一项--2023-08-02](codes/typescript/Last.md)
 - [删除数组最后一项--2023-08-03](codes/typescript/Pop.md)
 - [期约合并--2023-08-04](codes/typescript/PromiseAll.md)
+- [根据属性查找接口类型--2023-08-05](codes/typescript/LookUp.md)
 
 ## node.js 代码段
 
