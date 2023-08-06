@@ -683,6 +683,7 @@
 - [错误处理函数--2023-08-02](codes/javascript/errorUtils.md)
 - [16 进制颜色高亮函数--2023-08-04](codes/javascript/lightColor.md)
 - [波纹按钮--2023-08-05](codes/javascript/rippleButton.md)
+- [合并图像--2023-08-06](codes/javascript/concatImage.md)
 
 ## typescript 代码段
 
@@ -711,6 +712,7 @@
 - [删除数组最后一项--2023-08-03](codes/typescript/Pop.md)
 - [期约合并--2023-08-04](codes/typescript/PromiseAll.md)
 - [根据属性查找接口类型--2023-08-05](codes/typescript/LookUp.md)
+- [清除字符串左半边空白--2023-08-06](codes/typescript/TrimLeft.md)
 
 ## node.js 代码段
 
