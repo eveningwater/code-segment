@@ -685,6 +685,7 @@
 - [波纹按钮--2023-08-05](codes/javascript/rippleButton.md)
 - [合并图像--2023-08-06](codes/javascript/concatImage.md)
 - [加载图像--2023-08-07](codes/javascript/loadImage.md)
+- [获取视图宽高--2023-08-08](codes/javascript/getViewSize.md)
 
 ## typescript 代码段
 
@@ -715,6 +716,7 @@
 - [根据属性查找接口类型--2023-08-05](codes/typescript/LookUp.md)
 - [清除字符串左边空白--2023-08-06](codes/typescript/TrimLeft.md)
 - [清除字符串右边空白--2023-08-07](codes/typescript/TrimRight.md)
+- [清除字符串两边空白--2023-08-08](codes/typescript/Trim.md)
 
 ## node.js 代码段
 
