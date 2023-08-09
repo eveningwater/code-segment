@@ -696,6 +696,7 @@
 - [合并图像--2023-08-06](codes/javascript/concatImage.md)
 - [加载图像--2023-08-07](codes/javascript/loadImage.md)
 - [获取视图宽高--2023-08-08](codes/javascript/getViewSize.md)
+- [获取元素到文档左边的距离-2022-07-26](codes/javascript/getHorizontalOffset.md)
 
 ## typescript 代码段
 
@@ -728,6 +729,7 @@
 - [清除字符串左边空白--2023-08-06](codes/typescript/TrimLeft.md)
 - [清除字符串右边空白--2023-08-07](codes/typescript/TrimRight.md)
 - [清除字符串两边空白--2023-08-08](codes/typescript/Trim.md)
+- [字符串首字母大写--2023-08-09](codes/typescript/Capitalize.md)
 
 ## node.js 代码段
 
