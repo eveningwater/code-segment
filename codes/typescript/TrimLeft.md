@@ -19,7 +19,7 @@ type TrimLeft<S extends string> = S extends `${Space}${infer R}`
 > 使用方式:
 
 ```ts
-type TrimLeftStr = TrimLeft<'  Hello World  '>; // expected to be 'Hello World  '
+type TrimLeftStr = TrimLeft<'  Hello World  '>; // 'Hello World  '
 ```
 
 > 应用场景

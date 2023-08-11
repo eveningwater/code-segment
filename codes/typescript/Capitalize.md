@@ -20,7 +20,7 @@ type Capitalized<S extends string> = S extends `${infer X}${infer R}`
 > 使用方式:
 
 ```ts
-type capitalized = Capitalized<'hello world'>; // expected to be 'Hello world'
+type capitalized = Capitalized<'hello world'>; // 'Hello world'
 ```
 
 > 应用场景

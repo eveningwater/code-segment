@@ -17,7 +17,7 @@ type TupleToUnion<T> = T extends Array<infer Items> ? Items : never;
 ```ts
 type TupleToUnionArr = ['1', '2', '3'];
 
-type TupleToUnionTest = TupleToUnion<TupleToUnionArr>; // expected to be '1' | '2' | '3'
+type TupleToUnionTest = TupleToUnion<TupleToUnionArr>; // '1' | '2' | '3'
 ```
 
 > 应用场景

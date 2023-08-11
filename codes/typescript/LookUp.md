@@ -26,7 +26,7 @@ interface LookUpDog {
   color: 'brown' | 'white' | 'black';
 }
 
-type MyLookUpDog = LookUp<LookUpCat | LookUpDog, 'dog'>; // expected to be `LookUpDog`
+type MyLookUpDog = LookUp<LookUpCat | LookUpDog, 'dog'>; // `LookUpDog`
 ```
 
 > 应用场景
