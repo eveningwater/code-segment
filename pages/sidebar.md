@@ -687,7 +687,8 @@
 - [加载图像--2023-08-07](codes/javascript/loadImage.md)
 - [获取视图宽高--2023-08-08](codes/javascript/getViewSize.md)
 - [获取元素到文档左边的距离-2022-08-09](codes/javascript/getHorizontalOffset.md)
-- [将字符串编码成 Unicode-2022-08-11](codes/javascript/setUnicode.md)
+- [将字符串编码成统一码（Unicode）-2022-08-11](codes/javascript/setUnicode.md)
+- [解码统一码（Unicode）为字符串-2022-08-12](codes/javascript/getUnicode.md)
 
 ## typescript 代码段
 
@@ -721,6 +722,7 @@
 - [清除字符串两边空白--2023-08-08](codes/typescript/Trim.md)
 - [字符串首字母大写--2023-08-09](codes/typescript/Capitalize.md)
 - [字符串替换--2023-08-11](codes/typescript/Replace.md)
+- [字符串替换(替换所有)--2023-08-12](codes/typescript/ReplaceAll.md)
 
 ## node.js 代码段
 
