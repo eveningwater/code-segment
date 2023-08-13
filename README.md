@@ -734,8 +734,10 @@
 - [字符串首字母大写--2023-08-09](codes/typescript/Capitalize.md)
 - [字符串替换--2023-08-11](codes/typescript/Replace.md)
 - [字符串替换(替换所有)--2023-08-12](codes/typescript/ReplaceAll.md)
+- [追加参数--2023-08-13](codes/typescript/AppendArgument.md)
 
 ## node.js 代码段
 
 - [JSON 数据转换成文件--2020-11-8](codes/node/JSONToFile.md)
 - [在 node.js 中生成 UUID--2020-11-17](codes/node/UUIDGeneratorNode.md)
+- [获取本机 IP 地址--2023-08-13](codes/node/getLocalIpAddress.md)
