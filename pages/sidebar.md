@@ -724,6 +724,7 @@
 - [字符串替换--2023-08-11](codes/typescript/Replace.md)
 - [字符串替换(替换所有)--2023-08-12](codes/typescript/ReplaceAll.md)
 - [追加参数--2023-08-13](codes/typescript/AppendArgument.md)
+- [排列--2023-08-14](codes/typescript/Permutation.md)
 
 ## node.js 代码段
 
