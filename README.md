@@ -699,6 +699,7 @@
 - [获取元素到文档左边的距离-2022-08-09](codes/javascript/getHorizontalOffset.md)
 - [将字符串编码成统一码（Unicode）-2022-08-11](codes/javascript/setUnicode.md)
 - [解码统一码（Unicode）为字符串-2022-08-12](codes/javascript/getUnicode.md)
+- [是否是布尔值属性-2022-08-15](codes/javascript/isBooleanAttr.md)
 
 ## typescript 代码段
 
@@ -736,6 +737,7 @@
 - [字符串替换(替换所有)--2023-08-12](codes/typescript/ReplaceAll.md)
 - [追加参数--2023-08-13](codes/typescript/AppendArgument.md)
 - [排列--2023-08-14](codes/typescript/Permutation.md)
+- [求字符串长度--2023-08-15](codes/typescript/LengthOfString.md)
 
 ## node.js 代码段
 
