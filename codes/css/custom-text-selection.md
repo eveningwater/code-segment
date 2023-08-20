@@ -1,10 +1,10 @@
-| 标题                             | 标签           |
-| -------------------------------- | -------------- |
+| 标题                                  | 标签           |
+| ------------------------------------- | -------------- |
 | custom-text-selection(自定义文本选中) | visual(视觉的) |
 
 更改文本选择的样式。
 
-* 选中时，使用 ::selection 伪选择器在其中设置文本样式。
+- 选中时，使用 ::selection 伪选择器在其中设置文本样式。
 
 ```html
 <p class="custom-text-selection">Select some of this text</p>
@@ -12,19 +12,19 @@
 
 ```css
 ::selection {
-    background-color: rgba(0,0,0,.85);
-    background-color: #f2f3f4;
+  background-color: rgba(0, 0, 0, 0.85);
+  background-color: #f2f3f4;
 }
 .custom-text-selection::selection {
-    color:rgba(255,255,255,.85);
-    background-color: #2396ef;
+  color: rgba(255, 255, 255, 0.85);
+  background-color: #2396ef;
 }
 ```
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/css/html/custom-text-selection.html" data-language="html"></div>
+
+结果如下:
+
 <iframe src="codes/css/html/custom-text-selection.html"></iframe>
-
-
-
-

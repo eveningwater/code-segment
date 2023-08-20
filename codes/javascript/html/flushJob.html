@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flushJob</title>
+</head>
+
+<body>
+    <div>打开浏览器控制台查看结果</div>
+    <script>
+        const flushJob = () => {
+            const jobQueue = new Set();
+            const p = Promise.resolve();
+            let isFlushing = false;
+            const flush = () => {
+                // 如果队列正在刷新，则什么都不做
+                if (isFlushing) return;
+                // 设置为 true，代表正在刷新
+                isFlushing = true;
+                // 在微任务队列中刷新 jobQueue 队列
+                p.then(() => {
+                    jobQueue.forEach(job => job());
+                }).finally(() => {
+                    // 结束后重置 isFlushing
+                    isFlushing = false;
+                });
+            };
+            return {
+                jobQueue,
+                flush
+            };
+        };
+        const fn = () => {
+            console.log(1);
+        }
+        const { jobQueue, flush } = flushJob();
+        jobQueue.add(fn);
+        jobQueue.add(fn);
+        flush();
+    </script>
+</body>
+
+</html>

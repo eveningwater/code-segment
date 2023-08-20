@@ -690,6 +690,7 @@
 - [将字符串编码成统一码（Unicode）-2022-08-11](codes/javascript/setUnicode.md)
 - [解码统一码（Unicode）为字符串-2022-08-12](codes/javascript/getUnicode.md)
 - [是否是布尔值属性-2022-08-15](codes/javascript/isBooleanAttr.md)
+- [刷新队列-2022-08-20](codes/javascript/flushJob.md)
 
 ## typescript 代码段
 
@@ -727,6 +728,7 @@
 - [追加参数--2023-08-13](codes/typescript/AppendArgument.md)
 - [排列--2023-08-14](codes/typescript/Permutation.md)
 - [求字符串长度--2023-08-15](codes/typescript/LengthOfString.md)
+- [展开数组--2023-08-20](codes/typescript/Flatten.md)
 
 ## node.js 代码段
 
