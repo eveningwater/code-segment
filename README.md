@@ -701,6 +701,7 @@
 - [解码统一码（Unicode）为字符串-2022-08-12](codes/javascript/getUnicode.md)
 - [是否是布尔值属性-2022-08-15](codes/javascript/isBooleanAttr.md)
 - [刷新队列-2022-08-20](codes/javascript/flushJob.md)
+- [不刷新修改浏览器 url 地址-2022-08-21](codes/javascript/setBrowserUrl.md)
 
 ## typescript 代码段
 
@@ -740,6 +741,7 @@
 - [排列--2023-08-14](codes/typescript/Permutation.md)
 - [求字符串长度--2023-08-15](codes/typescript/LengthOfString.md)
 - [展开数组--2023-08-20](codes/typescript/Flatten.md)
+- [接口添加属性--2023-08-21](codes/typescript/AppendToObject.md)
 
 ## node.js 代码段
 
