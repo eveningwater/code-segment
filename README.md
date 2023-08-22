@@ -743,6 +743,7 @@
 - [求字符串长度--2023-08-15](codes/typescript/LengthOfString.md)
 - [展开数组--2023-08-20](codes/typescript/Flatten.md)
 - [接口添加属性--2023-08-21](codes/typescript/AppendToObject.md)
+- [求数值绝对值--2023-08-22](codes/typescript/Absolute.md)
 
 ## node.js 代码段
 
