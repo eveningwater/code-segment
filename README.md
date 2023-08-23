@@ -745,6 +745,7 @@
 - [展开数组--2023-08-20](codes/typescript/Flatten.md)
 - [接口添加属性--2023-08-21](codes/typescript/AppendToObject.md)
 - [求数值绝对值--2023-08-22](codes/typescript/Absolute.md)
+- [字符串联合类型--2023-08-23](codes/typescript/StringToUnion.md)
 
 ## node.js 代码段
 
