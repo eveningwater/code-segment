@@ -693,6 +693,7 @@
 - [刷新队列-2022-08-20](codes/javascript/flushJob.md)
 - [不刷新修改浏览器 url 地址-2022-08-21](codes/javascript/setBrowserUrl.md)
 - [会话存储-2022-08-22](codes/javascript/createStore.md)
+- [是否是安全合法的属性名-2022-08-23](codes/javascript/isSSRSafeAttrName.md)
 
 ## typescript 代码段
 
