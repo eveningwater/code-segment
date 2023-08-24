@@ -736,6 +736,7 @@
 - [接口添加属性--2023-08-21](codes/typescript/AppendToObject.md)
 - [求数值绝对值--2023-08-22](codes/typescript/Absolute.md)
 - [字符串联合类型--2023-08-23](codes/typescript/StringToUnion.md)
+- [合并接口类型--2023-08-24](codes/typescript/Merge.md)
 
 ## node.js 代码段
 
