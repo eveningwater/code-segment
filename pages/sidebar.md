@@ -134,7 +134,6 @@
 - [生成一个列表--2020-12-13](codes/javascript/arrayToHTMLList.md)
 - [创建一个返回处理参数的函数--2020-12-21](codes/javascript/ary.md)
 - [监听 iframe 下载完成--2020-12-26](codes/javascript/downloadIframe.md)
-- [解码 base64 编码的字符串--2021-1-31](codes/javascript/atob.md)
 - [捕获错误--2021-2-1](codes/javascript/attempt.md)
 - [两个超大数字相加--2021-3-7](codes/javascript/bigNumberSum.md)
 - [用函数模拟实现一个 new 操作符的功能--2021-4-24](codes/javascript/myNew.md)
@@ -743,3 +742,4 @@
 - [JSON 数据转换成文件--2020-11-8](codes/node/JSONToFile.md)
 - [在 node.js 中生成 UUID--2020-11-17](codes/node/UUIDGeneratorNode.md)
 - [获取本机 IP 地址--2023-08-13](codes/node/getLocalIpAddress.md)
+- [解码 base64 编码的字符串--2021-1-31](codes/node/atob.md)
