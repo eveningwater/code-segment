@@ -736,6 +736,7 @@
 - [求数值绝对值--2023-08-22](codes/typescript/Absolute.md)
 - [字符串联合类型--2023-08-23](codes/typescript/StringToUnion.md)
 - [合并接口类型--2023-08-24](codes/typescript/Merge.md)
+- [大写字母转换成短横线--2023-08-25](codes/typescript/KebabCase.md)
 
 ## node.js 代码段
 
