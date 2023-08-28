@@ -750,6 +750,7 @@
 - [大写字母转换成短横线--2023-08-25](codes/typescript/KebabCase.md)
 - [获取两个接口的差值属性--2023-08-26](codes/typescript/Diff.md)
 - [检查数组项--2023-08-27](codes/typescript/AnyOf.md)
+- [是否是 never 类型--2023-08-28](codes/typescript/IsNever.md)
 
 ## node.js 代码段
 
