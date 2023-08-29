@@ -751,6 +751,7 @@
 - [获取两个接口的差值属性--2023-08-26](codes/typescript/Diff.md)
 - [检查数组项--2023-08-27](codes/typescript/AnyOf.md)
 - [是否是 never 类型--2023-08-28](codes/typescript/IsNever.md)
+- [是否是联合类型--2023-08-29](codes/typescript/IsUnion.md)
 
 ## node.js 代码段
 
