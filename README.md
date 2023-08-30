@@ -752,6 +752,7 @@
 - [检查数组项--2023-08-27](codes/typescript/AnyOf.md)
 - [是否是 never 类型--2023-08-28](codes/typescript/IsNever.md)
 - [是否是联合类型--2023-08-29](codes/typescript/IsUnion.md)
+- [替换属性--2023-08-30](codes/typescript/ReplaceKeys.md)
 
 ## node.js 代码段
 
