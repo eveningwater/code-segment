@@ -755,6 +755,7 @@
 - [替换属性--2023-08-30](codes/typescript/ReplaceKeys.md)
 - [移除接口索引属性--2023-08-31](codes/typescript/RemoveIndexSignature.md)
 - [百分比解析器--2023-09-01](codes/typescript/PercentageParser.md)
+- [删除字符--2023-09-02](codes/typescript/DropChar.md)
 
 ## node.js 代码段
 
