@@ -744,6 +744,7 @@
 - [移除接口索引属性--2023-08-31](codes/typescript/RemoveIndexSignature.md)
 - [百分比解析器--2023-09-01](codes/typescript/PercentageParser.md)
 - [删除字符--2023-09-02](codes/typescript/DropChar.md)
+- [数字减 1(数字应是正整数)--2023-09-03](codes/typescript/MinusOne.md)
 
 ## node.js 代码段
 
