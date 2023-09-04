@@ -20,7 +20,7 @@ atob('Zm9vYmFy'); // 'foobar'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/demo/atob.js" data-language="html"></div>
+<div class="code-editor" data-url="codes/node/demo/atob.js" data-language="html"></div>
 
 在当前文件路径下打开终端，执行命令:
 
