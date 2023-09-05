@@ -1,0 +1,29 @@
+| 标题                       | 标签          |
+| -------------------------- | ------------- |
+| PickByType(匹配字符串开头) | extends(继承) |
+
+匹配字符串开头。
+
+- 泛型参数 T 和泛型参数 U 都应是字符串类型，只要 U 后面拼接一个字符串，如果满足 T 继承这个拼接的字符串，就代表 U 能匹配 T，因此返回 true，否则返回 false。
+
+> 代码如下:
+
+```ts
+type StartsWith<T extends string, U extends string> = T extends `${U}${string}`
+  ? true
+  : false;
+```
+
+> 使用方式:
+
+```ts
+type StartsWithA = StartsWith<'abc', 'ac'>; // expected to be false
+type StartsWithB = StartsWith<'abc', 'ab'>; // expected to be true
+type StartsWithC = StartsWith<'abc', 'abcd'>; // expected to be false
+```
+
+> 应用场景
+
+如下所示,鼠标悬浮到对应的类型变量可以查看类型。
+
+<div class="code-editor" data-url="codes/typescript/demo/StartsWith.ts" data-language="typescript"></div>

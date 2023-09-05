@@ -758,6 +758,7 @@
 - [删除字符--2023-09-02](codes/typescript/DropChar.md)
 - [数字减 1(数字应是正整数)--2023-09-03](codes/typescript/MinusOne.md)
 - [根据类型提取接口--2023-09-04](codes/typescript/PickByType.md)
+- [匹配字符串开头--2023-09-04](codes/typescript/StartsWith.md)
 
 ## node.js 代码段
 
