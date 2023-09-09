@@ -30,4 +30,4 @@ type MutableTodo = Mutable<MutableTestTodo>; // { title: string; description: st
 
 如下所示, 鼠标悬浮到对应的类型变量可以查看类型。
 
-<div class="code-editor" data - url="codes/typescript/demo/Mutable.ts" data - language="typescript" > </div>
+<div class="code-editor" data-url="codes/typescript/demo/Mutable.ts" data-language="typescript"></div>
