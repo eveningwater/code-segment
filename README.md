@@ -761,7 +761,7 @@
 - [匹配字符串开头--2023-09-04](codes/typescript/StartsWith.md)
 - [匹配字符串结束--2023-09-05](codes/typescript/EndsWith.md)
 - [根据属性让接口可选--2023-09-06](codes/typescript/PartialByKeys.md)
-- [根据属性让接口不可选--2023-09-06](codes/typescript/RequiredByKeys.md)
+- [根据属性让接口不可选--2023-09-07](codes/typescript/RequiredByKeys.md)
 
 ## node.js 代码段
 
