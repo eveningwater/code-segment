@@ -26,7 +26,7 @@ interface MutableTestTodo {
 type MutableTodo = Mutable<MutableTestTodo>; // { title: string; description: string; completed: boolean; }
 ```
 
-    > 应用场景
+> 应用场景
 
 如下所示, 鼠标悬浮到对应的类型变量可以查看类型。
 

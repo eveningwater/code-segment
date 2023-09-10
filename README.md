@@ -704,6 +704,7 @@
 - [会话存储-2022-08-22](codes/javascript/createStore.md)
 - [是否是安全合法的属性名-2022-08-23](codes/javascript/isSSRSafeAttrName.md)
 - [最大最小值限定-2022-08-24](codes/javascript/minMaxValue.md)
+- [版本比较-2022-09-10](codes/javascript/compareVersion.md)
 
 ## typescript 代码段
 
@@ -758,11 +759,12 @@
 - [删除字符--2023-09-02](codes/typescript/DropChar.md)
 - [数字减 1(数字应是正整数)--2023-09-03](codes/typescript/MinusOne.md)
 - [根据类型提取接口--2023-09-04](codes/typescript/PickByType.md)
-- [匹配字符串开头--2023-09-04](codes/typescript/StartsWith.md)
-- [匹配字符串结束--2023-09-05](codes/typescript/EndsWith.md)
-- [根据属性让接口可选--2023-09-06](codes/typescript/PartialByKeys.md)
-- [根据属性让接口不可选--2023-09-07](codes/typescript/RequiredByKeys.md)
-- [移除接口可读属性--2023-09-08](codes/typescript/Mutable.md)
+- [匹配字符串开头--2023-09-05](codes/typescript/StartsWith.md)
+- [匹配字符串结束--2023-09-06](codes/typescript/EndsWith.md)
+- [根据属性让接口可选--2023-09-07](codes/typescript/PartialByKeys.md)
+- [根据属性让接口不可选--2023-09-08](codes/typescript/RequiredByKeys.md)
+- [移除接口可读属性--2023-09-09](codes/typescript/Mutable.md)
+- [根据类型忽略接口类型--2023-09-10](codes/typescript/OmitByType.md)
 
 ## node.js 代码段
 
