@@ -765,6 +765,7 @@
 - [根据属性让接口不可选--2023-09-08](codes/typescript/RequiredByKeys.md)
 - [移除接口可读属性--2023-09-09](codes/typescript/Mutable.md)
 - [根据类型忽略接口类型--2023-09-10](codes/typescript/OmitByType.md)
+- [对象键值对数组--2023-09-11](codes/typescript/ObjectEntries.md)
 
 ## node.js 代码段
 
