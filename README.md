@@ -766,6 +766,7 @@
 - [移除接口可读属性--2023-09-09](codes/typescript/Mutable.md)
 - [根据类型忽略接口类型--2023-09-10](codes/typescript/OmitByType.md)
 - [对象键值对数组--2023-09-11](codes/typescript/ObjectEntries.md)
+- [删除数组第一项--2023-09-12](codes/typescript/Shift.md)
 
 ## node.js 代码段
 
