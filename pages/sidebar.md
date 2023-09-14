@@ -755,6 +755,7 @@
 - [对象键值对数组--2023-09-11](codes/typescript/ObjectEntries.md)
 - [删除数组第一项--2023-09-12](codes/typescript/Shift.md)
 - [数组转嵌套接口--2023-09-13](codes/typescript/TupleToNestedObject.md)
+- [数组反转--2023-09-14](codes/typescript/Reverse.md)
 
 ## node.js 代码段
 
