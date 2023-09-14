@@ -153,7 +153,6 @@
 - [二项式系数--2021-12-22](codes/javascript/binomialCoefficient.md)
 - [并且函数--2021-12-24](codes/javascript/both.md)
 - [判断是否滚动到底部--2021-12-26](codes/javascript/bottomVisible.md)
-- [创建 base-64 字符--2021-12-27](codes/javascript/btoa.md)
 - [冒泡排序--2021-12-29](codes/javascript/bubbleSort.md)
 - [桶排序--2021-12-30](codes/javascript/bucketSort.md)
 - [字节的大小--2021-12-31](codes/javascript/byteSize.md)
@@ -763,3 +762,4 @@
 - [在 node.js 中生成 UUID--2020-11-17](codes/node/UUIDGeneratorNode.md)
 - [获取本机 IP 地址--2023-08-13](codes/node/getLocalIpAddress.md)xza
 - [解码 base64 编码的字符串--2021-1-31](codes/node/atob.md)
+- [创建 base-64 字符--2021-12-27](codes/node/btoa.md)
