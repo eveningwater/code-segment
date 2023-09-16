@@ -757,6 +757,7 @@
 - [数组转嵌套接口--2023-09-13](codes/typescript/TupleToNestedObject.md)
 - [数组反转--2023-09-14](codes/typescript/Reverse.md)
 - [函数参数反转--2023-09-15](codes/typescript/FlipArguments.md)
+- [深度拍平数组--2023-09-16](codes/typescript/FlattenDepth.md)
 
 ## node.js 代码段
 
