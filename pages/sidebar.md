@@ -758,11 +758,12 @@
 - [数组反转--2023-09-14](codes/typescript/Reverse.md)
 - [函数参数反转--2023-09-15](codes/typescript/FlipArguments.md)
 - [深度拍平数组--2023-09-16](codes/typescript/FlattenDepth.md)
+- [块元素格式化上下文字符串生成--2023-09-17](codes/typescript/BEM.md)
 
 ## node.js 代码段
 
 - [JSON 数据转换成文件--2020-11-8](codes/node/JSONToFile.md)
 - [在 node.js 中生成 UUID--2020-11-17](codes/node/UUIDGeneratorNode.md)
-- [获取本机 IP 地址--2023-08-13](codes/node/getLocalIpAddress.md)xza
+- [获取本机 IP 地址--2023-08-13](codes/node/getLocalIpAddress.md)
 - [解码 base64 编码的字符串--2021-1-31](codes/node/atob.md)
 - [创建 base-64 字符--2021-12-27](codes/node/btoa.md)
