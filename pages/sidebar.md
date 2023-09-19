@@ -760,6 +760,7 @@
 - [深度拍平数组--2023-09-16](codes/typescript/FlattenDepth.md)
 - [块元素格式化上下文字符串生成--2023-09-17](codes/typescript/BEM.md)
 - [二叉树中序遍历--2023-09-18](codes/typescript/InOrderTraversal.md)
+- [反转对象--2023-09-19](codes/typescript/Flip.md)
 
 ## node.js 代码段
 
