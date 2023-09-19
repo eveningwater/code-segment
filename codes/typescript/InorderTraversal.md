@@ -1,6 +1,6 @@
 | 标题                             | 标签                          |
 | -------------------------------- | ----------------------------- |
-| InorderTraversal(二叉树中序遍历) | object,recursively(对象,递归) |
+| InOrderTraversal(二叉树中序遍历) | object,recursively(对象,递归) |
 
 二叉树中序遍历。
 
@@ -16,26 +16,26 @@ interface TreeNode {
   left: TreeNode | null;
   right: TreeNode | null;
 }
-type InorderTraversal<
+type InOrderTraversal<
   T extends TreeNode | null,
   NT extends TreeNode = NonNullable<T>
 > = T extends null
   ? []
   : [
-      ...InorderTraversal<NT['left']>,
+      ...InOrderTraversal<NT['left']>,
       NT['val'],
-      ...InorderTraversal<NT['right']>
+      ...InOrderTraversal<NT['right']>
     ];
 ```
 
 > 使用方式:
 
 ```ts
-type AInorderTraversal = InorderTraversal<typeof tree1>; // [1, 3, 2]
+type AInOrderTraversal = InOrderTraversal<typeof tree1>; // [1, 3, 2]
 ```
 
 > 应用场景
 
 如下所示, 鼠标悬浮到对应的类型变量可以查看类型。
 
-<div class="code-editor" data-url="codes/typescript/demo/InorderTraversal.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/typescript/demo/InOrderTraversal.ts" data-language="typescript"></div>

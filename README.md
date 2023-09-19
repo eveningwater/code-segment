@@ -771,7 +771,7 @@
 - [函数参数反转--2023-09-15](codes/typescript/FlipArguments.md)
 - [深度拍平数组--2023-09-16](codes/typescript/FlattenDepth.md)
 - [块元素格式化上下文字符串生成--2023-09-17](codes/typescript/BEM.md)
-- [二叉树中序遍历--2023-09-18](codes/typescript/InorderTraversal.md)
+- [二叉树中序遍历--2023-09-18](codes/typescript/InOrderTraversal.md)
 
 ## node.js 代码段
 

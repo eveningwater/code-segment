@@ -3,10 +3,10 @@ interface TreeNode {
     left: TreeNode | null;
     right: TreeNode | null;
 }
-type InorderTraversal<
+type InOrderTraversal<
     T extends TreeNode | null,
     NT extends TreeNode = NonNullable<T>
-> = T extends null ? [] : [...InorderTraversal<NT['left']>, NT['val'], ...InorderTraversal<NT['right']>];
+> = T extends null ? [] : [...InOrderTraversal<NT['left']>, NT['val'], ...InOrderTraversal<NT['right']>];
 
 const tree1 = {
     val: 1,
@@ -22,4 +22,4 @@ const tree1 = {
     },
 } as const
 
-type AInorderTraversal = InorderTraversal<typeof tree1> // [1, 3, 2]
+type AInOrderTraversal = InOrderTraversal<typeof tree1> // [1, 3, 2]
