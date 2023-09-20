@@ -773,6 +773,7 @@
 - [块元素格式化上下文字符串生成--2023-09-17](codes/typescript/BEM.md)
 - [二叉树中序遍历--2023-09-18](codes/typescript/InOrderTraversal.md)
 - [反转对象--2023-09-19](codes/typescript/Flip.md)
+- [斐波那契序列--2023-09-20](codes/typescript/Fibonacci.md)
 
 ## node.js 代码段
 
