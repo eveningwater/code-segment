@@ -763,6 +763,7 @@
 - [反转对象--2023-09-19](codes/typescript/Flip.md)
 - [斐波那契序列--2023-09-20](codes/typescript/Fibonacci.md)
 - [字符串所有组合--2023-09-21](codes/typescript/AllCombinations.md)
+- [比较两个正整数大小--2023-09-22](codes/typescript/GreaterThan.md)
 
 ## node.js 代码段
 
