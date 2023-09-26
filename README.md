@@ -778,6 +778,7 @@
 - [比较两个正整数大小--2023-09-22](codes/typescript/GreaterThan.md)
 - [生成元组--2023-09-23](codes/typescript/Zip.md)
 - [是否是元组--2023-09-24](codes/typescript/IsTuple.md)
+- [数组分块--2023-09-26](codes/typescript/Chunk.md)
 
 ## node.js 代码段
 
