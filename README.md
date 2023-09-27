@@ -779,6 +779,7 @@
 - [生成元组--2023-09-23](codes/typescript/Zip.md)
 - [是否是元组--2023-09-24](codes/typescript/IsTuple.md)
 - [数组分块--2023-09-26](codes/typescript/Chunk.md)
+- [填充数组元素--2023-09-27](codes/typescript/Fill.md)
 
 ## node.js 代码段
 
