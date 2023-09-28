@@ -780,6 +780,7 @@
 - [是否是元组--2023-09-24](codes/typescript/IsTuple.md)
 - [数组分块--2023-09-26](codes/typescript/Chunk.md)
 - [填充数组元素--2023-09-27](codes/typescript/Fill.md)
+- [去除数组元素--2023-09-28](codes/typescript/Without.md)
 
 ## node.js 代码段
 
