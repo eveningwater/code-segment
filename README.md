@@ -781,6 +781,7 @@
 - [数组分块--2023-09-26](codes/typescript/Chunk.md)
 - [填充数组元素--2023-09-27](codes/typescript/Fill.md)
 - [去除数组元素--2023-09-28](codes/typescript/Without.md)
+- [数值取整--2023-09-29](codes/typescript/Trunc.md)
 
 ## node.js 代码段
 
