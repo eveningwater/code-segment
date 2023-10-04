@@ -771,6 +771,7 @@
 - [数值取整--2023-09-29](codes/typescript/Trunc.md)
 - [匹配数组元素--2023-09-30](codes/typescript/IndexOf.md)
 - [数组去重--2023-10-03](codes/typescript/Unique.md)
+- [类型映射--2023-10-04](codes/typescript/MapTypes.md)
 
 ## node.js 代码段
 

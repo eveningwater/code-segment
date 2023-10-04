@@ -786,6 +786,7 @@
 - [数组转字符串--2023-10-01](codes/typescript/Join.md)
 - [从数组末尾项开始匹配数组元素--2023-10-02](codes/typescript/LastIndexOf.md)
 - [数组去重--2023-10-03](codes/typescript/Unique.md)
+- [类型映射--2023-10-04](codes/typescript/MapTypes.md)
 
 ## node.js 代码段
 
