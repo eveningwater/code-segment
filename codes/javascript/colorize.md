@@ -1,11 +1,11 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                                     | 标签                                               |
+| ---------------------------------------- | -------------------------------------------------- |
 | colorize(控制台中以彩色字体打印特殊字符) | node,string,intermediate(节点，字符串，两者之间的) |
 
 将特殊字符添加到文本以在控制台中以彩色打印（与 `console.log()` 结合使用）。
 
-* 使用模板文字和特殊字符将适当的颜色代码添加到字符串输出。
-* 对于背景颜色，在字符串末尾添加一个重置背景颜色的特殊字符。
+- 使用模板文字和特殊字符将适当的颜色代码添加到字符串输出。
+- 对于背景颜色，在字符串末尾添加一个重置背景颜色的特殊字符。
 
 > 代码如下:
 
@@ -27,16 +27,22 @@ const colorize = (...args) => ({
   bgMagenta: `\x1b[45m${args.join(' ')}\x1b[0m`,
   bgCyan: `\x1b[46m${args.join(' ')}\x1b[0m`,
   bgWhite: `\x1b[47m${args.join(' ')}\x1b[0m`
-});   
+});
 ```
 
 > 调用方式:
 
 ```js
-    console.log(colorize('foo').red); // 'foo' (red letters)
-    console.log(colorize('foo', 'bar').bgBlue); // 'foo bar' (blue background)
-    console.log(colorize(colorize('foo').yellow, colorize('foo').green).bgWhite);
-    // 'foo bar' (first word in yellow letters, second word in green letters, white background for both)  
+console.log(colorize('foo').red); // 'foo' (red letters)
+console.log(colorize('foo', 'bar').bgBlue); // 'foo bar' (blue background)
+console.log(colorize(colorize('foo').yellow, colorize('foo').green).bgWhite);
+// 'foo bar' (first word in yellow letters, second word in green letters, white background for both)
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/colorize.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/colorize.html"></iframe>
