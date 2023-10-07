@@ -789,6 +789,7 @@
 - [类型映射--2023-10-04](codes/typescript/MapTypes.md)
 - [构造元组--2023-10-05](codes/typescript/ConstructTuple.md)
 - [范围数值--2023-10-06](codes/typescript/NumberRange.md)
+- [数组所有组合--2023-10-07](codes/typescript/Combination.md)
 
 ## node.js 代码段
 
