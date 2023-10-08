@@ -1,11 +1,11 @@
-| 标题                             | 标签           |
-| -------------------------------- | -------------- |
+| 标题                             | 标签            |
+| -------------------------------- | --------------- |
 | sticky-list-titles(固定标题列表) | visual(视觉的)) |
 
 为每个部分创建一个带有粘性标题的列表。
 
-* 使用 overflow-y: auto 允许列表容器 (`<dl>`) 垂直溢出。
-* 将标题 (`<dt>`) 位置设置为粘性并应用 top: 0 以粘贴到容器的顶部。
+- 使用 overflow-y: auto 允许列表容器 (`<dl>`) 垂直溢出。
+- 将标题 (`<dt>`) 位置设置为粘性并应用 top: 0 以粘贴到容器的顶部。
 
 ```html
 <div class="container">
@@ -45,41 +45,39 @@
 
 ```css
 .container {
-    display: grid;
-    place-items: center;
-    min-height: 400px;
+  display: grid;
+  place-items: center;
+  min-height: 400px;
 }
 .sticky-stack {
-    background-color: #2396ef;
-    color: #fff;
-    margin: 0;
-    height: 320px;
-    border-radius: 1rem;
-    overflow-y: auto;
+  background-color: #2396ef;
+  color: #fff;
+  margin: 0;
+  height: 320px;
+  border-radius: 1rem;
+  overflow-y: auto;
 }
 .sticky-stack dt {
-    position: sticky;
-    top: 0;
-    font-weight: bold;
-    color: #cfd8dc;
-    background-color: #263238;
-    padding: .25rem 1rem;
+  position: sticky;
+  top: 0;
+  font-weight: bold;
+  color: #cfd8dc;
+  background-color: #263238;
+  padding: 0.25rem 1rem;
 }
 .sticky-stack dd {
-    margin: 0;
-    padding: 0.75rem 1rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
 }
 .sticky-stack dd + dt {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
 ```
 
-
-
 > 应用场景
 
+<div class="code-editor" data-url="codes/css/html/sticky-list-titles.html" data-language="html"></div>
+
+结果如下:
+
 <iframe src="codes/css/html/sticky-list-titles.html"></iframe>
-
-
-
-
