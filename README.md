@@ -793,6 +793,7 @@
 - [数组所有组合 2--2023-10-08](codes/typescript/Subsequence.md)
 - [检查字符串是否存在重复字符--2023-10-09](codes/typescript/CheckRepeatedChars.md)
 - [找到字符串中第一个不重复的字符--2023-10-10](codes/typescript/FirstUniqueCharIndex.md)
+- [解析路径参数--2023-10-11](codes/typescript/ParseUrlParams.md)
 
 ## node.js 代码段
 
