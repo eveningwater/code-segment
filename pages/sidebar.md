@@ -780,6 +780,7 @@
 - [找到字符串中第一个不重复的字符--2023-10-10](codes/typescript/FirstUniqueCharIndex.md)
 - [解析路径参数--2023-10-11](codes/typescript/ParseUrlParams.md)
 - [提取数组中间元素--2023-10-12](codes/typescript/GetMiddleElement.md)
+- [提取数组只出现一次元素--2023-10-13](codes/typescript/AppearOnlyOnce.md)
 
 ## node.js 代码段
 
