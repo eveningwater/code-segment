@@ -796,6 +796,7 @@
 - [解析路径参数--2023-10-11](codes/typescript/ParseUrlParams.md)
 - [提取数组中间元素--2023-10-12](codes/typescript/GetMiddleElement.md)
 - [提取数组只出现一次元素--2023-10-13](codes/typescript/AppearOnlyOnce.md)
+- [数值数组转对象--2023-10-14](codes/typescript/CountElementNumberToObject.md)
 
 ## node.js 代码段
 
