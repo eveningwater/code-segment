@@ -798,6 +798,7 @@
 - [提取数组只出现一次元素--2023-10-13](codes/typescript/AppearOnlyOnce.md)
 - [数值数组转对象--2023-10-14](codes/typescript/CountElementNumberToObject.md)
 - [整数--2023-10-15](codes/typescript/Integer.md)
+- [原始对象转换成接口类型--2023-10-16](codes/typescript/ToPrimitive.md)
 
 ## node.js 代码段
 
