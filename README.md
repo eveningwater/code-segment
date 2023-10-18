@@ -799,7 +799,8 @@
 - [数值数组转对象--2023-10-14](codes/typescript/CountElementNumberToObject.md)
 - [整数--2023-10-15](codes/typescript/Integer.md)
 - [原始对象转换成接口类型--2023-10-16](codes/typescript/ToPrimitive.md)
-- [对象类型深度去除只读--2023-10-16](codes/typescript/DeepMutable.md)
+- [对象类型深度去除只读--2023-10-17](codes/typescript/DeepMutable.md)
+- [数组每个元素类型与给定类型比较--2023-10-18](codes/typescript/All.md)
 
 ## node.js 代码段
 
