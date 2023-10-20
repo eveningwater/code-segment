@@ -787,6 +787,7 @@
 - [对象类型深度去除只读--2023-10-17](codes/typescript/DeepMutable.md)
 - [数组每个元素类型与给定类型比较--2023-10-18](codes/typescript/All.md)
 - [过滤数组类型-2023-10-19](codes/typescript/Filter.md)
+- [查找所有符合条件的数组元素-2023-10-20](codes/typescript/FindAll.md)
 
 ## node.js 代码段
 
