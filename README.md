@@ -804,6 +804,7 @@
 - [过滤数组类型-2023-10-19](codes/typescript/Filter.md)
 - [查找所有符合条件的数组元素-2023-10-20](codes/typescript/FindAll.md)
 - [组合键类型-2023-10-21](codes/typescript/Combs.md)
+- [排列元组-2023-10-22](codes/typescript/PermutationsOfTuple.md)
 
 ## node.js 代码段
 
