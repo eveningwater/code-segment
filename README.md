@@ -805,6 +805,7 @@
 - [组合键类型-2023-10-21](codes/typescript/Combs.md)
 - [排列元组-2023-10-22](codes/typescript/PermutationsOfTuple.md)
 - [替换第一个字符-2023-10-23](codes/typescript/ReplaceFirst.md)
+- [矩阵转换-2023-10-24](codes/typescript/Transpose.md)
 
 ## node.js 代码段
 
