@@ -789,6 +789,7 @@
 - [查找所有符合条件的数组元素-2023-10-20](codes/typescript/FindAll.md)
 - [组合键类型-2023-10-21](codes/typescript/Combs.md)
 - [矩阵转换-2023-10-24](codes/typescript/Transpose.md)
+- [json 数据转 ts 类型-2023-10-25](codes/typescript/JSONSchema2TS.md)
 
 ## node.js 代码段
 

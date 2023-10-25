@@ -806,6 +806,7 @@
 - [排列元组-2023-10-22](codes/typescript/PermutationsOfTuple.md)
 - [替换第一个字符-2023-10-23](codes/typescript/ReplaceFirst.md)
 - [矩阵转换-2023-10-24](codes/typescript/Transpose.md)
+- [json 数据转 ts 类型-2023-10-25](codes/typescript/JSONSchema2TS.md)
 
 ## node.js 代码段
 
