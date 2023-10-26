@@ -790,6 +790,7 @@
 - [组合键类型-2023-10-21](codes/typescript/Combs.md)
 - [矩阵转换-2023-10-24](codes/typescript/Transpose.md)
 - [json 数据转 ts 类型-2023-10-25](codes/typescript/JSONSchema2TS.md)
+- [求数值的平方-2023-10-26](codes/typescript/Square.md)
 
 ## node.js 代码段
 
