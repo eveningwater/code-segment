@@ -792,6 +792,7 @@
 - [json 数据转 ts 类型-2023-10-25](codes/typescript/JSONSchema2TS.md)
 - [求数值的平方-2023-10-26](codes/typescript/Square.md)
 - [求三角数（正整数前 n 项之和）-2023-10-27](codes/typescript/Triangular.md)
+- [联合类型的笛卡尔积-2023-10-28](codes/typescript/CartesianProduct.md)
 
 ## node.js 代码段
 
