@@ -810,6 +810,7 @@
 - [求数值的平方-2023-10-26](codes/typescript/Square.md)
 - [求三角数（正整数前 n 项之和）-2023-10-27](codes/typescript/Triangular.md)
 - [联合类型的笛卡尔积-2023-10-28](codes/typescript/CartesianProduct.md)
+- [合并所有接口对象-2023-10-29](codes/typescript/MergeAll.md)
 
 ## node.js 代码段
 
