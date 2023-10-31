@@ -812,6 +812,7 @@
 - [联合类型的笛卡尔积-2023-10-28](codes/typescript/CartesianProduct.md)
 - [合并所有接口对象-2023-10-29](codes/typescript/MergeAll.md)
 - [检查元组是否含有重复元素-2023-10-30](codes/typescript/CheckRepeatedTuple.md)
+- [去除带\_的属性-2023-10-31](codes/typescript/PublicType.md)
 
 ## node.js 代码段
 
