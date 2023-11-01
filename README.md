@@ -813,6 +813,7 @@
 - [合并所有接口对象-2023-10-29](codes/typescript/MergeAll.md)
 - [检查元组是否含有重复元素-2023-10-30](codes/typescript/CheckRepeatedTuple.md)
 - [去除带\_的属性-2023-10-31](codes/typescript/PublicType.md)
+- [提取对象中存在属性的属性值作为接口-2023-11-01](codes/typescript/ExtractToObject.md)
 
 ## node.js 代码段
 
