@@ -798,6 +798,7 @@
 - [提取对象中存在属性的属性值作为接口-2023-11-01](codes/typescript/ExtractToObject.md)
 - [深度去除对象属性-2023-11-02](codes/typescript/DeepOmit.md)
 - [判断给定正整数是否是奇数-2023-11-03](codes/typescript/IsOdd.md)
+- [河内塔问题-2023-11-05](codes/typescript/Hanoi.md)
 
 ## node.js 代码段
 
