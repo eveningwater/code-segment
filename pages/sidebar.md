@@ -799,6 +799,7 @@
 - [深度去除对象属性-2023-11-02](codes/typescript/DeepOmit.md)
 - [判断给定正整数是否是奇数-2023-11-03](codes/typescript/IsOdd.md)
 - [河内塔问题-2023-11-05](codes/typescript/Hanoi.md)
+- [简单版本的 vue-2023-11-06](codes/typescript/SimpleVue.md)
 
 ## node.js 代码段
 
