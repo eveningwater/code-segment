@@ -800,6 +800,7 @@
 - [判断给定正整数是否是奇数-2023-11-03](codes/typescript/IsOdd.md)
 - [河内塔问题-2023-11-05](codes/typescript/Hanoi.md)
 - [简单版本的 vue-2023-11-06](codes/typescript/SimpleVue.md)
+- [柯里化-2023-11-07](codes/typescript/Currying.md)
 
 ## node.js 代码段
 
