@@ -819,6 +819,7 @@
 - [河内塔问题-2023-11-05](codes/typescript/Hanoi.md)
 - [简单版本的 vue-2023-11-06](codes/typescript/SimpleVue.md)
 - [柯里化-2023-11-07](codes/typescript/Currying.md)
+- [并集到交集-2023-11-08](codes/typescript/UnionToIntersection.md)
 
 ## node.js 代码段
 
