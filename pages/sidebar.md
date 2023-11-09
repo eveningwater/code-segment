@@ -802,6 +802,7 @@
 - [简单版本的 vue-2023-11-06](codes/typescript/SimpleVue.md)
 - [柯里化-2023-11-07](codes/typescript/Currying.md)
 - [并集到交集-2023-11-08](codes/typescript/UnionToIntersection.md)
+- [获取必选类型-2023-11-09](codes/typescript/GetRequired.md)
 
 ## node.js 代码段
 
