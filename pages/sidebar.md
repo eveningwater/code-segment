@@ -803,6 +803,7 @@
 - [柯里化-2023-11-07](codes/typescript/Currying.md)
 - [并集到交集-2023-11-08](codes/typescript/UnionToIntersection.md)
 - [获取必选类型-2023-11-09](codes/typescript/GetRequired.md)
+- [获取可选类型-2023-11-10](codes/typescript/GetOptional.md)
 
 ## node.js 代码段
 
