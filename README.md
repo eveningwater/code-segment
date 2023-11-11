@@ -822,6 +822,7 @@
 - [并集到交集-2023-11-08](codes/typescript/UnionToIntersection.md)
 - [获取必选类型-2023-11-09](codes/typescript/GetRequired.md)
 - [获取可选类型-2023-11-10](codes/typescript/GetOptional.md)
+- [必选类型属性-2023-11-11](codes/typescript/RequiredKeys.md)
 
 ## node.js 代码段
 
