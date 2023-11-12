@@ -823,6 +823,7 @@
 - [获取必选类型-2023-11-09](codes/typescript/GetRequired.md)
 - [获取可选类型-2023-11-10](codes/typescript/GetOptional.md)
 - [必选类型属性-2023-11-11](codes/typescript/RequiredKeys.md)
+- [可选类型属性-2023-11-12](codes/typescript/OptionalKeys.md)
 
 ## node.js 代码段
 
