@@ -824,6 +824,7 @@
 - [获取可选类型-2023-11-10](codes/typescript/GetOptional.md)
 - [必选类型属性-2023-11-11](codes/typescript/RequiredKeys.md)
 - [可选类型属性-2023-11-12](codes/typescript/OptionalKeys.md)
+- [单词首字母大写-2023-11-13](codes/typescript/CapitalizeWords.md)
 
 ## node.js 代码段
 
