@@ -827,6 +827,7 @@
 - [单词首字母大写-2023-11-13](codes/typescript/CapitalizeWords.md)
 - [下划线字符串转成驼峰写法-2023-11-14](codes/typescript/CamelCase.md)
 - [解析打印格式-2023-11-15](codes/typescript/ParsePrintFormat.md)
+- [是否是任意类型-2023-11-16](codes/typescript/IsAny.md)
 
 ## node.js 代码段
 
