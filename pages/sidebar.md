@@ -810,6 +810,7 @@
 - [下划线字符串转成驼峰写法-2023-11-14](codes/typescript/CamelCase.md)
 - [解析打印格式-2023-11-15](codes/typescript/ParsePrintFormat.md)
 - [是否是任意类型-2023-11-16](codes/typescript/IsAny.md)
+- [判断 2 个类型是否相等-2023-11-17](codes/typescript/Equal.md)
 
 ## node.js 代码段
 
