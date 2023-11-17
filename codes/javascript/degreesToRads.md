@@ -1,10 +1,10 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                      | 标签       |
+| ------------------------- | ---------- |
 | degreesToRads(角度转弧度) | math(数学) |
 
 将角度从度数转换为弧度。
 
-* 使用 `Math.PI` 和度数到弧度公式将角度从度数转换为弧度。
+- 使用 `Math.PI` 和度数到弧度公式将角度从度数转换为弧度。
 
 > 代码如下:
 
@@ -19,3 +19,9 @@ degreesToRads(90.0); // ~1.5708
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/degreesToRads.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/degreesToRads.html"></iframe>
