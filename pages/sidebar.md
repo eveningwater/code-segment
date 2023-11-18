@@ -811,6 +811,7 @@
 - [解析打印格式-2023-11-15](codes/typescript/ParsePrintFormat.md)
 - [是否是任意类型-2023-11-16](codes/typescript/IsAny.md)
 - [判断 2 个类型是否相等-2023-11-17](codes/typescript/Equal.md)
+- [vue 单向数据流类型-2023-11-18](codes/typescript/VueBasicProps.md)
 
 ## node.js 代码段
 
