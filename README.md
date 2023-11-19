@@ -830,6 +830,7 @@
 - [是否是任意类型-2023-11-16](codes/typescript/IsAny.md)
 - [判断 2 个类型是否相等-2023-11-17](codes/typescript/Equal.md)
 - [vue 单向数据流类型-2023-11-18](codes/typescript/VueBasicProps.md)
+- [获取接口属性值-2023-11-19](codes/typescript/Get.md)
 
 ## node.js 代码段
 
