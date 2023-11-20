@@ -831,6 +831,7 @@
 - [判断 2 个类型是否相等-2023-11-17](codes/typescript/Equal.md)
 - [vue 单向数据流类型-2023-11-18](codes/typescript/VueBasicProps.md)
 - [获取接口属性值-2023-11-19](codes/typescript/Get.md)
+- [字符串转数字-2023-11-20](codes/typescript/ToNumber.md)
 
 ## node.js 代码段
 
