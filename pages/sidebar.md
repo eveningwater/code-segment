@@ -816,6 +816,7 @@
 - [字符串转数字-2023-11-20](codes/typescript/ToNumber.md)
 - [过滤元组-2023-11-21](codes/typescript/FilterOut.md)
 - [元组转枚举-2023-11-22](codes/typescript/Enum.md)
+- [格式化打印的字符串-2023-11-23](codes/typescript/Format.md)
 
 ## node.js 代码段
 
