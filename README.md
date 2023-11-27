@@ -838,6 +838,7 @@
 - [深度对象的唯一性-2023-11-24](codes/typescript/DeepObjectToUniq.md)
 - [联合类型转元组-2023-11-25](codes/typescript/UnionToTuple.md)
 - [字符串连接符-2023-11-26](codes/typescript/StringJoin.md)
+- [深度挑选属性-2023-11-27](codes/typescript/DeepPick.md)
 
 ## node.js 代码段
 
