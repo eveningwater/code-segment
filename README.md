@@ -841,6 +841,7 @@
 - [深度挑选属性-2023-11-27](codes/typescript/DeepPick.md)
 - [Vue 状态管理工具-2023-11-28](codes/typescript/Pinia.md)
 - [对象属性名转换-2023-11-29](codes/typescript/Camelize.md)
+- [字符串中删除指定字符-2023-11-30](codes/typescript/DropString.md)
 
 ## node.js 代码段
 
