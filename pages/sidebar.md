@@ -825,6 +825,7 @@
 - [对象属性名转换-2023-11-29](codes/typescript/Camelize.md)
 - [字符串中删除指定字符-2023-11-30](codes/typescript/DropString.md)
 - [字符串分割成数组-2023-12-01](codes/typescript/Split.md)
+- [提取公共的类属性-2023-12-02](codes/typescript/ClassPublicKeys.md)
 
 ## node.js 代码段
 
