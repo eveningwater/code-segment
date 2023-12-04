@@ -845,6 +845,7 @@
 - [字符串分割成数组-2023-12-01](codes/typescript/Split.md)
 - [提取公共的类属性-2023-12-02](codes/typescript/ClassPublicKeys.md)
 - [是否是必选属性-2023-12-03](codes/typescript/IsRequiredKey.md)
+- [读取属性属性值数组转接口-2023-12-04](codes/typescript/ObjectFromEntries.md)
 
 ## node.js 代码段
 
