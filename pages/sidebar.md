@@ -830,6 +830,7 @@
 - [读取属性属性值数组转接口-2023-12-04](codes/typescript/ObjectFromEntries.md)
 - [回文数字或字符串-2023-12-05](codes/typescript/IsPalindrome.md)
 - [提取接口非只读属性-2023-12-06](codes/typescript/MutableKeys.md)
+- [求多个数组的交集-2023-12-07](codes/typescript/Intersection.md)
 
 ## node.js 代码段
 

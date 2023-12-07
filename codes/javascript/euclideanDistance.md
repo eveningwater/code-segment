@@ -21,3 +21,9 @@ euclideanDistance([1, 1, 1], [2, 3, 2]); // ~2.4495
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/euclideanDistance.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/euclideanDistance.html"></iframe>
