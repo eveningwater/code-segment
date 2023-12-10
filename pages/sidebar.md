@@ -833,6 +833,7 @@
 - [求多个数组的交集-2023-12-07](codes/typescript/Intersection.md)
 - [二进制数值字符串转十进制数字-2023-12-08](codes/typescript/BinaryToDecimal.md)
 - [对象属性生成路径-2023-12-09](codes/typescript/ObjectKeyPaths.md)
+- [两数之和-2023-12-10](codes/typescript/TwoSum.md)
 
 ## node.js 代码段
 
