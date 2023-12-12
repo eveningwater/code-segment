@@ -853,6 +853,7 @@
 - [对象属性生成路径-2023-12-09](codes/typescript/ObjectKeyPaths.md)
 - [两数之和-2023-12-10](codes/typescript/TwoSum.md)
 - [可用日期-2023-12-11](codes/typescript/ValidDate.md)
+- [接口的合并-2023-12-12](codes/typescript/Assign.md)
 
 ## node.js 代码段
 
