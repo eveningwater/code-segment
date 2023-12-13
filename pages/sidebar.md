@@ -836,6 +836,7 @@
 - [两数之和-2023-12-10](codes/typescript/TwoSum.md)
 - [可用日期-2023-12-11](codes/typescript/ValidDate.md)
 - [接口的合并-2023-12-12](codes/typescript/Assign.md)
+- [查找数组最大值-2023-12-13](codes/typescript/Maximum.md)
 
 ## node.js 代码段
 
