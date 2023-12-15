@@ -1,16 +1,17 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                                        | 标签        |
+| ------------------------------------------- | ----------- |
 | filterNonUniqueBy(数组去重（根据回调函数）) | array(数组) |
 
 根据提供的比较器函数，创建一个过滤掉非唯一值的数组。
 
-* 使用 `Array.prototype.filter()` 和 `Array.prototype.every()` 根据比较器函数 `handler` 创建一个仅包含唯一值的数组。
-* 比较器函数有四个参数：被比较的两个元素的值及其索引。
+- 使用 `Array.prototype.filter()` 和 `Array.prototype.every()` 根据比较器函数 `handler` 创建一个仅包含唯一值的数组。
+- 比较器函数有四个参数：被比较的两个元素的值及其索引。
 
 > 代码如下:
 
 ```js
-const filterNonUniqueBy = (arr,handler) => arr.filter((v,i) => arr.every((x,j) => (i === j) === handler(v,x,i,j)));
+const filterNonUniqueBy = (arr, handler) =>
+  arr.filter((v, i) => arr.every((x, j) => (i === j) === handler(v, x, i, j)));
 ```
 
 > 调用方式:
@@ -29,3 +30,9 @@ filterNonUniqueBy(
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/filterNonUniqueBy.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/filterNonUniqueBy.html"></iframe>
