@@ -856,6 +856,7 @@
 - [接口的合并-2023-12-12](codes/typescript/Assign.md)
 - [查找数组最大值-2023-12-13](codes/typescript/Maximum.md)
 - [接口属性首字母大写-2023-12-14](codes/typescript/CapitalizeNestObjectKeys.md)
+- [元组元素替代-2023-12-15](codes/typescript/UnionReplace.md)
 
 ## node.js 代码段
 
