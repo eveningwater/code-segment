@@ -857,6 +857,7 @@
 - [查找数组最大值-2023-12-13](codes/typescript/Maximum.md)
 - [接口属性首字母大写-2023-12-14](codes/typescript/CapitalizeNestObjectKeys.md)
 - [元组元素替代-2023-12-15](codes/typescript/UnionReplace.md)
+- [三的倍数-2023-12-16](codes/typescript/FizzBuzz.md)
 
 ## node.js 代码段
 
