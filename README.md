@@ -860,6 +860,7 @@
 - [三的倍数-2023-12-16](codes/typescript/FizzBuzz.md)
 - [统计字符数-2023-12-17](codes/typescript/RLE.Encode.md)
 - [记录接口属性-2023-12-18](codes/typescript/Path.md)
+- [下划线字符串转换-2023-12-19](codes/typescript/SnakeCase.md)
 
 ## node.js 代码段
 
