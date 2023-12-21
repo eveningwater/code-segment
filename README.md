@@ -861,7 +861,8 @@
 - [统计字符数-2023-12-17](codes/typescript/RLE.Encode.md)
 - [记录接口属性-2023-12-18](codes/typescript/Path.md)
 - [下划线字符串转换-2023-12-19](codes/typescript/SnakeCase.md)
-- [判断数值是否是负数-2023-12-19](codes/typescript/IsNegativeNumber.md)
+- [判断数值是否是负数-2023-12-20](codes/typescript/IsNegativeNumber.md)
+- [含有未定义的属性变成可选属性-2023-12-21](codes/typescript/OptionalUndefined.md)
 
 ## node.js 代码段
 
