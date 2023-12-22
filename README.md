@@ -863,6 +863,7 @@
 - [下划线字符串转换-2023-12-19](codes/typescript/SnakeCase.md)
 - [判断数值是否是负数-2023-12-20](codes/typescript/IsNegativeNumber.md)
 - [含有未定义的属性变成可选属性-2023-12-21](codes/typescript/OptionalUndefined.md)
+- [按位异或-2023-12-22](codes/typescript/BitwiseXOR.md)
 
 ## node.js 代码段
 
