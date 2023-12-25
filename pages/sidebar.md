@@ -848,6 +848,7 @@
 - [按位异或-2023-12-22](codes/typescript/BitwiseXOR.md)
 - [获取只读属性-2023-12-23](codes/typescript/GetReadonlyKeys.md)
 - [解析 url 参数字符串-2023-12-24](codes/typescript/ParseQueryString.md)
+- [数组元素截取-2023-12-25](codes/typescript/Slice.md)
 
 ## node.js 代码段
 
