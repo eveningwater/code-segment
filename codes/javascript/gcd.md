@@ -28,4 +28,4 @@ gcd(...[12, 8, 32]); // 4
 
 结果如下:
 
-<iframe src="codes/javascript/html/funcgcdtions.html"></iframe>
+<iframe src="codes/javascript/html/gcd.html"></iframe>
