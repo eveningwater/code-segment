@@ -23,7 +23,7 @@ createDirIfNotExists('test');
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/node/demo/createDirIfNotExists.js" data-language="js"></div>
+<div class="code-editor" data-url="codes/node/demo/createDirIfNotExists.js" data-language="javascript"></div>
 
 在当前文件路径下打开终端，执行命令:
 

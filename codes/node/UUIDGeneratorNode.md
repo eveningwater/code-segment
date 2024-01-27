@@ -26,4 +26,4 @@ UUIDGeneratorNode(); // '79c7c136-60ee-40a2-beb2-856f1feabefc'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/node/demo/UUIDGeneratorNode.js" data-language="js"></div>
+<div class="code-editor" data-url="codes/node/demo/UUIDGeneratorNode.js" data-language="javascript"></div>
