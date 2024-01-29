@@ -15,6 +15,6 @@ git stash apply <stash>
 > 使用示例:
 
 ```shell
-git stash apply #  apply the latest stash
+git stash apply # apply the latest stash
 # 在终端运行该命令，将应用最新的存储到当前分支
 ```
