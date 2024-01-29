@@ -292,7 +292,6 @@
 - [路径字符串中获取对象属性--2022-07-03](codes/javascript/get.md)
 - [获取元素的祖先元素--2022-07-04](codes/javascript/getAncestors.md)
 - [获取过滤参数的路径--2022-07-05](codes/javascript/getBaseURL.md)
-- [获取脚本的命令行参数--2022-07-06](codes/javascript/getCmdArgs.md)
 - [获取小时分钟秒--2022-07-07](codes/javascript/getColonTimeFromDate.md)
 - [获取日期之间的天数差--2022-07-08](codes/javascript/getDaysDiffBetweenDates.md)
 - [获取日期之间的小时差--2022-07-09](codes/javascript/getHoursDiffBetweenDates.md)
@@ -858,6 +857,7 @@
 - [解码 base64 编码的字符串--2021-1-31](codes/node/atob.md)
 - [创建 base-64 字符--2021-12-27](codes/node/btoa.md)
 - [如果目录不存在创建目录--2022-02-17](codes/node/createDirIfNotExists.md)
+- [获取脚本的命令行参数--2022-07-06](codes/node/getCmdArgs.md)
 
 ## git 代码段
 
