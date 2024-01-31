@@ -867,3 +867,4 @@
 - [应用最近的存储--2024-01-28](codes/git/applyLatestStash.md)
 - [应用特别的存储--2024-01-29](codes/git/applyStash.md)
 - [自动更正 git 错误命令--2024-01-30](codes/git/autocorrect.md)
+- [查找第一次错误提交--2024-01-31](codes/git/automaticFindCommitWithBug.md)
