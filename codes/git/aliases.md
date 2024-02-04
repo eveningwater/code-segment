@@ -16,7 +16,7 @@ git config --global alias.<alias> <command>
 
 ```shell
 git config --global alias.cm commit -m
-# 在终端运行该命令，然后使用`git commit -m "提交代码"` 提交代码的命令则可以使用`git commit cm "提交代码"`来代替
+# 在终端运行该命令，然后使用`git commit -m "提交代码"` 提交代码的命令则可以使用`git cm "提交代码"`来代替
 ```
 
 ## 一些常用的有用的别名参考
