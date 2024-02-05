@@ -1,8 +1,8 @@
 | 标题                                        | 标签                               |
 | ------------------------------------------- | ---------------------------------- |
-| changeRemoteUrl(克隆缺少的子模块并检查提交) | repository,submodule(仓库，子模块) |
+| changeRemoteUrl(复制缺少的子模块并检查提交) | repository,submodule(仓库，子模块) |
 
-克隆缺少的子模块并检查提交。
+复制缺少的子模块并检查提交。
 
 - 使用 `git submodule update --init --recursive` 克隆丢失的子模块并检查提交。
 
