@@ -894,3 +894,4 @@
 - [不同日期的提交--2024-02-06](codes/git/commitDifferentDate.md)
 - [设置提交模板--2024-02-07](codes/git/commitTemplate.md)
 - [跳过任意钩子提交--2024-02-08](codes/git/commitWithoutHooks.md)
+- [用户配置--2024-02-09](codes/git/configUser.md)
