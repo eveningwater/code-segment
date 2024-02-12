@@ -858,6 +858,7 @@
 - [如果目录不存在创建目录--2022-02-17](codes/node/createDirIfNotExists.md)
 - [获取脚本的命令行参数--2022-07-06](codes/node/getCmdArgs.md)
 - [检查当前进程是否包含指定的标识-2022-08-01](codes/node/hasFlags.md)
+- [基于 nodejs 的 hash 算法-2022-08-06](codes/node/hashNode.md)
 
 ## git 代码段
 

@@ -332,7 +332,6 @@
 - [匹配数组是否含有满足给定函数条件的数组项-2022-08-03](codes/javascript/hasMany.md)
 - [匹配数组是否含有满足给定函数条件的一个数组项-2022-08-04](codes/javascript/hasOne.md)
 - [基于浏览器的 hash 算法-2022-08-05](codes/javascript/hashBrowser.md)
-- [基于 nodejs 的 hash 算法-2022-08-06](codes/javascript/hashNode.md)
 - [判断两个数组是否含有相同的数组项-2022-08-07](codes/javascript/haveSameContents.md)
 - [查找数组当中的第一个数组项-2022-08-08](codes/javascript/head.md)
 - [堆排序算法-2022-08-09](codes/javascript/heapSort.md)
@@ -876,6 +875,7 @@
 - [如果目录不存在创建目录--2022-02-17](codes/node/createDirIfNotExists.md)
 - [获取脚本的命令行参数--2022-07-06](codes/node/getCmdArgs.md)
 - [检查当前进程是否包含指定的标识-2022-08-01](codes/node/hasFlags.md)
+- [基于 nodejs 的 hash 算法-2022-08-06](codes/node/hashNode.md)
 
 ## git 代码段
 
