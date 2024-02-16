@@ -884,3 +884,4 @@
 - [创建一个空的提交--2024-02-13](codes/git/createEmptyCommit.md)
 - [创建一个修复提交--2024-02-14](codes/git/createFixupCommit.md)
 - [创建一个存储库--2024-02-15](codes/git/createRepo.md)
+- [查看当前分支名--2024-02-16](codes/git/currentBranchName.md)
