@@ -902,3 +902,4 @@
 - [创建一个修复提交--2024-02-14](codes/git/createFixupCommit.md)
 - [创建一个存储库--2024-02-15](codes/git/createRepo.md)
 - [查看当前分支名--2024-02-16](codes/git/currentBranchName.md)
+- [删除本地分支--2024-02-17](codes/git/deleteBranch.md)
