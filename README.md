@@ -903,3 +903,4 @@
 - [创建一个存储库--2024-02-15](codes/git/createRepo.md)
 - [查看当前分支名--2024-02-16](codes/git/currentBranchName.md)
 - [删除本地分支--2024-02-17](codes/git/deleteBranch.md)
+- [删除分离的分支--2024-02-18](codes/git/deleteDetachedBranches.md)
