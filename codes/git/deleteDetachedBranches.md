@@ -31,5 +31,5 @@ git branch
 
 # 剩余分支
 # master
-# patch-2
+# branch-2
 ```

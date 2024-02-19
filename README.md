@@ -904,3 +904,4 @@
 - [查看当前分支名--2024-02-16](codes/git/currentBranchName.md)
 - [删除本地分支--2024-02-17](codes/git/deleteBranch.md)
 - [删除分离的分支--2024-02-18](codes/git/deleteDetachedBranches.md)
+- [删除合并的分支--2024-02-19](codes/git/deleteMergedBranches.md)
