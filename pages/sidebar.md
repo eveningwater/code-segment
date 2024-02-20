@@ -888,3 +888,4 @@
 - [删除本地分支--2024-02-17](codes/git/deleteBranch.md)
 - [删除分离的分支--2024-02-18](codes/git/deleteDetachedBranches.md)
 - [删除合并的分支--2024-02-19](codes/git/deleteMergedBranches.md)
+- [删除远程的分支--2024-02-20](codes/git/deleteRemoteBranch.md)
