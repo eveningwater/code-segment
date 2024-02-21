@@ -906,3 +906,4 @@
 - [删除分离的分支--2024-02-18](codes/git/deleteDetachedBranches.md)
 - [删除合并的分支--2024-02-19](codes/git/deleteMergedBranches.md)
 - [删除远程的分支--2024-02-20](codes/git/deleteRemoteBranch.md)
+- [删除暂存区--2024-02-21](codes/git/deleteStash.md)
