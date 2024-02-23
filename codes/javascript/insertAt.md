@@ -1,22 +1,22 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                               | 标签        |
+| ---------------------------------- | ----------- |
 | insertAt(往数组特定索引中插入元素) | array(数组) |
 
 改变原始数组以在指定索引之后插入给定值。
 
-* 使用具有适当索引和删除计数为 0 的 Array.prototype.splice()，分散要插入的给定值。
+- 使用具有适当索引和删除计数为 0 的 Array.prototype.splice()，分散要插入的给定值。
 
 ```js
-const insertAt = (arr,i,...v) => {
-    if(!Array.isArray(arr)){
-        return console.error('First argument should be an array!');
-    }
-    if(typeof i !== 'number' || (i | 0) !== i){
-        return console.error('Second argument should be an inter index!');
-    }
-    arr.splice(i + 1,0,...v);
-    return arr;
-}
+const insertAt = (arr, i, ...v) => {
+  if (!Array.isArray(arr)) {
+    return console.error('First argument should be an array!');
+  }
+  if (typeof i !== 'number' || (i | 0) !== i) {
+    return console.error('Second argument should be an inter index!');
+  }
+  arr.splice(i + 1, 0, ...v);
+  return arr;
+};
 ```
 
 > 调用方式:
@@ -30,5 +30,9 @@ insertAt(otherArray, 0, 4, 6, 8); // otherArray = [2, 4, 6, 8, 10]
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/insertAt.html" data-language="html"></div>
+
+结果如下:
 
 <iframe src="codes/javascript/html/insertAt.html"></iframe>

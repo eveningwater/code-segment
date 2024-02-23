@@ -1,16 +1,19 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                                                    | 标签        |
+| ------------------------------------------------------- | ----------- |
 | initializeArrayWithRangeRight(生成连续范围数组（降序）) | array(数组) |
 
 初始化一个数组，其中包含指定范围内的数字（反向），其中 start 和 end 包含它们的共同差步长。
 
-* 使用 Array.from() 创建所需长度的数组，(end - start + 1) / step。
-* 使用 Array.prototype.map() 用给定范围内的所需值填充数组。
-* 省略第二个参数 start 以使用默认值 0。
-* 省略最后一个参数 step 以使用默认值 1。
+- 使用 Array.from() 创建所需长度的数组，(end - start + 1) / step。
+- 使用 Array.prototype.map() 用给定范围内的所需值填充数组。
+- 省略第二个参数 start 以使用默认值 0。
+- 省略最后一个参数 step 以使用默认值 1。
 
 ```js
-const initializeArrayWithRangeRight = (end,start = 0,step = 1) => Array.from({ length: Math.ceil((end - start + 1) / step)}).map((v,i,arr) => (arr.length - i - 1) * step + start);
+const initializeArrayWithRangeRight = (end, start = 0, step = 1) =>
+  Array.from({ length: Math.ceil((end - start + 1) / step) }).map(
+    (v, i, arr) => (arr.length - i - 1) * step + start
+  );
 ```
 
 > 调用方式:
@@ -23,10 +26,8 @@ initializeArrayWithRangeRight(9, 0, 2); // [8, 6, 4, 2, 0]
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/initializeArrayWithRangeRight.html" data-language="html"></div>
+
+结果如下:
+
 <iframe src="codes/javascript/html/initializeArrayWithRangeRight.html"></iframe>
-
-
-
-
-
-

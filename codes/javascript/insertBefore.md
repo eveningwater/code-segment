@@ -1,13 +1,13 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                       | 标签            |
+| -------------------------- | --------------- |
 | insertBefore(前面插入元素) | browser(浏览器) |
 
 在指定元素的开始之前插入一个 HTML 字符串。
 
-* 使用位置为 'beforebegin' 的 Element.insertAdjacentHTML() 来解析 htmlString 并将其插入到 el 的开始之前。
+- 使用位置为 'beforebegin' 的 Element.insertAdjacentHTML() 来解析 htmlString 并将其插入到 el 的开始之前。
 
 ```js
-const insertBefore = (el,html) => el.insertAdjacentHTML('beforebegin',html);
+const insertBefore = (el, html) => el.insertAdjacentHTML('beforebegin', html);
 ```
 
 > 调用方式:
@@ -19,5 +19,8 @@ insertBefore(document.getElementById('myId'), '<p>before</p>');
 
 > 应用场景
 
-<iframe src="codes/javascript/html/insertBefore.html"></iframe>
+<div class="code-editor" data-url="codes/javascript/html/insertBefore.html" data-language="html"></div>
 
+结果如下:
+
+<iframe src="codes/javascript/html/insertBefore.html"></iframe>
