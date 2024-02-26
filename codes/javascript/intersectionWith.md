@@ -1,13 +1,14 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                                 | 标签        |
+| ------------------------------------ | ----------- |
 | intersectionBy(求数组交集(基于函数)) | array(数组) |
 
 使用提供的比较器函数返回两个数组中存在的元素。
 
-* 将 Array.prototype.filter() 和 Array.prototype.findIndex() 与提供的比较器结合使用来确定相交值。
+- 将 Array.prototype.filter() 和 Array.prototype.findIndex() 与提供的比较器结合使用来确定相交值。
 
 ```js
-const intersectionWith = (a,b,handler) => a.filter(x => b.findIndex(y => handler(x,y)) !== -1);
+const intersectionWith = (a, b, handler) =>
+  a.filter(x => b.findIndex(y => handler(x, y)) !== -1);
 ```
 
 > 调用方式:
@@ -20,7 +21,10 @@ intersectionWith(
 ); // [1.5, 3, 0]
 ```
 
-
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/intersectionWith.html" data-language="html"></div>
 
+结果如下:
+
+<iframe src="codes/javascript/html/intersectionWith.html"></iframe>

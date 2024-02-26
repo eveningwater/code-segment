@@ -1,17 +1,17 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                                     | 标签        |
+| ---------------------------------------- | ----------- |
 | intersectionBy(求数组交集(根据回调函数)) | array(数组) |
 
 在将提供的函数应用于两者的每个数组元素后，返回两个数组中存在的元素。
 
-* 通过将 handler 应用于 b 中的所有元素来创建一个 Set。
-* 在 a 上使用 Array.prototype.filter() 只保留元素，当 handler 应用于它们时，这些元素会产生包含在 b 中的值。
+- 通过将 handler 应用于 b 中的所有元素来创建一个 Set。
+- 在 a 上使用 Array.prototype.filter() 只保留元素，当 handler 应用于它们时，这些元素会产生包含在 b 中的值。
 
 ```js
-const intersectionBy = (a,b,handler) => {
-    const s = new Set(b.map(handler));
-    return [...new Set(a)].filter(x => s.has(handler(x)));
-}
+const intersectionBy = (a, b, handler) => {
+  const s = new Set(b.map(handler));
+  return [...new Set(a)].filter(x => s.has(handler(x)));
+};
 ```
 
 > 调用方式:
@@ -25,7 +25,10 @@ intersectionBy(
 ); // [{ title: 'Orange' }]
 ```
 
-
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/intersectionBy.html" data-language="html"></div>
 
+结果如下:
+
+<iframe src="codes/javascript/html/intersectionBy.html"></iframe>
