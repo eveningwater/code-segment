@@ -910,3 +910,5 @@
 - [删除所有的暂存区--2024-02-22](codes/git/deleteStashs.md)
 - [删除子模块--2024-02-23](codes/git/deleteSubmodule.md)
 - [不同分支之间的差异--2024-02-24](codes/git/differenceBetweenBranches.md)
+- [禁用快速合并--2024-02-26](codes/git/disableFastForward.md)
+- [放弃未提交的更改--2024-02-26](codes/git/discardUncommitted.md)
