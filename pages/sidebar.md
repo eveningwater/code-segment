@@ -895,3 +895,4 @@
 - [不同分支之间的差异--2024-02-24](codes/git/differenceBetweenBranches.md)
 - [禁用快速合并--2024-02-26](codes/git/disableFastForward.md)
 - [放弃未提交的更改--2024-02-26](codes/git/discardUncommitted.md)
+- [放弃未追踪的更改--2024-02-27](codes/git/discardUntracked.md)
