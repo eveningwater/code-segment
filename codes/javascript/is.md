@@ -1,14 +1,14 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题             | 标签                   |
+| ---------------- | ---------------------- |
 | is(检查数据类型) | type,array(类型，数组) |
 
 检查提供的值是否属于指定类型。
 
-* 使用 Array.prototype.includes() 确保该值不是 undefined 或 null。
-* 使用 Object.prototype.constructor 将值的构造函数属性与类型进行比较，以检查提供的值是否属于指定类型。
+- 使用 Array.prototype.includes() 确保该值不是 undefined 或 null。
+- 使用 Object.prototype.constructor 将值的构造函数属性与类型进行比较，以检查提供的值是否属于指定类型。
 
 ```js
-const is = (type,val) => ![,null].includes(val) && val.constructor === type;
+const is = (type, val) => ![, null].includes(val) && val.constructor === type;
 ```
 
 > 调用方式:
@@ -31,4 +31,8 @@ is(Boolean, new Boolean(true)); // true
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/is.html" data-language="html"></div>
 
+结果如下:
+
+<iframe src="codes/javascript/html/is.html"></iframe>
