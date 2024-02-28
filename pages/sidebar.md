@@ -896,3 +896,4 @@
 - [禁用快速合并--2024-02-26](codes/git/disableFastForward.md)
 - [放弃未提交的更改--2024-02-26](codes/git/discardUncommitted.md)
 - [放弃未追踪的更改--2024-02-27](codes/git/discardUntracked.md)
+- [编辑配置--2024-02-28](codes/git/editConfig.md)
