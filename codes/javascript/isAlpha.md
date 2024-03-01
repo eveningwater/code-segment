@@ -1,10 +1,10 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                            | 标签                              |
+| ------------------------------- | --------------------------------- |
 | isAlpha(判断字符是否只包含字母) | string,regexp(字符串，正则表达式) |
 
 检查字符串是否仅包含字母字符。
 
-* 使用 RegExp.prototype.test() 检查给定的字符串是否与字母正则表达式模式匹配。
+- 使用 RegExp.prototype.test() 检查给定的字符串是否与字母正则表达式模式匹配。
 
 ```js
 const isAlpha = str => /^[a-zA-Z]*$/.test(str);
@@ -20,7 +20,8 @@ isAlpha('123'); // false
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/isAlpha.html" data-language="html"></div>
 
+结果如下:
 
-
-
+<iframe src="codes/javascript/html/isAlpha.html"></iframe>
