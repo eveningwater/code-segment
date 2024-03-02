@@ -1,10 +1,10 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                                         | 标签                              |
+| -------------------------------------------- | --------------------------------- |
 | isAlphaNumeric(判断字符是否只包含字母和数字) | string,regexp(字符串，正则表达式) |
 
 检查字符串是否仅包含字母数字字符。
 
-* 使用 RegExp.prototype.test() 检查输入字符串是否与字母数字正则表达式模式匹配。
+- 使用 RegExp.prototype.test() 检查输入字符串是否与字母数字正则表达式模式匹配。
 
 ```js
 const isAlphaNumeric = str => /^[a-z0-9]+$/gi.test(str);
@@ -21,7 +21,8 @@ isAlphaNumeric('#$hello'); // false
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/isAlphaNumeric.html" data-language="html"></div>
 
+结果如下:
 
-
-
+<iframe src="codes/javascript/html/isAlphaNumeric.html"></iframe>
