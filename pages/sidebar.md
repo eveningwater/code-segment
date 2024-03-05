@@ -901,3 +901,4 @@
 - [强制更新远程分支--2024-03-02](codes/git/forceUpdateRemoteBranch.md)
 - [交互分支变动--2024-03-03](codes/git/interactiveRebase.md)
 - [行结束符--2024-03-04](codes/git/lineEndings.md)
+- [别名列表--2024-03-05](codes/git/listAliases.md)
