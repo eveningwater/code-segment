@@ -920,3 +920,4 @@
 - [交互分支变动--2024-03-03](codes/git/interactiveRebase.md)
 - [行结束符--2024-03-04](codes/git/lineEndings.md)
 - [别名列表--2024-03-05](codes/git/listAliases.md)
+- [存储列表--2024-03-06](codes/git/listStashes.md)
