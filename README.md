@@ -921,3 +921,4 @@
 - [行结束符--2024-03-04](codes/git/lineEndings.md)
 - [别名列表--2024-03-05](codes/git/listAliases.md)
 - [存储列表--2024-03-06](codes/git/listStashes.md)
+- [手动查找错误提交--2024-03-07](codes/git/manualFindCommitWithBug.md)
