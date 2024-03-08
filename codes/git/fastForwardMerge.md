@@ -4,7 +4,7 @@
 
 合并分支是使用 Git 时最常见的操作之一。 根据您参与的团队和项目，您可能听说过甚至使用过 Git 合并时的快进模式。 快进模式是 Git 中的默认模式，但 GitHub 基本上会默认覆盖此模式并创建合并提交。
 
-![](codes/git/images/git-fast-forward.svg)
+![](./images/git-fast-forward.svg)
 
 ## 快进合并
 
