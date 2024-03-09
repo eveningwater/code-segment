@@ -905,3 +905,4 @@
 - [存储列表--2024-03-06](codes/git/listStashes.md)
 - [手动查找错误提交--2024-03-07](codes/git/manualFindCommitWithBug.md)
 - [快进合并--2024-03-08](codes/git/fastForwardMerge.md)
+- [如何添加多个作者到提交中--2024-03-09](codes/git/githubCoAuthors.md)
