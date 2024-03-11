@@ -1,15 +1,19 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                       | 标签                         |
+| -------------------------- | ---------------------------- |
 | isDeepFrozen(深度冻结对象) | object,recursion(对象，递归) |
 
 检查对象是否被深度冻结。
 
-* 使用递归。
-* 在给定对象上使用 Object.isFrozen()。
-* 使用 Object.keys()、Array.prototype.every() 来检查所有键是深度冻结的对象还是非对象值。
+- 使用递归。
+- 在给定对象上使用 Object.isFrozen()。
+- 使用 Object.keys()、Array.prototype.every() 来检查所有键是深度冻结的对象还是非对象值。
 
 ```js
-const isDeepFrozen = obj => Object.isFrozen(obj) && Object.keys(obj).every(val => typeof val !== 'object' || isDeepFrozen(obj[val]));
+const isDeepFrozen = obj =>
+  Object.isFrozen(obj) &&
+  Object.keys(obj).every(
+    val => typeof val !== 'object' || isDeepFrozen(obj[val])
+  );
 ```
 
 > 调用方式:
@@ -22,3 +26,9 @@ isDeepFrozen(y); // false
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/isDeepFrozen.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/isDeepFrozen.html"></iframe>
