@@ -909,3 +909,4 @@
 - [合并分支和提交--2024-03-10](codes/git/mergeBranchMergeCommit.md)
 - [移动提交到分支--2024-03-11](codes/git/moveCommitsToBranch.md)
 - [优化存储库--2024-03-12](codes/git/optimizeRepository.md)
+- [挑选提交--2024-03-13](codes/git/pickCommits.md)

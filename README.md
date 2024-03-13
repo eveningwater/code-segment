@@ -926,3 +926,4 @@
 - [如何添加多个作者到提交中--2024-03-09](codes/git/githubCoAuthors.md)
 - [合并分支和提交--2024-03-10](codes/git/mergeBranchMergeCommit.md)
 - [优化存储库--2024-03-12](codes/git/optimizeRepository.md)
+- [挑选提交--2024-03-13](codes/git/pickCommits.md)
