@@ -371,7 +371,6 @@
 - [深度冻结对象-2022-09-26](codes/javascript/isDeepFrozen.md)
 - [检查两个对象是否相交（没有共同值）-2022-09-27](codes/javascript/isDisjoint.md)
 - [是否可被整除-2022-09-28](codes/javascript/isDivisible.md)
-- [是否是流-2022-09-29](codes/javascript/isDuplexStream.md)
 - [是否是空对象-2022-09-30](codes/javascript/isEmpty.md)
 - [是否偶数-2022-10-01](codes/javascript/isEven.md)
 - [是否是函数-2022-10-02](codes/javascript/isFunction.md)
@@ -858,6 +857,7 @@
 - [获取脚本的命令行参数--2022-07-06](codes/node/getCmdArgs.md)
 - [检查当前进程是否包含指定的标识-2022-08-01](codes/node/hasFlags.md)
 - [基于 nodejs 的 hash 算法-2022-08-06](codes/node/hashNode.md)
+- [是否是流-2022-09-29](codes/javascript/isDuplexStream.md)
 
 ## git 代码段
 
