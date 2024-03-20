@@ -928,4 +928,5 @@
 - [优化存储库--2024-03-12](codes/git/optimizeRepository.md)
 - [挑选提交--2024-03-13](codes/git/pickCommits.md)
 - [从远程拉取所有子模块--2024-03-14](codes/git/pullAllSubmodules.md)
-- [清除文件--2024-03-15](codes/git/purgeFile.md)
+- [清除文件--2024-03-19](codes/git/purgeFile.md)
+- [推与拉--2024-03-20](codes/git/pushPullChanges.md)
