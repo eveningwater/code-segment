@@ -914,3 +914,4 @@
 - [清除文件--2024-03-15](codes/git/purgeFile.md)
 - [推与拉--2024-03-20](codes/git/pushPullChanges.md)
 - [变基分支--2024-03-26](codes/git/rebaseOntoBranch.md)
+- [从提交中删除文件--2024-03-27](codes/git/removeFileFromCommit.md)
