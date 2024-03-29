@@ -28,5 +28,9 @@ isLocalStorageEnabled(); // true, if localStorage is accessible
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/isLocalStorageEnabled.html" data-language="html"></div>
+
+结果如下:
+
 <iframe src="codes/javascript/html/isLocalStorageEnabled.html"></iframe>
 
