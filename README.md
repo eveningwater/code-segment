@@ -932,4 +932,5 @@
 - [推与拉--2024-03-20](codes/git/pushPullChanges.md)
 - [变基分支--2024-03-26](codes/git/rebaseOntoBranch.md)
 - [从提交中删除文件--2024-03-27](codes/git/removeFileFromCommit.md)
-- [分支重命名--2024-03-28](codes/git/renameBranch.md)
+- [本地分支重命名--2024-03-28](codes/git/renameBranch.md)
+- [远程分支重命名--2024-03-29](codes/git/renameRemoteBranch.md)
