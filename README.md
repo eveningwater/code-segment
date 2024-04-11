@@ -934,3 +934,4 @@
 - [从提交中删除文件--2024-03-27](codes/git/removeFileFromCommit.md)
 - [本地分支重命名--2024-03-28](codes/git/renameBranch.md)
 - [远程分支重命名--2024-03-29](codes/git/renameRemoteBranch.md)
+- [重置主分支--2024-04-11](codes/git/resetMaster.md)
