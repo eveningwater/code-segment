@@ -935,3 +935,4 @@
 - [本地分支重命名--2024-03-28](codes/git/renameBranch.md)
 - [远程分支重命名--2024-03-29](codes/git/renameRemoteBranch.md)
 - [重置主分支--2024-04-11](codes/git/resetMaster.md)
+- [恢复被删除的文件--2024-04-12](codes/git/restoreDeletedFile.md)
