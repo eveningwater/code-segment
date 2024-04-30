@@ -921,3 +921,4 @@
 - [恢复被删除的文件--2024-04-12](codes/git/restoreDeletedFile.md)
 - [回退提交--2024-04-28](codes/git/rewindToCommit.md)
 - [设置默认推送分支名称--2024-04-29](codes/git/setDefaultPushBranch.md)
+- [设置或者修改提交作者--2024-04-30](codes/git/setOrAmendCommitAuthor.md)

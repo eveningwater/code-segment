@@ -8,7 +8,7 @@
 - 使用 `git bisect good <commit>` 将 `<commit>` 标记为“好”，表明它已知没有错误。
 - 使用 `git bisect bad <commit>` 将不同的 `<commit>` 标记为“bad”，表明它存在错误。
 - 使用 `git bisect (bad | good)` 将每个后续提交标记为“好”或“坏”，具体取决于它是否有错误。
-- 使用 `git bisect reset` 重置到原始分支。 您可以选择指定要重置为的 `<commit>`。
+- 使用 `git bisect reset` 重置到原始分支。 你可以选择指定要重置为的 `<commit>`。
 
 > 代码如下:
 

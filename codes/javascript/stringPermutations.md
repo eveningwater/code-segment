@@ -9,7 +9,7 @@
 - 使用 Array.prototype.map() 将字母与每个部分排列结合起来。
 - 使用 Array.prototype.reduce() 将所有排列组合到一个数组中。
 - 基本情况是 String.prototype.length 等于 2 或 1。
-- ⚠️ 警告：执行时间随每个字符呈指数增长。 任何超过 8 到 10 个字符都会导致您的环境在尝试解决所有不同组合时挂起。
+- ⚠️ 警告：执行时间随每个字符呈指数增长。 任何超过 8 到 10 个字符都会导致你的环境在尝试解决所有不同组合时挂起。
 
 ```js
 const stringPermutations = str => {

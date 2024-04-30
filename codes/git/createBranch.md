@@ -5,9 +5,9 @@
 创建并切换到新分支，可以选择设置远程跟踪分支。
 
 - 使用 `git checkout -b <branch>` 创建具有指定名称的新分支并切换到该分支。
-- 您可以选择添加 `-t <remote>/<branch>` 来为新创建的分支设置远程跟踪分支。
+- 你可以选择添加 `-t <remote>/<branch>` 来为新创建的分支设置远程跟踪分支。
 
-> 提示: 您也可以分别使用 `git branch <branch> [-t <remote>/<branch>]` 和 `git checkout <branch>`。
+> 提示: 你也可以分别使用 `git branch <branch> [-t <remote>/<branch>]` 和 `git checkout <branch>`。
 
 > 代码如下:
 

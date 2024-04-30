@@ -7,7 +7,7 @@
 - 使用 display: inline-block 创建平铺布局，而不使用浮动、弹性或网格。
 - 使用 width 结合 calc 将容器的宽度均匀地分成 3 列。
 - 将 .tiles 的 font-size 设置为 0 以避免空白，将 `<div>` 元素设置为 14px 以显示文本。
-- 注意：如果您使用相对单位（例如 em），使用 font-size: 0 来消除块之间的空白可能会导致副作用。
+- 注意：如果你使用相对单位（例如 em），使用 font-size: 0 来消除块之间的空白可能会导致副作用。
 
 ```html
 <div class="tiles">

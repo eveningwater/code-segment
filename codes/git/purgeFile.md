@@ -6,9 +6,9 @@
 
 - 使用 `git rm --cached --ignore-unmatch <path>` 删除指定 `<path>` 中的文件。
 - 使用 `git filter-branch --force --index-filter <command> --prune-empty --tag-name-filter cat -- --all` 重写分支的历史记录，向其传递上一个命令。
-- 您可以选择使用 `git push <remote> --force --all` 将更改强制推送到远程存储库。
+- 你可以选择使用 `git push <remote> --force --all` 将更改强制推送到远程存储库。
 
-> 警告: 这是一种破坏性操作，会重写整个存储库的历史记录。确保您知道自己在做什么。
+> 警告: 这是一种破坏性操作，会重写整个存储库的历史记录。确保你知道自己在做什么。
 
 > 代码如下:
 

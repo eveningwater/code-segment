@@ -8,7 +8,7 @@
 - 使用 `Clipboard.writeText()` 将给定值 `str` 写入剪贴板。
 - 返回 `Clipboard.writeText()` 的结果，这是一个 promise，当剪贴板的内容更新时解决。
 - 如果剪贴板 API 不可用，请使用 `Promise.reject()` 通过适当的消息拒绝。
-- 注意：如果您需要支持旧版浏览器，您可能需要使用 `Document.execCommand()` 代替。 您可以在[copyToClipboard 片段](https://github.com/eveningwater/code-segment/blob/main/codes/javascript/copyToClipboard.md)中找到更多相关信息。
+- 注意：如果你需要支持旧版浏览器，你可能需要使用 `Document.execCommand()` 代替。 你可以在[copyToClipboard 片段](https://github.com/eveningwater/code-segment/blob/main/codes/javascript/copyToClipboard.md)中找到更多相关信息。
 
 > 代码如下:
 

@@ -6,7 +6,7 @@
 
 - 使用 display: grid 和 grid-auto-flow: row 创建垂直布局。
 - 使用 scroll-snap-type: y 强制和 overscroll-behavior-y: contains 在垂直滚动上创建捕捉效果。
-- 您可以使用 scroll-snap-align 与 start、stop 或 center 来更改对齐对齐方式。
+- 你可以使用 scroll-snap-align 与 start、stop 或 center 来更改对齐对齐方式。
 
 ```html
 <div class="vertical-snap">
