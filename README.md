@@ -940,3 +940,4 @@
 - [设置默认推送分支名称--2024-04-29](codes/git/setDefaultPushBranch.md)
 - [设置或者修改提交作者--2024-04-30](codes/git/setOrAmendCommitAuthor.md)
 - [通过日期排序分支--2024-05-01](codes/git/sortBranchesByDate.md)
+- [从暂存区添加或删除文件--2024-05-02](codes/git/stageUnstageFiles.md)
