@@ -943,3 +943,4 @@
 - [从暂存区添加或删除文件--2024-05-02](codes/git/stageUnstageFiles.md)
 - [存储--2024-05-03](codes/git/stashing.md)
 - [子目录--2024-05-04](codes/git/submodules.md)
+- [切换分支--2024-05-05](codes/git/switchToBranch.md)
