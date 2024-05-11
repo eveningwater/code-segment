@@ -1,10 +1,10 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                        | 标签       |
+| --------------------------- | ---------- |
 | isPrimitive(是否是原始数据) | type(类型) |
 
 检查传递的值是否是原始的。
 
-* 从 val 创建一个对象并将其与 val 进行比较以确定传递的值是否是原始的（即不等于创建的对象）。
+- 从 val 创建一个对象并将其与 val 进行比较以确定传递的值是否是原始的（即不等于创建的对象）。
 
 ```js
 const isPrimitive = val => Object(val) !== val;
@@ -24,3 +24,9 @@ isPrimitive({}); // false
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/isPrimitive.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/isPrimitive.html"></iframe>
