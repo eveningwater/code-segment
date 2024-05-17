@@ -393,7 +393,6 @@
 - [是否是质（素）数-2022-10-19](codes/javascript/isPrime.md)
 - [是否是原始数据-2022-10-20](codes/javascript/isPrimitive.md)
 - [是否是一个期约-2022-10-21](codes/javascript/isPromiseLike.md)
-- [是否是可读的流-2022-10-22](codes/javascript/isReadableStream.md)
 - [是否是相同的日期-2022-10-23](codes/javascript/isSameDate.md)
 - [是否是同源 url-2022-10-24](codes/javascript/isSameOrigin.md)
 - [是否支持会话存储-2022-10-25](codes/javascript/isSessionStorageEnabled.md)
@@ -858,6 +857,7 @@
 - [检查当前进程是否包含指定的标识-2022-08-01](codes/node/hasFlags.md)
 - [基于 nodejs 的 hash 算法-2022-08-06](codes/node/hashNode.md)
 - [是否是流-2022-09-29](codes/node/isDuplexStream.md)
+- [是否是可读的流-2022-10-22](codes/node/isReadableStream.md)
 
 ## git 代码段
 

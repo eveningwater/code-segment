@@ -28,7 +28,7 @@ isDuplexStream(new Stream.Duplex()); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/node/demo/hashNode/isDuplexStream.js" data-language="javascript"></div>
+<div class="code-editor" data-url="codes/node/demo/isDuplexStream.js" data-language="javascript"></div>
 
 在当前文件路径下打开终端，执行命令:
 
