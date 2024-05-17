@@ -946,3 +946,4 @@
 - [切换分支--2024-05-05](codes/git/switchToBranch.md)
 - [撤销提交--2024-05-09](codes/git/undoCommitWithoutRewritingHistory.md)
 - [更新提交信息或内容--2024-05-11](codes/git/updateCommitMessageOrContents.md)
+- [查看所有分支--2024-05-17](codes/git/viewAllBranches.md)
