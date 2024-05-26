@@ -947,3 +947,4 @@
 - [撤销提交--2024-05-09](codes/git/undoCommitWithoutRewritingHistory.md)
 - [更新提交信息或内容--2024-05-11](codes/git/updateCommitMessageOrContents.md)
 - [查看所有分支--2024-05-17](codes/git/viewAllBranches.md)
+- [查看更改的远程地址--2024-05-26](codes/git/viewChangeRemoteUrl.md)
