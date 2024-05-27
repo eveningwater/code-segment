@@ -12,20 +12,22 @@
 > 代码如下:
 
 ```js
-const CSVToArray = (str, delimiter = ",", omitFirstRow = false) => {
+const CSVToArray = (str, delimiter = ',', omitFirstRow = false) => {
   return str
-    .slice(omitFirstRow ? str.indexOf("\n") + 1 : 0)
-    .split("\n")
-    .map((v) => v.split(delimiter));
+    .slice(omitFirstRow ? str.indexOf('\n') + 1 : 0)
+    .split('\n')
+    .map(v => v.split(delimiter));
 };
 ```
+
+<div class="code-editor" data-url="codes/javascript/ts/CSVToArray.ts" data-language="typescript"></div>
 
 > 调用方式:
 
 ```js
-CSVToArray("a,b\nc,d"); // [['a', 'b'], ['c', 'd']];
-CSVToArray("a;b\nc;d", ";"); // [['a', 'b'], ['c', 'd']];
-CSVToArray("col1,col2\na,b\nc,d", ",", true); // [['a', 'b'], ['c', 'd']];
+CSVToArray('a,b\nc,d'); // [['a', 'b'], ['c', 'd']];
+CSVToArray('a;b\nc;d', ';'); // [['a', 'b'], ['c', 'd']];
+CSVToArray('col1,col2\na,b\nc,d', ',', true); // [['a', 'b'], ['c', 'd']];
 ```
 
 > 应用场景
