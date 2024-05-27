@@ -931,3 +931,4 @@
 - [更新提交信息或内容--2024-05-11](codes/git/updateCommitMessageOrContents.md)
 - [查看所有分支--2024-05-17](codes/git/viewAllBranches.md)
 - [查看更改的远程地址--2024-05-26](codes/git/viewChangeRemoteUrl.md)
+- [查看更改的提交信息摘要--2024-05-27](codes/git/viewChangesSummary.md)
