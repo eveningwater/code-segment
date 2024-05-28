@@ -1,26 +1,26 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                       | 标签        |
+| -------------------------- | ----------- |
 | isSorted(数值数组是否排序) | array(数组) |
 
 检查数值数组是否已排序。
 
-* 计算第一对相邻数组元素的排序方向。
-* 如果给定数组为空、只有一个元素或任何一对相邻数组元素的方向发生变化，则返回 0。
-* 使用 Math.sign() 将方向的最终值转换为 -1（降序）或 1（升序）。
+- 计算第一对相邻数组元素的排序方向。
+- 如果给定数组为空、只有一个元素或任何一对相邻数组元素的方向发生变化，则返回 0。
+- 使用 Math.sign() 将方向的最终值转换为 -1（降序）或 1（升序）。
 
 ```js
 const isSorted = arr => {
-    if(!Array.isArray(arr) || arr.length <= 1){
-        return 0;
+  if (!Array.isArray(arr) || arr.length <= 1) {
+    return 0;
+  }
+  const direction = arr[1] - arr[0];
+  for (let i = 2; i < arr.length; i++) {
+    if ((arr[i] - arr[i - 1]) * direction < 0) {
+      return 0;
     }
-    const direction = arr[1] - arr[0];
-    for(let i = 2;i < arr.length;i++){
-        if((arr[i] - arr[i - 1]) * direction < 0){
-            return 0;
-        }
-    }
-    return Math.sign(direction);
-}
+  }
+  return Math.sign(direction);
+};
 ```
 
 > 调用方式:
@@ -34,5 +34,8 @@ isSorted([4]); // 0
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/javascript/html/isSorted.html" data-language="html"></div>
 
+结果如下:
 
+<iframe src="codes/javascript/html/isSorted.html"></iframe>
