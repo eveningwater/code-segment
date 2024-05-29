@@ -397,7 +397,6 @@
 - [是否是同源 url-2022-10-24](codes/javascript/isSameOrigin.md)
 - [是否支持会话存储-2022-10-25](codes/javascript/isSessionStorageEnabled.md)
 - [数值数组是否排序-2022-10-26](codes/javascript/isSorted.md)
-- [是否是一个流-2022-10-27](codes/javascript/isStream.md)
 - [是否是字符串-2022-10-28](codes/javascript/isString.md)
 - [是否是 symbol-2022-10-29](codes/javascript/isSymbol.md)
 - [是否是 Travis CI-2022-10-30](codes/javascript/isTravisCI.md)
@@ -858,6 +857,7 @@
 - [基于 nodejs 的 hash 算法-2022-08-06](codes/node/hashNode.md)
 - [是否是流-2022-09-29](codes/node/isDuplexStream.md)
 - [是否是可读的流-2022-10-22](codes/node/isReadableStream.md)
+- [是否是一个流-2022-10-27](codes/node/isStream.md)
 
 ## git 代码段
 
