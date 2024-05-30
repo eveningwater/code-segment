@@ -950,3 +950,4 @@
 - [查看更改的远程地址--2024-05-26](codes/git/viewChangeRemoteUrl.md)
 - [查看更改的提交信息摘要--2024-05-27](codes/git/viewChangesSummary.md)
 - [查看提交的可视化图表--2024-05-28](codes/git/viewCommitGraph.md)
+- [查看特定作者或提交者的 Git 提交--2024-05-30](codes/git/viewCommitsByAuthorOrCommitter.md)
