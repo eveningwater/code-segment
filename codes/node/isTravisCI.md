@@ -1,5 +1,5 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                     | 标签          |
+| ------------------------ | ------------- |
 | isTravisCI(是否是字符串) | node(node.js) |
 
 检查当前环境是否为[Travis CI](https://travis-ci.org/)。
@@ -18,5 +18,10 @@ isTravisCI(); // true (if code is running on Travis CI)
 
 > 应用场景
 
+<div class="code-editor" data-url="codes/node/demo/isTravisCI.js" data-language="javascript"></div>
 
+在当前文件路径下打开终端，执行命令:
 
+```shell
+node isTravisCI.js
+```

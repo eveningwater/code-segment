@@ -410,7 +410,6 @@
 - [数值数组是否排序-2022-10-26](codes/javascript/isSorted.md)
 - [是否是字符串-2022-10-28](codes/javascript/isString.md)
 - [是否是 symbol-2022-10-29](codes/javascript/isSymbol.md)
-- [是否是 Travis CI-2022-10-30](codes/javascript/isTravisCI.md)
 - [是否是未初始化值-2022-10-31](codes/javascript/isUndefined.md)
 - [是否是大写字母-2022-11-01](codes/javascript/isUpperCase.md)
 - [是否是合格的 JSON 数据结构-2022-11-02](codes/javascript/isValidJSON.md)
@@ -876,6 +875,7 @@
 - [是否是流-2022-09-29](codes/node/isDuplexStream.md)
 - [是否是可读的流-2022-10-22](codes/node/isReadableStream.md)
 - [是否是一个流-2022-10-27](codes/node/isStream.md)
+- [是否是 Travis CI-2022-10-30](codes/node/isTravisCI.md)
 
 ## git 代码段
 
