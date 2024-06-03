@@ -1,10 +1,10 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题                        | 标签           |
+| --------------------------- | -------------- |
 | isUpperCase(是否是大写字母) | string(字符串) |
 
 检查字符串是否为大写。
 
-* 使用 String.prototype.toUpperCase() 将给定的字符串转换为大写，并将其与原始字符串进行比较。
+- 使用 String.prototype.toUpperCase() 将给定的字符串转换为大写，并将其与原始字符串进行比较。
 
 ```js
 const isUpperCase = str => str === str.toUppercase();
@@ -19,3 +19,9 @@ isUpperCase('aB4'); // false
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/isUpperCase.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/isUpperCase.html"></iframe>
