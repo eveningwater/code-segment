@@ -404,7 +404,6 @@
 - [是否是合格的 JSON 数据结构-2022-11-02](codes/javascript/isValidJSON.md)
 - [是否是工作日-2022-11-03](codes/javascript/isWeekday.md)
 - [是否是周末-2022-11-04](codes/javascript/isWeekend.md)
-- [是否是可写流-2022-11-05](codes/javascript/isWritableStream.md)
 - [数组转字符串-2022-11-06](codes/javascript/join.md)
 - [并列函数-2022-11-07](codes/javascript/juxt.md)
 - [K 均值聚类算法-2022-11-08](codes/javascript/kMeans.md)
@@ -858,6 +857,7 @@
 - [是否是可读的流-2022-10-22](codes/node/isReadableStream.md)
 - [是否是一个流-2022-10-27](codes/node/isStream.md)
 - [是否是 Travis CI-2022-10-30](codes/node/isTravisCI.md)
+- [是否是可写流-2022-11-05](codes/node/isWritableStream.md)
 
 ## git 代码段
 
