@@ -392,8 +392,8 @@
 - [是否是小写-2022-10-07](codes/javascript/isLowerCase.md)
 - [是否是负零-2022-10-08](codes/javascript/isNegativeZero.md)
 - [是否是 null 或者 undefined-2022-10-09](codes/javascript/isNil.md)
-- [是否是 node 环境-2022-10-10](codes/javascript/isNode.md)
 - [是否是 null-2022-10-11](codes/javascript/isNull.md)
+- [是否是 node 环境-2022-10-10](codes/javascript/isNode.md)
 - [是否是一个数字-2022-10-12](codes/javascript/isNumber.md)
 - [是否是一个对象-2022-10-13](codes/javascript/isObject.md)
 - [是否是一个对象 2-2022-10-14](codes/javascript/isObjectLike.md)
@@ -876,6 +876,7 @@
 - [是否是一个流-2022-10-27](codes/node/isStream.md)
 - [是否是 Travis CI-2022-10-30](codes/node/isTravisCI.md)
 - [是否是可写流-2022-11-05](codes/node/isWritableStream.md)
+- [是否是 node 环境-2024-06-18](codes/node/isNode.md)
 
 ## git 代码段
 

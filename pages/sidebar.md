@@ -858,6 +858,7 @@
 - [是否是一个流-2022-10-27](codes/node/isStream.md)
 - [是否是 Travis CI-2022-10-30](codes/node/isTravisCI.md)
 - [是否是可写流-2022-11-05](codes/node/isWritableStream.md)
+- [是否是 node 环境-2024-06-18](codes/node/isNode.md)
 
 ## git 代码段
 
