@@ -7,5 +7,7 @@ const parseJSONData = <T>(str: string): T => {
     }
     return res;
 }
-
-// parseJSONData(`{ "name":"eveningwater"}`) // { name:"eveningwater" }
+// 指定返回值类型
+parseJSONData<Record<string, string>>(`{ "name":"eveningwater"}`); // { name:"eveningwater" }
+// 指定返回值类型
+parseJSONData<string | number []>(`["eveningwater",1]`); // ["eveningwater", 1]
