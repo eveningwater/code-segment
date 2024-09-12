@@ -20,6 +20,10 @@ const HSBToRGB = (h, s, b) => {
 };
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/HSBToRGB.ts" data-language="typescript"></div>
+
 > 注:`k`值的公式如下图:
 
 ![k值](../../images/1.svg)
