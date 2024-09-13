@@ -8,3 +8,5 @@ const CSVToArray = (str: string, delimiter = ',', omitFirstRow = false) => {
 CSVToArray('a,b\nc,d'); // [['a', 'b'], ['c', 'd']];
 CSVToArray('a;b\nc;d', ';'); // [['a', 'b'], ['c', 'd']];
 CSVToArray('col1,col2\na,b\nc,d', ',', true); // [['a', 'b'], ['c', 'd']];
+
+
