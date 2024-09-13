@@ -7,7 +7,7 @@ const HSLToRGB = (h: number, s: number, l: number) => {
     return [255 * f(0), 255 * f(8), 255 * f(4)];
 };
 
-const rgbaArr = HSLToRGB(13, 100, 11); // [56.1, 12.155, 0]
+const hslRgbaArr = HSLToRGB(13, 100, 11); // [56.1, 12.155, 0]
 
 // 转成字符串,再拼接一个透明度
-const rgba = `rgba(${rgbaArr.join(',')},1)`; // rgba(56.1,12.155,0,1)
+const hslRgba = `rgba(${hslRgbaArr.join(',')},1)`; // rgba(56.1,12.155,0,1)
