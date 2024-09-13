@@ -15,6 +15,10 @@ const hasPrototypeObject = (obj, name) =>
   !obj.hasOwnProperty(name) && name in obj;
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/hasPrototypeObject.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
