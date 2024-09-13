@@ -12,6 +12,9 @@
 
 ```js
 const watchIsAutoPlay = (el) => {
+    if(!(el instanceof HTMLAudioElement)){
+        throw new Error('el must be a HTMLAudioElement');
+    }
     el.muted = true;
     return Promise.resolve(el.play()).then(() => true).catch(() => false);
 }
@@ -21,6 +24,9 @@ const watchIsAutoPlay = (el) => {
 
 ```js
 const watchIsAutoPlay = (el) => {
+    if(!(el instance HTMLAudioElement)){
+        throw new Error('el must be a HTMLAudioElement');
+    }
     const src = el.getAttribute('src');
     if (!src) {
         return Promise.resolve(false);

@@ -4,6 +4,9 @@
  * @returns 
  */
 // const watchIsAutoPlay = (el: HTMLAudioElement) => {
+    // if (!(el instanceof HTMLAudioElement)) {
+    //     throw new Error('el must be a HTMLAudioElement');
+    // }
 //     el.muted = true;
 //     return Promise.resolve(el.play()).then(() => true).catch(() => false)
 // }
@@ -13,8 +16,11 @@
  * @returns 
  */
 const watchIsAutoPlay = (el: HTMLAudioElement) => {
+    if (!(el instanceof HTMLAudioElement)) {
+        throw new Error('el must be a HTMLAudioElement');
+    }
     const src = el.getAttribute('src');
-    if(!src){
+    if (!src) {
         return Promise.resolve(false);
     }
     return new Promise<boolean>((resolve) => {
