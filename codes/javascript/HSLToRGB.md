@@ -21,6 +21,10 @@ const HSLToRGB = (h, s, l) => {
 };
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/HSLToRGB.ts" data-language="typescript"></div>
+
 > 注:`k`值的公式如下图:
 
 ![k值](../../images/3.svg)
