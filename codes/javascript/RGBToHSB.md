@@ -24,6 +24,10 @@ const RGBToHSB = (r, g, b) => {
 };
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/RGBToHSB.ts" data-language="typescript"></div>
+
 > 注:`v`值的公式如下图:
 
 ![v值](../../images/6.svg)
