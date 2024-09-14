@@ -45,18 +45,20 @@ window.$docsify = {
             allEditors.forEach(editor => {
               const dataUrl = editor.getAttribute('data-url');
               const language = editor.getAttribute('data-language');
-              axios.get(dataUrl).then(res => {
-                require(['vs/editor/editor.main'], function () {
-                  monaco.editor.create(editor, {
-                    value:
-                      typeof res.data === 'string'
-                        ? res.data
-                        : JSON.stringify(res.data),
-                    language,
-                    theme: 'vs-dark'
+              if (typeof axios !== 'undefined') {
+                axios.get(dataUrl).then(res => {
+                  require(['vs/editor/editor.main'], function () {
+                    monaco.editor.create(editor, {
+                      value:
+                        typeof res.data === 'string'
+                          ? res.data
+                          : JSON.stringify(res.data),
+                      language,
+                      theme: 'vs-dark'
+                    });
                   });
                 });
-              });
+              }
             });
           }
         });
