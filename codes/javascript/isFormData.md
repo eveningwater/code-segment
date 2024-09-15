@@ -13,6 +13,10 @@ const isFormData = val =>
   typeof FormData !== 'undefined' && val instanceof FormData;
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/isFormData.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
