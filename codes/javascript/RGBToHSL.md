@@ -33,6 +33,10 @@ const RGBToHSL = (r, g, b) => {
 };
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/RGBToHSL.ts" data-language="typescript"></div>
+
 > 注:涉及的转换公式以及步骤如下所示:
 
 - 步骤 1：把 RGB 值转成【0，1】中数值。
