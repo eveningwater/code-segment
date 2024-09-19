@@ -20,6 +20,10 @@ const RGBToHex = (r, g, b) =>
 RGBToHex(255, 165, 1); // 'ffa501'
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/RGBToHex.ts" data-language="typescript"></div>
+
 > 应用场景
 
 <div class="code-editor" data-url="codes/javascript/html/RGBToHex.html" data-language="html"></div>
