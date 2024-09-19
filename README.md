@@ -698,6 +698,7 @@
 - [将json字符串解析成json数据-2024-09-12](codes/javascript/parseJSONData.md)
 - [打开新窗口-2024-09-13](codes/javascript/openNewWindow.md)
 - [监听音频是否可以自动播放-2024-09-13](codes/javascript/watchIsAutoPlay.md)
+- [解析字符串-2024-09-19](codes/javascript/parseStr.md)
 
 ## typescript 代码段
 
