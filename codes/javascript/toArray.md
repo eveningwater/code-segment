@@ -14,6 +14,10 @@ const toArray = (value = '') =>
   Array.from ? Array.from(value) : Array.prototype.slice.call(value);
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/toArray.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
