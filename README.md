@@ -966,3 +966,5 @@
 
 - [打造无障碍网站的 8 个技巧--2024-09-23](codes/html/8TipsForAccessibleWebsites.md)
 - [alt与title属性的区别--2024-09-23](codes/html/altVsTitle..md)
+- [异步与延迟--2024-09-23](codes/html/asyncDefer.md)
+- [自定义可下载文件的名称--2024-09-23](codes/html/customFileDownloadNames.md)
