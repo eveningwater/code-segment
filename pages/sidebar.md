@@ -22,7 +22,7 @@
 - [画圆--2022-09-16](codes/css/circle.md)
 - [清除浮动--2022-09-17](codes/css/clearfix.md)
 - [恒定的宽高比--2022-09-18](codes/css/constant-width-to-height-ratio.md)
-- [计数器--2022-09-19](codes/css/Counter.md)
+- [计数器--2022-09-19](codes/css/counter.md)
 - [自定义复选框--2022-09-20](codes/css/custom-checkbox.md)
 - [自定义滚动条--2022-09-21](codes/css/custom-scrollbar.md)
 - [自定义文本选中--2022-09-22](codes/css/custom-text-selection.md)
