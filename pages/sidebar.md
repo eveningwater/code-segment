@@ -944,3 +944,8 @@
 - [查看提交摘要--2024-06-04](codes/git/viewCommitsSummary.md)
 - [查看 git 之间的不同更改--2024-06-05](codes/git/viewDifferences.md)
 - [查看 git 的上一次提交--2024-09-23](codes/git/viewLastCommit.md)
+
+## html代码段
+
+- [打造无障碍网站的 8 个技巧--2024-09-23](codes/html/8TipsForAccessibleWebsites.md)
+- [alt与title属性的区别--2024-09-23](codes/html/altVsTitle..md)
