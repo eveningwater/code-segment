@@ -960,3 +960,4 @@
 - [查看特定日期范围内的 Git 提交--2024-06-03](codes/git/viewCommitsInDateRange.md)
 - [查看提交摘要--2024-06-04](codes/git/viewCommitsSummary.md)
 - [查看 git 之间的不同更改--2024-06-05](codes/git/viewDifferences.md)
+- [查看 git 的上一次提交--2024-09-23](codes/git/viewLastCommit.md)
