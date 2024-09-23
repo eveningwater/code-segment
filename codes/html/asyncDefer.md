@@ -33,3 +33,11 @@
 ```html
 <script src="script.js" defer></script>
 ```
+
+> 使用示例
+
+<div class="code-editor" data-url="codes/html/html/async-defer.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/html/html/async-defer.html"></iframe>

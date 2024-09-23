@@ -6,8 +6,19 @@
 
 另一方面，title 属性提供有关图像的附加信息。当用户将鼠标悬停在图像上时，此信息将为图片提供提示。
 
+> 代码如下所示:
+
 ```html
 <img src="image.jpg" alt="替代文本" title="其他信息">
 ```
 
 总体而言，应为所有 `<img>` 元素指定 alt 属性，因为它对于可访问性和 SEO 都很重要。另一方面，title 属性是可选的，仅应在需要提供有关图像的其他信息时使用。
+
+> 使用示例
+
+<div class="code-editor" data-url="codes/html/html/alt-vs-title.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/html/html/alt-vs-title.html"></iframe>
+
