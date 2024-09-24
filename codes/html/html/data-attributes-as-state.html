@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>data-attributes-as-state</title>
+    <style>
+        .order-summary.completed {
+            background-color: green;
+        }
+
+        .order-summary.loading {
+            background-color: yellow;
+        }
+
+        .order-summary.error {
+            background-color: red;
+        }
+
+        .order-summary[data-state="completed"] {
+            background-color: green;
+        }
+
+        .order-summary[data-state="loading"] {
+            background-color: yellow;
+        }
+
+        .order-summary[data-state="error"] {
+            background-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="order-1">占位内容</div>
+    <div id="order-2" class="order-summary">占位内容</div>
+    <button type="button" id="testBtn">点击我</button>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.7.2/axios.min.js"></script>
+    <script>
+        const api = "https://api.thecatapi.com/v1/images/search?size=full";
+
+        const order1 = document.getElementById("order-1");
+        const order2 = document.getElementById("order-2");
+        const btn = document.getElementById('testBtn');
+
+        const orderData = {
+            loading: false,
+            complete: false,
+            errorMessage: null
+        };
+        const changeState = () => {
+            order1.className = `order-summary ${orderData.completed ? 'completed' : ''} ${orderData.loading ? 'loading' : ''} ${orderData.errorMessage ? 'error' : ''}`;
+            order2.dataset.state = orderData.completed ? 'completed' : orderData.errorMessage ? 'error' : orderData.loading ? 'loading' : '';
+            order2.dataset.loading = orderData.loading ?  'true' : 'false';
+        }
+
+        btn.onclick = () => {
+            orderData.loading = true;
+            changeState();
+            axios.get(api).then(res => {
+                orderData.complete = true;
+                orderData.loading = false;
+                orderData.errorMessage = null;
+                changeState();
+                order1.innerHTML = `<img src="${res.data[0].url}">`;
+                order2.innerHTML = `<img src="${res.data[0].url}">`;
+            }).catch(err => {
+                orderData.complete = false;
+                orderData.loading = false;
+                orderData.errorMessage = err.message;
+                changeState();
+            })
+        }
+    </script>
+</body>
+
+</html>

@@ -952,3 +952,4 @@
 - [alt与title属性的区别--2024-09-23](codes/html/altVsTitle.md)
 - [异步与延迟--2024-09-23](codes/html/asyncDefer.md)
 - [自定义可下载文件的名称--2024-09-23](codes/html/customFileDownloadNames.md)
+- [数据属性作为状态--2024-09-24](codes/html/dataAttributesAsState.md)

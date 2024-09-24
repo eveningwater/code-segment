@@ -8,3 +8,11 @@ HTML5 引入了我们许多人每天都会用到的各种便捷功能。由于�
 <!-- 下载的文件名是'测试.pdf' -->
 <a href="/test.pdf" download="测试.pdf">测试pdf</a>
 ```
+
+> 使用示例
+
+<div class="code-editor" data-url="codes/html/html/custom-file-download-names.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/html/html/custom-file-download-names.html"></iframe>
