@@ -695,10 +695,11 @@
 - [是否是安全合法的属性名-2022-08-23](codes/javascript/isSSRSafeAttrName.md)
 - [最大最小值限定-2022-08-24](codes/javascript/minMaxValue.md)
 - [版本比较-2022-09-10](codes/javascript/compareVersion.md)
-- [将json字符串解析成json数据-2024-09-12](codes/javascript/parseJSONData.md)
+- [将 json 字符串解析成 json 数据-2024-09-12](codes/javascript/parseJSONData.md)
 - [打开新窗口-2024-09-13](codes/javascript/openNewWindow.md)
 - [监听音频是否可以自动播放-2024-09-13](codes/javascript/watchIsAutoPlay.md)
 - [解析字符串-2024-09-19](codes/javascript/parseStr.md)
+- [期约合并-2024-09-26](codes/javascript/PromiseAll.md)
 
 ## typescript 代码段
 
@@ -961,14 +962,14 @@
 - [查看提交摘要--2024-06-04](codes/git/viewCommitsSummary.md)
 - [查看 git 之间的不同更改--2024-06-05](codes/git/viewDifferences.md)
 - [查看 git 的上一次提交--2024-09-23](codes/git/viewLastCommit.md)
-- [查看合并的git分支--2024-09-24](codes/git/viewMergedBranches.md)
+- [查看合并的 git 分支--2024-09-24](codes/git/viewMergedBranches.md)
 - [查看当前 Git 状态--2024-09-25](codes/git/viewStatus.md)
 - [查看 Git 提交历史记录--2024-09-25](codes/git/viewUndoHistory.md)
 
-## html代码段
+## html 代码段
 
 - [打造无障碍网站的 8 个技巧--2024-09-23](codes/html/8TipsForAccessibleWebsites.md)
-- [alt与title属性的区别--2024-09-23](codes/html/altVsTitle.md)
+- [alt 与 title 属性的区别--2024-09-23](codes/html/altVsTitle.md)
 - [异步与延迟--2024-09-23](codes/html/asyncDefer.md)
 - [自定义可下载文件的名称--2024-09-23](codes/html/customFileDownloadNames.md)
 - [数据属性作为状态--2024-09-24](codes/html/dataAttributesAsState.md)
