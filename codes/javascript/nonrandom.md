@@ -9,7 +9,7 @@
 > 代码如下：
 
 ```js
-function nonrandom(...num) {
+const nonrandom = (...num) => {
   if (Array.isArray(num[0])) {
     num = num[0];
   }
@@ -31,6 +31,10 @@ function nonrandom(...num) {
   return randomArr;
 }
 ```
+
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/nonrandom.ts" data-language="typescript"></div>
 
 > 调用方式：
 
