@@ -962,6 +962,8 @@
 - [查看 git 之间的不同更改--2024-06-05](codes/git/viewDifferences.md)
 - [查看 git 的上一次提交--2024-09-23](codes/git/viewLastCommit.md)
 - [查看合并的git分支--2024-09-24](codes/git/viewMergedBranches.md)
+- [查看当前 Git 状态--2024-09-25](codes/git/viewStatus.md)
+- [查看 Git 提交历史记录--2024-09-25](codes/git/viewUndoHistory.md)
 
 ## html代码段
 
