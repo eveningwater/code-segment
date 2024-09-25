@@ -33,6 +33,10 @@ const myPromiseAll = promiseArr => {
 };
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/PromiseAll.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -47,3 +51,9 @@ promiseAll.then(function (res) {
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/javascript/html/promiseAll.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/promiseAll.html"></iframe>
