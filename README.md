@@ -974,3 +974,4 @@
 - [自定义可下载文件的名称--2024-09-23](codes/html/customFileDownloadNames.md)
 - [数据属性作为状态--2024-09-24](codes/html/dataAttributesAsState.md)
 - [头部图标--2024-09-25](codes/html/headIcons.md)
+- [头部链接--2024-09-26](codes/html/headLinks.md)
