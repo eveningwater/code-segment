@@ -19,6 +19,10 @@ const UUIDGeneratorBrowser = () =>
   );
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/UUIDGeneratorBrowser.ts" data-language="typescript"></div>
+
 或者可以使用如下的方法:
 
 ```js
@@ -30,6 +34,8 @@ const UUIDGeneratorBrowser = () =>
   Math.random().toString().substring(2, 5);
 //这个返回的结果与前面的有区别
 ```
+
+> 注: substring方法已经废弃，需要使用其它方法来代替。
 
 > 调用方式:
 
