@@ -35,6 +35,10 @@ lowerCamelCase('class-last-name'); // classLastName
 lowerCamelCase('class_last_name', '_'); // classLastName
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/lowerCamelCase.ts" data-language="typescript"></div>
+
 > 应用场景
 
 <div class="code-editor" data-url="codes/javascript/html/lowerCamelCase.html" data-language="html"></div>
