@@ -14,6 +14,10 @@ const accumulate = (...args) =>
   args.reduce((acc, n) => [...acc, n + +acc.slice(-1)], []);
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/accumulate.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
