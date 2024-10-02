@@ -22,6 +22,10 @@ function intersect(...arg) {
 }
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/intersect.ts" data-language="typescript"></div>
+
 > 调用方式
 
 ```js
