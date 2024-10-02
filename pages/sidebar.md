@@ -958,3 +958,4 @@
 - [数据属性作为状态--2024-09-24](codes/html/dataAttributesAsState.md)
 - [头部图标--2024-09-25](codes/html/headIcons.md)
 - [头部链接--2024-09-26](codes/html/headLinks.md)
+- [社交媒体的标签--2024-10-02](codes/html/headSocialTags.md)
