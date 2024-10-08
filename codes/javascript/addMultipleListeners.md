@@ -9,11 +9,15 @@
 > 代码如下:
 
 ```js
-const addMultipleListeners = (el, eventType, listener, options, useCapture) =>
+const addMultipleListeners = (el, eventType, listener, options) =>
   eventType.forEach(type =>
-    el.addEventListener(type, listener, options, useCapture)
+    el?.addEventListener(type, listener, options)
   );
 ```
+
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/addMultipleListeners.ts" data-language="typescript"></div>
 
 > 调用方式:
 
