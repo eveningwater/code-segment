@@ -961,3 +961,4 @@
 - [社交媒体的标签--2024-10-02](codes/html/headSocialTags.md)
 - [图片alt属性--2024-10-04](codes/html/imageAlt.md)
 - [懒加载图片--2024-10-08](codes/html/lazyLoadingImages.md)
+- [纯数字输入框--2024-10-09](codes/html/numberOnlyInput.md)
