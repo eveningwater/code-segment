@@ -13,6 +13,10 @@
 const all = (arr, fn = Boolean) => arr.every(fn);
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/all.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,6 +24,7 @@ all([4, 2, 3], x => x > 1); // true
 all([1, 2, 3]); // true
 all([1, 2, 3], x => x < 2); //false
 ```
+
 
 > 应用场景
 
