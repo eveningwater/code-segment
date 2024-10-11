@@ -962,3 +962,4 @@
 - [图片alt属性--2024-10-04](codes/html/imageAlt.md)
 - [懒加载图片--2024-10-08](codes/html/lazyLoadingImages.md)
 - [纯数字输入框--2024-10-09](codes/html/numberOnlyInput.md)
+- [在新选项卡中打开 HTML 文档中的所有链接--2024-10-11](codes/html/openAllLinksInNewTab.md)
