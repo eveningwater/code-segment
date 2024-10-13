@@ -14,6 +14,10 @@
 const allEqualBy = (arr, fn) => arr.every(item => item === fn(arr[0]));
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/allEqualBy.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
