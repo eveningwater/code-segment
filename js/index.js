@@ -47,8 +47,9 @@ window.$docsify = {
               const language = editor.getAttribute('data-language');
               if (typeof axios !== 'undefined') {
                 axios.get(dataUrl).then(res => {
+             
                   require(['vs/editor/editor.main'], function () {
-                    monaco.editor.create(editor, {
+                    const editorInstance = monaco.editor.create(editor, {
                       value:
                         typeof res.data === 'string'
                           ? res.data
@@ -56,6 +57,7 @@ window.$docsify = {
                       language,
                       theme: 'vs-dark'
                     });
+                    setEditorHeight(editor,editorInstance)
                   });
                 });
               }
