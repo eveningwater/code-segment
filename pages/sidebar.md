@@ -965,3 +965,4 @@
 - [在新选项卡中打开 HTML 文档中的所有链接--2024-10-11](codes/html/openAllLinksInNewTab.md)
 - [密码自动完成--2024-10-12](codes/html//passwordAutocompleteSuggestion.md)
 - [预加载资源--2024-10-13](codes/html//prefetchingResources.md)
+- [推荐的最小化html头--2024-10-14](codes/html//ecommendedMinimumHead.md)
