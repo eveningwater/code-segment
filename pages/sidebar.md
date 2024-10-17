@@ -967,3 +967,4 @@
 - [预加载资源--2024-10-13](codes/html/prefetchingResources.md)
 - [推荐的最小化html头--2024-10-14](codes/html/ecommendedMinimumHead.md)
 - [资源预加载备忘单--2024-10-15](codes/html/resourcePreloadingCheatsheet.md)
+- [倒序列表--2024-10-17](codes/html/reversedList.md)
