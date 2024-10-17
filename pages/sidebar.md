@@ -970,3 +970,4 @@
 - [倒序列表--2024-10-17](codes/html/reversedList.md)
 - [从不同数字开始有序列表--2024-10-17](codes/html/startOrderedListAtDifferentNumber.md)
 - [打开新标签页--2024-10-17](codes/html/targetBlank.md)
+- [缩放与可访问性技巧--2024-10-17](codes/html/zoomingAccessibilityTips.md)
