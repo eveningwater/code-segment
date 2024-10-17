@@ -968,3 +968,5 @@
 - [推荐的最小化html头--2024-10-14](codes/html/ecommendedMinimumHead.md)
 - [资源预加载备忘单--2024-10-15](codes/html/resourcePreloadingCheatsheet.md)
 - [倒序列表--2024-10-17](codes/html/reversedList.md)
+- [从不同数字开始有序列表--2024-10-17](codes/html/startOrderedListAtDifferentNumber.md)
+- [打开新标签页--2024-10-17](codes/html/targetBlank.md)
