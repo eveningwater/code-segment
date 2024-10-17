@@ -14,6 +14,10 @@
 const allUniqueBy = (arr, fn) => arr.length === new Set(arr.map(fn)).size;
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/allUniqueBy.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
