@@ -55,7 +55,11 @@ window.$docsify = {
                           ? res.data
                           : JSON.stringify(res.data),
                       language,
-                      theme: 'vs-dark'
+                      theme: 'vs-dark',
+                      scrollBeyondLastLine: false,
+                      scrollbar: {
+                        handleMouseWheel: false,
+                      },
                     });
                     setEditorHeight(editor,editorInstance)
                   });
