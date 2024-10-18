@@ -12,6 +12,10 @@
 const and = (a, b) => a && b;
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/and.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
