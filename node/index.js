@@ -56,6 +56,6 @@ function renameFilesInDirectory(directoryPath) {
     })
 }
 
-// renameFilesInDirectory('../codes/git');
+renameFilesInDirectory('../codes/html');
 
 replacePath('./test')
