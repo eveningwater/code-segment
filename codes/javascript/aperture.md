@@ -15,6 +15,10 @@ const aperture = (arr, n) =>
   n > arr.length ? [] : arr.slice(n - 1).map((v, i) => arr.slice(i, i + n));
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/aperture.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
