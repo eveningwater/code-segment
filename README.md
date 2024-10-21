@@ -988,3 +988,7 @@
 - [从不同数字开始有序列表--2024-10-17](codes/html/start-ordered-list-at-different-number.md)
 - [打开新标签页--2024-10-17](codes/html/target-blank.md)
 - [缩放与可访问性技巧--2024-10-17](codes/html/zooming-accessibility-tips.md)
+
+## php 代码段
+
+- [检查数组所有元素--2024-10-21](codes/php/all.md)
