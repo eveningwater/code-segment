@@ -13,6 +13,10 @@
 const approximatelyEqual = (a, b, epsilon = 0.001) => Math.abs(a - b) < epsilon;
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/approximatelyEqual.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
