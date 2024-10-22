@@ -13,6 +13,10 @@ const arithmeticProgression = (n, limit) =>
   Array.from({ length: Math.ceil(limit / n) }, (_, i) => (i + 1) * n);
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/arithmeticProgression.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
