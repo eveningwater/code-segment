@@ -4,7 +4,7 @@
 
 如果提供的函数对数组的至少一个元素返回 true，则返回 true，否则返回 false。
 
-* 使用 `array_filter()` 和 `count()` 检查 `$func` 是否对 `$array` 中的任何元素返回 true。
+- 使用 `array_filter()` 和 `count()` 检查 `$func` 是否对 `$array` 中的任何元素返回 true。
 
 > 代码如下:
 
