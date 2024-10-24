@@ -1,6 +1,6 @@
 var gitalk = new Gitalk({
   clientID: '763157b9e518e0cced84',
-  clientSecret: 'a69f652d1c0c1f9a7ca0ed1cc6361e049a72e361',
+  clientSecret: '5974220596729ed58d76c7e66845d23448b1390b',
   repo: 'code-segment',
   owner: 'eveningwater',
   admin: ['eveningwater'],
