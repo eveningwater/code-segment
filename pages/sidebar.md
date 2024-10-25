@@ -977,3 +977,4 @@
 - [检查数组所有元素是否有一项满足给定条件--2024-10-22](codes/php/any.md)
 - [检查 2 个数字是否大致相等--2024-10-23](codes/php/approximately-equal.md)
 - [平均值--2024-10-24](codes/php/average.md)
+- [数值限定--2024-10-25](codes/php/clamp-number.md)
