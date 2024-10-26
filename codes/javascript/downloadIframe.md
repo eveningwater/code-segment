@@ -20,7 +20,7 @@ const downloadIframe = (path, resolve, time = 1000) => {
   let handler = function () {
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
     if (['complete', 'interactive'].indexOf(iframeDoc.readyState) > -1) {
-      document.body.removeAttribute(iframe);
+      document.body.removeChild(iframe);
       if (timer) clearTimeout(timer);
       resolve('success');
     } else {
@@ -31,6 +31,10 @@ const downloadIframe = (path, resolve, time = 1000) => {
   handler();
 };
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/downloadIframe.ts" data-language="typescript"></div>
 
 > 调用方式:
 
