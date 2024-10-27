@@ -979,3 +979,4 @@
 - [平均值--2024-10-24](codes/php/average.md)
 - [数值限定--2024-10-25](codes/php/clamp-number.md)
 - [组合函数--2024-10-26](codes/php/compose.md)
+- [统计元音字母--2024-10-27](codes/php/count-vowels.md)
