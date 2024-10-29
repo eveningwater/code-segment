@@ -19,6 +19,9 @@ function myNew() {
   return typeof res === 'object' ? res : o;
 }
 ```
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/myNew.ts" data-language="typescript"></div>
 
 > 调用方式：
 
