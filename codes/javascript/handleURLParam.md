@@ -10,7 +10,7 @@
 > 代码如下：
 
 ```js
-var getURLParam = function (url) {
+const getURLParam =  (url) => {
   let res = {};
   if (url.lastIndexOf('?') === -1) return res;
   let param = decodeURIComponent(url.slice(url.lastIndexOf('?') + 1));
@@ -22,6 +22,10 @@ var getURLParam = function (url) {
   return res;
 };
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/getURLParam.ts" data-language="typescript"></div>
 
 > 调用方式：
 

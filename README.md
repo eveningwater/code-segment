@@ -1000,3 +1000,4 @@
 - [统计元音字母--2024-10-27](codes/php/count-vowels.md)
 - [柯里化函数--2024-10-28](codes/php/curry.md)
 - [取消字符串首字母大写--2024-10-29](codes/php/decapitalize.md)
+- [深度展开数组--2024-10-30](codes/php/deepFlatten.md)
