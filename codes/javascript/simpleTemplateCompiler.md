@@ -4,8 +4,8 @@
 
 将字符串中定义的模板映射成相应的数据。
 
-- 使用正则表达式匹配模板
-- 使用字符串的 replace 方法进行替换
+- 使用正则表达式匹配模板。
+- 使用字符串的 replace 方法进行替换。
 
 > 代码如下:
 
@@ -13,6 +13,10 @@
 const simpleTemplateCompiler = template => data =>
   template.replace(/\{\{(.*?)\}\}/g, (match, key) => data[key.trim()]);
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/simpleTemplateCompiler.ts" data-language="typescript"></div>
 
 > 调用方式:
 
