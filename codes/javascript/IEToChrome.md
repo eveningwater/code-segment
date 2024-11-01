@@ -4,7 +4,9 @@
 
 从 IE 浏览器中跳转到谷歌浏览器。
 
-- 创建 ActiveXObject 实例
+- 创建 ActiveXObject 实例。
+
+> 备注: 由于IE浏览器已弃用，所以该工具方法可以忽略，仅供了解。
 
 > 代码如下:
 
@@ -24,6 +26,10 @@ const IEToChrome = url =>
 //     return new ActiveXObject("WScript.Shell").Run("chrome " + url, 0, true);
 // }
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/IEToChrome.ts" data-language="typescript"></div>
 
 > 调用方式:
 
