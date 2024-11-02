@@ -14,6 +14,10 @@ const assertValidKeys = (obj, keys) =>
   Object.keys(obj).every(key => keys.includes(key));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/assertValidKeys.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
