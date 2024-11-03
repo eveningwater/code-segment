@@ -986,3 +986,4 @@
 - [截取数组（从左到右依次根据起始索引值截取）--2024-10-31](codes/php/drop.md)
 - [匹配字符串结尾--2024-11-01](codes/php/ends-with.md)
 - [阶乘--2024-11-02](codes/php/factorial.md)
+- [斐波那契数列--2024-11-03](codes/php/fibonacci.md)

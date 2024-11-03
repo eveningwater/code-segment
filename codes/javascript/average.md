@@ -14,6 +14,10 @@ const average = (...nums) =>
   nums.reduce((acc, val) => acc + val, 0) / nums.length;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/average.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
