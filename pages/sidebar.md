@@ -988,3 +988,4 @@
 - [阶乘--2024-11-02](codes/php/factorial.md)
 - [斐波那契数列--2024-11-03](codes/php/fibonacci.md)
 - [查找最后一个元素--2024-11-04](codes/php/find-last.md)
+- [根据索引值查找最后一个元素--2024-11-05](codes/php/find-last-index.md)

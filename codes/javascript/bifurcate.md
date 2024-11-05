@@ -18,6 +18,10 @@ const bifurcate = (arr, filter) =>
 //或者 const bifurcate = (arr,filter) => arr.reduce((acc,val,i) => (acc[Number(!filter[i])].push(val),acc),[[],[]]);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/bifurcate.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
