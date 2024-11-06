@@ -700,6 +700,7 @@
 - [监听音频是否可以自动播放-2024-09-13](codes/javascript/watchIsAutoPlay.md)
 - [解析字符串-2024-09-19](codes/javascript/parseStr.md)
 - [期约合并-2024-09-26](codes/javascript/PromiseAll.md)
+- [匹配字符串之间的子字符串（提供开始匹配符和结束匹配符）--2024-11-06](codes/javascript/firstStringBetween.md)
 
 ## typescript 代码段
 
@@ -1007,3 +1008,4 @@
 - [斐波那契数列--2024-11-03](codes/php/fibonacci.md)
 - [查找最后一个元素--2024-11-04](codes/php/find-last.md)
 - [根据索引值查找最后一个元素--2024-11-05](codes/php/find-last-index.md)
+- [匹配字符串之间的子字符串（提供开始匹配符和结束匹配符）--2024-11-06](codes/php/first-string-between.md)
