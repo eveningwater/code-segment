@@ -983,7 +983,7 @@
 - [统计元音字母--2024-10-27](codes/php/count-vowels.md)
 - [柯里化函数--2024-10-28](codes/php/curry.md)
 - [取消字符串首字母大写--2024-10-29](codes/php/decapitalize.md)
-- [深度展开数组--2024-10-30](codes/php/deepFlatten.md)
+- [深度展开数组--2024-10-30](codes/php/deep-flatten.md)
 - [截取数组（从左到右依次根据起始索引值截取）--2024-10-31](codes/php/drop.md)
 - [匹配字符串结尾--2024-11-01](codes/php/ends-with.md)
 - [阶乘--2024-11-02](codes/php/factorial.md)
@@ -991,3 +991,4 @@
 - [查找最后一个元素--2024-11-04](codes/php/find-last.md)
 - [根据索引值查找最后一个元素--2024-11-05](codes/php/find-last-index.md)
 - [匹配字符串之间的子字符串（提供开始匹配符和结束匹配符）--2024-11-06](codes/php/first-string-between.md)
+- [展开数组（仅展开一层）--2024-11-07](codes/php/flatten.md)

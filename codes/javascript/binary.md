@@ -12,9 +12,14 @@
 const binary = handler => (a, b) => handler(a, b);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/binary.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
+// 此处示例类型不严谨,详情可查看ts代码
 ['2', '1', '0'].map(binary(Math.max)); // [2, 1, 2]
 ```
 
