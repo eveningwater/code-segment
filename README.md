@@ -1010,3 +1010,4 @@
 - [根据索引值查找最后一个元素--2024-11-05](codes/php/find-last-index.md)
 - [匹配字符串之间的子字符串（提供开始匹配符和结束匹配符）--2024-11-06](codes/php/first-string-between.md)
 - [展开数组（仅展开一层）--2024-11-07](codes/php/flatten.md)
+- [最大公约数--2024-11-08](codes/php/gcd.md)
