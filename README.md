@@ -1011,3 +1011,4 @@
 - [匹配字符串之间的子字符串（提供开始匹配符和结束匹配符）--2024-11-06](codes/php/first-string-between.md)
 - [展开数组（仅展开一层）--2024-11-07](codes/php/flatten.md)
 - [最大公约数--2024-11-08](codes/php/gcd.md)
+- [根据传入的函数对数组进行分组--2024-11-09](codes/php/group-by.md)
