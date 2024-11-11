@@ -16,6 +16,10 @@ const bindKey =
     context[handler].apply(context, [...bindArgs, ...args]);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/bindKey.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js

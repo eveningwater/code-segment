@@ -1013,3 +1013,4 @@
 - [最大公约数--2024-11-08](codes/php/gcd.md)
 - [根据传入的函数对数组进行分组--2024-11-09](codes/php/group-by.md)
 - [数组中是否含有重复元素--2024-11-10](codes/php/has-duplicates.md)
+- [返回数组头部元素(即第一个元素)--2024-11-11](codes/php/head.md)
