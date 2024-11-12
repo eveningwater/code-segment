@@ -9,21 +9,61 @@
 
 ```js
 const isAnagram = (str1, str2) => {
-  const normalize = str =>
+  const normalize = (str) =>
     str
       .toLowerCase()
-      .replace(/[^a-z0-9]/gi, '')
-      .split('')
+      .replace(/[^a-z0-9]/gi, "")
+      .split("")
       .sort()
       .join();
   return normalize(str1) === normalize(str2);
 };
 ```
 
+### 可以模拟 php 的 count_chars 函数,然后再通过 count_chars 函数来判断
+
+代码如下所示:
+
+```js
+function countChars(str, mode = 0) {
+  const charCount = {};
+  for (let char of str) {
+    const code = char.charCodeAt(0);
+    charCount[code] = (charCount[code] || 0) + 1;
+  }
+  switch (mode) {
+    case 0:
+      return charCount;
+    case 1:
+      return Object.keys(charCount)
+        .map((code) => String.fromCharCode(Number(code)))
+        .join("");
+    case 2:
+      return charCount;
+    case 3:
+      const allChars = [];
+      for (let i = 32; i <= 126; i++) {
+        if (!charCount[i]) {
+          allChars.push(String.fromCharCode(i));
+        }
+      }
+      return allChars.join("");
+    default:
+      return null;
+  }
+}
+function isAnagram(str1, str2) {
+  // 数组对象无法直接判断相等，所以需要转成字符串
+  return (
+    JSON.stringify(countChars(str1, 1)) === JSON.stringify(countChars(str2, 1))
+  );
+}
+```
+
 > 调用方式:
 
 ```js
-isAnagram('iceman', 'cinema'); // true
+isAnagram("iceman", "cinema"); // true
 ```
 
 > 应用场景
