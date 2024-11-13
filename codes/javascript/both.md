@@ -15,6 +15,10 @@ const both =
     f(...args) && g(...args);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/both.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
