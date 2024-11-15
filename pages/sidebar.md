@@ -999,3 +999,4 @@
 - [是否是异位字符串--2024-11-12](codes/php/is-anagram.md)
 - [判断给定子字符串是否是给定字符串的子字符串--2024-11-13](codes/php/is-contains.md)
 - [是否是偶数--2024-11-14](codes/php/is-even.md)
+- [是否是小写字母--2024-11-15](codes/php/is-lower-case.md)
