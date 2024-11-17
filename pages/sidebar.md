@@ -1001,3 +1001,4 @@
 - [是否是偶数--2024-11-14](codes/php/is-even.md)
 - [是否是小写字母--2024-11-15](codes/php/is-lower-case.md)
 - [是否是质数--2024-11-16](codes/php/is-prime.md)
+- [是否是大写字母--2024-11-17](codes/php/is-upper-case.md)

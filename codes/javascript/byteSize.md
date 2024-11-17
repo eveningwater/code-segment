@@ -13,6 +13,10 @@
 const byteSize = str => new Blob([str]).size;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/byteSize.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
