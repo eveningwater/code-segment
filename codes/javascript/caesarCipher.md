@@ -29,6 +29,10 @@ const caesarCipher = (str, shift, decrypt = false) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/caesarCipher.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
