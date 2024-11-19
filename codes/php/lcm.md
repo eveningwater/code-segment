@@ -7,7 +7,7 @@
 - 使用最大公约数 (GCD) 公式事实上也就是`lcm(x,y) = abs(x * y) / gcd(x,y)`来确定最小公倍数。
 - GCD 公式使用递归。
 
-> 函数[abs](https://www.php.net/manual/en/function.abs.php)和[gcd](./gcd.md)。
+> 函数[abs](https://www.php.net/manual/en/function.abs.php)和[gcd](gcd)。
 
 ## 特别说明
 
