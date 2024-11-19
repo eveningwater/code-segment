@@ -1021,3 +1021,4 @@
 - [是否是质数--2024-11-16](codes/php/is-prime.md)
 - [是否是大写字母--2024-11-17](codes/php/is-upper-case.md)
 - [获取数组最后一个元素--2024-11-18](codes/php/last.md)
+- [最小公倍数--2024-11-19](codes/php/lcm.md)
