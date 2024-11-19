@@ -1,157 +1,217 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>binomialCoefficient</title>
+    <title>二项式展开式计算器</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
             background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
 
         .container {
-            background-color: white;
-            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            text-align: center;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .input-group {
-            margin: 15px 0;
+            margin-bottom: 15px;
         }
 
-        input {
-            width: 100px;
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
             padding: 8px;
-            margin-left: 10px;
             font-size: 14px;
-            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+            padding: 10px 15px;
+            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
 
         .output {
-            margin-top: 30px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
+            margin-top: 20px;
         }
 
-        .binomial-coefficients {
-            margin-top: 20px;
-            font-size: 16px;
-            font-weight: normal;
-            color: #555;
-            text-align: left;
+        canvas {
+            margin-top: 30px;
+            max-width: 100%;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>二项式定理计算器</h1>
-        <p>输入n和k，计算并展开二项式表达式 (x + y)<sup>n</sup>，同时显示每一项的二项式系数。</p>
-
+        <h1>二项式展开式计算器</h1>
         <div class="input-group">
-            <label for="n">n：</label>
+            <label for="n">输入 n (幂次)：</label>
             <input type="number" id="n" min="0" placeholder="输入 n" required>
         </div>
         <div class="input-group">
-            <label for="k">k：</label>
-            <input type="number" id="k" min="0" placeholder="输入 k" required>
+            <label for="xValue">x 的值：</label>
+            <input type="number" id="xValue" placeholder="输入 x" required>
         </div>
-
-        <button id="calculateBtn">计算</button>
-
-        <div id="output" class="output"></div>
-        <div id="binomialCoefficients" class="binomial-coefficients"></div>
+        <div class="input-group">
+            <label for="yValue">y 的值：</label>
+            <input type="number" id="yValue" placeholder="输入 y" required>
+        </div>
+        <div class="input-group">
+            <label for="kValue">选择查看的项（k）：</label>
+            <input type="number" id="kValue" min="0" placeholder="输入 k" required>
+        </div>
+        <button id="calculateBtn">计算并展示展开式</button>
+        <button id="showCoefficientBtn">查看该项系数</button>
+        <div class="output" id="output"></div>
+        <div id="binomialCoefficients"></div>
+        <canvas id="binomialChart" width="400" height="200"></canvas>
     </div>
-    <script>
-        function binomialCoefficient(n, k) {
-            let dp = Array(n + 1).fill().map(() => Array(k + 1).fill(0));
-            for (let i = 0; i <= n; i++) {
-                dp[i][0] = 1;
-            }
-            for (let j = 0; j <= k; j++) {
-                dp[j][j] = 1;
-            }
-            for (let i = 1; i <= n; i++) {
-                for (let j = 1; j <= Math.min(i, k); j++) {
-                    dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
-                }
-            }
 
-            return dp[n][k];
-        }
+    <script>
+        // function binomialCoefficientDP(n, k) {
+        //     let dp = Array(n + 1).fill().map(() => Array(k + 1).fill(0));
+
+        //     // 基本情况
+        //     for (let i = 0; i <= n; i++) {
+        //         dp[i][0] = 1; // 任何数选择 0 个元素的组合数都是 1
+        //     }
+        //     for (let j = 0; j <= k; j++) {
+        //         dp[j][j] = 1; // 任何数选择自身个数的组合数也是 1
+        //     }
+
+        //     // 填充 DP 表
+        //     for (let i = 1; i <= n; i++) {
+        //         for (let j = 1; j <= Math.min(i, k); j++) {
+        //             dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+        //         }
+        //     }
+
+        //     return dp[n][k];
+        // }
+
+        // 计算二项式系数
+        const binomialCoefficient = (n, k) => {
+            if (Number.isNaN(n) || Number.isNaN(k)) return NaN;
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            if (k === 1 || k === n - 1) return n;
+            if (n - k < k) k = n - k;
+            let res = n;
+            for (let j = 2; j <= k; j++) res *= (n - j + 1) / j;
+            return Math.round(res);
+        };
+
+        // 计算二项式展开式并返回系数
         function binomialExpansion(n) {
             let result = '';
-            let coefficients = [];
+            const coefficients = [];
 
             for (let k = 0; k <= n; k++) {
-                let coeff = binomialCoefficient(n, k);
+                const coeff = binomialCoefficient(n, k);
                 coefficients.push(coeff);
-                let term = `${coeff}x^${n - k}y^${k}`;
-                if (n - k === 0) term = term.replace("x^0", "").trim();
-                if (k === 0) term = term.replace("y^0", "").trim();
-                if (k !== 0) result += ' + ';
-                result += term;
+                if (k === 0) {
+                    result += `${coeff}*x^${n}`;
+                } else if (k === n) {
+                    result += ` + ${coeff}*y^${n}`;
+                } else {
+                    result += ` + ${coeff}*x^${n - k}*y^${k}`;
+                }
             }
 
             return { result, coefficients };
         }
 
+        // 绘制二项式系数的图表
+        function drawBinomialChart(coefficients, n) {
+            const ctx = document.getElementById('binomialChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({ length: n + 1 }, (_, i) => `C(${n}, ${i})`),
+                    datasets: [{
+                        label: '二项式系数',
+                        data: coefficients,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 处理计算展开式的按钮点击事件
         document.getElementById('calculateBtn').addEventListener('click', function () {
             const n = parseInt(document.getElementById('n').value);
-            const k = parseInt(document.getElementById('k').value);
+            const x = parseFloat(document.getElementById('xValue').value);
+            const y = parseFloat(document.getElementById('yValue').value);
 
-            if (isNaN(n) || isNaN(k) || n < 0 || k < 0 || k > n) {
-                alert('请输入有效的 n 和 k。确保 n >= k');
+            // 验证输入
+            if (isNaN(n) || isNaN(x) || isNaN(y)) {
+                alert('请输入有效的 n、x 和 y');
                 return;
             }
 
+            // 计算二项式展开式及系数
             const { result, coefficients } = binomialExpansion(n);
-            document.getElementById('output').textContent = `(x + y)^${n} 展开式: ${result}`;
+            let expandedResult = result.replace(/x/g, x).replace(/y/g, y);
+            document.getElementById('output').textContent = `(x + y)^${n} 展开式: ${expandedResult}`;
 
+            // 显示二项式系数
             let coefficientsText = `<strong>二项式系数：</strong><br>`;
             coefficients.forEach((coeff, index) => {
                 coefficientsText += `C(${n}, ${index}) = ${coeff}<br>`;
             });
             document.getElementById('binomialCoefficients').innerHTML = coefficientsText;
+
+            // 绘制图表
+            drawBinomialChart(coefficients, n);
         });
 
+        // 处理查看单独项系数的按钮点击事件
+        document.getElementById('showCoefficientBtn').addEventListener('click', function () {
+            const n = parseInt(document.getElementById('n').value);
+            const k = parseInt(document.getElementById('kValue').value);
+
+            // 验证输入
+            if (isNaN(n) || isNaN(k) || n < 0 || k < 0 || k > n) {
+                alert('请输入有效的 n 和 k，且确保 n >= k');
+                return;
+            }
+
+            // 计算并显示单项系数
+            const coeff = binomialCoefficient(n, k);
+            document.getElementById('output').textContent = `C(${n}, ${k}) = ${coeff}`;
+        });
     </script>
 </body>
 
