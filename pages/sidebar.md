@@ -1004,3 +1004,4 @@
 - [是否是大写字母--2024-11-17](codes/php/is-upper-case.md)
 - [获取数组最后一个元素--2024-11-18](codes/php/last.md)
 - [最小公倍数--2024-11-19](codes/php/lcm.md)
+- [数组当中最大值的个数--2024-11-20](codes/php/max-n.md)

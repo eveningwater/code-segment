@@ -16,6 +16,10 @@ const capitalize = ([first, ...rest], lowerRest = false) =>
   (lowerRest ? rest.join('').toLowerCase() : rest.join(''));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/capitalize.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
