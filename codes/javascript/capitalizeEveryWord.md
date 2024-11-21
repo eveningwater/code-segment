@@ -13,6 +13,10 @@ const capitalizeEveryWord = str =>
   str.replace(/\b[a-z]/g, w => w.toUpperCase());
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/capitalizeEveryWord.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
