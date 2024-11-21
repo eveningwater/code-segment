@@ -24,7 +24,7 @@
 
 > 应用场景
 
-来看一个模拟实现的[官网的例子](html/flex-center.html)。
+来看一个模拟实现的[官网的例子](codes/css/html/flex-center.html)。
 
 <div class="code-editor" data-url="codes/css/html/flex-center.html" data-language="html"></div>
 
