@@ -4,15 +4,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cartesianProduct</title>
+    <title>购物车商品组合(笛卡尔积示例)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f8f8;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .combos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .combo {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 8px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .combo:hover {
+            transform: scale(1.05);
+        }
+
+        .combo img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .combo .price {
+            font-size: 18px;
+            color: #f45d48;
+            font-weight: bold;
+        }
+
+        .combo .stock {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .combo .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .combo .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .cart {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 250px;
+        }
+
+        .cart h3 {
+            margin-top: 0;
+        }
+
+        .cart ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart ul li {
+            margin-bottom: 10px;
+        }
+
+        .cart .total {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+
+    <h1>选择您的商品组合</h1>
+    <div class="combos" id="comboContainer"></div>
+
+    <div class="cart">
+        <h3>购物车</h3>
+        <ul id="cartItems">
+            <li>没有商品</li>
+        </ul>
+        <div class="total" id="totalPrice">总价: ¥0</div>
+    </div>
     <script>
+        // 定义商品的颜色、尺寸、图片、价格和库存
+        const products = [
+            { color: 'Red', size: 'S', image: 'https://via.placeholder.com/150?text=Red+S', price: 199, stock: 5 },
+            { color: 'Red', size: 'M', image: 'https://via.placeholder.com/150?text=Red+M', price: 199, stock: 0 },
+            { color: 'Red', size: 'L', image: 'https://via.placeholder.com/150?text=Red+L', price: 199, stock: 3 },
+            { color: 'Blue', size: 'S', image: 'https://via.placeholder.com/150?text=Blue+S', price: 189, stock: 10 },
+            { color: 'Blue', size: 'M', image: 'https://via.placeholder.com/150?text=Blue+M', price: 189, stock: 2 },
+            { color: 'Blue', size: 'L', image: 'https://via.placeholder.com/150?text=Blue+L', price: 189, stock: 8 },
+            { color: 'Green', size: 'S', image: 'https://via.placeholder.com/150?text=Green+S', price: 179, stock: 6 },
+            { color: 'Green', size: 'M', image: 'https://via.placeholder.com/150?text=Green+M', price: 179, stock: 4 },
+            { color: 'Green', size: 'L', image: 'https://via.placeholder.com/150?text=Green+L', price: 179, stock: 0 }
+        ];
+
+        // 计算笛卡尔积的函数
         const cartesianProduct = (a, b) =>
             a.reduce((p, x) => [...p, ...b.map(y => [x, y])], []);
-        console.log(cartesianProduct(['x', 'y'], [1, 2]));
+
+        // 计算颜色和尺寸的所有组合
+        const allCombos = cartesianProduct(['Red', 'Blue', 'Green'], ['S', 'M', 'L']);
+
+        // 渲染所有商品组合
+        const comboContainer = document.getElementById('comboContainer');
+
+        // 购物车
+        let cart = [];
+        let totalPrice = 0;
+
+        // 渲染商品组合
+        allCombos.forEach(combo => {
+            const [color, size] = combo;
+            const product = products.find(p => p.color === color && p.size === size);
+
+            // 创建商品元素
+            const comboElement = document.createElement('div');
+            comboElement.classList.add('combo');
+
+            // 商品信息
+            comboElement.innerHTML = `
+    <img src="${product.image}" alt="${color} ${size}">
+    <h3>${color} - ${size}</h3>
+    <p class="price">¥${product.price}</p>
+    <p class="stock">库存: ${product.stock}件</p>
+    <button class="btn" ${product.stock === 0 ? 'disabled' : ''} onclick="addToCart('${color}', '${size}')">
+      ${product.stock === 0 ? '售罄' : '加入购物车'}
+    </button>
+  `;
+
+            comboContainer.appendChild(comboElement);
+        });
+
+        // 加入购物车的函数
+        function addToCart(color, size) {
+            const product = products.find(p => p.color === color && p.size === size);
+
+            if (product.stock > 0) {
+                cart.push(product);
+                product.stock--;
+                totalPrice += product.price;
+
+                updateCartDisplay();
+                updateComboDisplay(color, size, product.stock);
+            }
+        }
+
+        // 更新购物车显示
+        function updateCartDisplay() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            const totalPriceElement = document.getElementById('totalPrice');
+
+            cartItemsContainer.innerHTML = ''; // 清空购物车
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<li>没有商品</li>';
+            } else {
+                cart.forEach(item => {
+                    const itemElement = document.createElement('li');
+                    itemElement.innerHTML = `${item.color} - ${item.size} <strong>¥${item.price}</strong>`;
+                    cartItemsContainer.appendChild(itemElement);
+                });
+            }
+
+            totalPriceElement.textContent = `总价: ¥${totalPrice}`;
+        }
+
+        // 更新商品组合按钮状态
+        function updateComboDisplay(color, size, stock) {
+            const comboElements = document.querySelectorAll('.combo');
+            comboElements.forEach(comboElement => {
+                const comboText = comboElement.querySelector('h3').textContent;
+                if (comboText === `${color} - ${size}`) {
+                    const button = comboElement.querySelector('button');
+                    button.textContent = stock === 0 ? '售罄' : '加入购物车';
+                    button.disabled = stock === 0;
+                }
+            });
+        }
+
     </script>
 </body>
 

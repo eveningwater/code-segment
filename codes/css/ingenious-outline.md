@@ -34,6 +34,8 @@
 
 > 应用场景
 
+以下是一个实现的网站[示例](codes/css/html/ingenious-outline.html):
+
 <div class="code-editor" data-url="codes/css/html/ingenious-outline.html" data-language="html"></div>
 
 结果如下:
