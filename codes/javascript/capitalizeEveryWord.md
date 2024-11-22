@@ -25,6 +25,8 @@ capitalizeEveryWord('hello world!'); // 'Hello World!'
 
 > 应用场景
 
+以下是基于上述代码实现的一个单词字母大写转换器的<a href="codes/javascript/html/capitalizeEveryWord.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/capitalizeEveryWord.html" data-language="html"></div>
 
 结果如下:

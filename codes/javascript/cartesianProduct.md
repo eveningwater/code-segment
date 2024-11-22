@@ -61,7 +61,7 @@ cartesianProduct(["x", "y"], [1, 2]);
 
 > 应用场景
 
-以下是一个基于笛卡尔积而实现的实战[示例](codes/javascript/html/cartesianProduct.html):
+以下是一个基于笛卡尔积而实现的实战<a href="codes/javascript/html/cartesianProduct.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/cartesianProduct.html" data-language="html"></div>
 

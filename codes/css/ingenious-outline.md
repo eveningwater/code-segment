@@ -34,7 +34,7 @@
 
 > 应用场景
 
-以下是一个实现的网站[示例](codes/css/html/ingenious-outline.html):
+以下是一个实现的网站<a href="codes/css/html/ingenious-outline.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/css/html/ingenious-outline.html" data-language="html"></div>
 

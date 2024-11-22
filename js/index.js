@@ -74,7 +74,7 @@ window.$docsify = {
   search: {
     maxAge: 86400000, // 过期时间，单位毫秒，默认一天
     paths: 'auto', // or 'auto'
-    placeholder: '请输入需要搜索的内容',
+    placeholder: '请输入需要搜索的代码段',
     noData: 'No Results!',
     // 搜索标题的最大程级, 1 - 6
     depth: 6
@@ -84,5 +84,9 @@ window.$docsify = {
     fontsize: '0.9em',
     color: 'rgb(90,90,90)',
     language: 'chinese'
+  },
+  externalLinks: {
+    target: '_blank',
+    rel: 'noopener noreferrer'
   }
 };
