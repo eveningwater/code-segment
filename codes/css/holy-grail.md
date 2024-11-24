@@ -65,6 +65,8 @@ body {
 
 > 应用场景
 
+以下是一个实现的网站<a href="codes/css/html/holy-grail.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/css/html/holy-grail.html" data-language="html"></div>
 
 结果如下:
