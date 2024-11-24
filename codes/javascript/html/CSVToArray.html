@@ -4,17 +4,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSVToArray</title>
+    <title>CSVToArray(CSV 文件解析器)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 30px;
+            width: 90%;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #777;
+        }
+
+        /* 隐藏默认的文件上传按钮 */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* 自定义上传按钮 */
+        .custom-upload-btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #4a90e2;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+
+        .custom-upload-btn:hover {
+            background-color: #357ab7;
+        }
+
+        .error {
+            color: #ff5f5f;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        input {
+            max-width: 200px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        #csvTable {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #csvTable th,
+        #csvTable td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        #csvTable th {
+            background-color: #f8f8f8;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        #csvTable tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .table-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .table-actions button {
+            padding: 10px 20px;
+            background-color: #5cb85c;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .table-actions button:hover {
+            background-color: #4cae4c;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .search-bar input {
+                width: 100%;
+            }
+
+            button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <p id="res"></p>
+
+    <div class="container">
+        <h1>CSV 文件解析器</h1>
+
+        <!-- 文件上传 -->
+        <div class="input-group">
+            <label for="csvFile">选择 CSV 文件</label>
+            <!-- 隐藏的文件上传元素 -->
+            <input type="file" id="csvFile" accept=".csv" />
+            <!-- 自定义上传按钮 -->
+            <label for="csvFile" class="custom-upload-btn">点击选择文件</label>
+        </div>
+
+        <div class="input-group">
+            <label for="omitFirstRow">跳过第一行（表头）</label>
+            <input type="checkbox" id="omitFirstRow" />
+        </div>
+
+        <div class="input-group">
+            <label for="delimiter">分隔符（默认为逗号）</label>
+            <input type="text" id="delimiter" placeholder="例如: , 或 ;" />
+        </div>
+
+        <div class="table-actions">
+            <button onclick="handleFileUpload()">上传并解析</button>
+        </div>
+
+        <div id="errorMessage" class="error"></div>
+
+        <!-- 搜索框 -->
+        <div class="search-bar">
+            <label for="search">搜索数据：</label>
+            <input type="text" id="search" placeholder="在表格中搜索" oninput="searchTable()" />
+        </div>
+
+        <!-- 数据导出 -->
+        <div class="table-actions">
+            <button onclick="exportCSV()">导出 CSV</button>
+        </div>
+
+        <!-- CSV 数据展示 -->
+        <table id="csvTable"></table>
+
+        <div class="footer">
+            <p>&copy; 2024 CSV 文件解析应用 | 所有权利保留</p>
+        </div>
+    </div>
+
     <script>
         const CSVToArray = (str, delimiter = ',', omitFirstRow = false) => {
-            return str.slice(omitFirstRow ? str.indexOf('\n') + 1 : 0).split('\n').map(v => v.split(delimiter));
+            return str
+                .slice(omitFirstRow ? str.indexOf('\n') + 1 : 0)  // 根据 omitFirstRow 参数决定是否跳过第一行
+                .split('\n')  // 按行分割
+                .map(v => v.split(delimiter));  // 按指定分隔符分割每一行
+        };
+        // 处理文件上传
+        function handleFileUpload() {
+            const fileInput = document.getElementById("csvFile");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                document.getElementById("errorMessage").textContent = "请先选择一个 CSV 文件。";
+                return;
+            }
+
+            // 处理文件解析逻辑
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const content = event.target.result;
+                parseCSV(content);
+            };
+
+            reader.onerror = function () {
+                document.getElementById("errorMessage").textContent = "文件读取失败，请重试。";
+            };
+
+            reader.readAsText(file);
         }
-        const res = document.getElementById('res');
-        res.innerHTML = `CSVToArray('a,b\nc,d');的结果是:${JSON.stringify(CSVToArray('a,b\nc,d'))}`;
+
+        // CSV 解析逻辑（示例）
+        function parseCSV(csvText) {
+            const delimiter = document.getElementById("delimiter").value || ",";
+            const rows = CSVToArray(csvText, delimiter, document.getElementById("omitFirstRow").checked);
+
+            // 在此处添加处理 CSV 数据的代码，显示到表格中
+            renderTable(rows);
+        }
+
+        // 渲染 CSV 数据到表格
+        function renderTable(rows) {
+            const table = document.getElementById("csvTable");
+            table.innerHTML = "";
+            rows.forEach((row, rowIndex) => {
+                const tr = document.createElement("tr");
+                row.forEach((cell, cellIndex) => {
+                    const td = document.createElement(rowIndex === 0 ? "th" : "td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+        }
+
+        // 表格搜索功能
+        function searchTable() {
+            const searchTerm = document.getElementById("search").value.toLowerCase();
+            const rows = document.querySelectorAll("#csvTable tr");
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll("td, th");
+                let match = false;
+                cells.forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                        match = true;
+                    }
+                });
+                row.style.display = match ? "" : "none";
+            });
+        }
+
+        // 导出 CSV 数据
+        function exportCSV() {
+            const rows = document.querySelectorAll("#csvTable tr");
+            let csvContent = "";
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll("td, th");
+                let rowContent = [];
+                cells.forEach(cell => {
+                    rowContent.push(cell.textContent);
+                });
+                csvContent += rowContent.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "export.csv");
+            link.click();
+        }
     </script>
 </body>
 
