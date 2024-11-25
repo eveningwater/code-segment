@@ -12,6 +12,10 @@
 const castArray = v => (Array.isArray(v) ? v : [v]);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/castArray.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,6 +24,8 @@ castArray([1]); // [1]
 ```
 
 > 应用场景
+
+以下是一个基于转换数组而实现的实战<a href="codes/javascript/html/castArray.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/castArray.html" data-language="html"></div>
 
