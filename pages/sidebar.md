@@ -1006,3 +1006,5 @@
 - [最小公倍数--2024-11-19](codes/php/lcm.md)
 - [数组当中最大值的个数--2024-11-20](codes/php/max-n.md)
 - [缓存函数--2024-11-22](codes/php/memoize.md)
+- [数组当中最小值的个数--2024-11-24](codes/php/min-n.md)
+- [只执行1次的函数--2024-11-26](codes/php/once.md)

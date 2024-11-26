@@ -12,6 +12,10 @@
 const celsiusToFahrenheit = degree => 1.8 * degree + 32;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/celsiusToFahrenheit.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
