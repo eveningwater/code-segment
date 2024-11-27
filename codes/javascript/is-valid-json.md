@@ -8,14 +8,19 @@
 
 ```js
 const isValidJSON = val => {
-  try {
-    JSON.parse(val);
-    return true;
+ try {
+    const res = JSON.parse(val);
+    // JSON.parse('null') => null
+    return res !== null ? true : false;
   } catch (error) {
     return false;
   }
 };
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-valid-json.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -27,8 +32,11 @@ isValidJSON(null); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isValidJSON.html" data-language="html"></div>
+
+以下是一个实战<a href="codes/javascript/html/is-valid-json.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-valid-json.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isValidJSON.html"></iframe>
+<iframe src="codes/javascript/html/is-valid-json.html"></iframe>

@@ -1,6 +1,6 @@
 | 标题                           | 标签                        |
 | ------------------------------ | --------------------------- |
-| celsiusToFahrenheit (转换数组) | math,beginner(数学，初学者) |
+| celsiusToFahrenheit (将摄氏度转换为华氏度) | math,beginner(数学，初学者) |
 
 将摄氏度转换为华氏度。
 
@@ -23,6 +23,8 @@ celsiusToFahrenheit(33); // 91.4
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/celsiusToFahrenheit.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/celsiusToFahrenheit.html" data-language="html"></div>
 
