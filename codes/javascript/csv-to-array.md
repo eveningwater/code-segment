@@ -22,7 +22,7 @@ const CSVToArray = (str, delimiter = ',', omitFirstRow = false) => {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/CSVToArray.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/csv-to-array.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -34,10 +34,10 @@ CSVToArray('col1,col2\na,b\nc,d', ',', true); // [['a', 'b'], ['c', 'd']];
 
 > 应用场景
 
-以下是基于上述代码实现的一个CSV 文件解析器的<a href="codes/javascript/html/CSVToArray.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是基于上述代码实现的一个CSV 文件解析器的<a href="codes/javascript/html/csv-to-array.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/html/CSVToArray.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/csv-to-array.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/CSVToArray.html"></iframe>
+<iframe src="codes/javascript/html/csv-to-array.html"></iframe>

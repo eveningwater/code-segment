@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to JSON Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <link rel="stylesheet" href="https://www.unpkg.com/ew-message/dist/ew-message.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #error-message {
+            color: red;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        #output {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        pre {
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+
+        #download-section {
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        #pagination {
+            margin-top: 20px;
+        }
+
+        button[disabled] {
+            background-color: #cccccc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>CSV to JSON Converter</h1>
+        <label for="csv-file" class="upload-btn">Choose CSV File</label>
+        <input type="file" id="csv-file" accept=".csv" hidden />
+        <p id="error-message" class="error-message"></p>
+        <div id="output">
+            <h2>JSON Output</h2>
+            <pre id="json-output"></pre>
+        </div>
+        <div id="download-section">
+            <button id="download-json" class="btn" style="display:none;">Download JSON as CSV</button>
+        </div>
+        <div id="pagination">
+            <button id="prev-page" class="btn" style="display:none;">Previous</button>
+            <button id="next-page" class="btn" style="display:none;">Next</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://www.unpkg.com/ew-message/dist/ew-message.min.js"></script>
+    <script>
+        const CSVToJSON = (str, delimiter = ",") => {
+            const titles = str.slice(0, str.indexOf("\n")).split(delimiter);
+            return str
+                .slice(str.indexOf("\n") + 1)
+                .split("\n")
+                .map((v) => {
+                    const values = v.split(delimiter);
+                    return titles.reduce(
+                        (obj, title, index) => ((obj[title] = values[index]), obj),
+                        {}
+                    );
+                });
+        };
+
+        const validateCSV = (csvContent) => {
+            const rows = csvContent.split("\n");
+            return rows.length > 1 && rows[0].includes(","); 
+        };
+
+        const JSONToCSV = (json) => {
+            const array = [Object.keys(json[0])].concat(json);
+            return array
+                .map((row) => Object.values(row).join(","))
+                .join("\n");
+        };
+
+        let currentPage = 1;
+        let jsonData = [];
+        let itemsPerPage = 5;
+
+        document.getElementById("csv-file").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+
+            if (file && file.type === "text/csv") {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const csvContent = e.target.result;
+
+                    if (!validateCSV(csvContent)) {
+                        document.getElementById("error-message").textContent = "Invalid CSV format!";
+                        return;
+                    }
+
+                    document.getElementById("error-message").textContent = ""; 
+
+                    jsonData = CSVToJSON(csvContent);
+
+                    showJSONPage(currentPage);
+
+                    document.getElementById("download-json").style.display = "inline-block";
+                };
+
+                reader.readAsText(file);
+            } else {
+                ewMessage("Please upload a valid CSV file.");
+            }
+        });
+
+        const showJSONPage = (page) => {
+            const startIndex = (page - 1) * itemsPerPage;
+            const pageData = jsonData.slice(startIndex, startIndex + itemsPerPage);
+
+            document.getElementById("json-output").textContent = JSON.stringify(pageData, null, 2);
+
+            hljs.highlightElement(document.getElementById("json-output"));
+            
+            document.getElementById("prev-page").style.display = page > 1 ? "inline-block" : "none";
+            document.getElementById("next-page").style.display = startIndex + itemsPerPage < jsonData.length ? "inline-block" : "none";
+        };
+
+        document.getElementById("prev-page").addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                showJSONPage(currentPage);
+            }
+        });
+
+        document.getElementById("next-page").addEventListener("click", () => {
+            if (currentPage * itemsPerPage < jsonData.length) {
+                currentPage++;
+                showJSONPage(currentPage);
+            }
+        });
+
+        document.getElementById("download-json").addEventListener("click", () => {
+            const csvContent = JSONToCSV(jsonData);
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", "data.csv");
+            link.click();
+        });
+    </script>
+</body>
+
+</html>
