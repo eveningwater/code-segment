@@ -22,7 +22,7 @@ const HSBToRGB = (h, s, b) => {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/HSBToRGB.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/hsb-to-rgb.ts" data-language="typescript"></div>
 
 > 注:`k`值的公式如下图:
 
@@ -44,8 +44,8 @@ HSBToRGB(18, 81, 99); // [252.45, 109.31084999999996, 47.965499999999984]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/HSBToRGB.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/hsb-to-rgb.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/HSBToRGB.html"></iframe>
+<iframe src="codes/javascript/html/hsb-to-rgb.html"></iframe>

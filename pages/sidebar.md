@@ -95,7 +95,7 @@
 
 - [字符串转数组--2020-11-4](codes/javascript/csv-to-array.md)
 - [字符串转 JSON 对象--2020-11-5](codes/javascript/csv-to-json.md)
-- [HSB 颜色模式转 RGB 颜色模式--2020-11-6](codes/javascript/HSBToRGB.md)
+- [HSB 颜色模式转 RGB 颜色模式--2020-11-6](codes/javascript/hsb-to-rgb.md)
 - [HSL 颜色模式转 RGB 颜色模式--2020-11-7](codes/javascript/HSLToRGB.md)
 - [判断属性名存在于实例对象还是原型对象--2020-11-9](codes/javascript/HasPrototypeObject.md)
 - [将 JSON 对象数组转换成字符串--2020-11-10](codes/javascript/JSONtoCSV.md)
@@ -1010,3 +1010,4 @@
 - [只执行1次的函数--2024-11-26](codes/php/once.md)
 - [根据某个条件来排序数组--2024-11-27](codes/php/order-by.md)
 - [是否是回文字符串--2024-11-28](codes/php/palindrome.md)
+- [从数组中根据属性提取值--2024-11-29](codes/php/pluck.md)
