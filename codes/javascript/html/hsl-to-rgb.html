@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>具有透明度和调色板的 HSL 到 RGB 颜色选择器</title>
+    <link rel="stylesheet" href="https://www.unpkg.com/ew-message/dist/ew-message.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        input[type="range"] {
+            width: 60%;
+            min-width: 200px;
+            height: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .color-box {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .control {
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        .output {
+            margin-top: 10px;
+        }
+
+        .palette {
+            display: flex;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .color-swatch {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid #ccc;
+            outline: none;
+        }
+
+        .color-swatch:hover {
+            box-shadow: 0 0 4px #007bff;
+        }
+
+        .btn {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>具有透明度和调色板的 HSL 到 RGB 颜色选择器</h1>
+
+        <div class="controls">
+            <div class="control">
+                <label for="hsl-hue">Hue (H):</label>
+                <input type="range" id="hsl-hue" min="0" max="360" value="0">
+                <span id="hue-value">0</span>°
+            </div>
+            <div class="control">
+                <label for="hsl-saturation">Saturation (S):</label>
+                <input type="range" id="hsl-saturation" min="0" max="100" value="50">
+                <span id="saturation-value">50</span>%
+            </div>
+            <div class="control">
+                <label for="hsl-lightness">Lightness (L):</label>
+                <input type="range" id="hsl-lightness" min="0" max="100" value="50">
+                <span id="lightness-value">50</span>%
+            </div>
+            <div class="control">
+                <label for="hsl-alpha">Alpha (A):</label>
+                <input type="range" id="hsl-alpha" min="0" max="1" step="0.01" value="1">
+                <span id="alpha-value">1</span>
+            </div>
+        </div>
+
+        <div class="color-box" id="color-box"></div>
+
+        <div class="output">
+            <p>RGB: <span id="rgb-value">rgb(255, 255, 255)</span></p>
+            <p>RGBA: <span id="rgba-value">rgba(255, 255, 255, 1)</span></p>
+        </div>
+
+        <h3>保存的颜色:</h3>
+        <div class="palette" id="color-palette"></div>
+
+        <button class="btn" id="save-palette" type="button">保存颜色</button>
+        <button class="btn" id="copy-palette" type="button">复制颜色</button>
+        <button class="btn" id="clear-palette" type="button">清除调色板</button>
+    </div>
+
+    <script src="https://www.unpkg.com/ew-message/dist/ew-message.min.js"></script>
+    <script src="https://www.eveningwater.com/static/plugin/popbox.min.js"></script>
+    <script>
+        const copyHandler = (str) => {
+            const confirm = (title = '温馨提示', content = '已复制到剪切板') => {
+                ewConfirm({
+                    title,
+                    content,
+                    showCancel: false
+                });
+            };
+            const baseCopy = (copyText) =>
+                new Promise((resolve, reject) => {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard
+                            .writeText(copyText)
+                            .then(() => {
+                                resolve();
+                            })
+                            .catch(() => {
+                                reject(new Error('复制失败'));
+                            });
+                    } else {
+                        const input = this.create('input');
+                        input.value = copyText;
+                        input.style.position = 'absolute';
+                        input.style.left = '-9999px';
+                        input.style.top = '-9999px';
+                        document.body.append(input);
+                        input.focus();
+                        input.select();
+                        if (document.execCommand) {
+                            document.execCommand('copy');
+                            resolve();
+                        } else {
+                            reject(new Error('复制失败'));
+                        }
+                        input.remove();
+                    }
+                });
+            baseCopy(str)
+                .then(() => confirm())
+                .catch(() => confirm('温馨提示', '复制失败'));
+        }
+        const HSLToRGB = (h, s, l) => {
+            s /= 100;
+            l /= 100;
+            const k = (n) => (n + h / 30) % 12;
+            const a = s * Math.min(l, 1 - l);
+            const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+            return [255 * f(0), 255 * f(8), 255 * f(4)];
+        };
+
+        const hueSlider = document.getElementById('hsl-hue');
+        const saturationSlider = document.getElementById('hsl-saturation');
+        const lightnessSlider = document.getElementById('hsl-lightness');
+        const alphaSlider = document.getElementById('hsl-alpha');
+        const colorBox = document.getElementById('color-box');
+        const rgbValue = document.getElementById('rgb-value');
+        const rgbaValue = document.getElementById('rgba-value');
+        const hueValue = document.getElementById('hue-value');
+        const saturationValue = document.getElementById('saturation-value');
+        const lightnessValue = document.getElementById('lightness-value');
+        const alphaValue = document.getElementById('alpha-value');
+        const colorPalette = document.getElementById('color-palette');
+        const clearPaletteButton = document.getElementById('clear-palette');
+        const savePaletteButton = document.getElementById('save-palette');
+        const copyPaletteButton = document.getElementById('copy-palette');
+
+
+        const savedColors = [];
+
+        const updateColor = () => {
+            const h = parseInt(hueSlider.value);
+            const s = parseInt(saturationSlider.value);
+            const l = parseInt(lightnessSlider.value);
+            const a = parseFloat(alphaSlider.value);
+
+            hueValue.textContent = h;
+            saturationValue.textContent = s;
+            lightnessValue.textContent = l;
+            alphaValue.textContent = a.toFixed(2);
+
+            const [r, g, b] = HSLToRGB(h, s, l).map(item => item.toFixed(0));
+            const rgba = `rgba(${r}, ${g}, ${b}, ${a})`;
+
+            colorBox.style.backgroundColor = rgba;
+            rgbValue.textContent = `rgb(${r}, ${g}, ${b})`;
+            rgbaValue.textContent = rgba;
+        };
+
+        const saveColor = () => {
+            const h = parseInt(hueSlider.value);
+            const s = parseInt(saturationSlider.value);
+            const l = parseInt(lightnessSlider.value);
+            const a = parseFloat(alphaSlider.value);
+
+            const [r, g, b] = HSLToRGB(h, s, l).map(item => item.toFixed(0));
+            const rgba = `rgba(${r}, ${g}, ${b}, ${a})`;
+
+            savedColors.push(rgba);
+
+            const colorSwatch = document.createElement('div');
+            colorSwatch.classList.add('color-swatch');
+            colorSwatch.style.backgroundColor = rgba;
+            colorSwatch.addEventListener('click', () => {
+                const [hue, saturation, lightness] = [h, s, l];
+                hueSlider.value = hue;
+                saturationSlider.value = saturation;
+                lightnessSlider.value = lightness;
+                alphaSlider.value = a;
+
+                updateColor();
+            });
+
+            colorPalette.appendChild(colorSwatch);
+        };
+
+        const clearPalette = () => {
+            savedColors.length = 0;
+            colorPalette.innerHTML = '';
+        };
+
+        hueSlider.addEventListener('input', updateColor);
+        saturationSlider.addEventListener('input', updateColor);
+        lightnessSlider.addEventListener('input', updateColor);
+        alphaSlider.addEventListener('input', updateColor);
+
+        clearPaletteButton.addEventListener('click', clearPalette);
+        savePaletteButton.addEventListener('click', saveColor);
+        copyPaletteButton.addEventListener('click', () => {
+            if (savedColors.length) {
+                copyHandler(JSON.stringify(savedColors));
+            } else {
+                ewMessage.warning("请先保存当前颜色再点击复制!")
+            }
+        })
+
+        updateColor();
+    </script>
+</body>
+
+</html>

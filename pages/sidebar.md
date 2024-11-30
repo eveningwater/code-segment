@@ -96,7 +96,7 @@
 - [字符串转数组--2020-11-4](codes/javascript/csv-to-array.md)
 - [字符串转 JSON 对象--2020-11-5](codes/javascript/csv-to-json.md)
 - [HSB 颜色模式转 RGB 颜色模式--2020-11-6](codes/javascript/hsb-to-rgb.md)
-- [HSL 颜色模式转 RGB 颜色模式--2020-11-7](codes/javascript/HSLToRGB.md)
+- [HSL 颜色模式转 RGB 颜色模式--2020-11-7](codes/javascript/hsl-to-rgb.md)
 - [判断属性名存在于实例对象还是原型对象--2020-11-9](codes/javascript/HasPrototypeObject.md)
 - [将 JSON 对象数组转换成字符串--2020-11-10](codes/javascript/JSONtoCSV.md)
 - [将 RGB 颜色转换成 HSB 颜色--2020-11-11](codes/javascript/RGBToHSB.md)

@@ -23,7 +23,7 @@ const HSLToRGB = (h, s, l) => {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/HSLToRGB.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/hsl-to-rgb.ts" data-language="typescript"></div>
 
 > 注:`k`值的公式如下图:
 
@@ -49,8 +49,10 @@ HSLToRGB(13, 100, 11); // [56.1, 12.155, 0]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/HSLToRGB.html" data-language="html"></div>
+以下是基于上述代码实现的<a href="codes/javascript/html/hsl-to-rgb.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/hsl-to-rgb.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/HSLToRGB.html"></iframe>
+<iframe src="codes/javascript/html/hsl-to-rgb.html"></iframe>
