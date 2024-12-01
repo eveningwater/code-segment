@@ -17,7 +17,7 @@ const hasPrototypeObject = (obj, name) =>
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/hasPrototypeObject.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/has-prototype-object.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -30,8 +30,10 @@ hasPrototypeObject(person, "name"); //true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/hasPrototypeObject.html" data-language="html"></div>
+以下是基于上述代码实现的<a href="codes/javascript/html/has-prototype-object.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/has-prototype-object.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/hasPrototypeObject.html"></iframe>
+<iframe src="codes/javascript/html/has-prototype-object.html"></iframe>
