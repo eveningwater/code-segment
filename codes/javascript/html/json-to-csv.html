@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON 转 CSV 转换器</title>
+
+    <!-- 引入 highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <style>
+        /* 基本重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        /* 输入区域样式 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        /* 自定义 JSON 输入区域 */
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 1rem;
+            line-height: 1.6;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        pre:focus,
+        .output-section textarea:focus {
+            border-color: #2396ef;
+        }
+
+        code {
+            display: block;
+        }
+
+        /* 按钮样式 */
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 输出区域样式 */
+        .output-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .output-section textarea {
+            height: 100px;
+            width: 100%;
+            font-size: 1rem;
+            resize: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            outline: none;
+            border-radius: 8px;
+        }
+
+
+        .error {
+            color: red;
+            font-size: 1rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>JSON 转 CSV 转换器</h1>
+
+        <!-- JSON 输入区域 -->
+        <div class="input-group">
+            <label for="json-input">请输入 JSON 数据：</label>
+            <pre contenteditable="true"><code id="json-input" class="json">[
+  {
+    "name": "John",
+    "age": 30,
+    "city": "New York"
+  },
+  {
+    "name": "Jane",
+    "age": 25,
+    "city": "Los Angeles"
+  }
+]</code></pre>
+        </div>
+
+        <!-- 列名输入 -->
+        <div class="input-group">
+            <label for="columns-input">请输入列名（以逗号分隔）：</label>
+            <input type="text" id="columns-input" placeholder="name, age, city" value="name,age,city" />
+        </div>
+
+        <!-- 分隔符输入 -->
+        <div class="input-group">
+            <label for="delimiter-input">分隔符（默认是 ","）：</label>
+            <input type="text" id="delimiter-input" value="," />
+        </div>
+
+        <!-- 按钮 -->
+        <div class="buttons">
+            <button id="generate-btn">生成 CSV</button>
+            <button id="download-btn" style="display: none;">下载 CSV</button>
+        </div>
+
+        <!-- 输出区域 -->
+        <div class="output-section">
+            <textarea id="csv-output" readonly placeholder="CSV 输出将出现在这里..."></textarea>
+            <p class="error" id="error-message" style="display: none;"></p>
+        </div>
+    </div>
+
+    <!-- 引入 highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>
+        // JSON 转 CSV 函数
+        const JSONToCSV = (arr, columns, delimiter = ",") => [
+            columns.join(delimiter),
+            ...arr.map((obj) =>
+                columns.reduce(
+                    (res, key) =>
+                        `${res}${!res.length ? "" : delimiter}"${!obj[key] ? "" : obj[key]}"`,
+                    ""
+                )
+            ),
+        ].join("\n");
+
+        // 初始化代码高亮
+        hljs.highlightAll();
+
+        // DOM 元素
+        const jsonInput = document.getElementById("json-input");
+        const columnsInput = document.getElementById("columns-input");
+        const delimiterInput = document.getElementById("delimiter-input");
+        const generateBtn = document.getElementById("generate-btn");
+        const downloadBtn = document.getElementById("download-btn");
+        const csvOutput = document.getElementById("csv-output");
+        const errorMessage = document.getElementById("error-message");
+
+        // 处理生成 CSV 按钮点击事件
+        generateBtn.addEventListener("click", () => {
+            const jsonText = jsonInput.textContent.trim();
+            const columnsText = columnsInput.value.trim();
+            const delimiter = delimiterInput.value.trim();
+
+            // 解析 JSON 数据并处理错误
+            let jsonData;
+            try {
+                jsonData = JSON.parse(jsonText);
+            } catch (error) {
+                showError("无效的 JSON 格式。");
+                return;
+            }
+
+            // 检查是否提供了列名
+            if (!columnsText) {
+                showError("请提供列名。");
+                return;
+            }
+
+            // 将列名按逗号拆分并去除空格
+            const columns = columnsText.split(",").map(col => col.trim());
+
+            // 生成 CSV 数据
+            const csvData = JSONToCSV(jsonData, columns, delimiter);
+            csvOutput.value = csvData;
+
+            // 显示下载按钮
+            downloadBtn.style.display = "inline-block";
+        });
+
+        // 处理下载 CSV 按钮点击事件
+        downloadBtn.addEventListener("click", () => {
+            const csvData = csvOutput.value;
+            if (!csvData) {
+                return;
+            }
+            // 创建 Blob 对象并下载文件
+            const blob = new Blob([csvData], { type: "text/csv" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "data.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = "block";
+            csvOutput.value = "";
+            downloadBtn.style.display = "none";
+        }
+
+    </script>
+</body>
+
+</html>
