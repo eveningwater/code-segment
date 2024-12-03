@@ -26,7 +26,7 @@ const RGBToHSB = (r, g, b) => {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/RGBToHSB.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/rgb-to-hsb.ts" data-language="typescript"></div>
 
 > 注:`v`值的公式如下图:
 
@@ -61,8 +61,10 @@ RGBToHSB(252, 111, 48);
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/RGBToHSB.html" data-language="html"></div>
+以下是基于上述代码实现的<a href="codes/javascript/html/rgb-to-hsb.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/rgb-to-hsb.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/RGBToHSB.html"></iframe>
+<iframe src="codes/javascript/html/rgb-to-hsb.html"></iframe>
