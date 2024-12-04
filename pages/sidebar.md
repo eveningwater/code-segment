@@ -100,7 +100,7 @@
 - [判断属性名存在于实例对象还是原型对象--2020-11-9](codes/javascript/has-prototype-object.md)
 - [将 JSON 对象数组转换成字符串--2020-11-10](codes/javascript/json-to-csv.md)
 - [将 RGB 颜色转换成 HSB 颜色--2020-11-11](codes/javascript/rgb-to-hsb.md)
-- [判断是否是表单对象--2020-11-11](codes/javascript/isFormData.md)
+- [判断是否是表单对象--2020-11-11](codes/javascript/is-form-data.md)
 - [实现数组的 splice 方法--2020-11-11](codes/javascript/ArraySplice.md)
 - [求一个函数传入参数的和、最大值、最小值、平均值--2020-11-12](codes/javascript/getMathValue.md)
 - [将 RGB 颜色转换成 HSL 颜色--2020-11-13](codes/javascript/RGBToHSL.md)
@@ -1014,3 +1014,4 @@
 - [根据回调函数过滤数组--2024-12-01](codes/php/reject.md)
 - [根据回调函数移除数组中的元素--2024-12-02](codes/php/remove.md)
 - [反转数组中的元素--2024-12-03](codes/php/rotate.md)
+- [省略字符串--2024-12-04](codes/php/shorten.md)
