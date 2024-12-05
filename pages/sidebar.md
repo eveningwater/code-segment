@@ -1015,3 +1015,4 @@
 - [根据回调函数移除数组中的元素--2024-12-02](codes/php/remove.md)
 - [反转数组中的元素--2024-12-03](codes/php/rotate.md)
 - [省略字符串--2024-12-04](codes/php/shorten.md)
+- [生成适合URL的短横线分隔字符串--2024-12-05](codes/php/slugify.md)
