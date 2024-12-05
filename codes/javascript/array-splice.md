@@ -60,7 +60,7 @@ Array.prototype.ArraySplice = function (start, deleteCount) {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/ArraySplice.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/array-splice.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -72,8 +72,10 @@ arr; //[[1,2],2,3]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/ArraySplice.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/array-splice.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/array-splice.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/ArraySplice.html"></iframe>
+<iframe src="codes/javascript/html/array-splice.html"></iframe>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义 ArraySplice 方法演示</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <style>
+        /* 样式美化 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+            margin: 20px auto;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>自定义 ArraySplice 方法演示</h1>
+
+        <!-- 用户输入区域 -->
+        <div>
+            <label for="start">开始索引：</label>
+            <input type="number" id="start" value="1">
+
+            <label for="deleteCount">删除数量：</label>
+            <input type="number" id="deleteCount" value="1">
+
+            <label for="insertItems">插入项（以逗号分隔）：</label>
+            <input type="text" id="insertItems" value="新项1, 新项2">
+
+            <button id="applyChanges">应用更改</button>
+        </div>
+
+        <!-- 显示原始数组与修改后的数组 -->
+        <div class="result-section">
+            <div class="section-title">原始数组：</div>
+            <pre id="originalArray"></pre>
+            <div class="section-title">修改后的数组：</div>
+            <pre id="modifiedArray"></pre>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        // 扩展 Array.prototype 添加 ArraySplice 方法
+        Array.prototype.ArraySplice = function (start, deleteCount) {
+            var max = Math.max, // 最大值
+                min = Math.min, // 最小值
+                len = this.length, // 当前数组长度
+                insertIndex = max(arguments.length - 2, 0), // 插入索引
+                k = 0, // 循环值
+                new_len, // 新数组长度
+                result = [], // 最终结果
+                delta, // 插入的索引值
+                element, // 数组每一项
+                shift_count; // 从删除开始的截取索引
+
+            start = start || 0;
+            // 如果开始索引小于 0，则将它加上数组长度
+            if (start < 0) start += len;
+            // 确保开始索引在合法范围内
+            start = max(min(start, len), 0);
+
+            // 删除项数的取值范围
+            deleteCount = max(
+                min(typeof deleteCount === 'number' ? deleteCount : len, len - start),
+                0
+            );
+
+            // 插入索引值
+            delta = insertIndex - deleteCount;
+            // 新的数组长度
+            new_len = len + delta;
+
+            // 从开始索引到删除项数的数组项
+            while (k < deleteCount) {
+                element = this[start + k];
+                if (element !== undefined) result[k] = element;
+                k += 1;
+            }
+
+            shift_count = len - start - deleteCount;
+
+            // 如果插入位置需要移动数据
+            if (delta < 0 || delta > 0) {
+                k = delta < 0 ? start + insertIndex : 1;
+                while (shift_count) {
+                    this[delta < 0 ? k : new_len - k] = this[delta < 0 ? k - delta : len - k];
+                    k += 1;
+                    shift_count -= 1;
+                }
+                this.length = new_len;
+            }
+
+            // 插入新元素
+            for (k = 0; k < insertIndex; k++) {
+                this[start + k] = arguments[k + 2];
+            }
+
+            return result;
+        };
+
+        const originalArray = document.getElementById('originalArray');
+        const modifiedArray = document.getElementById('modifiedArray');
+        // 初始数组
+        let array = ['苹果', '香蕉', '樱桃', '日期', '蓝莓'];
+
+        // 显示数组
+        function displayArrays() {
+            originalArray.textContent = JSON.stringify(array);
+            hljs.highlightElement(originalArray)
+        }
+
+        // 应用更改并更新数组
+        document.getElementById('applyChanges').addEventListener('click', function () {
+            let start = parseInt(document.getElementById('start').value);
+            let deleteCount = parseInt(document.getElementById('deleteCount').value);
+            let insertItems = document.getElementById('insertItems').value.split(',').map(item => item.trim());
+
+            const result = [...array];
+            result.ArraySplice(start, deleteCount, ...insertItems);
+
+            modifiedArray.textContent = JSON.stringify(result);
+            hljs.highlightElement(modifiedArray);
+        });
+
+        // 初始显示
+        displayArrays();
+    </script>
+</body>
+
+</html>
