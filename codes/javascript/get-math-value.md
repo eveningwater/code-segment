@@ -12,7 +12,7 @@
 const getMathValue = (...args) => {
   args = args.reduce((res, item) => {
     const n = Number(item);
-    if (typeof item === 'number' && !isNaN(n)) res.push(n);
+    if (typeof n === 'number' && !isNaN(n)) res.push(n);
     return res;
   }, []);
   // 创建一个对象返回结果
@@ -42,7 +42,7 @@ const getMathValue = (...args) => {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/getMathValue.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/get-math-value.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -52,8 +52,8 @@ getMathValue(1, 2, 3, null); //{ sum:6,max:3,min:1,average:2}
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/getMathValue.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/get-math-value.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/getMathValue.html"></iframe>
+<iframe src="codes/javascript/html/get-math-value.html"></iframe>

@@ -1,7 +1,7 @@
 const getMathValue = <T extends unknown>(...args: T[]) => {
     const formatArgs = args.reduce<number[]>((res, item) => {
         const n = Number(item);
-        if (typeof item === 'number' && !isNaN(n)) {
+        if (typeof n === 'number' && !isNaN(n)) {
             res.push(n);
         }
         return res;

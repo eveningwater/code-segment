@@ -113,7 +113,7 @@
 - [将 RGB 颜色转换成 HSB 颜色--2020-11-11](codes/javascript/rgb-to-hsb.md)
 - [判断是否是表单对象--2020-11-11](codes/javascript/is-form-data.md)
 - [实现数组的 splice 方法--2020-11-11](codes/javascript/array-splice.md)
-- [求一个函数传入参数的和、最大值、最小值、平均值--2020-11-12](codes/javascript/getMathValue.md)
+- [求一个函数传入参数的和、最大值、最小值、平均值--2020-11-12](codes/javascript/get-math-value.md)
 - [将 RGB 颜色转换成 HSL 颜色--2020-11-13](codes/javascript/RGBToHSL.md)
 - [将 RGB 颜色转换成 Hex 颜色模式--2020-11-14](codes/javascript/RGBToHex.md)
 - [将任意值转换成数组--2020-11-14](codes/javascript/toArray.md)
@@ -1036,3 +1036,4 @@
 - [反转数组中的元素--2024-12-03](codes/php/rotate.md)
 - [省略字符串--2024-12-04](codes/php/shorten.md)
 - [生成适合URL的短横线分隔字符串--2024-12-05](codes/php/slugify.md)
+- [字符串开头匹配子字符串--2024-12-06](codes/php/starts-with.md)
