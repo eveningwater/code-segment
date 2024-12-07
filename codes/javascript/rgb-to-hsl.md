@@ -35,7 +35,7 @@ const RGBToHSL = (r, g, b) => {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/RGBToHSL.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/rgb-to-hsl.ts" data-language="typescript"></div>
 
 > 注:涉及的转换公式以及步骤如下所示:
 
@@ -67,8 +67,10 @@ RGBToHSL(45, 23, 11); // [21.17647, 60.71428, 10.98039]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/RGBToHSL.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/rgb-to-hsl.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/rgb-to-hsl.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/RGBToHSL.html"></iframe>
+<iframe src="codes/javascript/html/rgb-to-hsl.html"></iframe>
