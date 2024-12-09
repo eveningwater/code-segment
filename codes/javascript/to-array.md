@@ -16,7 +16,7 @@ const toArray = (value = '') =>
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/toArray.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/to-array.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -26,8 +26,10 @@ toArray('foo'); //["f", "o", "o"]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/RGBToHex.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/to-array.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/to-array.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/RGBToHex.html"></iframe>
+<iframe src="codes/javascript/html/to-array.html"></iframe>
