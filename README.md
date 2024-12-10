@@ -117,7 +117,7 @@
 - [将 RGB 颜色转换成 HSL 颜色--2020-11-13](codes/javascript/rgb-to-hsl.md)
 - [将 RGB 颜色转换成 Hex 颜色模式--2020-11-14](codes/javascript/rgb-to-hex.md)
 - [将任意值转换成数组--2020-11-14](codes/javascript/to-array.md)
-- [将给定的 URL 连接在一起并规范化 URL--2020-11-15](codes/javascript/URLJoin.md)
+- [将给定的 URL 连接在一起并规范化 URL--2020-11-15](codes/javascript/url-join.md)
 - [实现类似 js 中 eval 方法--2020-11-15](codes/javascript/equalEval.md)
 - [正则表达式数组去重--2020-11-15](codes/javascript/uniqueRegExp.md)
 - [非重随机数数组--2020-11-16](codes/javascript/nonrandom.md)
