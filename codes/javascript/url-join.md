@@ -34,6 +34,8 @@ URLJoin('http://www.google.com', 'a', '/b/cd', '?foo=123', '?bar=foo');
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/url-join.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/url-join.html" data-language="html"></div>
 
 结果如下:
