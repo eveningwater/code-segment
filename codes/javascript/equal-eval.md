@@ -14,7 +14,7 @@ const equalEval = str => new Function('return ' + str)();
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/equalEval.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/equal-eval.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -24,8 +24,8 @@ equalEval('console.log(123)'); // 123
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/equalEval.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/equal-eval.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/equalEval.html"></iframe>
+<iframe src="codes/javascript/html/equal-eval.html"></iframe>
