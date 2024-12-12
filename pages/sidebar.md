@@ -108,7 +108,7 @@
 - [将任意值转换成数组--2020-11-14](codes/javascript/to-array.md)
 - [将给定的 URL 连接在一起并规范化 URL--2020-11-15](codes/javascript/url-join.md)
 - [实现类似 js 中 eval 方法--2020-11-15](codes/javascript/equal-eval.md)
-- [正则表达式数组去重--2020-11-15](codes/javascript/uniqueRegExp.md)
+- [正则表达式数组去重--2020-11-15](codes/javascript/unique-reg-exp.md)
 - [非重随机数数组--2020-11-16](codes/javascript/nonrandom.md)
 - [生成 UUID--2020-11-16](codes/javascript/UUIDGeneratorBrowser.md)
 - [数组去前缀排序--2020-11-17](codes/javascript/removePrefixSort.md)
