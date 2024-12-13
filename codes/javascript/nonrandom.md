@@ -47,6 +47,8 @@ nonrandom(['5', '13']); // [9, 10, 5, 11, 12, 13, 7, 6, 8]
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/nonrandom.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/nonrandom.html" data-language="html"></div>
 
 结果如下:

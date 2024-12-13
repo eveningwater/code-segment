@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜数字游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .game-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+            max-width: 100%;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        #game-instruction {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        #user-guess {
+            padding: 10px;
+            font-size: 18px;
+            width: 80%;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        #user-guess:focus {
+            border-color: #4CAF50;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #feedback {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        #attempts {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #888;
+        }
+
+        #restart-button {
+            background-color: #f44336;
+            margin-left: 8px;
+        }
+
+        #restart-button:hover {
+            background-color: #d32f2f;
+        }
+
+        #restart-button {
+            display: none;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="game-container">
+        <h1>猜数字游戏</h1>
+        <p id="game-instruction">请猜一个介于 1 和 20 之间的数字。</p>
+        <input type="number" id="user-guess" placeholder="请输入数字" />
+        <div class="btn-group">
+            <button id="guess-button">提交猜测</button>
+            <button id="restart-button">重新开始</button>
+        </div>
+        <p id="feedback"></p>
+        <p id="attempts">尝试次数: 0</p>
+
+        <div class="footer">本游戏由夕水制作</div>
+    </div>
+
+    <script>
+        // 生成随机数的非重复数组
+        const nonrandom = (...num) => {
+            if (Array.isArray(num[0])) {
+                num = num[0];
+            }
+            let maxNum = parseInt(num[0]) || 10,
+                minNum = parseInt(num[1]) || 1;
+            if (minNum === maxNum) {
+                return maxNum;
+            }
+            minNum > maxNum ? ([minNum, maxNum] = [maxNum, minNum]) : '';
+            let randomArr = [];
+            for (let i = minNum; i <= maxNum; i++) {
+                randomArr.push(i);
+            }
+            let index = randomArr.length;
+            while (index) {
+                const r = Math.floor(Math.random() * index--);
+                [randomArr[r], randomArr[index]] = [randomArr[index], randomArr[r]];
+            }
+            return randomArr;
+        };
+
+        // 游戏的核心功能
+        let targetNumber;
+        let attempts = 0;
+        const min = 1;
+        const max = 20;
+        const userGuessInput = document.getElementById('user-guess');
+        const guessButton = document.getElementById('guess-button');
+        const feedbackElement = document.getElementById('feedback');
+        const attemptsElement = document.getElementById('attempts');
+        const restartButton = document.getElementById('restart-button');
+        const gameInstruction = document.getElementById('game-instruction');
+
+        // 开始新游戏
+        function startNewGame() {
+            // 随机生成一个目标数字
+            const randomArr = nonrandom(min, max);
+            targetNumber = randomArr[Math.floor(Math.random() * randomArr.length)];
+            attempts = 0;
+            feedbackElement.textContent = '';
+            attemptsElement.textContent = `尝试次数: ${attempts}`;
+            gameInstruction.textContent = `请猜一个介于 ${min} 和 ${max} 之间的数字。`;
+            userGuessInput.value = '';
+            guessButton.disabled = false;
+            restartButton.style.display = 'none';
+        }
+
+        // 处理玩家的猜测
+        function handleGuess() {
+            const guess = parseInt(userGuessInput.value);
+
+            if (isNaN(guess)) {
+                feedbackElement.textContent = '请输入一个有效的数字！';
+                return;
+            }
+
+            attempts++;
+            attemptsElement.textContent = `尝试次数: ${attempts}`;
+
+            if (guess < targetNumber) {
+                feedbackElement.textContent = '太小了，再试一次！';
+                feedbackElement.style.color = '#ff9800';
+            } else if (guess > targetNumber) {
+                feedbackElement.textContent = '太大了，再试一次！';
+                feedbackElement.style.color = '#ff5722';
+            } else {
+                feedbackElement.textContent = `恭喜你！你猜对了！正确数字是 ${targetNumber}。`;
+                feedbackElement.style.color = '#4CAF50';
+                guessButton.disabled = true;
+                restartButton.style.display = 'block';
+            }
+        }
+
+        // 绑定事件
+        guessButton.addEventListener('click', handleGuess);
+        restartButton.addEventListener('click', startNewGame);
+
+        // 初始化游戏
+        startNewGame();
+    </script>
+
+</body>
+
+</html>
