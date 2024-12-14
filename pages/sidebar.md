@@ -110,7 +110,7 @@
 - [实现类似 js 中 eval 方法--2020-11-15](codes/javascript/equal-eval.md)
 - [正则表达式数组去重--2020-11-15](codes/javascript/unique-reg-exp.md)
 - [非重随机数数组--2020-11-16](codes/javascript/nonrandom.md)
-- [生成 UUID--2020-11-16](codes/javascript/UUIDGeneratorBrowser.md)
+- [生成 UUID--2020-11-16](codes/javascript/uuid-generator-browser.md)
 - [数组去前缀排序--2020-11-17](codes/javascript/removePrefixSort.md)
 - [将连接符转为小驼峰--2020-11-18](codes/javascript/hyphenToLowerCamelCase.md)
 - [数组累加--2020-11-18](codes/javascript/accumulate.md)

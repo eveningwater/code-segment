@@ -21,7 +21,7 @@ const UUIDGeneratorBrowser = () =>
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/UUIDGeneratorBrowser.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/uuid-generator-browser.ts" data-language="typescript"></div>
 
 或者可以使用如下的方法:
 
@@ -45,8 +45,10 @@ UUIDGeneratorBrowser(); // '7982fcfe-5721-4632-bede-6000885be57d'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/UUIDGeneratorBrowser.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/uuid-generator-browser.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/uuid-generator-browser.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/UUIDGeneratorBrowser.html"></iframe>
+<iframe src="codes/javascript/html/uuid-generator-browser.html"></iframe>
