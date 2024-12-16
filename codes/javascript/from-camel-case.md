@@ -15,6 +15,10 @@ const fromCamelCase = (str, separator = '_') =>
     .toLowerCase();
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/from-camel-case.ts" data-language="typescript"></div>
+
 ### 命名捕获组
 
 - ?<修改的捕获组名>
@@ -39,8 +43,8 @@ fromCamelCase('JSONToCSV', '.'); // 'json.to.csv'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/fromCamelCase.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/from-camel-case.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/fromCamelCase.html"></iframe>
+<iframe src="codes/javascript/html/from-camel-case.html"></iframe>
