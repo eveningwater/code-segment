@@ -20,7 +20,7 @@ const updateDateByDay = (date, n) => {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/updateDateByDay.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/update-date-by-day.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -31,8 +31,10 @@ updateDateByDay('2020-10-15', -10); // '2020-10-05'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/updateDateByDay.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/update-date-by-day.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/update-date-by-day.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/updateDateByDay.html"></iframe>
+<iframe src="codes/javascript/html/update-date-by-day.html"></iframe>

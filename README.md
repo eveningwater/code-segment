@@ -126,7 +126,7 @@
 - [将连接符转为小驼峰--2020-11-18](codes/javascript/hyphen-to-lower-camel-case.md)
 - [数组累加--2020-11-18](codes/javascript/accumulate.md)
 - [多个一维数组之间的交集--2020-11-19](codes/javascript/intersect.md)
-- [给定日期计算 n 天的日期--2020-11-19](codes/javascript/updateDateByDay.md)
+- [给定日期计算 n 天的日期--2020-11-19](codes/javascript/update-date-by-day.md)
 - [多个事件添加器--2020-11-20](codes/javascript/addMultipleListeners.md)
 - [计算添加 n 个工作日（营业日）后的工作（营业）日期--2020-11-21](codes/javascript/addBusinessDay.md)
 - [递归实现字符串和数组的全排列--2020-11-21](codes/javascript/stringAndArrayPermutations.md)
