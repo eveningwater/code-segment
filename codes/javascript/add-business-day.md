@@ -25,7 +25,7 @@ const addBusinessDay = (startDate, n) =>
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/addBusinessDay.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/add-business-day.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -36,8 +36,10 @@ addBusinessDay(new Date('Oct 12, 2020'), 5); // 'Oct 19, 2020'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/addBusinessDay.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/add-business-day.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/add-business-day.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/addBusinessDay.html"></iframe>
+<iframe src="codes/javascript/html/add-business-day.html"></iframe>
