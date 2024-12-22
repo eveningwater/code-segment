@@ -129,7 +129,7 @@
 - [给定日期计算 n 天的日期--2020-11-19](codes/javascript/update-date-by-day.md)
 - [多个事件添加器--2020-11-20](codes/javascript/add-multiple-listeners.md)
 - [计算添加 n 个工作日（营业日）后的工作（营业）日期--2020-11-21](codes/javascript/add-business-day.md)
-- [递归实现字符串和数组的全排列--2020-11-21](codes/javascript/stringAndArrayPermutations.md)
+- [递归实现字符串和数组的全排列--2020-11-21](codes/javascript/string-and-array-permutations.md)
 - [返回一个元素集合是否符合给定条件--2020-11-22](codes/javascript/all.md)
 - [检查一个数组中是否每个元素都相等--2020-11-23(11-24 补充)](codes/javascript/allEqual.md)
 - [根据提供的回调函数来检查数组中的所有元素是否相等--2020-11-24](codes/javascript/allEqualBy.md)

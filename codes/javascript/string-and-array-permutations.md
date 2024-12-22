@@ -28,7 +28,7 @@ function permutation(per) {
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/permutation.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/string-and-array-permutations.ts" data-language="typescript"></div>
 
 > 调用方式：
 
@@ -65,8 +65,10 @@ permutation([1, 2, 3, 2]);
 
 > 应用场景：
 
-<div class="code-editor" data-url="codes/javascript/html/permutation.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/string-and-array-permutations.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/string-and-array-permutations.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/permutation.html"></iframe>
+<iframe src="codes/javascript/html/string-and-array-permutations.html"></iframe>
