@@ -121,7 +121,7 @@
 - [递归实现字符串和数组的全排列--2020-11-21](codes/javascript/string-and-array-permutations.md)
 - [返回一个元素集合是否符合给定条件--2020-11-22](codes/javascript/all.md)
 - [检查一个数组中是否每个元素都相等--2020-11-23(11-24 补充)](codes/javascript/all-equal.md)
-- [根据提供的回调函数来检查数组中的所有元素是否相等--2020-11-24](codes/javascript/allEqualBy.md)
+- [根据提供的回调函数来检查数组中的所有元素是否相等--2020-11-24](codes/javascript/all-equal-by.md)
 - [检查数组中所有元素是否是唯一--2020-11-25](codes/javascript/allUnique.md)
 - [数字转金额格式--2020-11-26](codes/javascript/NumberToCurrency.md)
 - [根据提供的回调函数来检查数组元素是否唯一--2020-11-26](codes/javascript/allUniqueBy.md)
