@@ -133,7 +133,7 @@
 - [返回一个元素集合是否符合给定条件--2020-11-22](codes/javascript/all.md)
 - [检查一个数组中是否每个元素都相等--2020-11-23(11-24 补充)](codes/javascript/all-equal.md)
 - [根据提供的回调函数来检查数组中的所有元素是否相等--2020-11-24](codes/javascript/all-equal-by.md)
-- [检查数组中所有元素是否是唯一--2020-11-25](codes/javascript/allUnique.md)
+- [检查数组中所有元素是否是唯一--2020-11-25](codes/javascript/all-unique.md)
 - [数字转金额格式--2020-11-26](codes/javascript/NumberToCurrency.md)
 - [根据提供的回调函数来检查数组元素是否唯一--2020-11-26](codes/javascript/allUniqueBy.md)
 - [检查两个参数是否都为真--2020-11-27](codes/javascript/and.md)

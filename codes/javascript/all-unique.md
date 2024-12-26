@@ -15,7 +15,7 @@ const allUnique = arr => arr.length === new Set(arr).size;
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/allUnique.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/all-unique.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -26,8 +26,10 @@ allUnique([1, 1, 2, 3]); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/allUnique.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/all-unique.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/all-unique.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/allUnique.html"></iframe>
+<iframe src="codes/javascript/html/all-unique.html"></iframe>
