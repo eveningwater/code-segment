@@ -11,18 +11,18 @@
 > 代码如下
 
 ```js
-const toFormateNum = (num, format, options) =>
+const numberToCurrency = (num, format, options) =>
   num.toLocaleString(format, options);
 ```
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/toFormateNum.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/number-to-currency.ts" data-language="typescript"></div>
 
 > 调用方式
 
 ```js
-toFormateNum(10000000, 'cmn-Hans-CN', {
+numberToCurrency(10000000, 'cmn-Hans-CN', {
   style: 'currency',
   currency: 'CNY'
 });
@@ -31,8 +31,10 @@ toFormateNum(10000000, 'cmn-Hans-CN', {
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/toFormateNum.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/number-to-currency.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/number-to-currency.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/toFormateNum.html"></iframe>
+<iframe src="codes/javascript/html/number-to-currency.html"></iframe>

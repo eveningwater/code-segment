@@ -123,7 +123,7 @@
 - [检查一个数组中是否每个元素都相等--2020-11-23(11-24 补充)](codes/javascript/all-equal.md)
 - [根据提供的回调函数来检查数组中的所有元素是否相等--2020-11-24](codes/javascript/all-equal-by.md)
 - [检查数组中所有元素是否是唯一--2020-11-25](codes/javascript/all-unique.md)
-- [数字转金额格式--2020-11-26](codes/javascript/NumberToCurrency.md)
+- [数字转金额格式--2020-11-26](codes/javascript/number-to-currency.md)
 - [根据提供的回调函数来检查数组元素是否唯一--2020-11-26](codes/javascript/allUniqueBy.md)
 - [检查两个参数是否都为真--2020-11-27](codes/javascript/and.md)
 - [任意元素的检查--2020-11-28](codes/javascript/any.md)
