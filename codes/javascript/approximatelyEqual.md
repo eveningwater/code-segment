@@ -15,7 +15,7 @@ const approximatelyEqual = (a, b, epsilon = 0.001) => Math.abs(a - b) < epsilon;
 
 ts代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/approximatelyEqual.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/approximately-equal.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -25,8 +25,11 @@ approximatelyEqual(Math.PI / 2.0, 1.5708); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/approximatelyEqual.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/approximately-equal.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+
+<div class="code-editor" data-url="codes/javascript/html/approximately-equal.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/approximatelyEqual.html"></iframe>
+<iframe src="codes/javascript/html/approximately-equal.html"></iframe>

@@ -139,7 +139,7 @@
 - [检查两个参数是否都为真--2020-11-27](codes/javascript/and.md)
 - [任意元素的检查--2020-11-28](codes/javascript/any.md)
 - [创建连续数组--2020-11-29](codes/javascript/aperture.md)
-- [检查两个数字是否近似相等--2020-11-30](codes/javascript/approximatelyEqual.md)
+- [检查两个数字是否近似相等--2020-11-30](codes/javascript/approximately-equal.md)
 - [倍数连续数字数组--2020-12-01](codes/javascript/arithmeticProgression.md)
 - [二维数组转成逗号分割字符串--2020-12-02](codes/javascript/arrayToCSV.md)
 - [生成一个列表--2020-12-13](codes/javascript/arrayToHTMLList.md)
