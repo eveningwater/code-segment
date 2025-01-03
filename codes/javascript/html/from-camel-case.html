@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>驼峰命名转蛇形命名工具</title>
+    <link rel="stylesheet" href="https://www.unpkg.com/ew-message/dist/ew-message.min.css">
     <style>
         /* 页面基本样式 */
         body {
@@ -62,7 +63,11 @@
             outline: none;
         }
 
-        button {
+        .copy-btn {
+            margin-top: 10px;
+        }
+
+        .btn {
             width: 100%;
             padding: 14px;
             font-size: 18px;
@@ -74,7 +79,7 @@
             transition: background-color 0.3s;
         }
 
-        button:hover {
+        .btn:hover {
             background-color: #45a049;
         }
 
@@ -106,9 +111,10 @@
         </div>
         <div class="input-group">
             <label for="camelCaseInput">请输入转换符号：</label>
-            <input type="text" id="camelCaseSymbolInput" placeholder="例如：-" value="_">
+            <input type="text" id="camelCaseSymbolInput" placeholder="例如：-" value="-">
         </div>
-        <button id="convertBtn">转换为蛇形命名</button>
+        <button id="convertBtn" class="btn">转换为蛇形命名</button>
+        <button id="copyBtn" class="btn copy-btn">复制结果</button>
         <div class="result">
             <label for="snakeCaseOutput">转换结果：</label>
             <input type="text" id="snakeCaseOutput" readonly>
@@ -116,7 +122,54 @@
         <div id="alertMessage" class="alert"></div>
     </div>
 
+    <script src="https://www.eveningwater.com/static/plugin/popbox.min.js"></script>
+    <script src="https://www.unpkg.com/ew-message/dist/ew-message.min.js"></script>
     <script>
+        const copyHandler = (str) => {
+            const confirm = (title = '温馨提示', content = '已复制到剪切板') => {
+                ewConfirm({
+                    title: title,
+                    content: content,
+                    showCancel: false
+                });
+            };
+            const baseCopy = (copyText) =>
+                new Promise((resolve, reject) => {
+                    // 判断是否存在clipboard并且是安全的协议
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard
+                            .writeText(copyText)
+                            .then(() => {
+                                resolve();
+                            })
+                            .catch(() => {
+                                reject(new Error('复制失败'));
+                            });
+                    } else {
+                        // 否则使用被废弃的execCommand
+                        const input = document.createElement('input');
+                        input.value = copyText;
+                        // 使input不在viewport，同时设置不可见
+                        input.style.position = 'absolute';
+                        input.style.left = '-9999px';
+                        input.style.top = '-9999px';
+                        document.body.append(input);
+                        input.focus();
+                        input.select();
+                        // 执行复制命令并移除文本框
+                        if (document.execCommand) {
+                            document.execCommand('copy');
+                            resolve();
+                        } else {
+                            reject(new Error('复制失败'));
+                        }
+                        input.remove();
+                    }
+                });
+            baseCopy(str)
+                .then(() => confirm())
+                .catch(() => confirm('温馨提示', '复制失败'));
+        }
         // 驼峰命名转蛇形命名的函数
         const fromCamelCase = (str, separator = '_') =>
             str
@@ -126,6 +179,7 @@
 
         // 获取HTML元素
         const convertBtn = document.getElementById('convertBtn');
+        const copyBtn = document.getElementById('copyBtn');
         const camelCaseInput = document.getElementById('camelCaseInput');
         const camelCaseSymbolInput = document.getElementById('camelCaseSymbolInput');
         const snakeCaseOutput = document.getElementById('snakeCaseOutput');
@@ -143,6 +197,14 @@
                 // 转换驼峰命名为蛇形命名
                 const snakeCaseText = fromCamelCase(camelCaseText, camelCaseSymbol);
                 snakeCaseOutput.value = snakeCaseText;
+            }
+        });
+        copyBtn.addEventListener('click', () => {
+            const value = snakeCaseOutput.value.trim();
+            if (value === '') {
+                ewMessage.warning("当前没有转换结果，请先转换结果.")
+            } else {
+                copyHandler(value)
             }
         });
     </script>
