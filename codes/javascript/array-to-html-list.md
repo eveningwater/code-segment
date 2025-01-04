@@ -18,7 +18,7 @@ const arrayToHTMLList = (arr, listId) => {
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/arrayToHTMLList.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/array-to-html-list.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -28,8 +28,10 @@ arrayToHTMLList(['item 1', 'item 2'], 'myListID'); //生成一个<ul></ul>无序
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/arrayToHTMLList.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/array-to-html-list.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/array-to-html-list.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/arrayToHTMLList.html"></iframe>
+<iframe src="codes/javascript/html/array-to-html-list.html"></iframe>
