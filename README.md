@@ -144,7 +144,7 @@
 - [二维数组转成逗号分割字符串--2020-12-02](codes/javascript/array-to-csv.md)
 - [生成一个列表--2020-12-13](codes/javascript/array-to-html-list.md)
 - [创建一个返回处理参数的函数--2020-12-21](codes/javascript/ary.md)
-- [监听 iframe 下载完成--2020-12-26](codes/javascript/downloadIframe.md)
+- [监听 iframe 下载完成--2020-12-26](codes/javascript/download-iframe.md)
 - [捕获错误--2021-2-1](codes/javascript/attempt.md)
 - [两个超大数字相加--2021-3-7](codes/javascript/bigNumberSum.md)
 - [用函数模拟实现一个 new 操作符的功能--2021-4-24](codes/javascript/myNew.md)

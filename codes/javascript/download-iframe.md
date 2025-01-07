@@ -34,7 +34,7 @@ const downloadIframe = (path, resolve, time = 1000) => {
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/downloadIframe.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/download-iframe.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -48,8 +48,10 @@ downloadIframe('XXX.txt', status => {
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/downloadIframe.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/download-iframe.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/download-iframe.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/downloadIframe.html"></iframe>
+<iframe src="codes/javascript/html/download-iframe.html"></iframe>
