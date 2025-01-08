@@ -32,6 +32,8 @@ if (elements instanceof Error) elements = []; //elements = []
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/attempt.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/attempt.html" data-language="html"></div>
 
 结果如下:
