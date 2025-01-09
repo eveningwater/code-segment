@@ -46,7 +46,7 @@ function bigNumberSum(a, b) {
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/bigNumberSum.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/big-number-sum.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -60,8 +60,10 @@ bigNumberSum(
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/bigNumberSum.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/big-number-sum.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/big-number-sum.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/bigNumberSum.html"></iframe>
+<iframe src="codes/javascript/html/big-number-sum.html"></iframe>
