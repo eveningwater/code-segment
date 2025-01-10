@@ -136,7 +136,7 @@
 - [监听 iframe 下载完成--2020-12-26](codes/javascript/download-iframe.md)
 - [捕获错误--2021-2-1](codes/javascript/attempt.md)
 - [两个超大数字相加--2021-3-7](codes/javascript/big-number-sum.md)
-- [用函数模拟实现一个 new 操作符的功能--2021-4-24](codes/javascript/myNew.md)
+- [用函数模拟实现一个 new 操作符的功能--2021-4-24](codes/javascript/my-new.md)
 - [解析 URL 参数--2021-4-24](codes/javascript/handleURLParam.md)
 - [简易模板编译器--2021-6-08](codes/javascript/simpleTemplateCompiler.md)
 - [从 IE 浏览器跳转到 chrome 浏览器--2021-6-16](codes/javascript/IEToChrome.md)
