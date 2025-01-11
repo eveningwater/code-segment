@@ -1,4 +1,4 @@
-const getURLParam = (url: string) => {
+const handleURLParam = (url: string) => {
     let res = {};
     if (url.lastIndexOf('?') === -1) return res;
     let param = decodeURIComponent(url.slice(url.lastIndexOf('?') + 1));
@@ -10,5 +10,5 @@ const getURLParam = (url: string) => {
     return res;
 };
 
-const param = getURLParam('https://www.test.com/?_aaa=111&_bbb=222');
+const param = handleURLParam('https://www.test.com/?_aaa=111&_bbb=222');
 console.log(param); //{ _aaa:111,_bbb:222 }
