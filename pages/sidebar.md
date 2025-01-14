@@ -140,7 +140,7 @@
 - [解析 URL 参数--2021-4-24](codes/javascript/handleURLParam.md)
 - [简易模板编译器--2021-6-08](codes/javascript/simple-template-compiler.md)
 - [从 IE 浏览器跳转到 chrome 浏览器--2021-6-16](codes/javascript/ie-to-chrome.md)
-- [判断对象中是否包含属性名--2021-12-05](codes/javascript/assertValidKeys.md)
+- [判断对象中是否包含属性名--2021-12-05](codes/javascript/assert-valid-keys.md)
 - [求平均数--2021-12-11](codes/javascript/average.md)
 - [根据一个函数来求平均数--2021-12-12](codes/javascript/averageBy.md)
 - [划分数组--2021-12-13](codes/javascript/bifurcate.md)

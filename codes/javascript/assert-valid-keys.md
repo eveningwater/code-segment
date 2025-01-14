@@ -16,7 +16,7 @@ const assertValidKeys = (obj, keys) =>
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/assertValidKeys.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/assert-valid-keys.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -27,8 +27,10 @@ assertValidKeys({ id: 10, name: 'apple' }, ['id', 'type']); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/assertValidKeys.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/assert-valid-keys.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/assert-valid-keys.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/assertValidKeys.html"></iframe>
+<iframe src="codes/javascript/html/assert-valid-keys.html"></iframe>
