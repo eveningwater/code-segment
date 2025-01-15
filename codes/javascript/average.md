@@ -27,6 +27,8 @@ average(1, 2, 3); // 2
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/average.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/average.html" data-language="html"></div>
 
 结果如下:
