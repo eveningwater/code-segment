@@ -19,7 +19,7 @@ const averageBy = (arr, handler) =>
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/averageBy.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/average-by.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -30,8 +30,10 @@ averageBy([{ n: 4 }, { n: 2 }, { n: 8 }, { n: 6 }], 'n'); // 5
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/averageBy.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/average-by.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/average-by.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/averageBy.html"></iframe>
+<iframe src="codes/javascript/html/average-by.html"></iframe>

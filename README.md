@@ -153,7 +153,7 @@
 - [从 IE 浏览器跳转到 chrome 浏览器--2021-6-16](codes/javascript/ie-to-chrome.md)
 - [判断对象中是否包含属性名--2021-12-05](codes/javascript/assert-valid-keys.md)
 - [求平均数--2021-12-11](codes/javascript/average.md)
-- [根据一个函数来求平均数--2021-12-12](codes/javascript/averageBy.md)
+- [根据一个函数来求平均数--2021-12-12](codes/javascript/average-by.md)
 - [划分数组--2021-12-13](codes/javascript/bifurcate.md)
 - [根据过滤器函数划分数组--2021-12-14](codes/javascript/bifurcateBy.md)
 - [二个参数的函数--2021-12-15](codes/javascript/binary.md)
