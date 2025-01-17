@@ -1,23 +1,162 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bifurcate</title>
+    <title>数组分离</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .message {
+            margin-top: 15px;
+            color: #e74c3c;
+        }
+
+        .result-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .result-list ul {
+            padding-left: 20px;
+        }
+
+        .result-list li {
+            font-size: 16px;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+
+    <div class="container">
+        <h1>数组分离工具</h1>
+
+        <label for="inputArray">请输入数组（JSON格式）：</label>
+        <input id="inputArray" type="text" placeholder='例如：[1, 2, 3, 4, 5]' />
+
+        <label for="inputFilter">请输入过滤条件（JSON格式，true为选中，false为不选中）：</label>
+        <input id="inputFilter" type="text" placeholder='例如：[true, false, true, false, true]' />
+
+        <button onclick="bifurcateArrays()">分离数组</button>
+
+        <div id="result" class="result"></div>
+        <div id="message" class="message"></div>
+
+        <div id="separatedResult" class="result-list"></div>
+    </div>
+
     <script>
+        // bifurcate函数
         const bifurcate = (arr, filter) =>
             arr.reduce(
                 (acc, val, i) => (acc[filter[i] ? 0 : 1].push(val), acc),
                 [[], []]
             );
-        console.log(bifurcate(['beep', 'boop', 'foo', 'bar'], [true, true, false, true]));
-// [ ['beep', 'boop', 'bar'], ['foo'] ]
+
+        // 处理用户输入
+        function bifurcateArrays() {
+            const inputArray = document.getElementById('inputArray').value;
+            const inputFilter = document.getElementById('inputFilter').value;
+            const resultDiv = document.getElementById('result');
+            const messageDiv = document.getElementById('message');
+            const separatedResultDiv = document.getElementById('separatedResult');
+
+            try {
+                const arr = JSON.parse(inputArray);
+                const filter = JSON.parse(inputFilter);
+
+                if (Array.isArray(arr) && Array.isArray(filter) && arr.length === filter.length) {
+                    const [arrTrue, arrFalse] = bifurcate(arr, filter);
+                    resultDiv.textContent = `分离结果：`;
+
+                    // 显示分离后的结果
+                    separatedResultDiv.innerHTML = `
+                        <h3>分离后结果:</h3>
+                        <div><strong>选中的部分:</strong></div>
+                        <ul>${arrTrue.map(item => `<li>${item}</li>`).join('')}</ul>
+                        <div><strong>未选中的部分:</strong></div>
+                        <ul>${arrFalse.map(item => `<li>${item}</li>`).join('')}</ul>
+                    `;
+
+                    messageDiv.textContent = ''; // 清除错误消息
+                } else {
+                    resultDiv.textContent = '';
+                    separatedResultDiv.innerHTML = '';
+                    messageDiv.textContent = '请输入有效的数组和过滤条件，且它们的长度必须相等。';
+                }
+            } catch (e) {
+                resultDiv.textContent = '';
+                separatedResultDiv.innerHTML = '';
+                messageDiv.textContent = '输入格式无效，请确保输入的是正确的 JSON 数据。';
+            }
+        }
     </script>
+
 </body>
 
 </html>
