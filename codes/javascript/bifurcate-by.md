@@ -20,7 +20,7 @@ const bifurcateBy = (arr, handler) =>
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/bifurcateBy.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/bifurcate-by.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -31,8 +31,10 @@ bifurcateBy(['beep', 'boop', 'foo', 'bar'], x => x[0] === 'b');
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/bifurcateBy.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/bifurcate-by.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/bifurcate-by.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/bifurcateBy.html"></iframe>
+<iframe src="codes/javascript/html/bifurcate-by.html"></iframe>
