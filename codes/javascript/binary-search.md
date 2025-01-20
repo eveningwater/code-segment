@@ -31,7 +31,7 @@ const binarySearch = (arr, item) => {
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/binarySearch.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/binary-search.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -43,8 +43,10 @@ binarySearch([1, 2, 3, 4, 5], 6); // -1
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/binarySearch.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/binary-search.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/binary-search.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/binarySearch.html"></iframe>
+<iframe src="codes/javascript/html/binary-search.html"></iframe>
