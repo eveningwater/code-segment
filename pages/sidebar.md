@@ -148,7 +148,7 @@
 - [二个参数的函数--2021-12-15](codes/javascript/binary.md)
 - [二分查询--2021-12-17](codes/javascript/binary-search.md)
 - [函数绑定-1--2021-12-18](codes/javascript/bind.md)
-- [函数绑定-2--2021-12-19](codes/javascript/bindAll.md)
+- [函数绑定-2--2021-12-19](codes/javascript/bind-all.md)
 - [函数绑定-3--2021-12-21](codes/javascript/bindKey.md)
 - [二项式系数--2021-12-22](codes/javascript/binomialCoefficient.md)
 - [并且函数--2021-12-24](codes/javascript/both.md)
