@@ -18,8 +18,8 @@
 
 二项式系数(C(n, k))表示从 n 个元素中选取 k 个元素的组合数。它也可以表示为：
 
-```js
-C(n, k) = n! / (k! \* (n - k)!)
+```tex
+C(n, k) = \binom{n}{k} = \frac{n!}{k!(n - k)!}
 ```
 
 其中，n!是 n 的阶乘，表示从 1 乘到 n 的所有正整数的积。
@@ -37,8 +37,8 @@ C(n, k) = n! / (k! \* (n - k)!)
 
 二项式定理（Binomial Theorem）描述了一个二项式表达式的展开式：
 
-```js
-(x + y) ^ n = sum_{k=0} ^ {n} C(n, k) * x ^ (n - k) * y ^ k
+```tex
+(a + b)^n = \sum_{k=0}^{n} \binom{n}{k} a^{n-k} b^k
 ```
 
 其中，C(n, k)就是二项式系数，表示从n项中选取k项的系数。
@@ -69,7 +69,9 @@ C(n, k) = n! / (k! \* (n - k)!)
 
 根据二项式定理：
 
-`(1 + 2) ^ 3 = sum_{k=0} ^ {3} C(3, k) * x ^ (3 - k) * y ^ k`
+```tex
+(1 + 2) ^ 3 = \sum_{k=0}^{3} \binom{3}{k} 1^{3-k} 2^k
+```
 
 展开每一项：
 
@@ -136,7 +138,12 @@ console.log(binomialCoefficientDP(5, 2)); // 输出: 10
 
 ### 总结
 
-- **二项式系数**是组合数学中的一个重要概念，表示从 n 个元素中选择 k 个元素的方式数，计算公式为：`C(n, k) = n! / (k! * (n - k)!)`。
+- **二项式系数**是组合数学中的一个重要概念，表示从 n 个元素中选择 k 个元素的方式数，计算公式为： 
+
+```tex
+C(n, k) = \binom{n}{k} = \frac{n!}{k!(n - k)!}
+```
+
 - 它在二项式定理中有着广泛应用，用于展开表达式 `(x + y) ^ n`。
 - 通过不同的方法（如阶乘法、递归、动态规划等）可以高效地计算二项式系数。
 
@@ -157,7 +164,7 @@ const binomialCoefficient = (n, k) => {
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/binomialCoefficient.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/binomial-coefficient.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -167,8 +174,10 @@ binomialCoefficient(8, 2); // 28
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/binomialCoefficient.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/binomial-coefficient.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/binomial-coefficient.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/binomialCoefficient.html"></iframe>
+<iframe src="codes/javascript/html/binomial-coefficient.html"></iframe>

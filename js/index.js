@@ -88,5 +88,21 @@ window.$docsify = {
   externalLinks: {
     target: '_blank',
     rel: 'noopener noreferrer'
+  },
+  markdown: {
+    renderer: {
+      code: function(code, lang) {
+        if (lang === 'tex') {
+          return katex.renderToString(
+            code,
+            {
+              throwOnError: false,
+              displayMode: true
+            }
+          ) 
+        }
+        return this.origin.code.apply(this, arguments)
+      }
+    }
   }
 };
