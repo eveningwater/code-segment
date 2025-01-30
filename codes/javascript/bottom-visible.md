@@ -18,7 +18,7 @@ const bottomVisible = () => {
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/bottomVisible.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/bottom-visible.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -28,8 +28,10 @@ bottomVisible(); // true or false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/bottomVisible.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/bottom-visible.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/bottom-visible.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/bottomVisible.html"></iframe>
+<iframe src="codes/javascript/html/bottom-visible.html"></iframe>
