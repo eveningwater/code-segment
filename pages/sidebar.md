@@ -154,7 +154,7 @@
 - [并且函数--2021-12-24](codes/javascript/both.md)
 - [判断是否滚动到底部--2021-12-26](codes/javascript/bottom-visible.md)
 - [冒泡排序--2021-12-29](codes/javascript/bubble-sort.md)
-- [桶排序--2021-12-30](codes/javascript/bucketSort.md)
+- [桶排序--2021-12-30](codes/javascript/bucket-sort.md)
 - [字节的大小--2021-12-31](codes/javascript/byteSize.md)
 - [凯撒密码--2022-01-02](codes/javascript/caesarCipher.md)
 - [函数调用--2022-01-03](codes/javascript/call.md)
