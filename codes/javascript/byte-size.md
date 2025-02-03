@@ -15,7 +15,7 @@ const byteSize = str => new Blob([str]).size;
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/byteSize.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/byte-size.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -26,8 +26,10 @@ byteSize('Hello World'); // 11
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/byteSize.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/byte-size.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/byte-size.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/byteSize.html"></iframe>
+<iframe src="codes/javascript/html/byte-size.html"></iframe>
