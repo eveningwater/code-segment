@@ -29,6 +29,8 @@ capitalize('fooBar', true); // 'Foobar'
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/capitalize.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/capitalize.html" data-language="html"></div>
 
 结果如下:

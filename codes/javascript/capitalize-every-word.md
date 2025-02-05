@@ -15,7 +15,7 @@ const capitalizeEveryWord = str =>
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/capitalizeEveryWord.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/capitalize-every-word.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -25,10 +25,10 @@ capitalizeEveryWord('hello world!'); // 'Hello World!'
 
 > 应用场景
 
-以下是基于上述代码实现的一个单词字母大写转换器的<a href="codes/javascript/html/capitalizeEveryWord.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是基于上述代码实现的一个单词字母大写转换器的<a href="codes/javascript/html/capitalize-every-word.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/html/capitalizeEveryWord.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/capitalize-every-word.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/capitalizeEveryWord.html"></iframe>
+<iframe src="codes/javascript/html/capitalize-every-word.html"></iframe>
