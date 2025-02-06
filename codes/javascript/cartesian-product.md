@@ -50,7 +50,7 @@ const cartesianProduct = (a, b) =>
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/cartesianProduct.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/cartesian-product.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -61,10 +61,10 @@ cartesianProduct(["x", "y"], [1, 2]);
 
 > 应用场景
 
-以下是一个基于笛卡尔积而实现的实战<a href="codes/javascript/html/cartesianProduct.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是一个基于笛卡尔积而实现的实战<a href="codes/javascript/html/cartesian-product.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/html/cartesianProduct.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/cartesian-product.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/cartesianProduct.html"></iframe>
+<iframe src="codes/javascript/html/cartesian-product.html"></iframe>
