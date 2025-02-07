@@ -172,7 +172,7 @@
 - [首字母大写--2022-01-04](codes/javascript/capitalize.md)
 - [所有单词首字母大写--2022-01-05](codes/javascript/capitalize-every-word.md)
 - [笛卡尔积--2022-01-06](codes/javascript/cartesian-product.md)
-- [转换数组--2022-01-07](codes/javascript/castArray.md)
+- [转换数组--2022-01-07](codes/javascript/cast-array.md)
 - [摄氏度转华氏度--2022-01-08](codes/javascript/celsiusToFahrenheit.md)
 - [异步链--2022-01-09](codes/javascript/chainAsync.md)
 - [改变亮度--2022-01-10](codes/javascript/changeLightness.md)

@@ -14,7 +14,7 @@ const castArray = v => (Array.isArray(v) ? v : [v]);
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/castArray.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/cast-array.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -25,10 +25,10 @@ castArray([1]); // [1]
 
 > 应用场景
 
-以下是一个基于转换数组而实现的实战<a href="codes/javascript/html/castArray.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是一个基于转换数组而实现的实战<a href="codes/javascript/html/cast-array.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/html/castArray.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/cast-array.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/castArray.html"></iframe>
+<iframe src="codes/javascript/html/cast-array.html"></iframe>
