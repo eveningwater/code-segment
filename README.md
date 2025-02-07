@@ -148,7 +148,7 @@
 - [捕获错误--2021-2-1](codes/javascript/attempt.md)
 - [两个超大数字相加--2021-3-7](codes/javascript/big-number-sum.md)
 - [用函数模拟实现一个 new 操作符的功能--2021-4-24](codes/javascript/my-new.md)
-- [解析 URL 参数--2021-4-24](codes/javascript/handleURLParam.md)
+- [解析 URL 参数--2021-4-24](codes/javascript/handle-url-param.md)
 - [简易模板编译器--2021-6-08](codes/javascript/simple-template-compiler.md)
 - [从 IE 浏览器跳转到 chrome 浏览器--2021-6-16](codes/javascript/ie-to-chrome.md)
 - [判断对象中是否包含属性名--2021-12-05](codes/javascript/assert-valid-keys.md)
