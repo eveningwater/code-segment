@@ -14,7 +14,7 @@ const celsiusToFahrenheit = degree => 1.8 * degree + 32;
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/celsiusToFahrenheit.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/celsius-to-fahrenheit.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -24,10 +24,10 @@ celsiusToFahrenheit(33); // 91.4
 
 > 应用场景
 
-以下是一个实战<a href="codes/javascript/html/celsiusToFahrenheit.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是一个实战<a href="codes/javascript/html/celsius-to-fahrenheit.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/html/celsiusToFahrenheit.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/celsius-to-fahrenheit.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/celsiusToFahrenheit.html"></iframe>
+<iframe src="codes/javascript/html/celsius-to-fahrenheit.html"></iframe>
