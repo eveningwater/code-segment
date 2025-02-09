@@ -174,7 +174,7 @@
 - [笛卡尔积--2022-01-06](codes/javascript/cartesian-product.md)
 - [转换数组--2022-01-07](codes/javascript/cast-array.md)
 - [摄氏度转华氏度--2022-01-08](codes/javascript/celsius-to-fahrenheit.md)
-- [异步链--2022-01-09](codes/javascript/chainAsync.md)
+- [异步链--2022-01-09](codes/javascript/chain-async.md)
 - [改变亮度--2022-01-10](codes/javascript/changeLightness.md)
 - [检查属性--2022-01-12](codes/javascript/checkProp.md)
 - [数组分块--2022-01-16](codes/javascript/chunk.md)

@@ -40,8 +40,10 @@ chainAsync([
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/chainAsync.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/chain-async.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/chain-async.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/chainAsync.html"></iframe>
+<iframe src="codes/javascript/html/chain-async.html"></iframe>
