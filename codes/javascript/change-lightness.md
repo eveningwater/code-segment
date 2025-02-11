@@ -26,7 +26,7 @@ const changeLightness = (delta, hsl) => {
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/celsius-to-fahrenheit.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/change-lightness.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -36,6 +36,8 @@ changeLightness(-10, 'hsl(330, 50%, 50%)'); // 'hsl(330, 50%, 40%)'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/change-lightness.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/change-lightness.html" data-language="html"></div>
 
