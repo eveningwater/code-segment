@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>属性检查示例</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .input {
+            padding: 8px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .input:focus {
+            border-color: #2396ef;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .true {
+            color: green;
+        }
+
+        .false {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>属性检查</h1>
+        <textarea type="text" id="obj" placeholder="输入源对象" class="input"></textarea>
+        <input type="text" id="property" placeholder="输入属性名称" class="input" />
+        <input type="text" id="value" placeholder="输入属性值" class="input" />
+        <button onclick="checkProperty()" class="btn">检查属性</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function autoTextArea(el, extra, maxHeight) {
+            extra = extra || 0;
+            var textOrtextArea = el.tagName.toLowerCase();
+            //如果不是单行输入文本框或者多行输入文本框，就不执行后续操作
+            if (textOrtextArea.indexOf('text') === -1 || textOrtextArea.indexOf('textarea') === -1) return;
+            var isFireFox = document.getBoxObjectFor || 'mozInnerScreenX' in window,//是否火狐浏览器
+                isOpera = window.opera && window.opera.toString().indexOf('opera');//是否opera浏览器
+            //添加事件主流浏览器与IE浏览器的事件
+            var addEvent = function (eventName, callback) {
+                el.addEventListener ? el.addEventListener(eventName, callback, false) : el.attachEvent('on' + eventName, callback);
+            }
+            // 获取元素的属性值。参数css属性名，如height
+            var getStyle = el.currentStyle ? function (prop) {
+                var propName = el.currentStyle[prop];
+                if (propName.indexOf('height') > -1 && propName.search(/px/i) > -1) {
+                    var rect = el.getBoundingClientRect;//获取dom元素边框的所有位置属性
+                    //元素边框底部位置减去顶部边框位置减去上下内边距，就是获取到的元素的实际高度(IE标准盒子模型)
+                    return rect.bottom - rect.top - parseInt(getStyle('padding-bottom')) - parseInt(getStyle('padding-top')) + 'px';
+                }
+            } : function (prop) {
+                // 主流浏览器通过getComputedStyle()即可返回元素实际属性值,只返回高度
+                return window.getComputedStyle(el, null)[prop];
+            };
+            //设置resize属性
+            el.style.resize = 'none';
+            //输入框的最小高度
+            var minHeight = parseInt(getStyle('height'));
+            // 实际内容被改变
+            var contentHeightChange = function () {
+                // 默认内边距为0，元素滚动距离顶部的距离，设置元素的样式
+                var padding = 0,
+                    style = el.style,
+                    currentHeight;
+                //如果不是火狐浏览器也不是opera浏览器，则内边距等于上下边距相加
+                if (!isFireFox && !isOpera) {
+                    padding = parseInt(getStyle('padding-bottom')) + parseInt(getStyle('padding-top'));
+                }
+                //文本框初始高度就为最小高度
+                style.height = minHeight + 'px';
+                //如果滚动高度大于了最小高度
+                if (el.scrollHeight > minHeight) {
+                    //如果最大高度存在，且滚动高度大于最大高度
+                    if (maxHeight && el.scrollHeight > maxHeight) {
+                        //当前高度为最大高度减去内边距
+                        currentHeight = maxHeight - padding;
+                        style.overflowY = 'auto';
+                    } else {
+                        //当前高度等于滚动高度减去内边距
+                        currentHeight = el.scrollHeight - padding;
+                        style.overflowY = 'hidden';
+                    }
+                    //元素高度就等于当前高度加上光标与元素之间的距离
+                    style.height = currentHeight + extra + 'px';
+                }
+            }
+            addEvent('propertychange', contentHeightChange)
+            addEvent('focus', contentHeightChange);
+            addEvent('input', contentHeightChange);
+            contentHeightChange();
+        }
+        // 定义 checkProp 函数
+        const checkProp = (predicate, prop) => obj => !!predicate(obj[prop]);
+
+        // 模拟一个对象来进行属性检查
+        const sampleObj = {
+            name: "张三",
+            age: 25,
+            isActive: true,
+            hobby: "敲代码"
+        };
+
+        const originDataObjTextArea = document.getElementById('obj');
+
+        originDataObjTextArea.value = JSON.stringify(sampleObj, null, 2);
+        autoTextArea(originDataObjTextArea, 10)
+        // 根据输入的属性和值进行判断
+        function checkProperty() {
+            const prop = document.getElementById("property").value;
+            const value = document.getElementById("value").value;
+
+            // 判断用户输入的值是否与对象的属性值匹配
+            const predicate = (value) => value === value; // 简单的相等判断
+            const check = checkProp(predicate, prop);  // 使用 checkProp 检查属性
+
+            // 获取结果元素
+            const resultElement = document.getElementById("result");
+
+            // 判断属性是否存在并输出结果
+            if (prop && sampleObj.hasOwnProperty(prop)) {
+                const result = check(sampleObj);
+                resultElement.textContent = result ? "条件匹配成功！" : "条件不匹配。";
+                resultElement.className = result ? "result true" : "result false";
+            } else {
+                resultElement.textContent = "属性不存在！";
+                resultElement.className = "result false";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -165,7 +165,7 @@
 - [摄氏度转华氏度--2022-01-08](codes/javascript/celsius-to-fahrenheit.md)
 - [异步链--2022-01-09](codes/javascript/chain-async.md)
 - [改变亮度--2022-01-10](codes/javascript/change-lightness.md)
-- [检查属性--2022-01-12](codes/javascript/checkProp.md)
+- [检查属性--2022-01-12](codes/javascript/check-prop.md)
 - [数组分块--2022-01-16](codes/javascript/chunk.md)
 - [根据整数 n 来对数组分块--2022-01-17](codes/javascript/chunkIntoN.md)
 - [可迭代对象分块--2022-01-19](codes/javascript/chunkify.md)
