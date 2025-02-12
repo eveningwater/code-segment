@@ -17,6 +17,10 @@ const chunk = (arr, size) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/chunk.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,6 +28,8 @@ chunk([1, 2, 3, 4, 5], 2); // [[1, 2], [3, 4], [5]]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/chunk.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/chunk.html" data-language="html"></div>
 
