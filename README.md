@@ -701,6 +701,7 @@
 - [解析字符串-2024-09-19](codes/javascript/parseStr.md)
 - [期约合并-2024-09-26](codes/javascript/PromiseAll.md)
 - [匹配字符串之间的子字符串（提供开始匹配符和结束匹配符）--2024-11-06](codes/javascript/firstStringBetween.md)
+- [获取数组的维度--2025-02-12](codes/javascript/get-array-depth.md)
 
 ## typescript 代码段
 
