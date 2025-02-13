@@ -167,7 +167,7 @@
 - [改变亮度--2022-01-10](codes/javascript/change-lightness.md)
 - [检查属性--2022-01-12](codes/javascript/check-prop.md)
 - [数组分块--2022-01-16](codes/javascript/chunk.md)
-- [根据整数 n 来对数组分块--2022-01-17](codes/javascript/chunkIntoN.md)
+- [根据整数 n 来对数组分块--2022-01-17](codes/javascript/chunk-into-n.md)
 - [可迭代对象分块--2022-01-19](codes/javascript/chunkify.md)
 - [限定数字的包含范围--2022-01-20](codes/javascript/clampNumber.md)
 - [正则表达式的复制--2022-01-21](codes/javascript/cloneRegExp.md)
