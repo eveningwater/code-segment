@@ -12,7 +12,7 @@
 
 ```js
 const chunkify = function* (itr, size) {
-  const chunk = [];
+  let chunk = [];
   for (const item of itr) {
     chunk.push(item);
     if (chunk.length === size) {
@@ -26,6 +26,10 @@ const chunkify = function* (itr, size) {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/chunkify.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -34,6 +38,8 @@ const x = new Set([1, 2, 1, 3, 4, 1, 2, 5]);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/chunkify.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/chunkify.html" data-language="html"></div>
 
