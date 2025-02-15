@@ -169,7 +169,7 @@
 - [数组分块--2022-01-16](codes/javascript/chunk.md)
 - [根据整数 n 来对数组分块--2022-01-17](codes/javascript/chunk-into-n.md)
 - [可迭代对象分块--2022-01-19](codes/javascript/chunkify.md)
-- [限定数字的包含范围--2022-01-20](codes/javascript/clampNumber.md)
+- [限定数字的包含范围--2022-01-20](codes/javascript/clamp-number.md)
 - [正则表达式的复制--2022-01-21](codes/javascript/cloneRegExp.md)
 - [返回第一个非 null 和 undefined 参数的函数--2022-01-22](codes/javascript/coalesce.md)
 - [合并函数--2022-01-23](codes/javascript/coalesceFactory.md)
