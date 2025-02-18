@@ -15,6 +15,10 @@ const coalesceFactory =
     args.find(valid);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/coalesce-factory.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,8 +30,8 @@ customCoalesce(undefined, null, NaN, '', 'Waldo'); // 'Waldo'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/customCoalesce.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/coalesce-factory.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/customCoalesce.html"></iframe>
+<iframe src="codes/javascript/html/coalesce-factory.html"></iframe>
