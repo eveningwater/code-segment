@@ -15,6 +15,10 @@ const collectInto =
     handler(args);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/collect-into.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -27,8 +31,10 @@ Pall(p1, p2, p3).then(console.log); // [1, 2, 3] (after about 2 seconds)
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/collectInto.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/collect-into.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/collect-into.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/collectInto.html"></iframe>
+<iframe src="codes/javascript/html/collect-into.html"></iframe>
