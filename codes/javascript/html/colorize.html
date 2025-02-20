@@ -1,24 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>colorize</title>
+    <title>Web 控制台 示例</title>
+    <style>
+        body {
+            font-family: "Courier New", monospace;
+            background-color: #2e2e2e;
+            color: white;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+
+        .console-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .console-output {
+            width: 100%;
+            height: 80%;
+            border: 2px solid #444;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+            border: 1px solid #555;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border: 1px solid #00bcd4;
+        }
+
+        .console-output span {
+            display: block;
+            margin: 5px 0;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="console-container">
+        <div class="console-output" id="consoleOutput"></div>
+        <input type="text" id="consoleInput" placeholder="输入 colorize 函数来改变文本颜色">
+    </div>
+
     <script>
         const colorize = (...args) => ({
-            black: `\x1b[30m${args.join(' ')}`,
-            red: `\x1b[31m${args.join(' ')}`,
-            green: `\x1b[32m${args.join(' ')}`,
-            yellow: `\x1b[33m${args.join(' ')}`,
-            blue: `\x1b[34m${args.join(' ')}`,
-            magenta: `\x1b[35m${args.join(' ')}`,
-            cyan: `\x1b[36m${args.join(' ')}`,
-            white: `\x1b[37m${args.join(' ')}`,
+            black: `\x1b[30m${args.join(' ')}\x1b[0m`,
+            red: `\x1b[31m${args.join(' ')}\x1b[0m`,
+            green: `\x1b[32m${args.join(' ')}\x1b[0m`,
+            yellow: `\x1b[33m${args.join(' ')}\x1b[0m`,
+            blue: `\x1b[34m${args.join(' ')}\x1b[0m`,
+            magenta: `\x1b[35m${args.join(' ')}\x1b[0m`,
+            cyan: `\x1b[36m${args.join(' ')}\x1b[0m`,
+            white: `\x1b[37m${args.join(' ')}\x1b[0m`,
             bgBlack: `\x1b[40m${args.join(' ')}\x1b[0m`,
             bgRed: `\x1b[41m${args.join(' ')}\x1b[0m`,
             bgGreen: `\x1b[42m${args.join(' ')}\x1b[0m`,
@@ -28,8 +85,80 @@
             bgCyan: `\x1b[46m${args.join(' ')}\x1b[0m`,
             bgWhite: `\x1b[47m${args.join(' ')}\x1b[0m`
         });
-        console.log(colorize('eveningwater').red);
-        console.log(colorize(colorize('夕水').cyan).bgBlue);
+
+        // ANSI 转义码到 CSS 样式的映射
+        const ansiToCss = (text) => {
+            const colorMap = {
+                '\x1b[30m': 'color: black;',
+                '\x1b[31m': 'color: red;',
+                '\x1b[32m': 'color: green;',
+                '\x1b[33m': 'color: yellow;',
+                '\x1b[34m': 'color: blue;',
+                '\x1b[35m': 'color: magenta;',
+                '\x1b[36m': 'color: cyan;',
+                '\x1b[37m': 'color: white;',
+                '\x1b[40m': 'background-color: black;',
+                '\x1b[41m': 'background-color: red;',
+                '\x1b[42m': 'background-color: green;',
+                '\x1b[43m': 'background-color: yellow;',
+                '\x1b[44m': 'background-color: blue;',
+                '\x1b[45m': 'background-color: magenta;',
+                '\x1b[46m': 'background-color: cyan;',
+                '\x1b[47m': 'background-color: white;',
+                '\x1b[0m': '' // 重置样式
+            };
+
+            // 使用正则替换 ANSI 转义码
+            text = text.replace(/\x1b\[([0-9]{1,2})(;[0-9]{1,2})?m/g, (match, p1, p2) => {
+                const cssStyle = colorMap[match];
+                return cssStyle ? `<span style="${cssStyle}">` : '';
+            });
+
+            // 重置字符后加入闭合标签
+            text = text.replace(/\x1b\[0m/g, '</span>');
+
+            return text;
+        };
+
+        // 将用户输入的命令渲染到控制台
+        const renderConsoleOutput = (output) => {
+            const consoleOutput = document.getElementById("consoleOutput");
+            const convertedOutput = ansiToCss(output);
+            const span = document.createElement("span");
+            span.innerHTML = convertedOutput;
+            consoleOutput.appendChild(span);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight; // 滚动到最新输出
+        };
+
+        // 处理用户输入
+        const handleInput = () => {
+            const inputField = document.getElementById("consoleInput");
+            const inputText = inputField.value.trim();
+
+            if (inputText) {
+                try {
+                    // 执行并输出结果
+                    const result = eval(inputText); // 使用 eval 执行输入的代码
+                    renderConsoleOutput(result);
+                } catch (e) {
+                    renderConsoleOutput(`错误: ${e.message}`);
+                }
+            }
+
+            inputField.value = ""; // 清空输入框
+        };
+
+        // 监听键盘回车事件
+        document.getElementById("consoleInput").addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                handleInput();
+                e.preventDefault(); // 防止默认的换行行为
+            }
+        });
+
+        // 初始化显示提示
+        renderConsoleOutput("欢迎使用 Web 控制台！");
+        renderConsoleOutput("输入 colorize 函数来改变文本颜色，例如: colorize('你好', 'world').red");
     </script>
 </body>
 
