@@ -38,14 +38,64 @@
             word-wrap: break-word;
         }
 
-        input[type="text"] {
+        .input-container {
             width: 100%;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
             padding: 10px;
             background-color: #444;
             color: white;
             border: 1px solid #555;
             font-size: 16px;
-            margin-bottom: 10px;
+        }
+
+        .color-select {
+            width: 120px;
+            position: relative;
+            user-select: none;
+        }
+
+        .color-select-header {
+            padding: 10px;
+            background-color: #444;
+            border: 1px solid #555;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .color-select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #444;
+            border: 1px solid #555;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .color-select.open .color-select-options {
+            display: block;
+        }
+
+        .color-option {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .color-option:hover {
+            background-color: #555;
         }
 
         input[type="text"]:focus {
@@ -63,7 +113,16 @@
 <body>
     <div class="console-container">
         <div class="console-output" id="consoleOutput"></div>
-        <input type="text" id="consoleInput" placeholder="输入 colorize 函数来改变文本颜色">
+        <div class="input-container">
+            <input type="text" id="consoleInput" placeholder="输入文本内容，用逗号分隔多个参数">
+            <div class="color-select" id="colorSelect">
+                <div class="color-select-header">
+                    <span>选择颜色</span>
+                    <span>▼</span>
+                </div>
+                <div class="color-select-options" id="colorOptions"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -130,6 +189,64 @@
             consoleOutput.scrollTop = consoleOutput.scrollHeight; // 滚动到最新输出
         };
 
+        // 颜色名称映射
+        const colorNameMap = {
+            black: "黑色",
+            red: "红色",
+            green: "绿色",
+            yellow: "黄色",
+            blue: "蓝色",
+            magenta: "品红",
+            cyan: "青色",
+            white: "白色",
+            bgBlack: "黑色背景",
+            bgRed: "红色背景",
+            bgGreen: "绿色背景",
+            bgYellow: "黄色背景",
+            bgBlue: "蓝色背景",
+            bgMagenta: "品红背景",
+            bgCyan: "青色背景",
+            bgWhite: "白色背景"
+        };
+
+        // 初始化颜色选择器
+        const initColorSelect = () => {
+            const colorOptions = document.getElementById("colorOptions");
+            const colors = Object.keys(colorize());
+            colors.forEach(color => {
+                const option = document.createElement("div");
+                option.className = "color-option";
+                option.textContent = colorNameMap[color];
+                option.dataset.color = color;
+                option.onclick = () => selectColor(color);
+                colorOptions.appendChild(option);
+            });
+            // 设置默认颜色为红色
+            selectColor("red");
+        };
+
+        // 处理颜色选择
+        let selectedColor = "red";
+        const selectColor = (color) => {
+            selectedColor = color;
+            document.querySelector(".color-select-header span").textContent = colorNameMap[color];
+            document.getElementById("colorSelect").classList.remove("open");
+        };
+
+        // 切换下拉框显示状态
+        document.getElementById("colorSelect").addEventListener("click", (e) => {
+            if (!e.target.closest(".color-option")) {
+                document.getElementById("colorSelect").classList.toggle("open");
+            }
+        });
+
+        // 点击其他区域关闭下拉框
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".color-select")) {
+                document.getElementById("colorSelect").classList.remove("open");
+            }
+        });
+
         // 处理用户输入
         const handleInput = () => {
             const inputField = document.getElementById("consoleInput");
@@ -137,8 +254,8 @@
 
             if (inputText) {
                 try {
-                    // 执行并输出结果
-                    const result = eval(inputText); // 使用 eval 执行输入的代码
+                    const args = inputText.split(",").map(arg => arg.trim());
+                    const result = colorize(...args)[selectedColor];
                     renderConsoleOutput(result);
                 } catch (e) {
                     renderConsoleOutput(`错误: ${e.message}`);
@@ -156,9 +273,14 @@
             }
         });
 
-        // 初始化显示提示
+        // 初始化颜色选择器和显示提示
+        initColorSelect();
         renderConsoleOutput("欢迎使用 Web 控制台！");
-        renderConsoleOutput("输入 colorize 函数来改变文本颜色，例如: colorize('你好', 'world').red");
+        renderConsoleOutput("使用说明：");
+        renderConsoleOutput("1. 在输入框中输入要显示的文本，多个文本用逗号分隔");
+        renderConsoleOutput("2. 从右侧下拉框选择要应用的颜色");
+        renderConsoleOutput("3. 按回车键查看效果");
+        renderConsoleOutput("示例：输入 'Hello, World' 并选择 'red' 颜色");
     </script>
 </body>
 
