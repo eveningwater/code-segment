@@ -21,6 +21,8 @@ compact([0, 1, false, 2, '', 3, 'a', 'e' * 23, NaN, 's', 34]);
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/compact.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/compact.html" data-language="html"></div>
 
 结果如下:
