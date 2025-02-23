@@ -12,6 +12,10 @@
 const compact = arr => arr.filter(Boolean);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/compact.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
