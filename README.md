@@ -189,7 +189,7 @@
 - [合并数组--2022-01-26](codes/javascript/combine.md)
 - [过滤数组--2022-01-30](codes/javascript/compact.md)
 - [过滤对象--2022-01-31](codes/javascript/compact-object.md)
-- [过滤空白--2022-02-01](codes/javascript/compactWhitespace.md)
+- [过滤空白--2022-02-01](codes/javascript/compact-whitespace.md)
 - [辅助函数--2022-02-03](codes/javascript/complement.md)
 - [执行任务的函数-1--2022-02-04](codes/javascript/compose.md)
 - [执行任务的函数-2--2022-02-05](codes/javascript/composeRight.md)
