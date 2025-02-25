@@ -10,10 +10,14 @@
 
 ```js
 const complement =
-  handler =>
+  fn =>
   (...args) =>
     !fn(...args);
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/complement.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -25,6 +29,8 @@ isOdd(3); // true
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/complement.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/complement.html" data-language="html"></div>
 

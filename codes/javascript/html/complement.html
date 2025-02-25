@@ -1,23 +1,163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>complement</title>
+    <title>函数补充器示例</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus {
+            border-color: #4caf50;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #d9534f;
+        }
+
+        .success {
+            color: #5bc0de;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+
+    <div class="container">
+        <h1>函数补充器示例</h1>
+        <p>输入原始函数和测试值，查看补充器函数（对原始函数取反）的效果！</p>
+
+        <!-- 输入原始函数和测试值 -->
+        <div class="input-group">
+            <label for="functionInput">请输入原始函数的逻辑（如：a + b > 10）</label>
+            <input type="text" id="functionInput" placeholder="例如：a + b > 10">
+        </div>
+
+        <div class="input-group">
+            <label for="argsInput">请输入测试值（以逗号分隔，如：3, 8）</label>
+            <input type="text" id="argsInput" placeholder="例如：3, 8">
+        </div>
+
+        <button class="btn" id="checkButton">执行操作</button>
+        <div class="result" id="result"></div>
+    </div>
+
     <script>
-        const complement =
-            handler =>
-                (...args) =>
-                    !fn(...args);
-        const isEven = num => num % 2 === 0;
-        const isOdd = complement(isEven);
-        console.log(isOdd(2)); // false
-        console.log(isOdd(3)); // true
+        // 定义补充器函数
+        const complement = handler => (...args) => !handler(...args);
+
+        // 处理输入并执行函数
+        document.getElementById('checkButton').addEventListener('click', () => {
+            const fnInput = document.getElementById('functionInput').value.trim();
+            const argsInput = document.getElementById('argsInput').value.trim();
+
+            // 如果输入为空，提示用户
+            if (!fnInput || !argsInput) {
+                document.getElementById('result').innerHTML = '<span class="error">请输入有效的函数和测试值！</span>';
+                return;
+            }
+
+            // 动态构建原始函数
+            let originalFn;
+            try {
+                // 使用 new Function 创建一个函数
+                originalFn = new Function('a', 'b', `return ${fnInput}`);
+            } catch (e) {
+                document.getElementById('result').innerHTML = '<span class="error">无效的函数语法！</span>';
+                return;
+            }
+
+            // 将输入的测试值转为数组
+            const args = argsInput.split(',').map(val => parseFloat(val.trim()));
+
+            // 如果参数格式错误
+            if (args.length !== 2 || args.some(isNaN)) {
+                document.getElementById('result').innerHTML = '<span class="error">请输入两个有效的数字作为测试值！</span>';
+                return;
+            }
+
+            // 使用补充器函数
+            const checkFn = complement(originalFn);
+            const result = checkFn(...args);
+
+            // 显示计算结果
+            if (result) {
+                document.getElementById('result').innerHTML = `测试结果：<span class="success">成功！</span> (${args[0]} 和 ${args[1]} 满足条件)`;
+            } else {
+                document.getElementById('result').innerHTML = `测试结果：<span class="error">失败！</span> (${args[0]} 和 ${args[1]} 不满足条件)`;
+            }
+        });
     </script>
 </body>
 
