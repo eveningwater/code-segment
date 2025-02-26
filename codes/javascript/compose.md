@@ -18,6 +18,10 @@ const compose = (...handlers) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/compose.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -28,6 +32,8 @@ multiplyAndAdd5(5, 2); // 15
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/compose.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/compose.html" data-language="html"></div>
 
