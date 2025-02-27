@@ -192,7 +192,7 @@
 - [过滤空白--2022-02-01](codes/javascript/compact-whitespace.md)
 - [辅助函数--2022-02-03](codes/javascript/complement.md)
 - [执行任务的函数-1--2022-02-04](codes/javascript/compose.md)
-- [执行任务的函数-2--2022-02-05](codes/javascript/composeRight.md)
+- [执行任务的函数-2--2022-02-05](codes/javascript/compose-right.md)
 - [判断字符串中是否包含空白--2022-02-06](codes/javascript/containsWhitespace.md)
 - [进行运算的函数--2022-02-07](codes/javascript/converge.md)
 - [复制数字符号--2022-02-08](codes/javascript/copySign.md)

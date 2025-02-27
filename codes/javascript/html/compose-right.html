@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>函数组合示例</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .function-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .function-item {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .custom-select {
+            position: relative;
+            width: 200px;
+        }
+
+        .select-header {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .select-header .arrow {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #666;
+            transition: transform 0.3s ease;
+        }
+
+        .custom-select.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .select-option {
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .select-option:hover {
+            background: #f0f0f0;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: #333;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 14px;
+            max-width: 300px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 1010;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .tooltip.top {
+            bottom: 8px;
+            transform: translateY(-100%);
+        }
+
+        .tooltip.bottom {
+            top: 8px;
+        }
+
+        .tooltip.left {
+            right: 8px;
+        }
+
+        .tooltip.right {
+            left: 8px;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-select.open .select-options {
+            display: block;
+        }
+
+        .custom-input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+
+        .result-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f8f8;
+            border-radius: 4px;
+        }
+
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .error {
+            color: #ff4d4f;
+        }
+
+
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .modal-content {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .modal-input:focus {
+            border-color: #1890ff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="title">函数组合测试</h1>
+        <div class="function-list" id="functionList"></div>
+        <button class="btn btn-primary" onclick="addFunctionItem()">添加函数</button>
+        <div class="result-section">
+            <div class="result-title">执行结果：</div>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-content" id="modalContent"></div>
+            <div class="modal-buttons" id="modalButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        // 函数组合
+        const composeRight = (...handlers) =>
+            handlers.reduce(
+                (f, h) =>
+                    (...args) =>
+                        h(f(...args))
+            );
+
+        // 预设的辅助函数
+        const helperFunctions = {
+            'add2': '(num) => num + 2',
+            'multiply3': '(num) => num * 3',
+            'square': '(num) => num * num',
+            'addPrefix': '(str) => "测试_" + str',
+            'toUpperCase': '(str) => str.toUpperCase()',
+            'reverse': '(str) => str.split("").reverse().join("")',
+        };
+
+        // 创建自定义选择器
+        function createCustomSelect(options, onChange) {
+            const select = document.createElement('div');
+            select.className = 'custom-select';
+
+            const header = document.createElement('div');
+            header.className = 'select-header';
+            header.innerHTML = `
+                <span>选择函数</span>
+                <span class="arrow"></span>
+            `;
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'select-options';
+
+            const addCustomOption = document.createElement('div');
+            addCustomOption.className = 'select-option';
+            addCustomOption.style.borderTop = '1px solid #ddd';
+            addCustomOption.innerHTML = '<span style="color: #1890ff">+ 创建自定义函数</span>';
+            addCustomOption.onclick = async () => {
+                const functionName = await customPrompt('请输入函数名称（如：customFunc）：');
+                if (!functionName) return;
+                if (helperFunctions[functionName]) {
+                    await customAlert('函数名已存在！');
+                    return;
+                }
+                const functionBody = await customPrompt('请输入函数体（如：(x) => x * 2）：');
+                if (!functionBody) return;
+                try {
+                    // 验证函数语法
+                    eval(functionBody);
+                    helperFunctions[functionName] = functionBody;
+                    // 更新选项
+                    updateOptions();
+                    // 选中新创建的函数
+                    onChange(functionName);
+                } catch (error) {
+                    await customAlert('函数语法错误！');
+                }
+            };
+
+            function updateOptions() {
+                // 清空现有选项
+                while (optionsContainer.firstChild) {
+                    optionsContainer.removeChild(optionsContainer.firstChild);
+                }
+                // 添加函数选项
+                Object.keys(helperFunctions).forEach(key => {
+                    const option = document.createElement('div');
+                    option.className = 'select-option';
+
+                    const functionName = document.createElement('span');
+                    functionName.textContent = key;
+                    option.appendChild(functionName);
+
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = helperFunctions[key];
+                    option.appendChild(tooltip);
+
+                    let tooltipTimer;
+                    option.onmouseenter = (e) => {
+                        clearTimeout(tooltipTimer);
+                        const rect = option.getBoundingClientRect();
+                        const spaceAbove = rect.top;
+                        const spaceBelow = window.innerHeight - rect.bottom;
+                        const spaceLeft = rect.left;
+                        const spaceRight = window.innerWidth - rect.right;
+
+                        tooltip.classList.remove('top', 'bottom', 'left', 'right');
+
+                        // 水平方向定位
+                        if (spaceRight >= 300 || spaceRight > spaceLeft) {
+                            tooltip.style.left = `${rect.right}px`;
+                            tooltip.classList.add('right');
+                        } else {
+                            tooltip.style.left = `${rect.left}px`;
+                            tooltip.classList.add('left');
+                        }
+
+                        // 垂直方向定位
+                        if (spaceBelow >= 100 || spaceBelow > spaceAbove) {
+                            tooltip.style.top = `${rect.top}px`;
+                            tooltip.classList.add('bottom');
+                        } else {
+                            tooltip.style.top = `${rect.bottom}px`;
+                            tooltip.classList.add('top');
+                        }
+
+                        tooltipTimer = setTimeout(() => {
+                            tooltip.classList.add('show');
+                        }, 200);
+                    };
+
+                    option.onmouseleave = () => {
+                        clearTimeout(tooltipTimer);
+                        tooltip.classList.remove('show');
+                    };
+
+                    option.onclick = () => {
+                        header.querySelector('span').textContent = key;
+                        select.classList.remove('open');
+                        onChange(key);
+                    };
+
+                    optionsContainer.appendChild(option);
+                });
+                // 添加创建自定义函数选项
+                optionsContainer.appendChild(addCustomOption);
+            }
+
+            updateOptions();
+
+            header.onclick = (e) => {
+                e.stopPropagation();
+                select.classList.toggle('open');
+            };
+
+            document.addEventListener('click', () => {
+                select.classList.remove('open');
+            });
+
+            select.appendChild(header);
+            select.appendChild(optionsContainer);
+
+            // 添加getFunction方法
+            select.getFunction = () => ({
+                name: header.querySelector('span').textContent === '选择函数' ? '' : header.querySelector('span').textContent,
+                param: ''
+            });
+
+            return select;
+        }
+
+        // 创建函数输入项
+        function createFunctionItem() {
+            const item = document.createElement('div');
+            item.className = 'function-item';
+
+            let selectedFunction = '';
+            const select = createCustomSelect(helperFunctions, (key) => {
+                selectedFunction = key;
+            });
+
+            const input = document.createElement('input');
+            input.className = 'custom-input';
+            input.placeholder = '输入参数';
+            input.onchange = updateResult;
+
+            const executeBtn = document.createElement('button');
+            executeBtn.className = 'btn btn-primary';
+            executeBtn.textContent = '执行';
+            executeBtn.onclick = async () => {
+                if (!selectedFunction || !input.value.trim()) {
+                    await customAlert('请选择函数并输入参数');
+                    return;
+                }
+                try {
+                    const fn = eval(helperFunctions[selectedFunction]);
+                    let param = input.value.trim();
+                    // 尝试将输入转换为数字，如果转换失败则保持原字符串
+                    if (!isNaN(param)) {
+                        param = Number(param);
+                    }
+                    const result = fn(param);
+                    const resultElement = document.getElementById('result');
+                    resultElement.textContent = `${selectedFunction}函数执行结果: ${result}`;
+                    resultElement.className = '';
+                } catch (error) {
+                    await customAlert('执行出错：' + error.message);
+                }
+            };
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'btn btn-danger';
+            removeBtn.textContent = '删除';
+            removeBtn.onclick = () => {
+                item.remove();
+                updateResult();
+            };
+
+            item.appendChild(select);
+            item.appendChild(input);
+            item.appendChild(executeBtn);
+            item.appendChild(removeBtn);
+
+            return {
+                element: item,
+                getFunction: () => ({
+                    name: selectedFunction,
+                    param: input.value.trim()
+                })
+            };
+        }
+
+        // 添加函数项
+        function addFunctionItem() {
+            const functionList = document.getElementById('functionList');
+            const { element } = createFunctionItem();
+            functionList.appendChild(element);
+        }
+
+        // 更新执行结果
+        function updateResult() {
+            const functionList = document.getElementById('functionList');
+            const resultElement = document.getElementById('result');
+
+            try {
+                const functions = Array.from(functionList.children).map(item => {
+                    const { name, param } = item.querySelector('.custom-select').getFunction();
+                    if (!name) throw new Error('请选择函数');
+                    if (!param) throw new Error('请输入参数');
+                    return {
+                        fn: eval(helperFunctions[name]),
+                        param
+                    };
+                });
+
+                if (functions.length === 0) {
+                    resultElement.textContent = '请添加至少一个函数';
+                    return;
+                }
+
+                const composed = compose(...functions.map(f => f.fn));
+                const result = composed(functions[functions.length - 1].param);
+                resultElement.textContent = result;
+                resultElement.className = '';
+            } catch (error) {
+                resultElement.textContent = error.message;
+                resultElement.className = 'error';
+            }
+        }
+
+        function showModal(options) {
+            const { title, content, type = 'alert', onConfirm, onCancel } = options;
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            const modalButtons = document.getElementById('modalButtons');
+
+            modalTitle.textContent = title;
+            modalButtons.innerHTML = '';
+
+            if (type === 'prompt') {
+                const input = document.createElement('input');
+                input.className = 'modal-input';
+                input.value = content || '';
+                modalContent.innerHTML = '';
+                modalContent.appendChild(input);
+
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'btn btn-primary';
+                confirmBtn.textContent = '确定';
+                confirmBtn.onclick = () => {
+                    onConfirm?.(input.value);
+                    hideModal();
+                };
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'btn';
+                cancelBtn.textContent = '取消';
+                cancelBtn.onclick = () => {
+                    onCancel?.();
+                    hideModal();
+                };
+
+                modalButtons.appendChild(cancelBtn);
+                modalButtons.appendChild(confirmBtn);
+
+                // 自动聚焦输入框
+                setTimeout(() => input.focus(), 100);
+            } else {
+                modalContent.innerHTML = content;
+
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'btn btn-primary';
+                confirmBtn.textContent = '确定';
+                confirmBtn.onclick = () => {
+                    onConfirm?.();
+                    hideModal();
+                };
+
+                modalButtons.appendChild(confirmBtn);
+            }
+
+            modalOverlay.classList.add('show');
+        }
+
+        function hideModal() {
+            const modalOverlay = document.getElementById('modalOverlay');
+            modalOverlay.classList.remove('show');
+        }
+
+        // 替换原生的alert和prompt
+        function customAlert(message) {
+            return new Promise(resolve => {
+                showModal({
+                    title: '提示',
+                    content: message,
+                    onConfirm: resolve
+                });
+            });
+        }
+
+        function customPrompt(title, defaultValue = '') {
+            return new Promise(resolve => {
+                showModal({
+                    title,
+                    content: defaultValue,
+                    type: 'prompt',
+                    onConfirm: resolve,
+                    onCancel: () => resolve(null)
+                });
+            });
+        }
+
+        // 初始化添加一个函数项
+        addFunctionItem();
+    </script>
+</body>
+
+</html>
