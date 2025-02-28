@@ -4,7 +4,6 @@
 
 检查给定的字符串是否包含任何空白字符。
 
-- 使用 `Array.prototype.reduce()` 执行从右到左的函数组合。
 - 使用正则表达式中的 `RegExp.prototype.test()` 来检查给定字符串是否包含任何空白字符。
 
 > 代码如下:
@@ -12,6 +11,10 @@
 ```js
 const containsWhitespace = str => /\s/.test(str);
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/contains-whitespace.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -22,8 +25,10 @@ containsWhitespace('lorem ipsum'); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/containsWhitespace.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/contains-whitespace.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/contains-whitespace.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/containsWhitespace.html"></iframe>
+<iframe src="codes/javascript/html/contains-whitespace.html"></iframe>
