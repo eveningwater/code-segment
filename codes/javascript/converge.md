@@ -16,6 +16,10 @@ const converge =
     converger(...handlers.map(h => h.apply(null, args)));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/converge.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -27,6 +31,8 @@ average([1, 2, 3, 4, 5, 6, 7]); // 4
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/converge.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/converge.html" data-language="html"></div>
 
