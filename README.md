@@ -196,7 +196,7 @@
 - [判断字符串中是否包含空白--2022-02-06](codes/javascript/contains-whitespace.md)
 - [进行运算的函数--2022-02-07](codes/javascript/converge.md)
 - [复制数字符号--2022-02-08](codes/javascript/copy-sign.md)
-- [复制到剪贴板--2022-02-09](codes/javascript/copyToClipboard.md)
+- [复制到剪贴板--2022-02-09](codes/javascript/copy-to-clipboard.md)
 - [异步复制到剪贴板--2022-02-11](codes/javascript/copyToClipboardAsync.md)
 - [根据参数条件来计数的函数--2022-02-12](codes/javascript/countBy.md)
 - [计算数组项中出现的次数--2022-02-13](codes/javascript/countOccurrences.md)
