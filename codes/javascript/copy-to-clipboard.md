@@ -9,7 +9,7 @@
 - 使用 `Document.execCommand()` 复制到剪贴板。
 - 从 `HTML` 文档中删除 `<textarea>` 元素。
 - 最后，使用 `Selection.addRange()` 恢复原始选定范围（如果有）。
-- 注意：你可以在大多数当前浏览器中使用[异步剪贴板 API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)。 你可以在 [copyToClipboardAsync 代码段](https://github.com/eveningwater/code-segment/blob/main/codes/javascript/copy-to-clipboardAsync.md)中找到有关它的更多信息。
+- 注意：你可以在大多数当前浏览器中使用[异步剪贴板 API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)。 你可以在 [copyToClipboardAsync 代码段](./copy-to-clipboard-async)中找到有关它的更多信息。
 
 > 代码如下:
 
@@ -26,7 +26,7 @@ const copyToClipboard = str => {
       ? document.getSelection().getRangeAt(0)
       : false;
   el.select();
-  document.execCommand();
+  document.execCommand('copy');
   document.body.removeChild(el);
   if (selected) {
     document.getSelection().removeAllRanges();

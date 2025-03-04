@@ -97,41 +97,27 @@
 
     <script src="https://www.unpkg.com/ew-message/dist/ew-message.min.js"></script>
     <script>
-        const copyToClipboard = str => {
-            const el = document.createElement('textarea');
-            el.value = str;
-            el.setAttribute('readonly', '');
-            el.style.position = 'absolute';
-            el.style.position = '-9999px';
-            document.body.appendChild(el);
-            const selected =
-                document.getSelection().rangeCount > 0
-                    ? document.getSelection().getRangeAt(0)
-                    : false;
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            if (selected) {
-                document.getSelection().removeAllRanges();
-                document.getSelection().addRange(selected);
+        const copyToClipboardAsync = str => {
+            if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(str);
             }
+            return Promise.reject('The Clipboard API is not available.');
         };
+
         document.getElementById('copyBtn').onclick = function () {
             const text = document.getElementById('textToCopy').value;
             if (!text) {
                 return ewMessage.warning('请输入需要复制的内容');
             }
-            try {
-                // 执行复制操作
-                copyToClipboard(text);
+            copyToClipboard(text).then(() => {
                 document.getElementById('copyMessage').textContent = '文本已复制到剪贴板！';
                 document.getElementById('copyMessage').classList.remove('error');
                 document.getElementById('copyMessage').classList.add('success');
-            } catch (err) {
-                document.getElementById('copyMessage').textContent = '复制失败，请重试。';
+            }).catch((err) => {
+                document.getElementById('copyMessage').textContent = '复制失败，请重试。' + err;
                 document.getElementById('copyMessage').classList.remove('success');
                 document.getElementById('copyMessage').classList.add('error');
-            }
+            })
         }
 
     </script>
