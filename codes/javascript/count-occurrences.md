@@ -13,6 +13,10 @@ const countOccurrences = (arr, val) =>
   arr.reduce((r, v) => (v === val ? r + 1 : r), 0);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/count-occurrences.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,8 +25,10 @@ countOccurrences([1, 1, 2, 1, 2, 3], 1); // 3
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/countOccurrences.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/count-occurrences.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/count-occurrences.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/countOccurrences.html"></iframe>
+<iframe src="codes/javascript/html/count-occurrences.html"></iframe>
