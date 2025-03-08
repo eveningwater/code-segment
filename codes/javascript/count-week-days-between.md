@@ -25,6 +25,10 @@ const countWeekDaysBetween = (startDate, endDate) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/count-week-days-between.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -34,8 +38,10 @@ countWeekDaysBetween(new Date('Oct 05, 2020'), new Date('Oct 14, 2020')); // 7
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/countWeekDaysBetween.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/count-week-days-between.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/count-week-days-between.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/countWeekDaysBetween.html"></iframe>
+<iframe src="codes/javascript/html/count-week-days-between.html"></iframe>
