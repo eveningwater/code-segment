@@ -19,7 +19,7 @@ const counter = (selector, start, end, step = 1, duration = 2000) => {
     _step = (end - start) * step < 0 ? -step : step,
     timer = setInterval(() => {
       current += _step;
-      $(selector).innerHTML = current;
+      $(selector).innerHTML = Math.floor(current);
       if (current >= end) {
         $(selector).innerHTML = end;
         clearInterval(timer);
@@ -29,6 +29,10 @@ const counter = (selector, start, end, step = 1, duration = 2000) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/counter.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -37,6 +41,8 @@ counter('#my-id', 1, 1000, 5, 2000);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/counter.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/counter.html" data-language="html"></div>
 
