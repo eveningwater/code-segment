@@ -203,7 +203,7 @@
 - [计算字符串中子字符串出现的次数--2022-02-14](codes/javascript/count-substrings.md)
 - [计算除工作日以外的天数--2022-02-15](codes/javascript/count-week-days-between.md)
 - [定时计数器--2022-02-16](codes/javascript/counter.md)
-- [创建元素--2022-02-18](codes/javascript/createElement.md)
+- [创建元素--2022-02-18](codes/javascript/create-element.md)
 - [创建事件（基于发布订阅模式）--2022-02-19](codes/javascript/createEventHub.md)
 - [当前路径--2022-02-20](codes/javascript/currentURL.md)
 - [柯里化函数--2022-02-21](codes/javascript/curry.md)
