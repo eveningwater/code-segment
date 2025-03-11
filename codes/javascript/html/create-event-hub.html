@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息通知系统示例</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .notification-area {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification.info {
+            background-color: #e3f2fd;
+        }
+
+        .notification.warning {
+            background-color: #fff3e0;
+        }
+
+        .notification.error {
+            background-color: #ffebee;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #2196f3;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .subscription-status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>消息通知系统</h1>
+    <div class="controls">
+        <button onclick="simulateUserAction()">模拟用户操作</button>
+        <button onclick="simulateSystemNotification()">模拟系统通知</button>
+        <button onclick="simulateErrorNotification()">模拟错误通知</button>
+        <button onclick="toggleSubscription()">切换订阅状态</button>
+    </div>
+    <div class="notification-area" id="notificationArea"></div>
+    <div class="subscription-status" id="subscriptionStatus">订阅状态：已订阅</div>
+
+    <script>
+        // 事件中心实现
+        const createEventHub = () => ({
+            hub: Object.create(null),
+            emit(event, data) {
+                (this.hub[event] || []).forEach(handler => handler(data));
+            },
+            off(event, handler) {
+                const i = (this.hub[event] || []).findIndex(h => h === handler);
+                if (i > -1) {
+                    this.hub[event].splice(i, 1);
+                }
+                if (this.hub[event].length === 0) {
+                    delete this.hub[event];
+                }
+            },
+            on(event, handler) {
+                if (!this.hub[event]) {
+                    this.hub[event] = [];
+                }
+                this.hub[event].push(handler);
+            }
+        });
+
+        // 创建事件中心实例
+        const eventHub = createEventHub();
+        let isSubscribed = true;
+
+        // 通知处理器
+        const notificationHandler = (data) => {
+            const notificationArea = document.getElementById('notificationArea');
+            const notification = document.createElement('div');
+            notification.className = `notification ${data.type}`;
+            notification.innerHTML = `
+                <span>${data.message}</span>
+                <small>${new Date().toLocaleTimeString()}</small>
+            `;
+            notificationArea.insertBefore(notification, notificationArea.firstChild);
+
+            // 5秒后自动移除通知
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        };
+
+        // 初始订阅
+        eventHub.on('notification', notificationHandler);
+
+        // 模拟用户操作
+        function simulateUserAction() {
+            eventHub.emit('notification', {
+                type: 'info',
+                message: '用户完成了一次操作：更新个人信息'
+            });
+        }
+
+        // 模拟系统通知
+        function simulateSystemNotification() {
+            eventHub.emit('notification', {
+                type: 'warning',
+                message: '系统将在今晚23:00进行例行维护'
+            });
+        }
+
+        // 模拟错误通知
+        function simulateErrorNotification() {
+            eventHub.emit('notification', {
+                type: 'error',
+                message: '操作失败：网络连接异常'
+            });
+        }
+
+        // 切换订阅状态
+        function toggleSubscription() {
+            const statusElement = document.getElementById('subscriptionStatus');
+            if (isSubscribed) {
+                eventHub.off('notification', notificationHandler);
+                statusElement.textContent = '订阅状态：未订阅';
+            } else {
+                eventHub.on('notification', notificationHandler);
+                statusElement.textContent = '订阅状态：已订阅';
+            }
+            isSubscribed = !isSubscribed;
+        }
+    </script>
+</body>
+
+</html>
