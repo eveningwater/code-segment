@@ -205,7 +205,7 @@
 - [定时计数器--2022-02-16](codes/javascript/counter.md)
 - [创建元素--2022-02-18](codes/javascript/create-element.md)
 - [创建事件（基于发布订阅模式）--2022-02-19](codes/javascript/create-event-hub.md)
-- [当前路径--2022-02-20](codes/javascript/currentURL.md)
+- [当前路径--2022-02-20](codes/javascript/current-url.md)
 - [柯里化函数--2022-02-21](codes/javascript/curry.md)
 - [迭代生成器--2022-02-22](codes/javascript/cycleGenerator.md)
 - [日期范围生成器--2022-02-23](codes/javascript/dateRangeGenerator.md)

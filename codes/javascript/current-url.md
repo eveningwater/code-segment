@@ -12,6 +12,10 @@
 const currentURL = () => window.location.href;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/current-url.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,8 +24,10 @@ currentURL(); // 'https://www.google.com/'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/currentURL.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/current-url.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/current-url.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/currentURL.html"></iframe>
+<iframe src="codes/javascript/html/current-url.html"></iframe>
