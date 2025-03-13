@@ -16,6 +16,10 @@ const curry = (fn, arity = fn.length, ...args) =>
   arity <= args.length ? fn(...args) : curry.bind(null, fn, arity, ...args);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/curry.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,6 +28,8 @@ curry(Math.min, 3)(10)(50)(2); // 2
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/curry.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/curry.html" data-language="html"></div>
 

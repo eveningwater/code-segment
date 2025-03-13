@@ -4,15 +4,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>curry</title>
+    <title>表单验证示例 - 柯里化应用</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="form-container">
+        <h2>用户注册</h2>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username">
+                <div class="error-message" id="username-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" id="email" name="email">
+                <div class="error-message" id="email-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password">
+                <div class="error-message" id="password-error"></div>
+            </div>
+            <button type="submit">注册</button>
+        </form>
+        <div class="success-message" id="success-message"></div>
+    </div>
+
     <script>
+        // 柯里化函数
         const curry = (fn, arity = fn.length, ...args) =>
             arity <= args.length ? fn(...args) : curry.bind(null, fn, arity, ...args);
-        console.log(curry(Math.pow)(2)(10)); // 1024
-        console.log(curry(Math.min, 3)(10)(50)(2)); // 2
+
+        // 基础验证函数
+        const validateValue = curry((validator, message, value) => validator(value) ? '' : message);
+
+        // 验证规则
+        const required = validateValue(value => value.trim().length > 0, '不能为空');
+        const minLength = curry((min, value) => value.length >= min);
+        const maxLength = curry((max, value) => value.length <= max);
+        const pattern = curry((regex, value) => regex.test(value));
+
+        // 使用柯里化创建具体的验证规则
+        const validateMinLength = curry((min, message, value) => validateValue(
+            minLength(min),
+            message,
+            value
+        ));
+
+        const validateMaxLength = curry((max, message, value) => validateValue(
+            maxLength(max),
+            message,
+            value
+        ));
+
+        const validatePattern = curry((regex, message, value) => validateValue(
+            pattern(regex),
+            message,
+            value
+        ));
+
+        // 组合验证规则
+        const compose = (...fns) => value => {
+            for (const fn of fns) {
+                const error = fn(value);
+                if (error) return error;
+            }
+            return '';
+        };
+
+        // 验证规则配置
+        const validations = {
+            username: compose(
+                required,
+                validateMinLength(3)('用户名至少需要3个字符'),
+                validateMaxLength(20)('用户名不能超过20个字符'),
+                validatePattern(/^[a-zA-Z0-9_]+$/)('用户名只能包含字母、数字和下划线')
+            ),
+            email: compose(
+                required,
+                validatePattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)('请输入有效的邮箱地址')
+            ),
+            password: compose(
+                required,
+                validateMinLength(8)('密码至少需要8个字符'),
+                validatePattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)('密码必须包含大小写字母和数字')
+            )
+        };
+
+        // 表单验证处理
+        const form = document.getElementById('registrationForm');
+        const successMessage = document.getElementById('success-message');
+
+        // 实时验证
+        Object.keys(validations).forEach(field => {
+            const input = document.getElementById(field);
+            const errorElement = document.getElementById(`${field}-error`);
+
+            input.addEventListener('input', () => {
+                const error = validations[field](input.value);
+                errorElement.textContent = error;
+                input.style.borderColor = error ? '#f44336' : '#ddd';
+            });
+        });
+
+        // 表单提交处理
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let hasError = false;
+
+            // 验证所有字段
+            Object.keys(validations).forEach(field => {
+                const input = document.getElementById(field);
+                const errorElement = document.getElementById(`${field}-error`);
+                const error = validations[field](input.value);
+                errorElement.textContent = error;
+                input.style.borderColor = error ? '#f44336' : '#ddd';
+                if (error) hasError = true;
+            });
+
+            if (!hasError) {
+                // 模拟表单提交
+                successMessage.textContent = '注册成功！';
+                form.reset();
+                setTimeout(() => {
+                    successMessage.textContent = '';
+                }, 3000);
+            }
+        });
     </script>
 </body>
 
