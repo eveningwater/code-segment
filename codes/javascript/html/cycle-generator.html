@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轮播图生成器示例</title>
+    <style>
+        .carousel-container {
+            width: 800px;
+            height: 400px;
+            margin: 50px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background-color: white;
+        }
+
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            transition: background-color 0.3s ease;
+        }
+
+        .carousel-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .prev-button {
+            left: 20px;
+        }
+
+        .next-button {
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="carousel-container" id="carousel">
+        <div class="carousel-slides"></div>
+        <div class="carousel-controls"></div>
+        <button class="carousel-button prev-button">←</button>
+        <button class="carousel-button next-button">→</button>
+    </div>
+
+    <script>
+        const cycleGenerator = function* (arr) {
+            let i = 0;
+            while (true) {
+                yield arr[i % arr.length];
+                i++;
+            }
+        };
+
+        class Carousel {
+            constructor(container, images) {
+                this.container = container;
+                this.images = images;
+                this.slidesContainer = container.querySelector('.carousel-slides');
+                this.controlsContainer = container.querySelector('.carousel-controls');
+                this.prevButton = container.querySelector('.prev-button');
+                this.nextButton = container.querySelector('.next-button');
+                this.currentIndex = 0;
+                this.autoPlayInterval = null;
+                this.slideGenerator = cycleGenerator(this.images);
+
+                this.init();
+            }
+
+            init() {
+                // 创建轮播图片
+                this.images.forEach((image, index) => {
+                    const slide = document.createElement('div');
+                    slide.className = 'carousel-slide';
+                    slide.style.transform = `translateX(${index * 100}%)`;
+
+                    const img = document.createElement('img');
+                    img.src = image;
+                    img.alt = `Slide ${index + 1}`;
+
+                    slide.appendChild(img);
+                    this.slidesContainer.appendChild(slide);
+
+                    // 创建指示器
+                    const dot = document.createElement('div');
+                    dot.className = 'carousel-dot';
+                    dot.addEventListener('click', () => this.goToSlide(index));
+                    this.controlsContainer.appendChild(dot);
+                });
+
+                // 初始化控制器状态
+                this.updateControls();
+
+                // 绑定事件
+                this.prevButton.addEventListener('click', () => this.prev());
+                this.nextButton.addEventListener('click', () => this.next());
+
+                // 启动自动播放
+                this.startAutoPlay();
+
+                // 鼠标悬停时暂停自动播放
+                this.container.addEventListener('mouseenter', () => this.stopAutoPlay());
+                this.container.addEventListener('mouseleave', () => this.startAutoPlay());
+            }
+
+            updateSlides() {
+                const slides = this.slidesContainer.children;
+                Array.from(slides).forEach((slide, index) => {
+                    slide.style.transform = `translateX(${(index - this.currentIndex) * 100}%)`;
+                });
+            }
+
+            updateControls() {
+                const dots = this.controlsContainer.children;
+                Array.from(dots).forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentIndex);
+                });
+            }
+
+            goToSlide(index) {
+                this.currentIndex = index;
+                this.updateSlides();
+                this.updateControls();
+            }
+
+            next() {
+                this.slideGenerator.next();
+                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                this.updateSlides();
+                this.updateControls();
+            }
+
+            prev() {
+                this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+                this.updateSlides();
+                this.updateControls();
+            }
+
+            startAutoPlay() {
+                if (!this.autoPlayInterval) {
+                    this.autoPlayInterval = setInterval(() => this.next(), 3000);
+                }
+            }
+
+            stopAutoPlay() {
+                if (this.autoPlayInterval) {
+                    clearInterval(this.autoPlayInterval);
+                    this.autoPlayInterval = null;
+                }
+            }
+        }
+
+        // 示例图片数组
+        const images = [
+            'https://picsum.photos/800/400?random=1',
+            'https://picsum.photos/800/400?random=2',
+            'https://picsum.photos/800/400?random=3',
+            'https://picsum.photos/800/400?random=4',
+            'https://picsum.photos/800/400?random=5'
+        ];
+
+        // 初始化轮播图
+        const carouselContainer = document.getElementById('carousel');
+        const carousel = new Carousel(carouselContainer, images);
+    </script>
+</body>
+
+</html>

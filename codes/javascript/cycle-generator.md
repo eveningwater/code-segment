@@ -31,8 +31,8 @@ binaryCycle.next(); // { value: 1, done: false }
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/cycleGenerator.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/cycle-generator.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/cycleGenerator.html"></iframe>
+<iframe src="codes/javascript/html/cycle-generator.html"></iframe>

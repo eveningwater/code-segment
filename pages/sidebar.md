@@ -196,7 +196,7 @@
 - [创建事件（基于发布订阅模式）--2022-02-19](codes/javascript/create-event-hub.md)
 - [当前路径--2022-02-20](codes/javascript/current-url.md)
 - [柯里化函数--2022-02-21](codes/javascript/curry.md)
-- [迭代生成器--2022-02-22](codes/javascript/cycleGenerator.md)
+- [迭代生成器--2022-02-22](codes/javascript/cycle-generator.md)
 - [日期范围生成器--2022-02-23](codes/javascript/dateRangeGenerator.md)
 - [工作日名字--2022-02-24](codes/javascript/dayName.md)
 - [一年中的哪天--2022-02-25](codes/javascript/dayOfYear.md)
