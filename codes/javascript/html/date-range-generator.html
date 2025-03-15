@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会议室预订系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .date-inputs {
+            display: flex;
+            gap: 15px;
+        }
+
+        .date-inputs .form-group {
+            flex: 1;
+        }
+
+        .btn {
+            background-color: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #66b1ff;
+        }
+
+        .calendar-container {
+            margin-top: 30px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-day {
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f5f7fa;
+            cursor: pointer;
+        }
+
+        .calendar-day.header {
+            font-weight: bold;
+            background-color: #e4e7ed;
+        }
+
+        .calendar-day.selected {
+            background-color: #409eff;
+            color: white;
+        }
+
+        .calendar-day.available {
+            background-color: #f0f9eb;
+            color: #67c23a;
+        }
+
+        .calendar-day.unavailable {
+            background-color: #fef0f0;
+            color: #f56c6c;
+            text-decoration: line-through;
+        }
+
+        .calendar-day.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .room-info {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f5f7fa;
+            border-radius: 4px;
+        }
+
+        .room-info h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .room-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .room-card {
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 15px;
+            background-color: white;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-card h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .room-card p {
+            color: #606266;
+            margin-bottom: 5px;
+        }
+
+        .room-card .btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .room-card .btn-group {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .room-card .btn-group .btn {
+            flex: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 80%;
+            max-width: 600px;
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 15px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            text-align: right;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dcdfe6;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid #409eff;
+            color: #409eff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .booking-history {
+            margin-top: 20px;
+        }
+
+        .booking-item {
+            padding: 10px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-color: white;
+        }
+
+        .booking-item h4 {
+            margin: 0 0 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .booking-dates {
+            color: #606266;
+            font-size: 14px;
+        }
+
+        .booking-actions {
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        .room-status {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-available {
+            background-color: #67c23a;
+        }
+
+        .status-unavailable {
+            background-color: #f56c6c;
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #ecf5ff;
+            border-radius: 4px;
+            border-left: 5px solid #409eff;
+        }
+
+        @media (max-width: 768px) {
+            .date-inputs {
+                flex-direction: column;
+            }
+
+            .room-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>会议室预订系统</h1>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="search">查询预订</div>
+            <div class="tab" data-tab="history">我的预订</div>
+            <div class="tab" data-tab="stats">使用统计</div>
+        </div>
+
+        <div class="tab-content active" id="search-tab">
+            <div class="form-group">
+                <label for="room-type">会议室类型</label>
+                <select id="room-type">
+                    <option value="all">所有类型</option>
+                    <option value="small">小型会议室 (5人以下)</option>
+                    <option value="medium">中型会议室 (5-15人)</option>
+                    <option value="large">大型会议室 (15人以上)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="equipment-filter">设备需求</label>
+                <select id="equipment-filter">
+                    <option value="all">所有设备</option>
+                    <option value="投影仪">投影仪</option>
+                    <option value="WiFi">WiFi</option>
+                    <option value="视频会议">视频会议</option>
+                    <option value="白板">白板</option>
+                    <option value="音响系统">音响系统</option>
+                    <option value="茶水服务">茶水服务</option>
+                </select>
+            </div>
+
+            <div class="date-inputs">
+                <div class="form-group">
+                    <label for="start-date">开始日期</label>
+                    <input type="date" id="start-date">
+                </div>
+
+                <div class="form-group">
+                    <label for="end-date">结束日期</label>
+                    <input type="date" id="end-date">
+                </div>
+
+                <div class="form-group">
+                    <label for="step">预订间隔 (天)</label>
+                    <input type="number" id="step" min="1" value="1">
+                </div>
+            </div>
+
+            <button id="search-btn" class="btn">查询可用会议室</button>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h2>可预订日期</h2>
+                    <p id="date-range"></p>
+                </div>
+
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- 日历头部 -->
+                    <div class="calendar-day header">周日</div>
+                    <div class="calendar-day header">周一</div>
+                    <div class="calendar-day header">周二</div>
+                    <div class="calendar-day header">周三</div>
+                    <div class="calendar-day header">周四</div>
+                    <div class="calendar-day header">周五</div>
+                    <div class="calendar-day header">周六</div>
+                    <!-- 日历内容将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <div class="summary" id="summary">
+                请选择日期范围查询可用会议室
+            </div>
+
+            <div class="room-info">
+                <h3>可用会议室</h3>
+                <div class="room-list" id="room-list">
+                    <!-- 会议室列表将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="history-tab">
+            <h3>我的预订记录</h3>
+            <div class="booking-history" id="booking-history">
+                <!-- 预订记录将通过JS动态生成 -->
+                <p>暂无预订记录</p>
+            </div>
+        </div>
+
+        <div class="tab-content" id="stats-tab">
+            <h3>会议室使用统计</h3>
+            <div class="form-group">
+                <label for="stats-month">选择月份</label>
+                <input type="month" id="stats-month">
+            </div>
+            <button id="stats-btn" class="btn">查看统计</button>
+
+            <div id="stats-container" style="margin-top: 20px;">
+                <h4>会议室使用率</h4>
+                <div id="usage-stats" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                    <!-- 使用统计将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 会议室详情模态框 -->
+    <div id="room-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-room-name">会议室详情</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-room-details">
+                <!-- 会议室详情将通过JS动态生成 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="modal-book-btn">预订此会议室</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预订确认模态框 -->
+    <div id="booking-confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认预订</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="booking-details"></div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="booking-title">会议主题</label>
+                    <input type="text" id="booking-title" placeholder="请输入会议主题">
+                </div>
+                <div class="form-group">
+                    <label for="booking-notes">备注</label>
+                    <textarea id="booking-notes" rows="3" placeholder="可选填写备注信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="confirm-booking-btn">确认预订</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 日期范围生成器函数
+        const dateRangeGenerator = function* (start, end, step = 1) {
+            let d = new Date(start);
+            while (d <= end) {
+                yield new Date(d);
+                d.setDate(d.getDate() + step);
+            }
+        };
+
+        // 格式化日期为 YYYY-MM-DD
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        // 格式化日期为更友好的显示格式
+        const formatDateDisplay = (date) => {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            return date.toLocaleDateString('zh-CN', options);
+        };
+
+        // 模拟会议室数据
+        const rooms = [
+            { id: 1, name: '创新会议室A', type: 'small', capacity: 4, equipment: ['投影仪', 'WiFi'], floor: '1楼', description: '适合小型讨论和头脑风暴，配备高清投影和稳定WiFi。', image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3' },
+            { id: 2, name: '创新会议室B', type: 'small', capacity: 4, equipment: ['投影仪', 'WiFi', '白板'], floor: '1楼', description: '小型会议室，配备互动白板，适合创意讨论和项目规划。', image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3' },
+            { id: 3, name: '合作会议室A', type: 'medium', capacity: 8, equipment: ['投影仪', 'WiFi', '视频会议'], floor: '2楼', description: '中型会议室，配备高清视频会议系统，适合远程协作。', image: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3' },
+            { id: 4, name: '合作会议室B', type: 'medium', capacity: 10, equipment: ['投影仪', 'WiFi', '视频会议', '白板'], floor: '2楼', description: '功能齐全的中型会议室，配备电子白板和环绕音响。', image: 'https://images.unsplash.com/photo-1462826303085-329426d1aef5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3' },
+            { id: 5, name: '战略会议室', type: 'large', capacity: 20, equipment: ['投影仪', 'WiFi', '视频会议', '音响系统'], floor: '3楼', description: '大型会议室，适合团队战略会议和重要决策讨论。', image: 'https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3' },
+            { id: 6, name: '董事会议室', type: 'large', capacity: 30, equipment: ['投影仪', 'WiFi', '视频会议', '音响系统', '茶水服务'], floor: '3楼', description: '豪华会议室，配备高端设备和茶水服务，适合接待重要客户和董事会议。', image: 'https://images.unsplash.com/photo-1573167507387-6b4b98cb7c13?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3' },
+        ];
+
+        // 模拟已预订数据
+        const bookedDates = {
+            1: ['2023-06-01', '2023-06-03', '2023-06-05'],
+            2: ['2023-06-02', '2023-06-04', '2023-06-06'],
+            3: ['2023-06-01', '2023-06-02'],
+            4: ['2023-06-03', '2023-06-04'],
+            5: ['2023-06-05', '2023-06-06'],
+            6: ['2023-06-01', '2023-06-06'],
+        };
+
+        // 模拟用户预订记录
+        let userBookings = [];
+
+        // 从本地存储加载用户预订记录
+        if (localStorage.getItem('userBookings')) {
+            try {
+                userBookings = JSON.parse(localStorage.getItem('userBookings'));
+            } catch (e) {
+                console.error('加载预订记录失败:', e);
+                userBookings = [];
+            }
+        }
+
+        // DOM 元素
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const stepInput = document.getElementById('step');
+        const roomTypeSelect = document.getElementById('room-type');
+        const equipmentFilter = document.getElementById('equipment-filter');
+        const searchBtn = document.getElementById('search-btn');
+        const calendarGrid = document.getElementById('calendar-grid');
+        const dateRangeDisplay = document.getElementById('date-range');
+        const roomList = document.getElementById('room-list');
+        const summaryElement = document.getElementById('summary');
+        const bookingHistory = document.getElementById('booking-history');
+        const statsMonth = document.getElementById('stats-month');
+        const statsBtn = document.getElementById('stats-btn');
+        const usageStats = document.getElementById('usage-stats');
+
+        // 模态框元素
+        const roomDetailModal = document.getElementById('room-detail-modal');
+        const modalRoomName = document.getElementById('modal-room-name');
+        const modalRoomDetails = document.getElementById('modal-room-details');
+        const modalBookBtn = document.getElementById('modal-book-btn');
+        const bookingConfirmModal = document.getElementById('booking-confirm-modal');
+        const bookingDetails = document.getElementById('booking-details');
+        const bookingTitle = document.getElementById('booking-title');
+        const bookingNotes = document.getElementById('booking-notes');
+        const confirmBookingBtn = document.getElementById('confirm-booking-btn');
+
+        // 关闭按钮
+        const closeButtons = document.querySelectorAll('.close');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                roomDetailModal.style.display = 'none';
+                bookingConfirmModal.style.display = 'none';
+            });
+        });
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === roomDetailModal) {
+                roomDetailModal.style.display = 'none';
+            }
+            if (event.target === bookingConfirmModal) {
+                bookingConfirmModal.style.display = 'none';
+            }
+        });
+
+        // 标签切换功能
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+
+                // 移除所有标签的active类
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // 添加当前标签的active类
+                tab.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+
+                // 如果切换到统计标签，设置默认月份为当前月份
+                if (tabId === 'stats' && !statsMonth.value) {
+                    const now = new Date();
+                    statsMonth.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                }
+            });
+        });
+
+        // 设置默认日期为当前日期和未来7天
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+
+        startDateInput.value = formatDate(today);
+        endDateInput.value = formatDate(nextWeek);
+
+        // 生成日历
+        function generateCalendar(start, end, step) {
+            // 清除现有日历内容（保留头部）
+            const headerCells = calendarGrid.querySelectorAll('.calendar-day.header');
+            calendarGrid.innerHTML = '';
+
+            // 重新添加头部
+            headerCells.forEach(cell => calendarGrid.appendChild(cell));
+
+            // 计算日历开始日期（当月第一天的所在周的周日）
+            const firstDay = new Date(start.getFullYear(), start.getMonth(), 1);
+            const startDay = new Date(firstDay);
+            startDay.setDate(firstDay.getDate() - firstDay.getDay());
+
+            // 计算日历结束日期（下月第一天的前一天所在周的周六）
+            const lastMonth = end.getMonth() === 11 ? 0 : end.getMonth() + 1;
+            const lastYear = end.getMonth() === 11 ? end.getFullYear() + 1 : end.getFullYear();
+            const lastDay = new Date(lastYear, lastMonth, 0);
+            const endDay = new Date(lastDay);
+            endDay.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+
+            // 生成日历单元格
+            let currentDate = new Date(startDay);
+            while (currentDate <= endDay) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = currentDate.getDate();
+
+                // 判断日期是否在选定范围内
+                const isInRange = currentDate >= start && currentDate <= end;
+
+                // 判断日期是否在生成的日期序列中
+                let isInSequence = false;
+                if (isInRange) {
+                    const dateSequence = [...dateRangeGenerator(start, end, step)];
+                    isInSequence = dateSequence.some(date =>
+                        date.getFullYear() === currentDate.getFullYear() &&
+                        date.getMonth() === currentDate.getMonth() &&
+                        date.getDate() === currentDate.getDate()
+                    );
+                }
+
+                // 设置日期单元格样式
+                if (isInRange) {
+                    if (isInSequence) {
+                        dayElement.classList.add('selected');
+                    } else {
+                        dayElement.classList.add('disabled');
+                    }
+                } else {
+                    dayElement.classList.add('disabled');
+                }
+
+                calendarGrid.appendChild(dayElement);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+
+        // 检查会议室在指定日期是否可用
+        function isRoomAvailable(roomId, date) {
+            const dateStr = formatDate(date);
+            return !bookedDates[roomId].includes(dateStr);
+        }
+
+        // 根据类型、设备和日期筛选可用会议室
+        function filterAvailableRooms(roomType, equipment, dates) {
+            return rooms.filter(room => {
+                // 根据类型筛选
+                if (roomType !== 'all' && room.type !== roomType) {
+                    return false;
+                }
+
+                // 根据设备筛选
+                if (equipment !== 'all' && !room.equipment.includes(equipment)) {
+                    return false;
+                }
+
+                // 检查所有选定日期是否都可用
+                return dates.every(date => isRoomAvailable(room.id, date));
+            });
+        }
+
+        // 渲染会议室列表
+        function renderRoomList(availableRooms, selectedDates) {
+            roomList.innerHTML = '';
+
+            if (availableRooms.length === 0) {
+                roomList.innerHTML = '<p>没有找到符合条件的会议室</p>';
+                return;
+            }
+
+            availableRooms.forEach(room => {
+                const roomCard = document.createElement('div');
+                roomCard.className = 'room-card';
+
+                // 检查当前日期是否可用
+                const today = new Date();
+                const isAvailableToday = isRoomAvailable(room.id, today);
+                const statusClass = isAvailableToday ? 'status-available' : 'status-unavailable';
+                const statusText = isAvailableToday ? '当前可用' : '当前已预订';
+
+                roomCard.innerHTML = `
+                    <h4>${room.name}</h4>
+                    <div class="room-status">
+                        <div class="status-indicator ${statusClass}"></div>
+                        <span>${statusText}</span>
+                    </div>
+                    <p>类型: ${room.type === 'small' ? '小型' : room.type === 'medium' ? '中型' : '大型'}</p>
+                    <p>容量: ${room.capacity}人</p>
+                    <p>位置: ${room.floor}</p>
+                    <p>设备: ${room.equipment.join(', ')}</p>
+                    <div class="btn-group">
+                        <button class="btn view-btn" data-room-id="${room.id}">查看详情</button>
+                        <button class="btn book-btn" data-room-id="${room.id}">预订</button>
+                    </div>
+                `;
+
+                roomList.appendChild(roomCard);
+
+                // 添加预订按钮点击事件
+                const bookBtn = roomCard.querySelector('.book-btn');
+                bookBtn.addEventListener('click', () => {
+                    showBookingConfirm(room, selectedDates);
+                });
+
+                // 添加查看详情按钮点击事件
+                const viewBtn = roomCard.querySelector('.view-btn');
+                viewBtn.addEventListener('click', () => {
+                    showRoomDetail(room);
+                });
+            });
+        }
+
+        // 显示会议室详情
+        function showRoomDetail(room) {
+            modalRoomName.textContent = room.name;
+
+            // 生成会议室详情内容
+            modalRoomDetails.innerHTML = `
+                <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <img src="${room.image}" alt="${room.name}" style="width: 100%; border-radius: 4px;">
+                    </div>
+                    <div style="flex: 1;">
+                        <p><strong>类型:</strong> ${room.type === 'small' ? '小型' : room.type === 'medium' ? '中型' : '大型'}</p>
+                        <p><strong>容量:</strong> ${room.capacity}人</p>
+                        <p><strong>位置:</strong> ${room.floor}</p>
+                        <p><strong>设备:</strong> ${room.equipment.join(', ')}</p>
+                    </div>
+                </div>
+                <p><strong>描述:</strong> ${room.description}</p>
+                <h4 style="margin-top: 15px;">本月可用情况</h4>
+                <div id="room-availability-calendar" style="margin-top: 10px;"></div>
+            `;
+
+            // 设置预订按钮数据
+            modalBookBtn.setAttribute('data-room-id', room.id);
+
+            // 显示模态框
+            roomDetailModal.style.display = 'block';
+
+            // 生成简单的可用性日历
+            generateAvailabilityCalendar(room.id, 'room-availability-calendar');
+        }
+
+        // 生成可用性日历
+        function generateAvailabilityCalendar(roomId, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            // 获取当月天数
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // 创建日历网格
+            const calendarGrid = document.createElement('div');
+            calendarGrid.style.display = 'grid';
+            calendarGrid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+            calendarGrid.style.gap = '5px';
+
+            // 添加星期头部
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            weekdays.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.textContent = day;
+                dayElement.style.textAlign = 'center';
+                dayElement.style.fontWeight = 'bold';
+                dayElement.style.padding = '5px';
+                calendarGrid.appendChild(dayElement);
+            });
+
+            // 计算月初是星期几
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+
+            // 添加空白单元格
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            // 添加日期单元格
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = new Date(currentYear, currentMonth, i);
+                const dateStr = formatDate(date);
+                const isAvailable = !bookedDates[roomId].includes(dateStr);
+
+                const dayElement = document.createElement('div');
+                dayElement.textContent = i;
+                dayElement.style.textAlign = 'center';
+                dayElement.style.padding = '5px';
+                dayElement.style.borderRadius = '4px';
+                dayElement.style.backgroundColor = isAvailable ? '#f0f9eb' : '#fef0f0';
+                dayElement.style.color = isAvailable ? '#67c23a' : '#f56c6c';
+
+                calendarGrid.appendChild(dayElement);
+            }
+
+            container.appendChild(calendarGrid);
+        }
+
+        // 显示预订确认
+        function showBookingConfirm(room, selectedDates) {
+            // 生成预订详情
+            const dateStrings = selectedDates.map(date => formatDateDisplay(date));
+
+            bookingDetails.innerHTML = `
+                <h4>${room.name}</h4>
+                <p><strong>预订日期:</strong></p>
+                <ul>
+                    ${dateStrings.map(date => `<li>${date}</li>`).join('')}
+                </ul>
+            `;
+
+            // 存储当前选择的会议室和日期
+            bookingConfirmModal.setAttribute('data-room-id', room.id);
+            bookingConfirmModal.setAttribute('data-dates', JSON.stringify(selectedDates));
+
+            // 清空表单
+            bookingTitle.value = '';
+            bookingNotes.value = '';
+
+            // 显示模态框
+            bookingConfirmModal.style.display = 'block';
+        }
+
+        // 预订会议室
+        function bookRoom(room, dates, title, notes) {
+            // 在实际应用中，这里会发送请求到服务器进行预订
+            // 这里仅做模拟
+            const dateStrings = dates.map(date => formatDate(date));
+
+            // 更新已预订数据
+            dateStrings.forEach(dateStr => {
+                if (!bookedDates[room.id].includes(dateStr)) {
+                    bookedDates[room.id].push(dateStr);
+                }
+            });
+
+            // 创建预订记录
+            const booking = {
+                id: Date.now(), // 使用时间戳作为唯一ID
+                roomId: room.id,
+                roomName: room.name,
+                dates: dates.map(date => formatDate(date)),
+                title: title || '未命名会议',
+                notes: notes || '',
+                createdAt: new Date().toISOString()
+            };
+
+            // 添加到用户预订记录
+            userBookings.push(booking);
+
+            // 保存到本地存储
+            localStorage.setItem('userBookings', JSON.stringify(userBookings));
+
+            // 显示预订成功信息
+            alert(`预订成功！\n会议室: ${room.name}\n会议主题: ${title || '未命名会议'}\n日期: ${dateStrings.join(', ')}`);
+
+            // 重新搜索以更新界面
+            searchRooms();
+
+            // 更新预订历史
+            renderBookingHistory();
+        }
+
+        // 搜索可用会议室
+        function searchRooms() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const step = parseInt(stepInput.value, 10) || 1;
+            const roomType = roomTypeSelect.value;
+            const equipment = equipmentFilter.value;
+
+            // 验证日期输入
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                alert('请输入有效的日期范围');
+                return;
+            }
+
+            if (startDate > endDate) {
+                alert('开始日期不能晚于结束日期');
+                return;
+            }
+
+            // 生成日期序列
+            const selectedDates = [...dateRangeGenerator(startDate, endDate, step)];
+
+            // 更新日期范围显示
+            dateRangeDisplay.textContent = `${formatDateDisplay(startDate)} 至 ${formatDateDisplay(endDate)}, 间隔 ${step} 天`;
+
+            // 生成日历
+            generateCalendar(startDate, endDate, step);
+
+            // 筛选可用会议室
+            const availableRooms = filterAvailableRooms(roomType, equipment, selectedDates);
+
+            // 渲染会议室列表
+            renderRoomList(availableRooms, selectedDates);
+
+            // 更新摘要信息
+            updateSummary(selectedDates, availableRooms);
+        }
+
+        // 更新摘要信息
+        function updateSummary(selectedDates, availableRooms) {
+            const dateCount = selectedDates.length;
+            const roomCount = availableRooms.length;
+
+            let summaryText = `在选定的 ${dateCount} 个日期中，`;
+
+            if (roomCount > 0) {
+                summaryText += `找到 ${roomCount} 个可用会议室。`;
+            } else {
+                summaryText += '没有找到可用会议室。';
+            }
+
+            summaryElement.textContent = summaryText;
+        }
+
+        // 渲染预订历史
+        function renderBookingHistory() {
+            bookingHistory.innerHTML = '';
+
+            if (userBookings.length === 0) {
+                bookingHistory.innerHTML = '<p>暂无预订记录</p>';
+                return;
+            }
+
+            // 按创建时间倒序排列
+            const sortedBookings = [...userBookings].sort((a, b) =>
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+
+            sortedBookings.forEach(booking => {
+                const bookingItem = document.createElement('div');
+                bookingItem.className = 'booking-item';
+
+                // 格式化日期显示
+                const formattedDates = booking.dates.map(dateStr => {
+                    const date = new Date(dateStr);
+                    return formatDateDisplay(date);
+                }).join('、');
+
+                bookingItem.innerHTML = `
+                    <h4>
+                        ${booking.title}
+                        <span style="font-size: 12px; color: #909399;">${new Date(booking.createdAt).toLocaleString()}</span>
+                    </h4>
+                    <p><strong>会议室:</strong> ${booking.roomName}</p>
+                    <p class="booking-dates"><strong>预订日期:</strong> ${formattedDates}</p>
+                    ${booking.notes ? `<p><strong>备注:</strong> ${booking.notes}</p>` : ''}
+                    <div class="booking-actions">
+                        <button class="btn" style="background-color: #f56c6c;" data-booking-id="${booking.id}">取消预订</button>
+                    </div>
+                `;
+
+                bookingHistory.appendChild(bookingItem);
+
+                // 添加取消预订按钮点击事件
+                const cancelBtn = bookingItem.querySelector('.booking-actions button');
+                cancelBtn.addEventListener('click', () => {
+                    cancelBooking(booking.id);
+                });
+            });
+        }
+
+        // 取消预订
+        function cancelBooking(bookingId) {
+            // 查找预订记录
+            const bookingIndex = userBookings.findIndex(booking => booking.id === bookingId);
+
+            if (bookingIndex === -1) {
+                alert('未找到预订记录');
+                return;
+            }
+
+            const booking = userBookings[bookingIndex];
+
+            // 确认取消
+            if (confirm(`确定要取消以下预订吗？\n会议室: ${booking.roomName}\n会议主题: ${booking.title}\n日期: ${booking.dates.join(', ')}`)) {
+                // 从已预订数据中移除
+                booking.dates.forEach(dateStr => {
+                    const index = bookedDates[booking.roomId].indexOf(dateStr);
+                    if (index !== -1) {
+                        bookedDates[booking.roomId].splice(index, 1);
+                    }
+                });
+
+                // 从用户预订记录中移除
+                userBookings.splice(bookingIndex, 1);
+
+                // 保存到本地存储
+                localStorage.setItem('userBookings', JSON.stringify(userBookings));
+
+                // 更新预订历史
+                renderBookingHistory();
+
+                // 如果当前在搜索页面，重新搜索以更新界面
+                if (document.querySelector('.tab[data-tab="search"]').classList.contains('active')) {
+                    searchRooms();
+                }
+
+                alert('预订已取消');
+            }
+        }
+
+        // 生成会议室使用统计
+        function generateRoomUsageStats() {
+            const monthValue = statsMonth.value;
+
+            if (!monthValue) {
+                alert('请选择月份');
+                return;
+            }
+
+            const [year, month] = monthValue.split('-').map(Number);
+
+            // 清空统计容器
+            usageStats.innerHTML = '';
+
+            // 计算每个会议室的使用率
+            rooms.forEach(room => {
+                // 获取该月的总天数
+                const daysInMonth = new Date(year, month, 0).getDate();
+
+                // 计算该月该会议室被预订的天数
+                let bookedDaysCount = 0;
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month - 1, day);
+                    const dateStr = formatDate(date);
+
+                    if (bookedDates[room.id].includes(dateStr)) {
+                        bookedDaysCount++;
+                    }
+                }
+
+                // 计算使用率
+                const usageRate = (bookedDaysCount / daysInMonth * 100).toFixed(1);
+
+                // 创建统计卡片
+                const statCard = document.createElement('div');
+                statCard.style.width = '180px';
+                statCard.style.padding = '15px';
+                statCard.style.borderRadius = '4px';
+                statCard.style.backgroundColor = 'white';
+                statCard.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.1)';
+
+                // 设置颜色
+                let color;
+                if (usageRate < 30) color = '#67c23a';
+                else if (usageRate < 70) color = '#e6a23c';
+                else color = '#f56c6c';
+
+                statCard.innerHTML = `
+                    <h4 style="margin-bottom: 10px;">${room.name}</h4>
+                    <div style="position: relative; width: 100%; height: 100px; margin: 10px 0;">
+                        <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                            <span style="font-size: 24px; font-weight: bold; color: ${color};">${usageRate}%</span>
+                        </div>
+                        <svg width="100%" height="100%" viewBox="0 0 36 36">
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3" />
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="${color}" stroke-width="3" stroke-dasharray="${usageRate}, 100" />
+                        </svg>
+                    </div>
+                    <p style="text-align: center;">已预订 ${bookedDaysCount} / ${daysInMonth} 天</p>
+                `;
+
+                usageStats.appendChild(statCard);
+            });
+        }
+
+        // 绑定确认预订按钮点击事件
+        confirmBookingBtn.addEventListener('click', () => {
+            const roomId = parseInt(bookingConfirmModal.getAttribute('data-room-id'), 10);
+            const selectedDates = JSON.parse(bookingConfirmModal.getAttribute('data-dates')).map(dateStr => new Date(dateStr));
+            const title = bookingTitle.value.trim();
+            const notes = bookingNotes.value.trim();
+
+            // 验证输入
+            if (!title) {
+                alert('请输入会议主题');
+                return;
+            }
+
+            // 查找会议室
+            const room = rooms.find(r => r.id === roomId);
+
+            if (!room) {
+                alert('会议室不存在');
+                return;
+            }
+
+            // 预订会议室
+            bookRoom(room, selectedDates, title, notes);
+
+            // 关闭模态框
+            bookingConfirmModal.style.display = 'none';
+        });
+
+        // 绑定模态框预订按钮点击事件
+        modalBookBtn.addEventListener('click', () => {
+            const roomId = parseInt(modalBookBtn.getAttribute('data-room-id'), 10);
+            const room = rooms.find(r => r.id === roomId);
+
+            if (!room) {
+                alert('会议室不存在');
+                return;
+            }
+
+            // 获取当前选择的日期
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const step = parseInt(stepInput.value, 10) || 1;
+
+            // 生成日期序列
+            const selectedDates = [...dateRangeGenerator(startDate, endDate, step)];
+
+            // 显示预订确认
+            showBookingConfirm(room, selectedDates);
+
+            // 关闭详情模态框
+            roomDetailModal.style.display = 'none';
+        });
+
+        // 绑定统计按钮点击事件
+        statsBtn.addEventListener('click', generateRoomUsageStats);
+
+        // 绑定搜索按钮点击事件
+        searchBtn.addEventListener('click', searchRooms);
+
+        // 初始化页面
+        searchRooms();
+        renderBookingHistory();
+
+        // 设置默认统计月份为当前月份
+        const now = new Date();
+        statsMonth.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    </script>
+</body>
+
+</html>
