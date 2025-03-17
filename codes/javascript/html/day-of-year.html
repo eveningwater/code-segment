@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年度进度追踪器</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding-top: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card-header {
+            background-color: #4285f4;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+
+        .progress {
+            height: 25px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            background-color: #4285f4;
+            font-weight: 600;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #4285f4;
+        }
+
+        .stat-card p {
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .milestone-item {
+            padding: 12px 15px;
+            border-left: 4px solid #4285f4;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .milestone-date {
+            font-weight: 600;
+            color: #4285f4;
+        }
+
+        .milestone-days {
+            font-weight: 600;
+            float: right;
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .goal-checkbox {
+            margin-right: 10px;
+        }
+
+        .goal-text {
+            flex-grow: 1;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .date-picker {
+            margin-bottom: 20px;
+        }
+
+        #customDate {
+            max-width: 200px;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #4285f4;
+            border-color: #4285f4;
+        }
+
+        .btn-primary:hover {
+            background-color: #3367d6;
+            border-color: #3367d6;
+        }
+
+        .historical-data {
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">年度进度追踪器</h1>
+        <p class="text-center text-muted mb-4">基于日期计算，直观展示年度时间进度和目标完成情况</p>
+
+        <div class="date-picker text-center">
+            <input type="date" id="customDate" class="form-control me-2">
+            <button id="updateDate" class="btn btn-primary">更新日期</button>
+            <button id="resetDate" class="btn btn-outline-secondary ms-2">重置为今天</button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <p>今天是</p>
+                    <h3 id="currentDay">-</h3>
+                    <p id="formattedDate">-</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <p>已过天数</p>
+                    <h3 id="daysPassed">-</h3>
+                    <p>天</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <p>剩余天数</p>
+                    <h3 id="daysRemaining">-</h3>
+                    <p>天</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">年度进度</div>
+            <div class="card-body">
+                <div class="progress">
+                    <div id="yearProgress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                        aria-valuemax="100">0%</div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>1月1日</span>
+                    <span>12月31日</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">重要日期倒计时</div>
+                    <div class="card-body">
+                        <div id="milestones">
+                            <!-- 里程碑内容将通过JS动态生成 -->
+                        </div>
+                        <div class="mt-3">
+                            <div class="input-group mb-3">
+                                <input type="text" id="newMilestoneName" class="form-control" placeholder="事件名称">
+                                <input type="date" id="newMilestoneDate" class="form-control">
+                                <button class="btn btn-primary" id="addMilestone">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">年度目标追踪</div>
+                    <div class="card-body">
+                        <div id="goals">
+                            <!-- 目标内容将通过JS动态生成 -->
+                        </div>
+                        <div class="mt-3">
+                            <div class="input-group mb-3">
+                                <input type="text" id="newGoal" class="form-control" placeholder="输入新目标...">
+                                <button class="btn btn-primary" id="addGoal">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">历史数据对比</div>
+            <div class="card-body">
+                <div class="historical-data" id="historicalChart">
+                    <!-- 图表将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // 核心函数：计算一年中的第几天
+        const dayOfYear = date =>
+            Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+
+        // 全局变量
+        let currentDate = new Date();
+        let goals = JSON.parse(localStorage.getItem('yearlyGoals')) || [];
+        let milestones = JSON.parse(localStorage.getItem('yearlyMilestones')) || [
+            { name: '春节', date: '2024-02-10' },
+            { name: '劳动节', date: '2024-05-01' },
+            { name: '国庆节', date: '2024-10-01' },
+            { name: '元旦', date: '2025-01-01' }
+        ];
+        let historicalData = JSON.parse(localStorage.getItem('historicalData')) || {};
+
+        // 格式化日期为本地字符串
+        function formatDate(date) {
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+        }
+
+        // 计算两个日期之间的天数差
+        function daysBetween(date1, date2) {
+            const oneDay = 24 * 60 * 60 * 1000; // 一天的毫秒数
+            return Math.round(Math.abs((date1 - date2) / oneDay));
+        }
+
+        // 更新页面上的年度进度信息
+        function updateYearProgress() {
+            const year = currentDate.getFullYear();
+            const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+            const daysInYear = isLeapYear ? 366 : 365;
+
+            const day = dayOfYear(currentDate);
+            const percentage = (day / daysInYear * 100).toFixed(2);
+
+            document.getElementById('currentDay').textContent = `第 ${day} 天`;
+            document.getElementById('formattedDate').textContent = formatDate(currentDate);
+            document.getElementById('daysPassed').textContent = day;
+            document.getElementById('daysRemaining').textContent = daysInYear - day;
+
+            const progressBar = document.getElementById('yearProgress');
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', percentage);
+
+            // 保存历史数据
+            const today = currentDate.toISOString().split('T')[0];
+            historicalData[today] = parseFloat(percentage);
+            localStorage.setItem('historicalData', JSON.stringify(historicalData));
+
+            // 更新图表
+            updateHistoricalChart();
+        }
+
+        // 更新里程碑列表
+        function updateMilestones() {
+            const milestonesContainer = document.getElementById('milestones');
+            milestonesContainer.innerHTML = '';
+
+            // 按日期排序
+            milestones.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            milestones.forEach((milestone, index) => {
+                const milestoneDate = new Date(milestone.date);
+                const daysDiff = daysBetween(currentDate, milestoneDate);
+                const isPast = milestoneDate < currentDate;
+
+                const milestoneElement = document.createElement('div');
+                milestoneElement.className = 'milestone-item';
+                milestoneElement.innerHTML = `
+                    <div>
+                        <span class="milestone-date">${milestone.name}</span>
+                        <span class="text-muted">${milestoneDate.toLocaleDateString()}</span>
+                        <span class="milestone-days badge ${isPast ? 'bg-secondary' : 'bg-primary'}">
+                            ${isPast ? '已过去' : '还剩'} ${daysDiff} 天
+                        </span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger mt-2" data-index="${index}">删除</button>
+                `;
+
+                milestonesContainer.appendChild(milestoneElement);
+
+                // 添加删除事件
+                milestoneElement.querySelector('button').addEventListener('click', function () {
+                    milestones.splice(this.dataset.index, 1);
+                    localStorage.setItem('yearlyMilestones', JSON.stringify(milestones));
+                    updateMilestones();
+                });
+            });
+        }
+
+        // 更新目标列表
+        function updateGoals() {
+            const goalsContainer = document.getElementById('goals');
+            goalsContainer.innerHTML = '';
+
+            goals.forEach((goal, index) => {
+                const goalElement = document.createElement('div');
+                goalElement.className = 'goal-item';
+                goalElement.innerHTML = `
+                    <input type="checkbox" class="goal-checkbox form-check-input" ${goal.completed ? 'checked' : ''}>
+                    <span class="goal-text ${goal.completed ? 'completed' : ''}">${goal.text}</span>
+                    <button class="btn btn-sm btn-outline-danger ms-2" data-index="${index}">删除</button>
+                `;
+
+                goalsContainer.appendChild(goalElement);
+
+                // 添加复选框事件
+                goalElement.querySelector('.goal-checkbox').addEventListener('change', function () {
+                    goals[index].completed = this.checked;
+                    goalElement.querySelector('.goal-text').classList.toggle('completed', this.checked);
+                    localStorage.setItem('yearlyGoals', JSON.stringify(goals));
+                });
+
+                // 添加删除事件
+                goalElement.querySelector('button').addEventListener('click', function () {
+                    goals.splice(this.dataset.index, 1);
+                    localStorage.setItem('yearlyGoals', JSON.stringify(goals));
+                    updateGoals();
+                });
+            });
+        }
+
+        // 更新历史数据图表
+        function updateHistoricalChart() {
+            const ctx = document.getElementById('historicalChart');
+
+            // 如果已经存在图表实例，先销毁它
+            if (window.historicalChart instanceof Chart) {
+                window.historicalChart.destroy();
+            }
+
+            // 准备数据
+            const dates = Object.keys(historicalData).sort();
+            const values = dates.map(date => historicalData[date]);
+
+            // 创建新的图表实例
+            window.historicalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(date => new Date(date).toLocaleDateString('zh-CN')),
+                    datasets: [{
+                        label: '年度进度',
+                        data: values,
+                        borderColor: '#4285f4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `进度: ${context.parsed.y.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化页面
+        updateYearProgress();
+        updateMilestones();
+        updateGoals();
+
+        // 添加事件监听器
+        document.getElementById('updateDate').addEventListener('click', function () {
+            const selectedDate = document.getElementById('customDate').value;
+            if (selectedDate) {
+                currentDate = new Date(selectedDate);
+                updateYearProgress();
+                updateMilestones();
+            }
+        });
+
+        document.getElementById('resetDate').addEventListener('click', function () {
+            currentDate = new Date();
+            document.getElementById('customDate').value = '';
+            updateYearProgress();
+            updateMilestones();
+        });
+
+        document.getElementById('addMilestone').addEventListener('click', function () {
+            const name = document.getElementById('newMilestoneName').value.trim();
+            const date = document.getElementById('newMilestoneDate').value;
+
+            if (name && date) {
+                milestones.push({ name, date });
+                localStorage.setItem('yearlyMilestones', JSON.stringify(milestones));
+
+                document.getElementById('newMilestoneName').value = '';
+                document.getElementById('newMilestoneDate').value = '';
+
+                updateMilestones();
+            }
+        });
+
+        document.getElementById('addGoal').addEventListener('click', function () {
+            const text = document.getElementById('newGoal').value.trim();
+
+            if (text) {
+                goals.push({ text, completed: false });
+                localStorage.setItem('yearlyGoals', JSON.stringify(goals));
+
+                document.getElementById('newGoal').value = '';
+                updateGoals();
+            }
+        });
+    </script>
+</body>
+
+</html>

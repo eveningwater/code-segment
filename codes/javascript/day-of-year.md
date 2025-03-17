@@ -15,6 +15,10 @@ const dayOfYear = date =>
   Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/day-of-year.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,8 +27,10 @@ dayOfYear(new Date()); // 当前时间是2022-2-25,所以答案是56
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/dayOfYear.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/day-of-year.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/day-of-year.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/dayOfYear.html"></iframe>
+<iframe src="codes/javascript/html/day-of-year.html"></iframe>
