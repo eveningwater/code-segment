@@ -18,6 +18,10 @@ const daysAgo = n => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/days-ago.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,8 +30,10 @@ daysAgo(20); // 2022-02-06 (if current date is 2022-02-26)
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/daysAgo.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/days-ago.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/days-ago.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/daysAgo.html"></iframe>
+<iframe src="codes/javascript/html/days-ago.html"></iframe>

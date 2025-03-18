@@ -200,7 +200,7 @@
 - [日期范围生成器--2022-02-23](codes/javascript/date-range-generator.md)
 - [工作日名字--2022-02-24](codes/javascript/day-name.md)
 - [一年中的哪天--2022-02-25](codes/javascript/day-of-year.md)
-- [过去多少天的日期--2022-02-26](codes/javascript/daysAgo.md)
+- [过去多少天的日期--2022-02-26](codes/javascript/days-ago.md)
 - [从现在开始往后多少天的日期--2022-02-27](codes/javascript/daysFromNow.md)
 - [一个月有多少天--2022-02-28](codes/javascript/daysInMonth.md)
 - [防抖函数--2022-03-04](codes/javascript/debounce.md)
