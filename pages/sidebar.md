@@ -202,7 +202,7 @@
 - [一年中的哪天--2022-02-25](codes/javascript/day-of-year.md)
 - [过去多少天的日期--2022-02-26](codes/javascript/days-ago.md)
 - [从现在开始往后多少天的日期--2022-02-27](codes/javascript/days-from-now.md)
-- [一个月有多少天--2022-02-28](codes/javascript/daysInMonth.md)
+- [一个月有多少天--2022-02-28](codes/javascript/days-in-month.md)
 - [防抖函数--2022-03-04](codes/javascript/debounce.md)
 - [防抖期约函数--2022-03-05](codes/javascript/debouncePromise.md)
 - [取消单词首字母大写--2022-03-12](codes/javascript/decapitalize.md)
