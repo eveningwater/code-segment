@@ -4,12 +4,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>debounce</title>
+    <title>商品搜索防抖示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            color: #666;
+        }
+
+        .results-container {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .result-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .result-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .result-price {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .result-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .search-tips {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="container">
+        <h1>商品搜索</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="输入商品名称搜索...">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div id="loading-indicator" class="loading-indicator">搜索中...</div>
+        <div class="search-tips">输入商品名称，系统将自动搜索（已应用防抖优化）</div>
+        <div id="results-container" class="results-container">
+            <div class="no-results">请输入关键词开始搜索</div>
+        </div>
+    </div>
+
     <script>
+        // 防抖函数实现
         const debounce = (handler, ms) => {
             let time = null;
             return function (...args) {
@@ -17,13 +150,91 @@
                 time = setTimeout(() => handler.apply(this, args), ms);
             };
         };
-        window.addEventListener(
-            'resize',
-            debounce(() => {
-                console.log(window.innerWidth);
-                console.log(window.innerHeight);
-            }, 250)
-        );
+
+        // 模拟商品数据
+        const products = [
+            { id: 1, name: "苹果手机", price: "¥5999", description: "最新款智能手机，拍照性能出色", image: "https://placehold.co/80x80?text=Phone" },
+            { id: 2, name: "笔记本电脑", price: "¥8999", description: "轻薄本，续航持久，性能强劲", image: "https://placehold.co/80x80?text=Laptop" },
+            { id: 3, name: "智能手表", price: "¥1999", description: "健康监测，运动追踪，消息提醒", image: "https://placehold.co/80x80?text=Watch" },
+            { id: 4, name: "无线耳机", price: "¥899", description: "主动降噪，音质清晰，续航长久", image: "https://placehold.co/80x80?text=Earphone" },
+            { id: 5, name: "平板电脑", price: "¥3699", description: "大屏幕，轻便易携带，办公娱乐两相宜", image: "https://placehold.co/80x80?text=Tablet" },
+            { id: 6, name: "智能音箱", price: "¥599", description: "语音控制，音质出色，智能家居控制中心", image: "https://placehold.co/80x80?text=Speaker" },
+            { id: 7, name: "电子书阅读器", price: "¥999", description: "护眼显示，长续航，大容量存储", image: "https://placehold.co/80x80?text=Reader" },
+            { id: 8, name: "游戏主机", price: "¥3899", description: "强大性能，海量游戏，沉浸式体验", image: "https://placehold.co/80x80?text=Console" }
+        ];
+
+        // 获取DOM元素
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('results-container');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        // 模拟API请求函数
+        const searchProducts = (keyword) => {
+            // 显示加载指示器
+            loadingIndicator.style.display = 'block';
+
+            // 模拟网络延迟
+            setTimeout(() => {
+                // 过滤商品
+                const filteredProducts = keyword ?
+                    products.filter(product =>
+                        product.name.toLowerCase().includes(keyword.toLowerCase()) ||
+                        product.description.toLowerCase().includes(keyword.toLowerCase())
+                    ) : [];
+
+                // 渲染结果
+                renderResults(filteredProducts);
+
+                // 隐藏加载指示器
+                loadingIndicator.style.display = 'none';
+
+                // 记录搜索日志（实际应用中可能会发送到后端）
+                console.log(`搜索关键词: ${keyword}, 找到 ${filteredProducts.length} 个结果`);
+            }, 500); // 模拟500ms的网络延迟
+        };
+
+        // 渲染搜索结果
+        const renderResults = (products) => {
+            if (products.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">没有找到相关商品</div>';
+                return;
+            }
+
+            let html = '';
+            products.forEach(product => {
+                html += `
+                    <div class="result-item">
+                        <img src="${product.image}" alt="${product.name}" class="result-image">
+                        <div class="result-info">
+                            <div class="result-name">${product.name}</div>
+                            <div class="result-price">${product.price}</div>
+                            <div class="result-description">${product.description}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            resultsContainer.innerHTML = html;
+        };
+
+        // 使用防抖函数包装搜索函数
+        const debouncedSearch = debounce((keyword) => {
+            searchProducts(keyword);
+        }, 300); // 300ms的防抖延迟
+
+        // 绑定输入事件
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.trim();
+            if (keyword) {
+                debouncedSearch(keyword);
+            } else {
+                // 如果输入框为空，显示初始状态
+                resultsContainer.innerHTML = '<div class="no-results">请输入关键词开始搜索</div>';
+                loadingIndicator.style.display = 'none';
+            }
+        });
+
+        // 初始聚焦到搜索框
+        searchInput.focus();
     </script>
 </body>
 
