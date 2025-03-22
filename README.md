@@ -215,7 +215,7 @@
 - [从现在开始往后多少天的日期--2022-02-27](codes/javascript/days-from-now.md)
 - [一个月有多少天--2022-02-28](codes/javascript/days-in-month.md)
 - [防抖函数--2022-03-04](codes/javascript/debounce.md)
-- [防抖期约函数--2022-03-05](codes/javascript/debouncePromise.md)
+- [防抖期约函数--2022-03-05](codes/javascript/debounce-promise.md)
 - [取消单词首字母大写--2022-03-12](codes/javascript/decapitalize.md)
 - [深度克隆对象--2022-03-13](codes/javascript/deepClone.md)
 - [深度数组降维--2022-03-14](codes/javascript/deepFlatten.md)

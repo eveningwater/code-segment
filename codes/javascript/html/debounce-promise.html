@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>debouncePromise搜索示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            color: #666;
+        }
+
+        .results-container {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .result-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .result-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .result-price {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .result-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .search-tips {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+        }
+
+        .request-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .request-count {
+            font-weight: bold;
+            color: #4a90e2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>电影搜索 (debouncePromise示例)</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="输入电影名称搜索...">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div id="loading-indicator" class="loading-indicator">搜索中...</div>
+        <div class="search-tips">输入电影名称，系统将自动搜索（已应用debouncePromise优化）</div>
+        <div id="results-container" class="results-container">
+            <div class="no-results">请输入关键词开始搜索</div>
+        </div>
+        <div id="request-info" class="request-info">
+            请求统计: <span id="request-count" class="request-count">0</span> 次API调用 / <span id="input-count"
+                class="request-count">0</span> 次输入
+        </div>
+    </div>
+
+    <script>
+        // debouncePromise实现
+        const debouncePromise = (handler, ms) => {
+            let timer = null;
+            const pending = [];
+            return (...args) =>
+                new Promise((resolve, reject) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        const currentPending = [...pending];
+                        pending.length = 0;
+                        Promise.resolve(handler.apply(this, args)).then(
+                            data => {
+                                currentPending.forEach(({ resolve: res }) => res(data));
+                            },
+                            error => {
+                                currentPending.forEach(({ reject: rej }) => rej(error));
+                            }
+                        );
+                    }, ms);
+                    pending.push({ resolve, reject });
+                });
+        };
+
+        // 模拟电影数据
+        const movies = [
+            { id: 1, title: "星际穿越", rating: "9.3", year: "2014", description: "一个关于爱、时间和太空旅行的史诗", image: "https://placehold.co/80x80?text=Interstellar" },
+            { id: 2, title: "盗梦空间", rating: "9.1", year: "2010", description: "关于梦境、现实和潜意识的惊险之旅", image: "https://placehold.co/80x80?text=Inception" },
+            { id: 3, title: "肖申克的救赎", rating: "9.6", year: "1994", description: "希望让人自由，关于友情和坚持的故事", image: "https://placehold.co/80x80?text=Shawshank" },
+            { id: 4, title: "阿甘正传", rating: "9.4", year: "1994", description: "生活就像一盒巧克力，你永远不知道下一颗是什么", image: "https://placehold.co/80x80?text=Forrest" },
+            { id: 5, title: "泰坦尼克号", rating: "9.2", year: "1997", description: "一场跨越阶级的爱情故事，发生在沉没的巨轮上", image: "https://placehold.co/80x80?text=Titanic" },
+            { id: 6, title: "千与千寻", rating: "9.3", year: "2001", description: "一个小女孩在神秘世界中的奇幻冒险", image: "https://placehold.co/80x80?text=Spirited" },
+            { id: 7, title: "黑客帝国", rating: "9.0", year: "1999", description: "关于现实与虚拟、自由与控制的科幻经典", image: "https://placehold.co/80x80?text=Matrix" },
+            { id: 8, title: "指环王", rating: "9.0", year: "2001", description: "一场关于魔戒的史诗冒险，善与恶的终极对决", image: "https://placehold.co/80x80?text=LOTR" },
+            { id: 9, title: "美丽人生", rating: "9.5", year: "1997", description: "在战争中用爱与幽默保护儿子的父亲", image: "https://placehold.co/80x80?text=Beautiful" },
+            { id: 10, title: "这个杀手不太冷", rating: "9.4", year: "1994", description: "关于一个职业杀手和小女孩的温情故事", image: "https://placehold.co/80x80?text=Leon" },
+        ];
+
+        // 获取DOM元素
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('results-container');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const requestCountElement = document.getElementById('request-count');
+        const inputCountElement = document.getElementById('input-count');
+
+        // 计数器
+        let requestCount = 0;
+        let inputCount = 0;
+
+        // 模拟API请求函数
+        const searchMovies = (keyword) => {
+            // 显示加载指示器
+            loadingIndicator.style.display = 'block';
+
+            // 增加请求计数
+            requestCount++;
+            requestCountElement.textContent = requestCount;
+
+            // 返回Promise，模拟网络延迟
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // 过滤电影
+                    const filteredMovies = keyword ?
+                        movies.filter(movie =>
+                            movie.title.toLowerCase().includes(keyword.toLowerCase()) ||
+                            movie.description.toLowerCase().includes(keyword.toLowerCase())
+                        ) : [];
+
+                    // 隐藏加载指示器
+                    loadingIndicator.style.display = 'none';
+
+                    // 记录搜索日志
+                    console.log(`搜索关键词: ${keyword}, 找到 ${filteredMovies.length} 个结果`);
+
+                    // 解析Promise
+                    resolve(filteredMovies);
+                }, 800); // 模拟800ms的网络延迟
+            });
+        };
+
+        // 渲染搜索结果
+        const renderResults = (movies) => {
+            if (movies.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">没有找到相关电影</div>';
+                return;
+            }
+
+            let html = '';
+            movies.forEach(movie => {
+                html += `
+                    <div class="result-item">
+                        <img src="${movie.image}" alt="${movie.title}" class="result-image">
+                        <div class="result-info">
+                            <div class="result-name">${movie.title} (${movie.year})</div>
+                            <div class="result-price">评分: ${movie.rating}</div>
+                            <div class="result-description">${movie.description}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            resultsContainer.innerHTML = html;
+        };
+
+        // 使用debouncePromise包装搜索函数
+        const debouncedSearch = debouncePromise((keyword) => {
+            return searchMovies(keyword);
+        }, 300); // 300ms的防抖延迟
+
+        // 绑定输入事件
+        searchInput.addEventListener('input', (e) => {
+            // 增加输入计数
+            inputCount++;
+            inputCountElement.textContent = inputCount;
+
+            const keyword = e.target.value.trim();
+            if (keyword) {
+                // 使用debouncePromise处理搜索
+                debouncedSearch(keyword).then(movies => {
+                    renderResults(movies);
+                }).catch(error => {
+                    console.error('搜索出错:', error);
+                    resultsContainer.innerHTML = '<div class="no-results">搜索出错，请重试</div>';
+                    loadingIndicator.style.display = 'none';
+                });
+            } else {
+                // 如果输入框为空，显示初始状态
+                resultsContainer.innerHTML = '<div class="no-results">请输入关键词开始搜索</div>';
+                loadingIndicator.style.display = 'none';
+            }
+        });
+
+        // 初始聚焦到搜索框
+        searchInput.focus();
+    </script>
+</body>
+
+</html>
