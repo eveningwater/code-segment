@@ -15,6 +15,10 @@ const deCapitalize = ([first, ...rest], upperRest = false) =>
   (upperRest ? rest.join('').toUpperCase() : rest.join(''));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/decapitalize.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,8 +28,10 @@ deCapitalize('FooBar', true); // 'fOOBAR'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/deCapitalize.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/decapitalize.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/decapitalize.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/deCapitalize.html"></iframe>
+<iframe src="codes/javascript/html/decapitalize.html"></iframe>

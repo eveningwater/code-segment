@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本格式转换工具</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+
+        h1,
+        h2 {
+            color: #2c3e50;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        textarea,
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .options {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .result {
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .examples {
+            margin-top: 30px;
+        }
+
+        .example-item {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .copy-btn {
+            background-color: #6c757d;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .usage-info {
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+            padding: 10px 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>文本格式转换工具</h1>
+
+    <div class="container">
+        <div class="usage-info">
+            <p><strong>使用场景：</strong>此工具可用于规范化API参数名、数据库字段名、编程变量名等，确保它们符合特定的命名规范。</p>
+        </div>
+
+        <div class="form-group">
+            <label for="inputText">输入文本：</label>
+            <textarea id="inputText" rows="5" placeholder="请输入需要转换的文本，例如：UserName, FirstName, API_KEY..."></textarea>
+        </div>
+
+        <div class="options">
+            <div class="checkbox-group">
+                <input type="checkbox" id="upperRest">
+                <label for="upperRest">首字母小写后，其余字母大写</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="multipleWords">
+                <label for="multipleWords">处理多个单词（按行分割）</label>
+            </div>
+        </div>
+
+        <button id="convertBtn" class="btn">转换</button>
+
+        <div class="result-container">
+            <h3>转换结果：</h3>
+            <div id="result" class="result">结果将显示在这里</div>
+            <button id="copyBtn" class="btn copy-btn">复制结果</button>
+        </div>
+    </div>
+
+    <div class="container examples">
+        <h2>示例用法</h2>
+        <p>以下是一些常见的使用场景：</p>
+
+        <h3>1. API参数命名规范化</h3>
+        <div class="example-item">输入: UserName → 输出: userName</div>
+        <p>在RESTful API中，参数名通常使用小驼峰命名法（首字母小写）。</p>
+
+        <h3>2. 数据库字段转换</h3>
+        <div class="example-item">输入: FirstName → 输出: firstName</div>
+        <p>当从数据库模型映射到前端JSON时，可能需要将字段名转换为小驼峰格式。</p>
+
+        <h3>3. 编程变量命名</h3>
+        <div class="example-item">输入: API_KEY → 输出: aPI_KEY</div>
+        <p>在JavaScript等语言中，变量名通常以小写字母开头。</p>
+    </div>
+
+    <script>
+        // deCapitalize函数：将字符串首字母小写
+        const deCapitalize = ([first, ...rest], upperRest = false) =>
+            first.toLowerCase() +
+            (upperRest ? rest.join('').toUpperCase() : rest.join(''));
+
+        // 获取DOM元素
+        const inputText = document.getElementById('inputText');
+        const upperRest = document.getElementById('upperRest');
+        const multipleWords = document.getElementById('multipleWords');
+        const convertBtn = document.getElementById('convertBtn');
+        const result = document.getElementById('result');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // 转换函数
+        function convertText() {
+            const text = inputText.value.trim();
+            if (!text) {
+                result.textContent = '请输入需要转换的文本';
+                return;
+            }
+
+            const isUpperRest = upperRest.checked;
+            const isMultipleWords = multipleWords.checked;
+
+            let convertedText;
+
+            if (isMultipleWords) {
+                // 处理多行文本
+                const lines = text.split('\n');
+                convertedText = lines
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0)
+                    .map(line => deCapitalize(line, isUpperRest))
+                    .join('\n');
+            } else {
+                // 处理单个单词
+                convertedText = deCapitalize(text, isUpperRest);
+            }
+
+            result.textContent = convertedText;
+        }
+
+        // 复制结果到剪贴板
+        function copyToClipboard() {
+            const textToCopy = result.textContent;
+            if (textToCopy && textToCopy !== '结果将显示在这里') {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '已复制！';
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('复制失败:', err);
+                    });
+            }
+        }
+
+        // 添加事件监听器
+        convertBtn.addEventListener('click', convertText);
+        copyBtn.addEventListener('click', copyToClipboard);
+
+        // 添加实时预览功能
+        inputText.addEventListener('input', function () {
+            if (this.value.trim()) {
+                convertText();
+            }
+        });
+
+        // 选项变更时更新结果
+        upperRest.addEventListener('change', convertText);
+        multipleWords.addEventListener('change', convertText);
+    </script>
+</body>
+
+</html>
