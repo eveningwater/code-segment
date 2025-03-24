@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置管理系统 - deepClone实战应用</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor {
+            width: 100%;
+            height: 300px;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .snapshots-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .snapshot-list {
+            list-style: none;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .snapshot-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .snapshot-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .snapshot-item.active {
+            background-color: #e1f5fe;
+        }
+
+        .snapshot-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .snapshot-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #3498db;
+            font-size: 14px;
+        }
+
+        .snapshot-actions button:hover {
+            text-decoration: underline;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .comparison-panel {
+            height: 200px;
+            overflow: auto;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+
+        .diff-highlight {
+            background-color: #ffecb3;
+        }
+
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background-color: #e1f5fe;
+            color: #0c5460;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>配置管理系统</h1>
+            <p class="description">使用deepClone实现配置快照和恢复功能</p>
+        </header>
+
+        <div class="app">
+            <div class="editor-container">
+                <div class="card">
+                    <h2>当前配置</h2>
+                    <p>编辑下方JSON配置，创建快照或应用已保存的配置</p>
+                    <textarea id="configEditor" class="editor" spellcheck="false"></textarea>
+                    <div class="button-group">
+                        <button id="saveButton" class="button">保存更改</button>
+                        <button id="createSnapshotButton" class="button">创建快照</button>
+                        <button id="formatButton" class="button">格式化JSON</button>
+                    </div>
+                    <div id="statusMessage" class="status-message" style="display: none;"></div>
+                </div>
+
+                <div class="card">
+                    <h2>配置对比</h2>
+                    <p>查看当前配置与选定快照的差异</p>
+                    <div class="comparison">
+                        <div>
+                            <h3>当前配置</h3>
+                            <div id="currentConfig" class="comparison-panel"></div>
+                        </div>
+                        <div>
+                            <h3>选定快照</h3>
+                            <div id="selectedSnapshot" class="comparison-panel"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="snapshots-container">
+                <div class="card">
+                    <h2>配置快照</h2>
+                    <p>选择一个快照进行查看、恢复或删除</p>
+                    <ul id="snapshotList" class="snapshot-list">
+                        <li class="snapshot-item">暂无快照</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // deepClone函数实现
+        const deepClone = obj => {
+            if (obj === null) {
+                return null;
+            }
+            if (typeof obj !== 'object') {
+                return obj;
+            }
+            let clone = Object.assign({}, obj);
+            Object.keys(clone).forEach(
+                key =>
+                (clone[key] =
+                    typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key])
+            );
+            if (Array.isArray(obj)) {
+                clone.length = obj.length;
+                return Array.from(clone);
+            }
+            return clone;
+        };
+
+        // 应用类
+        class ConfigManager {
+            constructor() {
+                this.currentConfig = {
+                    appName: "我的应用",
+                    version: "1.0.0",
+                    theme: {
+                        primary: "#3498db",
+                        secondary: "#2ecc71",
+                        dark: false
+                    },
+                    features: [
+                        { id: 1, name: "用户管理", enabled: true },
+                        { id: 2, name: "数据分析", enabled: false },
+                        { id: 3, name: "报表生成", enabled: true }
+                    ],
+                    api: {
+                        baseUrl: "https://api.example.com",
+                        timeout: 5000,
+                        retryCount: 3
+                    },
+                    permissions: {
+                        admin: ["read", "write", "delete"],
+                        user: ["read", "write"],
+                        guest: ["read"]
+                    }
+                };
+                this.snapshots = [];
+                this.selectedSnapshotIndex = -1;
+
+                // DOM元素
+                this.configEditor = document.getElementById('configEditor');
+                this.saveButton = document.getElementById('saveButton');
+                this.createSnapshotButton = document.getElementById('createSnapshotButton');
+                this.formatButton = document.getElementById('formatButton');
+                this.snapshotList = document.getElementById('snapshotList');
+                this.currentConfigPanel = document.getElementById('currentConfig');
+                this.selectedSnapshotPanel = document.getElementById('selectedSnapshot');
+                this.statusMessage = document.getElementById('statusMessage');
+
+                // 初始化
+                this.init();
+            }
+
+            init() {
+                // 显示初始配置
+                this.configEditor.value = JSON.stringify(this.currentConfig, null, 2);
+                this.updateComparisonView();
+
+                // 事件监听
+                this.saveButton.addEventListener('click', () => this.saveConfig());
+                this.createSnapshotButton.addEventListener('click', () => this.createSnapshot());
+                this.formatButton.addEventListener('click', () => this.formatJSON());
+
+                // 从本地存储加载快照
+                this.loadSnapshotsFromStorage();
+            }
+
+            saveConfig() {
+                try {
+                    const newConfig = JSON.parse(this.configEditor.value);
+                    this.currentConfig = newConfig;
+                    this.updateComparisonView();
+                    this.showStatusMessage('配置已成功保存', 'success');
+                } catch (error) {
+                    this.showStatusMessage('无效的JSON格式: ' + error.message, 'error');
+                }
+            }
+
+            createSnapshot() {
+                // 使用deepClone创建当前配置的快照
+                const snapshot = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    config: deepClone(this.currentConfig)
+                };
+
+                this.snapshots.push(snapshot);
+                this.saveSnapshotsToStorage();
+                this.renderSnapshotList();
+                this.showStatusMessage('快照已创建', 'success');
+            }
+
+            formatJSON() {
+                try {
+                    const obj = JSON.parse(this.configEditor.value);
+                    this.configEditor.value = JSON.stringify(obj, null, 2);
+                    this.showStatusMessage('JSON已格式化', 'info');
+                } catch (error) {
+                    this.showStatusMessage('无效的JSON格式: ' + error.message, 'error');
+                }
+            }
+
+            renderSnapshotList() {
+                if (this.snapshots.length === 0) {
+                    this.snapshotList.innerHTML = '<li class="snapshot-item">暂无快照</li>';
+                    return;
+                }
+
+                this.snapshotList.innerHTML = '';
+                this.snapshots.forEach((snapshot, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'snapshot-item';
+                    if (index === this.selectedSnapshotIndex) {
+                        li.classList.add('active');
+                    }
+
+                    li.innerHTML = `
+                        <span>快照 ${index + 1} - ${snapshot.timestamp}</span>
+                        <div class="snapshot-actions">
+                            <button class="view-btn">查看</button>
+                            <button class="apply-btn">应用</button>
+                            <button class="delete-btn">删除</button>
+                        </div>
+                    `;
+
+                    // 添加事件监听
+                    li.querySelector('.view-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.viewSnapshot(index);
+                    });
+
+                    li.querySelector('.apply-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.applySnapshot(index);
+                    });
+
+                    li.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.deleteSnapshot(index);
+                    });
+
+                    li.addEventListener('click', () => this.viewSnapshot(index));
+
+                    this.snapshotList.appendChild(li);
+                });
+            }
+
+            viewSnapshot(index) {
+                this.selectedSnapshotIndex = index;
+                this.renderSnapshotList();
+                this.updateComparisonView();
+            }
+
+            applySnapshot(index) {
+                if (index >= 0 && index < this.snapshots.length) {
+                    // 使用deepClone应用快照配置
+                    this.currentConfig = deepClone(this.snapshots[index].config);
+                    this.configEditor.value = JSON.stringify(this.currentConfig, null, 2);
+                    this.updateComparisonView();
+                    this.showStatusMessage('快照已应用到当前配置', 'success');
+                }
+            }
+
+            deleteSnapshot(index) {
+                if (index >= 0 && index < this.snapshots.length) {
+                    this.snapshots.splice(index, 1);
+                    if (this.selectedSnapshotIndex === index) {
+                        this.selectedSnapshotIndex = -1;
+                    } else if (this.selectedSnapshotIndex > index) {
+                        this.selectedSnapshotIndex--;
+                    }
+                    this.saveSnapshotsToStorage();
+                    this.renderSnapshotList();
+                    this.updateComparisonView();
+                    this.showStatusMessage('快照已删除', 'info');
+                }
+            }
+
+            updateComparisonView() {
+                // 更新当前配置面板
+                this.currentConfigPanel.textContent = JSON.stringify(this.currentConfig, null, 2);
+
+                // 更新选定快照面板
+                if (this.selectedSnapshotIndex >= 0 && this.selectedSnapshotIndex < this.snapshots.length) {
+                    this.selectedSnapshotPanel.textContent = JSON.stringify(this.snapshots[this.selectedSnapshotIndex].config, null, 2);
+                } else {
+                    this.selectedSnapshotPanel.textContent = '未选择快照';
+                }
+            }
+
+            showStatusMessage(message, type = 'info') {
+                this.statusMessage.textContent = message;
+                this.statusMessage.className = 'status-message ' + type;
+                this.statusMessage.style.display = 'block';
+
+                // 3秒后自动隐藏消息
+                setTimeout(() => {
+                    this.statusMessage.style.display = 'none';
+                }, 3000);
+            }
+
+            saveSnapshotsToStorage() {
+                // 将快照保存到localStorage
+                try {
+                    localStorage.setItem('configSnapshots', JSON.stringify(this.snapshots));
+                } catch (error) {
+                    console.error('保存快照到本地存储失败:', error);
+                    this.showStatusMessage('保存快照到本地存储失败', 'error');
+                }
+            }
+
+            loadSnapshotsFromStorage() {
+                // 从localStorage加载快照
+                try {
+                    const savedSnapshots = localStorage.getItem('configSnapshots');
+                    if (savedSnapshots) {
+                        this.snapshots = JSON.parse(savedSnapshots);
+                        this.renderSnapshotList();
+                        this.showStatusMessage('已从本地存储加载快照', 'info');
+                    }
+                } catch (error) {
+                    console.error('从本地存储加载快照失败:', error);
+                    this.showStatusMessage('从本地存储加载快照失败', 'error');
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            const configManager = new ConfigManager();
+        });
+    </script>
+</body>
+
+</html>
