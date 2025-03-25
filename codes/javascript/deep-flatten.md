@@ -15,6 +15,10 @@ const deepFlatten = arr =>
   [].concat(...arr.map(v => (Array.isArray(v) ? deepFlatten(v) : v)));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/deep-flatten.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,8 +27,10 @@ deepFlatten([1, [2], [[3], 4], 5]); // [1, 2, 3, 4, 5]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/deepFlatten.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/deep-flatten.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/deep-flatten.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/deepFlatten.html"></iframe>
+<iframe src="codes/javascript/html/deep-flatten.html"></iframe>
