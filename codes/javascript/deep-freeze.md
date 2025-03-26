@@ -21,6 +21,10 @@ const deepFreeze = obj => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/deep-freeze.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -34,8 +38,10 @@ val[1][0] = 4; // not allowed as well
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/deepFreeze.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/deep-freeze.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/deep-freeze.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/deepFreeze.html"></iframe>
+<iframe src="codes/javascript/html/deep-freeze.html"></iframe>

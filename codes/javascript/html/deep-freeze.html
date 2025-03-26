@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用配置管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .config-panel {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .config-tree {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .config-actions {
+            flex: 1;
+            padding: 15px;
+            margin-left: 20px;
+        }
+
+        .config-item {
+            margin-bottom: 5px;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .config-item:hover {
+            background-color: #e9e9e9;
+        }
+
+        .config-item.selected {
+            background-color: #e3f2fd;
+            border-left: 3px solid #2196f3;
+        }
+
+        .config-path {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .config-value {
+            font-family: monospace;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976d2;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-success {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #388e3c;
+        }
+
+        .log-panel {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-family: monospace;
+        }
+
+        .log-entry.error {
+            color: #f44336;
+        }
+
+        .log-entry.success {
+            color: #4caf50;
+        }
+
+        .log-entry.info {
+            color: #2196f3;
+        }
+
+        .edit-form {
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 100px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>应用配置管理系统</h1>
+            <p class="description">基于deepFreeze实现的不可变配置管理，防止配置被意外修改</p>
+        </header>
+
+        <div class="config-panel">
+            <div class="config-tree" id="configTree">
+                <!-- 配置树将通过JavaScript动态生成 -->
+            </div>
+
+            <div class="config-actions">
+                <div class="config-path" id="selectedPath">未选择配置项</div>
+                <div class="config-value" id="selectedValue">请从左侧选择一个配置项</div>
+
+                <div class="action-buttons">
+                    <button id="modifyBtn" class="btn-primary" disabled>尝试修改配置</button>
+                    <button id="resetBtn" class="btn-danger" disabled>重置配置</button>
+                </div>
+
+                <div class="edit-form" id="editForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="newValue">新值:</label>
+                        <textarea id="newValue"></textarea>
+                    </div>
+                    <button id="saveBtn" class="btn-success">保存修改</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-panel" id="logPanel">
+            <div class="log-entry info">系统初始化完成，配置已被deepFreeze冻结保护</div>
+        </div>
+    </div>
+
+    <script>
+        // deepFreeze实现 - 递归冻结对象及其所有属性
+        const deepFreeze = obj => {
+            // 首先冻结对象本身
+            Object.freeze(obj);
+
+            // 获取所有属性，包括不可枚举的属性
+            Object.getOwnPropertyNames(obj).forEach(prop => {
+                // 如果属性值是对象且不为null，则递归冻结
+                if (obj[prop] !== null &&
+                    (typeof obj[prop] === 'object' || typeof obj[prop] === 'function') &&
+                    !Object.isFrozen(obj[prop])) {
+                    deepFreeze(obj[prop]);
+                }
+            });
+
+            return obj;
+        };
+
+        // 应用配置对象 - 模拟真实业务场景中的复杂配置
+        const appConfig = {
+            app: {
+                name: "企业管理系统",
+                version: "2.5.1",
+                environment: "production",
+                debug: false,
+                theme: {
+                    primary: "#2196f3",
+                    secondary: "#ff9800",
+                    dark: false,
+                    fontSize: 14
+                }
+            },
+            api: {
+                baseUrl: "https://api.example.com/v2",
+                timeout: 30000,
+                retryAttempts: 3,
+                endpoints: {
+                    users: "/users",
+                    products: "/products",
+                    orders: "/orders"
+                },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept-Language": "zh-CN"
+                }
+            },
+            features: {
+                dashboard: {
+                    enabled: true,
+                    widgets: ["sales", "users", "inventory", "activity"]
+                },
+                userManagement: {
+                    enabled: true,
+                    roles: ["admin", "manager", "user", "guest"],
+                    permissions: {
+                        admin: ["read", "write", "delete", "manage"],
+                        manager: ["read", "write", "limited-delete"],
+                        user: ["read", "limited-write"],
+                        guest: ["read"]
+                    }
+                },
+                notifications: {
+                    email: true,
+                    sms: false,
+                    push: true,
+                    frequency: "daily"
+                }
+            },
+            security: {
+                tokenExpiration: 86400,
+                maxLoginAttempts: 5,
+                passwordPolicy: {
+                    minLength: 8,
+                    requireNumbers: true,
+                    requireSpecialChars: true,
+                    requireUppercase: true
+                },
+                twoFactorAuth: true
+            }
+        };
+
+        // 冻结配置对象，使其不可修改
+        const frozenConfig = deepFreeze(appConfig);
+        let originalConfig = JSON.parse(JSON.stringify(appConfig)); // 保存原始配置的副本
+
+        // DOM元素
+        const configTree = document.getElementById('configTree');
+        const selectedPath = document.getElementById('selectedPath');
+        const selectedValue = document.getElementById('selectedValue');
+        const modifyBtn = document.getElementById('modifyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const editForm = document.getElementById('editForm');
+        const newValueInput = document.getElementById('newValue');
+        const saveBtn = document.getElementById('saveBtn');
+        const logPanel = document.getElementById('logPanel');
+
+        // 当前选中的配置路径
+        let currentPath = [];
+
+        // 添加日志条目
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logPanel.appendChild(entry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+
+        // 渲染配置树
+        function renderConfigTree(config, parentPath = []) {
+            let html = '<ul style="list-style-type: none; padding-left: 15px;">';
+
+            for (const key in config) {
+                const currentPath = [...parentPath, key];
+                const pathString = currentPath.join('.');
+
+                if (typeof config[key] === 'object' && config[key] !== null) {
+                    html += `
+                        <li>
+                            <div class="config-item" data-path="${pathString}">
+                                <span style="font-weight: bold;">${key}</span>
+                                <span style="color: #888;">(对象)</span>
+                            </div>
+                            ${renderConfigTree(config[key], currentPath)}
+                        </li>
+                    `;
+                } else {
+                    const valueDisplay = typeof config[key] === 'string' ?
+                        `"${config[key]}"` : config[key];
+                    html += `
+                        <li>
+                            <div class="config-item" data-path="${pathString}">
+                                <span style="font-weight: bold;">${key}:</span>
+                                <span style="color: #333;">${valueDisplay}</span>
+                                <span style="color: #888;">(${typeof config[key]})</span>
+                            </div>
+                        </li>
+                    `;
+                }
+            }
+
+            html += '</ul>';
+            return html;
+        }
+
+        // 获取配置值通过路径
+        function getConfigByPath(config, path) {
+            return path.reduce((obj, key) => obj && obj[key], config);
+        }
+
+        // 初始化配置树
+        configTree.innerHTML = renderConfigTree(frozenConfig);
+
+        // 绑定配置项点击事件
+        configTree.addEventListener('click', (e) => {
+            const configItem = e.target.closest('.config-item');
+            if (!configItem) return;
+
+            // 移除之前选中项的高亮
+            document.querySelectorAll('.config-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // 高亮当前选中项
+            configItem.classList.add('selected');
+
+            // 获取选中的配置路径
+            const pathString = configItem.dataset.path;
+            currentPath = pathString.split('.');
+
+            // 显示选中的配置路径和值
+            selectedPath.textContent = pathString;
+            const selectedConfig = getConfigByPath(frozenConfig, currentPath);
+            selectedValue.textContent = typeof selectedConfig === 'object' ?
+                JSON.stringify(selectedConfig, null, 2) : selectedConfig;
+
+            // 启用按钮
+            modifyBtn.disabled = false;
+            resetBtn.disabled = false;
+
+            // 隐藏编辑表单
+            editForm.style.display = 'none';
+
+            addLogEntry(`选中配置项: ${pathString}`);
+        });
+
+        // 尝试修改配置按钮点击事件
+        modifyBtn.addEventListener('click', () => {
+            if (currentPath.length === 0) return;
+
+            const selectedConfig = getConfigByPath(frozenConfig, currentPath);
+
+            // 显示编辑表单
+            editForm.style.display = 'block';
+            newValueInput.value = typeof selectedConfig === 'object' ?
+                JSON.stringify(selectedConfig, null, 2) : selectedConfig;
+
+            addLogEntry(`准备修改配置: ${currentPath.join('.')}`);
+        });
+
+        // 保存修改按钮点击事件
+        saveBtn.addEventListener('click', () => {
+            if (currentPath.length === 0) return;
+
+            const pathString = currentPath.join('.');
+            let newValue = newValueInput.value.trim();
+
+            // 尝试解析JSON
+            if (newValue.startsWith('{') || newValue.startsWith('[')) {
+                try {
+                    newValue = JSON.parse(newValue);
+                } catch (error) {
+                    addLogEntry(`JSON解析错误: ${error.message}`, 'error');
+                    return;
+                }
+            } else if (newValue === 'true' || newValue === 'false') {
+                newValue = newValue === 'true';
+            } else if (!isNaN(newValue) && newValue !== '') {
+                newValue = Number(newValue);
+            }
+
+            // 尝试修改冻结的配置
+            try {
+                // 获取要修改的对象和属性
+                const parentPath = currentPath.slice(0, -1);
+                const property = currentPath[currentPath.length - 1];
+                const parentObj = parentPath.length > 0 ?
+                    getConfigByPath(frozenConfig, parentPath) : frozenConfig;
+
+                // 尝试修改属性
+                parentObj[property] = newValue;
+
+                // 这一行永远不会执行，因为上面的赋值会抛出错误
+                addLogEntry(`配置已修改: ${pathString} = ${newValue}`, 'success');
+            } catch (error) {
+                addLogEntry(`修改失败: ${error.message} - 配置已被deepFreeze冻结保护`, 'error');
+
+                // 显示冻结状态
+                const isFrozen = Object.isFrozen(getConfigByPath(frozenConfig,
+                    currentPath.length > 1 ? currentPath.slice(0, -1) : []));
+                addLogEntry(`对象冻结状态: ${isFrozen ? '已冻结' : '未冻结'}`, 'info');
+            }
+
+            // 隐藏编辑表单
+            editForm.style.display = 'none';
+        });
+
+        // 重置配置按钮点击事件
+        resetBtn.addEventListener('click', () => {
+            addLogEntry('重置配置不会生效，因为原始配置已被deepFreeze冻结', 'info');
+            addLogEntry('在实际应用中，可以通过重新加载配置或刷新页面来重置', 'info');
+        });
+
+        // 初始化日志
+        addLogEntry('应用配置已加载并被deepFreeze冻结', 'success');
+        addLogEntry(`配置包含 ${Object.keys(frozenConfig).length} 个顶级配置组`, 'info');
+        addLogEntry('请从左侧配置树中选择一个配置项进行操作', 'info');
+    </script>
+</body>
+
+</html>
