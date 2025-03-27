@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置管理系统 - deepGet实战应用</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #4a6cf7;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-panel {
+            flex: 1;
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-panel h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #4a6cf7;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .config-tree {
+            margin-bottom: 20px;
+        }
+
+        .config-tree ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .config-tree li {
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        .config-tree .folder {
+            color: #4a6cf7;
+            font-weight: bold;
+        }
+
+        .config-tree .file {
+            color: #333;
+        }
+
+        .config-tree .selected {
+            background-color: #e6f7ff;
+            border-radius: 3px;
+            padding: 2px 5px;
+        }
+
+        .path-navigator {
+            background-color: #f0f2f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .path-navigator span {
+            color: #4a6cf7;
+            cursor: pointer;
+        }
+
+        .path-navigator .separator {
+            margin: 0 5px;
+            color: #999;
+        }
+
+        .value-editor {
+            flex: 1;
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .value-editor h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #4a6cf7;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .editor-form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #3a5bd9;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .favorites {
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .favorites h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #4a6cf7;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .favorites-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .favorite-item {
+            background-color: #e6f7ff;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .favorite-item:hover {
+            background-color: #bae7ff;
+        }
+
+        .favorite-item .remove {
+            margin-left: 5px;
+            color: #ff4d4f;
+            font-weight: bold;
+        }
+
+        .history {
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .history h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #4a6cf7;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #52c41a;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transform: translateX(200%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .error {
+            background-color: #ff4d4f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>配置管理系统 - deepGet实战应用</h1>
+        </header>
+
+        <div class="favorites">
+            <h2>收藏的配置路径</h2>
+            <div class="favorites-list" id="favorites-list">
+                <!-- 收藏项将通过JavaScript动态添加 -->
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="config-panel">
+                <h2>配置树</h2>
+                <div class="path-navigator" id="path-navigator">
+                    <!-- 路径导航将通过JavaScript动态添加 -->
+                </div>
+                <div class="config-tree" id="config-tree">
+                    <!-- 配置树将通过JavaScript动态添加 -->
+                </div>
+            </div>
+
+            <div class="value-editor">
+                <h2>配置值编辑器</h2>
+                <div class="editor-form">
+                    <div class="form-group">
+                        <label for="current-path">当前路径:</label>
+                        <input type="text" id="current-path" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="value-type">值类型:</label>
+                        <input type="text" id="value-type" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="value-editor">值:</label>
+                        <textarea id="value-editor"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn" id="save-btn">保存</button>
+                        <button class="btn btn-secondary" id="add-favorite-btn">添加到收藏</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history">
+            <h2>访问历史</h2>
+            <div class="history-list" id="history-list">
+                <!-- 历史记录将通过JavaScript动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // deepGet方法 - 安全地获取嵌套对象的属性值
+        const deepGet = (obj, keys) =>
+            keys.reduce(
+                (o, i) => (o && o[i] !== null && o[i] !== undefined ? o[i] : null),
+                obj
+            );
+
+        // 模拟用户配置数据
+        const configData = {
+            userPreferences: {
+                theme: {
+                    mode: 'light',
+                    colors: {
+                        primary: '#4a6cf7',
+                        secondary: '#6c757d',
+                        background: '#f5f7fa',
+                        text: '#333333'
+                    },
+                    fonts: {
+                        main: 'Arial',
+                        size: {
+                            small: '12px',
+                            medium: '14px',
+                            large: '16px'
+                        }
+                    }
+                },
+                notifications: {
+                    email: true,
+                    push: true,
+                    sms: false,
+                    frequency: 'daily'
+                },
+                display: {
+                    sidebar: true,
+                    toolbar: true,
+                    statusBar: false
+                }
+            },
+            systemSettings: {
+                performance: {
+                    cpuUsage: 'medium',
+                    memoryLimit: 2048,
+                    cacheSize: 512
+                },
+                security: {
+                    twoFactorAuth: true,
+                    passwordPolicy: {
+                        minLength: 8,
+                        requireSpecialChars: true,
+                        requireNumbers: true,
+                        expiryDays: 90
+                    },
+                    ipWhitelist: ['192.168.1.1', '10.0.0.1']
+                },
+                backups: {
+                    enabled: true,
+                    schedule: 'daily',
+                    retention: 30,
+                    locations: ['local', 'cloud']
+                }
+            },
+            permissions: {
+                roles: {
+                    admin: {
+                        canCreate: true,
+                        canEdit: true,
+                        canDelete: true,
+                        canManageUsers: true
+                    },
+                    editor: {
+                        canCreate: true,
+                        canEdit: true,
+                        canDelete: false,
+                        canManageUsers: false
+                    },
+                    viewer: {
+                        canCreate: false,
+                        canEdit: false,
+                        canDelete: false,
+                        canManageUsers: false
+                    }
+                },
+                features: {
+                    dashboard: ['admin', 'editor', 'viewer'],
+                    reports: ['admin', 'editor', 'viewer'],
+                    userManagement: ['admin'],
+                    settings: ['admin']
+                }
+            }
+        };
+
+        // 全局变量
+        let currentPath = [];
+        let favorites = JSON.parse(localStorage.getItem('configFavorites')) || [];
+        let history = JSON.parse(localStorage.getItem('configHistory')) || [];
+
+        // DOM元素
+        const configTreeEl = document.getElementById('config-tree');
+        const pathNavigatorEl = document.getElementById('path-navigator');
+        const currentPathEl = document.getElementById('current-path');
+        const valueTypeEl = document.getElementById('value-type');
+        const valueEditorEl = document.getElementById('value-editor');
+        const saveBtnEl = document.getElementById('save-btn');
+        const addFavoriteBtnEl = document.getElementById('add-favorite-btn');
+        const favoritesListEl = document.getElementById('favorites-list');
+        const historyListEl = document.getElementById('history-list');
+        const notificationEl = document.getElementById('notification');
+
+        // 初始化应用
+        function initApp() {
+            renderConfigTree(configData, configTreeEl, []);
+            renderFavorites();
+            renderHistory();
+            setupEventListeners();
+        }
+
+        // 渲染配置树
+        function renderConfigTree(data, element, path) {
+            element.innerHTML = '';
+            const ul = document.createElement('ul');
+
+            if (typeof data !== 'object' || data === null) {
+                return;
+            }
+
+            Object.keys(data).forEach(key => {
+                const li = document.createElement('li');
+                const value = data[key];
+                const newPath = [...path, key];
+                const isObject = typeof value === 'object' && value !== null;
+
+                li.textContent = key;
+                li.className = isObject ? 'folder' : 'file';
+                li.dataset.path = newPath.join('.');
+
+                if (isObject) {
+                    li.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        expandConfigItem(li, value, newPath);
+                    });
+                } else {
+                    li.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectConfigItem(newPath, value);
+                    });
+                }
+
+                ul.appendChild(li);
+            });
+
+            element.appendChild(ul);
+        }
+
+        // 展开配置项
+        function expandConfigItem(element, data, path) {
+            // 如果已经展开，则收起
+            if (element.querySelector('ul')) {
+                element.removeChild(element.querySelector('ul'));
+                return;
+            }
+
+            // 否则展开子项
+            renderConfigTree(data, element, path);
+        }
+
+        // 选择配置项
+        function selectConfigItem(path, value) {
+            // 移除之前的选中状态
+            const selected = document.querySelector('.config-tree .selected');
+            if (selected) {
+                selected.classList.remove('selected');
+            }
+
+            // 添加新的选中状态
+            const element = document.querySelector(`[data-path="${path.join('.')}"]`);
+            if (element) {
+                element.classList.add('selected');
+            }
+
+            // 更新当前路径和编辑器
+            currentPath = path;
+            updatePathNavigator();
+            updateValueEditor(value);
+            addToHistory(path);
+        }
+
+        // 更新路径导航器
+        function updatePathNavigator() {
+            pathNavigatorEl.innerHTML = '';
+
+            // 添加根路径
+            const rootSpan = document.createElement('span');
+            rootSpan.textContent = 'root';
+            rootSpan.addEventListener('click', () => navigateTo([]));
+            pathNavigatorEl.appendChild(rootSpan);
+
+            // 添加路径分隔符和各级路径
+            currentPath.forEach((segment, index) => {
+                const separator = document.createElement('span');
+                separator.textContent = ' / ';
+                separator.className = 'separator';
+                pathNavigatorEl.appendChild(separator);
+
+                const segmentSpan = document.createElement('span');
+                segmentSpan.textContent = segment;
+                segmentSpan.addEventListener('click', () => navigateTo(currentPath.slice(0, index + 1)));
+                pathNavigatorEl.appendChild(segmentSpan);
+            });
+
+            // 更新当前路径显示
+            currentPathEl.value = currentPath.length > 0 ? currentPath.join('.') : 'root';
+        }
+
+        // 导航到指定路径
+        function navigateTo(path) {
+            const value = deepGet(configData, path);
+            selectConfigItem(path, value);
+        }
+
+        // 更新值编辑器
+        function updateValueEditor(value) {
+            const type = typeof value;
+            valueTypeEl.value = Array.isArray(value) ? 'array' : type;
+
+            if (type === 'object' && value !== null) {
+                valueEditorEl.value = JSON.stringify(value, null, 2);
+                valueEditorEl.readOnly = true;
+            } else {
+                valueEditorEl.value = value;
+                valueEditorEl.readOnly = false;
+            }
+        }
+
+        // 保存配置值
+        function saveConfigValue() {
+            if (currentPath.length === 0) {
+                showNotification('无法修改根配置对象', true);
+                return;
+            }
+
+            try {
+                let newValue = valueEditorEl.value;
+                const type = valueTypeEl.value;
+
+                // 根据类型转换值
+                if (type === 'number') {
+                    newValue = Number(newValue);
+                    if (isNaN(newValue)) throw new Error('无效的数字');
+                } else if (type === 'boolean') {
+                    newValue = newValue.toLowerCase() === 'true';
+                } else if (type === 'array' || type === 'object') {
+                    newValue = JSON.parse(newValue);
+                }
+
+                // 更新配置值
+                let current = configData;
+                for (let i = 0; i < currentPath.length - 1; i++) {
+                    current = current[currentPath[i]];
+                }
+                current[currentPath[currentPath.length - 1]] = newValue;
+
+                // 刷新显示
+                renderConfigTree(configData, configTreeEl, []);
+                showNotification('配置已保存');
+            } catch (error) {
+                showNotification(`保存失败: ${error.message}`, true);
+            }
+        }
+
+        // 添加到收藏
+        function addToFavorites() {
+            if (currentPath.length === 0) {
+                showNotification('无法收藏根配置对象', true);
+                return;
+            }
+
+            const pathStr = currentPath.join('.');
+            if (!favorites.includes(pathStr)) {
+                favorites.push(pathStr);
+                localStorage.setItem('configFavorites', JSON.stringify(favorites));
+                renderFavorites();
+                showNotification('已添加到收藏');
+            } else {
+                showNotification('该路径已在收藏中', true);
+            }
+        }
+
+        // 从收藏中移除
+        function removeFromFavorites(path) {
+            favorites = favorites.filter(item => item !== path);
+            localStorage.setItem('configFavorites', JSON.stringify(favorites));
+            renderFavorites();
+            showNotification('已从收藏中移除');
+        }
+
+        // 渲染收藏列表
+        function renderFavorites() {
+            favoritesListEl.innerHTML = '';
+
+            if (favorites.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.textContent = '暂无收藏项';
+                emptyMsg.style.color = '#999';
+                favoritesListEl.appendChild(emptyMsg);
+                return;
+            }
+
+            favorites.forEach(path => {
+                const item = document.createElement('div');
+                item.className = 'favorite-item';
+
+                const pathText = document.createElement('span');
+                pathText.textContent = path;
+                pathText.addEventListener('click', () => navigateTo(path.split('.')));
+                item.appendChild(pathText);
+
+                const removeBtn = document.createElement('span');
+                removeBtn.textContent = '×';
+                removeBtn.className = 'remove';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeFromFavorites(path);
+                });
+                item.appendChild(removeBtn);
+
+                favoritesListEl.appendChild(item);
+            });
+        }
+
+        // 添加到历史记录
+        function addToHistory(path) {
+            const pathStr = path.join('.');
+
+            // 移除已存在的相同路径
+            history = history.filter(item => item !== pathStr);
+
+            // 添加到历史开头
+            history.unshift(pathStr);
+
+            // 限制历史记录数量
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+
+            localStorage.setItem('configHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            historyListEl.innerHTML = '';
+
+            if (history.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.textContent = '暂无历史记录';
+                emptyMsg.style.color = '#999';
+                historyListEl.appendChild(emptyMsg);
+                return;
+            }
+
+            history.forEach(path => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.textContent = path;
+                item.addEventListener('click', () => navigateTo(path.split('.')));
+                historyListEl.appendChild(item);
+            });
+        }
+
+        // 显示通知
+        function showNotification(message, isError = false) {
+            notificationEl.textContent = message;
+            notificationEl.className = `notification ${isError ? 'error' : ''} show`;
+
+            setTimeout(() => {
+                notificationEl.className = 'notification';
+            }, 3000);
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            saveBtnEl.addEventListener('click', saveConfigValue);
+            addFavoriteBtnEl.addEventListener('click', addToFavorites);
+        }
+
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>

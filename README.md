@@ -220,7 +220,7 @@
 - [深度克隆对象--2022-03-13](codes/javascript/deep-clone.md)
 - [深度数组降维--2022-03-14](codes/javascript/deep-flatten.md)
 - [深度冻结对象--2022-03-15](codes/javascript/deep-freeze.md)
-- [深度查找对象的值--2022-03-17](codes/javascript/deepGet.md)
+- [深度查找对象的值--2022-03-17](codes/javascript/deep-get.md)
 - [深度查找对象的属性并对每一个属性执行相应的操作--2022-03-22](codes/javascript/deepMapKeys.md)
 - [深度合并对象--2022-03-23](codes/javascript/deepMerge.md)
 - [对象分配默认值--2022-03-24](codes/javascript/defaults.md)

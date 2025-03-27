@@ -18,6 +18,10 @@ const deepGet = (obj, keys) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/deep-get.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -36,8 +40,10 @@ deepGet(data, ['foo', 'bar', 'baz', 8, 'foz']); // null
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/deepGet.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/deep-get.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/deep-get.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/deepGet.html"></iframe>
+<iframe src="codes/javascript/html/deep-get.html"></iframe>
