@@ -27,6 +27,10 @@ const deepMapKeys = (obj, handler) =>
     : obj;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/deep-map-keys.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -61,8 +65,10 @@ const upperKeysObj = deepMapKeys(obj, key => key.toUpperCase());
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/deepMapKeys.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/deep-map-keys.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/deep-map-keys.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/deepMapKeys.html"></iframe>
+<iframe src="codes/javascript/html/deep-map-keys.html"></iframe>

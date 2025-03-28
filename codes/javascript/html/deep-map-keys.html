@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API响应格式化工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .panel {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #555;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .example-btn {
+            background-color: #2196F3;
+        }
+
+        .example-btn:hover {
+            background-color: #0b7dda;
+        }
+
+        .clear-btn {
+            background-color: #f44336;
+        }
+
+        .clear-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .copy-btn {
+            background-color: #9c27b0;
+        }
+
+        .copy-btn:hover {
+            background-color: #7b1fa2;
+        }
+
+        .status {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API响应格式化工具</h1>
+    <p style="text-align: center; margin-bottom: 20px;">将API响应数据在蛇形命名(snake_case)和驼峰命名(camelCase)之间转换</p>
+
+    <div class="container">
+        <div class="panel">
+            <h2>输入JSON数据</h2>
+            <textarea id="inputJson" placeholder="在此粘贴您的JSON数据..."></textarea>
+            <div class="controls">
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="conversionType" value="snakeToCamel" checked>
+                        蛇形转驼峰 (snake_case → camelCase)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="conversionType" value="camelToSnake">
+                        驼峰转蛇形 (camelCase → snake_case)
+                    </label>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="convertBtn">转换</button>
+                <button id="exampleBtn" class="example-btn">加载示例</button>
+                <button id="clearBtn" class="clear-btn">清空</button>
+            </div>
+            <div id="inputStatus" class="status"></div>
+        </div>
+
+        <div class="panel">
+            <h2>转换结果</h2>
+            <textarea id="outputJson" readonly placeholder="转换后的结果将显示在这里..."></textarea>
+            <div class="controls">
+                <button id="copyBtn" class="copy-btn">复制结果</button>
+            </div>
+            <div id="outputStatus" class="status"></div>
+        </div>
+    </div>
+
+    <script>
+        // deepMapKeys函数 - 递归处理嵌套对象的键
+        const deepMapKeys = (obj, handler) =>
+            Array.isArray(obj)
+                ? obj.map(val => deepMapKeys(val, handler))
+                : typeof obj === 'object' && obj !== null
+                    ? Object.keys(obj).reduce((acc, cur) => {
+                        const key = handler(cur);
+                        const val = obj[cur];
+                        acc[key] =
+                            val !== null && typeof val === 'object'
+                                ? deepMapKeys(val, handler)
+                                : val;
+                        return acc;
+                    }, {})
+                    : obj;
+
+        // 转换函数
+        const snakeToCamel = (str) => str.replace(/(_\w)/g, match => match[1].toUpperCase());
+        const camelToSnake = (str) => str.replace(/([A-Z])/g, match => `_${match.toLowerCase()}`);
+
+        // DOM元素
+        const inputJson = document.getElementById('inputJson');
+        const outputJson = document.getElementById('outputJson');
+        const convertBtn = document.getElementById('convertBtn');
+        const exampleBtn = document.getElementById('exampleBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const inputStatus = document.getElementById('inputStatus');
+        const outputStatus = document.getElementById('outputStatus');
+
+        // 示例数据
+        const snakeExample = {
+            user_id: 12345,
+            user_name: "john_doe",
+            email_address: "john@example.com",
+            account_details: {
+                account_type: "premium",
+                subscription_plan: "annual",
+                payment_info: {
+                    card_type: "visa",
+                    last_four_digits: "1234",
+                    billing_address: {
+                        street_name: "Main St",
+                        city_name: "San Francisco",
+                        zip_code: "94105",
+                        country_code: "US"
+                    }
+                }
+            },
+            recent_orders: [
+                {
+                    order_id: "ORD-001",
+                    product_name: "Smartphone",
+                    order_date: "2023-01-15",
+                    shipping_status: "delivered"
+                },
+                {
+                    order_id: "ORD-002",
+                    product_name: "Laptop",
+                    order_date: "2023-02-20",
+                    shipping_status: "processing"
+                }
+            ],
+            notification_preferences: {
+                email_notifications: true,
+                sms_notifications: false,
+                push_notifications: true
+            }
+        };
+
+        const camelExample = {
+            userId: 12345,
+            userName: "johnDoe",
+            emailAddress: "john@example.com",
+            accountDetails: {
+                accountType: "premium",
+                subscriptionPlan: "annual",
+                paymentInfo: {
+                    cardType: "visa",
+                    lastFourDigits: "1234",
+                    billingAddress: {
+                        streetName: "Main St",
+                        cityName: "San Francisco",
+                        zipCode: "94105",
+                        countryCode: "US"
+                    }
+                }
+            },
+            recentOrders: [
+                {
+                    orderId: "ORD-001",
+                    productName: "Smartphone",
+                    orderDate: "2023-01-15",
+                    shippingStatus: "delivered"
+                },
+                {
+                    orderId: "ORD-002",
+                    productName: "Laptop",
+                    orderDate: "2023-02-20",
+                    shippingStatus: "processing"
+                }
+            ],
+            notificationPreferences: {
+                emailNotifications: true,
+                smsNotifications: false,
+                pushNotifications: true
+            }
+        };
+
+        // 显示状态消息
+        function showStatus(element, message, isError = false) {
+            element.textContent = message;
+            element.className = isError ? 'status error' : 'status success';
+            element.style.display = 'block';
+
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        // 转换JSON
+        function convertJson() {
+            try {
+                // 获取转换类型
+                const conversionType = document.querySelector('input[name="conversionType"]:checked').value;
+
+                // 解析输入的JSON
+                const inputData = JSON.parse(inputJson.value);
+
+                // 根据选择的转换类型应用不同的处理函数
+                let result;
+                if (conversionType === 'snakeToCamel') {
+                    result = deepMapKeys(inputData, snakeToCamel);
+                } else {
+                    result = deepMapKeys(inputData, camelToSnake);
+                }
+
+                // 显示结果
+                outputJson.value = JSON.stringify(result, null, 2);
+                showStatus(outputStatus, '转换成功！');
+            } catch (error) {
+                showStatus(inputStatus, `错误: ${error.message}`, true);
+            }
+        }
+
+        // 加载示例数据
+        function loadExample() {
+            const conversionType = document.querySelector('input[name="conversionType"]:checked').value;
+            if (conversionType === 'snakeToCamel') {
+                inputJson.value = JSON.stringify(snakeExample, null, 2);
+            } else {
+                inputJson.value = JSON.stringify(camelExample, null, 2);
+            }
+            showStatus(inputStatus, '示例数据已加载！');
+        }
+
+        // 清空输入和输出
+        function clearAll() {
+            inputJson.value = '';
+            outputJson.value = '';
+            showStatus(inputStatus, '已清空！');
+        }
+
+        // 复制结果到剪贴板
+        function copyResult() {
+            if (!outputJson.value) {
+                showStatus(outputStatus, '没有可复制的内容！', true);
+                return;
+            }
+
+            outputJson.select();
+            document.execCommand('copy');
+            showStatus(outputStatus, '已复制到剪贴板！');
+        }
+
+        // 事件监听
+        convertBtn.addEventListener('click', convertJson);
+        exampleBtn.addEventListener('click', loadExample);
+        clearBtn.addEventListener('click', clearAll);
+        copyBtn.addEventListener('click', copyResult);
+
+        // 监听单选按钮变化，自动更新示例数据
+        document.querySelectorAll('input[name="conversionType"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (inputJson.value) {
+                    try {
+                        // 尝试转换当前输入的数据
+                        convertJson();
+                    } catch (error) {
+                        // 如果转换失败，加载新的示例数据
+                        loadExample();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
