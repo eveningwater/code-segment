@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置管理系统 - deepMerge示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #ecf0f1;
+            margin-bottom: 15px;
+        }
+
+        .header h1,
+        .history-section h3,
+        .history-item {
+            color: #666;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .description {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+
+        .config-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .config-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .config-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .config-card h3 {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .config-editor {
+            width: 100%;
+            height: 200px;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        .result-section {
+            grid-column: 1 / -1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button.secondary {
+            background-color: #2196F3;
+        }
+
+        button.secondary:hover {
+            background-color: #0b7dda;
+        }
+
+        button.danger {
+            background-color: #f44336;
+        }
+
+        button.danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .merge-options {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+        .merge-option {
+            margin-bottom: 10px;
+        }
+
+        .merge-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .merge-option input {
+            margin-right: 10px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .badge.default {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .badge.custom {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .badge.result {
+            background-color: #9C27B0;
+            color: white;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        /* 深色模式下的历史记录项样式 */
+        body[style*="background-color: #2c3e50"] .history-item {
+            background-color: #34495e;
+            color: #ecf0f1;
+            border: 1px solid transparent;
+        }
+
+        .history-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* 深色模式下的历史记录项悬停样式 */
+        body[style*="background-color: #2c3e50"] .history-item:hover {
+            background-color: #2c3e50;
+            border: 1px solid #3498db;
+            box-sizing: border-box;
+        }
+
+        .error {
+            color: #f44336;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>配置管理系统</h1>
+            <p class="description">使用 deepMerge 方法合并不同来源的配置，实现灵活的配置管理</p>
+        </div>
+
+        <div class="config-section">
+            <div class="config-card">
+                <h3>默认配置 <span class="badge default">系统默认</span></h3>
+                <textarea id="defaultConfig" class="config-editor" spellcheck="false">{
+  "theme": {
+    "primaryColor": "#4CAF50",
+    "secondaryColor": "#2196F3",
+    "fontSize": 14,
+    "darkMode": false
+  },
+  "user": {
+    "notifications": true,
+    "language": "zh-CN",
+    "timezone": "Asia/Shanghai"
+  },
+  "system": {
+    "autoSave": true,
+    "cacheExpiry": 3600,
+    "maxUploadSize": 10485760
+  },
+  "features": {
+    "comments": true,
+    "sharing": true,
+    "export": {
+      "pdf": true,
+      "excel": true,
+      "csv": false
+    }
+  }
+}</textarea>
+                <div class="button-group">
+                    <button id="resetDefaultBtn" class="secondary">重置为默认值</button>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <h3>用户配置 <span class="badge custom">自定义</span></h3>
+                <textarea id="userConfig" class="config-editor" spellcheck="false">{
+  "theme": {
+    "primaryColor": "#9C27B0",
+    "darkMode": true,
+    "fontFamily": "Roboto, sans-serif"
+  },
+  "user": {
+    "notifications": false,
+    "language": "en-US"
+  },
+  "system": {
+    "autoSave": false
+  },
+  "features": {
+    "export": {
+      "pdf": false,
+      "word": true
+    },
+    "analytics": true
+  }
+}</textarea>
+                <div class="button-group">
+                    <button id="resetUserBtn" class="secondary">重置为默认值</button>
+                    <button id="importUserBtn">导入配置</button>
+                </div>
+            </div>
+
+            <div class="config-card result-section">
+                <h3>合并结果 <span class="badge result">最终配置</span></h3>
+                <div class="merge-options">
+                    <h4>合并策略:</h4>
+                    <div class="merge-option">
+                        <label>
+                            <input type="radio" name="mergeStrategy" value="override" checked>
+                            用户配置覆盖默认配置
+                        </label>
+                    </div>
+                    <div class="merge-option">
+                        <label>
+                            <input type="radio" name="mergeStrategy" value="deep">
+                            深度合并（保留两边的唯一键）
+                        </label>
+                    </div>
+                    <div class="merge-option">
+                        <label>
+                            <input type="radio" name="mergeStrategy" value="custom">
+                            自定义合并策略（针对特定字段）
+                        </label>
+                    </div>
+                </div>
+                <textarea id="mergedConfig" class="config-editor" readonly></textarea>
+                <div class="button-group">
+                    <button id="mergeBtn">合并配置</button>
+                    <button id="exportBtn" class="secondary">导出配置</button>
+                    <button id="applyBtn">应用配置</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3>历史记录</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        // deepMerge 函数定义
+        const deepMerge = (a, b, handler) =>
+            [...new Set([...Object.keys(a), ...Object.keys(b)])].reduce(
+                (acc, key) => ({ ...acc, [key]: handler(key, a[key], b[key]) }),
+                {}
+            );
+
+        // 初始配置
+        const defaultConfigInitial = {
+            "theme": {
+                "primaryColor": "#4CAF50",
+                "secondaryColor": "#2196F3",
+                "fontSize": 14,
+                "darkMode": false
+            },
+            "user": {
+                "notifications": true,
+                "language": "zh-CN",
+                "timezone": "Asia/Shanghai"
+            },
+            "system": {
+                "autoSave": true,
+                "cacheExpiry": 3600,
+                "maxUploadSize": 10485760
+            },
+            "features": {
+                "comments": true,
+                "sharing": true,
+                "export": {
+                    "pdf": true,
+                    "excel": true,
+                    "csv": false
+                }
+            }
+        };
+
+        const userConfigInitial = {
+            "theme": {
+                "primaryColor": "#9C27B0",
+                "darkMode": true,
+                "fontFamily": "Roboto, sans-serif"
+            },
+            "user": {
+                "notifications": false,
+                "language": "en-US"
+            },
+            "system": {
+                "autoSave": false
+            },
+            "features": {
+                "export": {
+                    "pdf": false,
+                    "word": true
+                },
+                "analytics": true
+            }
+        };
+
+        // DOM 元素
+        const defaultConfigEl = document.getElementById('defaultConfig');
+        const userConfigEl = document.getElementById('userConfig');
+        const mergedConfigEl = document.getElementById('mergedConfig');
+        const mergeBtn = document.getElementById('mergeBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const applyBtn = document.getElementById('applyBtn');
+        const resetDefaultBtn = document.getElementById('resetDefaultBtn');
+        const resetUserBtn = document.getElementById('resetUserBtn');
+        const importUserBtn = document.getElementById('importUserBtn');
+        const historyList = document.getElementById('historyList');
+
+        // 历史记录
+        let configHistory = [];
+
+        // 合并配置函数
+        function mergeConfigurations() {
+            try {
+                const defaultConfig = JSON.parse(defaultConfigEl.value);
+                const userConfig = JSON.parse(userConfigEl.value);
+                const strategy = document.querySelector('input[name="mergeStrategy"]:checked').value;
+
+                let mergedConfig;
+
+                switch (strategy) {
+                    case 'override':
+                        // 简单覆盖策略
+                        mergedConfig = deepMerge(defaultConfig, userConfig,
+                            (key, a, b) => b === undefined ? a : b);
+                        break;
+                    case 'deep':
+                        // 深度合并策略
+                        mergedConfig = deepMerge(defaultConfig, userConfig,
+                            (key, a, b) => {
+                                // 如果两边都是对象，递归合并
+                                if (a && typeof a === 'object' && b && typeof b === 'object') {
+                                    return deepMerge(a, b, arguments.callee);
+                                }
+                                // 否则使用 b 的值，如果 b 没有值则使用 a
+                                return b === undefined ? a : b;
+                            });
+                        break;
+                    case 'custom':
+                        // 自定义合并策略
+                        mergedConfig = deepMerge(defaultConfig, userConfig,
+                            (key, a, b) => {
+                                // 特殊处理主题颜色 - 只在暗黑模式下使用用户配置的颜色
+                                if (key === 'theme') {
+                                    const isDarkMode = b && b.darkMode !== undefined ? b.darkMode :
+                                        (a && a.darkMode !== undefined ? a.darkMode : false);
+
+                                    return deepMerge(a || {}, b || {}, (themeKey, aVal, bVal) => {
+                                        if (themeKey === 'primaryColor' || themeKey === 'secondaryColor') {
+                                            return isDarkMode ? bVal || aVal : aVal;
+                                        }
+                                        return bVal === undefined ? aVal : bVal;
+                                    });
+                                }
+
+                                // 特殊处理导出选项 - 合并而不是覆盖
+                                if (key === 'features' && a && b) {
+                                    return deepMerge(a, b, (featureKey, aVal, bVal) => {
+                                        if (featureKey === 'export' && aVal && typeof aVal === 'object' && bVal && typeof bVal === 'object') {
+                                            return { ...aVal, ...bVal };
+                                        }
+                                        return bVal === undefined ? aVal : bVal;
+                                    });
+                                }
+
+                                // 如果两边都是对象，递归合并
+                                if (a && typeof a === 'object' && b && typeof b === 'object') {
+                                    return deepMerge(a, b, arguments.callee);
+                                }
+
+                                // 默认使用 b 的值，如果 b 没有值则使用 a
+                                return b === undefined ? a : b;
+                            });
+                        break;
+                }
+
+                // 更新合并结果显示
+                mergedConfigEl.value = JSON.stringify(mergedConfig, null, 2);
+
+                // 添加到历史记录
+                addToHistory(strategy, mergedConfig);
+
+                // 应用样式变化（如果有主题变化）
+                if (mergedConfig.theme) {
+                    previewThemeChanges(mergedConfig.theme);
+                }
+
+                return mergedConfig;
+            } catch (error) {
+                mergedConfigEl.value = `错误: ${error.message}`;
+                console.error('合并配置错误:', error);
+                return null;
+            }
+        }
+
+        // 添加到历史记录
+        function addToHistory(strategy, config) {
+            const timestamp = new Date().toLocaleString();
+            const historyItem = {
+                timestamp,
+                strategy,
+                config: JSON.parse(JSON.stringify(config))
+            };
+
+            configHistory.unshift(historyItem);
+            if (configHistory.length > 5) configHistory.pop(); // 只保留最近5条记录
+
+            updateHistoryDisplay();
+        }
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            historyList.innerHTML = '';
+
+            configHistory.forEach((item, index) => {
+                const historyItemEl = document.createElement('div');
+                historyItemEl.className = 'history-item';
+                historyItemEl.innerHTML = `
+                    <strong>${item.timestamp}</strong> - 
+                    策略: ${getStrategyName(item.strategy)}
+                `;
+
+                historyItemEl.addEventListener('click', () => {
+                    mergedConfigEl.value = JSON.stringify(item.config, null, 2);
+                    if (item.config.theme) {
+                        previewThemeChanges(item.config.theme);
+                    }
+                });
+
+                historyList.appendChild(historyItemEl);
+            });
+        }
+
+        // 获取策略名称
+        function getStrategyName(strategy) {
+            switch (strategy) {
+                case 'override': return '覆盖策略';
+                case 'deep': return '深度合并';
+                case 'custom': return '自定义策略';
+                default: return strategy;
+            }
+        }
+
+        // 预览主题变化
+        function previewThemeChanges(theme) {
+            if (theme.primaryColor) {
+                document.querySelectorAll('button:not(.secondary):not(.danger)').forEach(btn => {
+                    btn.style.backgroundColor = theme.primaryColor;
+                });
+                document.querySelector('.badge.default').style.backgroundColor = theme.primaryColor;
+            }
+
+            if (theme.secondaryColor) {
+                document.querySelectorAll('button.secondary').forEach(btn => {
+                    btn.style.backgroundColor = theme.secondaryColor;
+                });
+                document.querySelector('.badge.custom').style.backgroundColor = theme.secondaryColor;
+            }
+
+            if (theme.darkMode !== undefined) {
+                document.body.style.backgroundColor = theme.darkMode ? '#2c3e50' : '#f5f7fa';
+                document.body.style.color = theme.darkMode ? '#ecf0f1' : '#333';
+                document.querySelectorAll('.config-card').forEach(card => {
+                    card.style.backgroundColor = theme.darkMode ? '#34495e' : 'white';
+                    card.style.color = theme.darkMode ? '#ecf0f1' : '#333';
+                });
+                document.querySelectorAll('.config-editor').forEach(editor => {
+                    editor.style.backgroundColor = theme.darkMode ? '#2c3e50' : 'white';
+                    editor.style.color = theme.darkMode ? '#ecf0f1' : '#333';
+                    editor.style.borderColor = theme.darkMode ? '#1a2530' : '#ddd';
+                });
+                document.querySelectorAll('.merge-options').forEach(options => {
+                    options.style.backgroundColor = theme.darkMode ? '#34495e' : '#f9f9f9';
+                    options.style.borderColor = theme.darkMode ? '#2c3e50' : '#eee';
+                });
+            }
+
+            if (theme.fontSize) {
+                document.body.style.fontSize = `${theme.fontSize}px`;
+            }
+
+            if (theme.fontFamily) {
+                document.body.style.fontFamily = theme.fontFamily;
+            }
+        }
+
+        // 导出配置
+        function exportConfiguration() {
+            const config = mergedConfigEl.value;
+            if (!config) return;
+
+            const blob = new Blob([config], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `config-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 导入用户配置
+        function importUserConfiguration() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = event => {
+                    try {
+                        const config = JSON.parse(event.target.result);
+                        userConfigEl.value = JSON.stringify(config, null, 2);
+                    } catch (error) {
+                        alert(`导入失败: ${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            input.click();
+        }
+
+        // 应用配置
+        function applyConfiguration() {
+            const config = mergedConfigEl.value;
+            if (!config) return;
+
+            try {
+                const parsedConfig = JSON.parse(config);
+
+                // 应用主题配置
+                if (parsedConfig.theme) {
+                    previewThemeChanges(parsedConfig.theme);
+                }
+
+                // 模拟应用其他配置
+                console.log('应用配置:', parsedConfig);
+                alert('配置已成功应用！');
+            } catch (error) {
+                alert(`应用配置失败: ${error.message}`);
+            }
+        }
+
+        // 重置默认配置
+        function resetDefaultConfig() {
+            defaultConfigEl.value = JSON.stringify(defaultConfigInitial, null, 2);
+        }
+
+        // 重置用户配置
+        function resetUserConfig() {
+            userConfigEl.value = JSON.stringify(userConfigInitial, null, 2);
+        }
+
+        // 事件监听
+        mergeBtn.addEventListener('click', mergeConfigurations);
+        exportBtn.addEventListener('click', exportConfiguration);
+        applyBtn.addEventListener('click', applyConfiguration);
+        resetDefaultBtn.addEventListener('click', resetDefaultConfig);
+        resetUserBtn.addEventListener('click', resetUserConfig);
+        importUserBtn.addEventListener('click', importUserConfiguration);
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化合并
+            mergeConfigurations();
+        });
+    </script>
+</body>
+
+</html>
