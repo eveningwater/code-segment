@@ -1,18 +1,430 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>defaults</title>
+    <title>表单配置管理工具</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #2c3e50;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0 30px;
+            grid-column: 1 / -1;
+        }
+
+        .form-preview {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .config-editor {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-editor textarea {
+            height: 200px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+
+        .result-display {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+
+        .form-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .theme-selector {
+            margin-bottom: 20px;
+        }
+
+        .theme-blue {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+        }
+
+        .theme-green {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+        }
+
+        .theme-purple {
+            --primary-color: #9b59b6;
+            --secondary-color: #8e44ad;
+        }
+
+        .apply-theme button {
+            background-color: var(--primary-color, #3498db);
+        }
+
+        .apply-theme button:hover {
+            background-color: var(--secondary-color, #2980b9);
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="container">
+        <h1>表单配置管理工具</h1>
+
+        <div class="card form-preview">
+            <h2>表单预览</h2>
+            <form id="dynamic-form">
+                <!-- 动态生成的表单将显示在这里 -->
+            </form>
+            <div class="form-controls">
+                <button id="reset-form">重置表单</button>
+                <button id="submit-form" type="submit">提交表单</button>
+            </div>
+        </div>
+
+        <div class="card config-editor">
+            <h2>用户配置</h2>
+            <p>修改下方JSON配置来自定义表单</p>
+            <textarea id="user-config">{
+  "fields": [
+    {
+      "name": "username",
+      "label": "用户名",
+      "required": true
+    },
+    {
+      "name": "email",
+      "type": "email"
+    }
+  ],
+  "theme": "blue"
+}</textarea>
+            <button id="apply-config">应用配置</button>
+            <div id="config-error" class="error"></div>
+        </div>
+
+        <div class="card">
+            <h2>系统默认配置</h2>
+            <div class="result-display" id="default-config"></div>
+        </div>
+
+        <div class="card">
+            <h2>最终合并配置</h2>
+            <div class="result-display" id="merged-config"></div>
+        </div>
+    </div>
+
     <script>
+        // defaults 方法实现 - 合并对象，保留原始对象的值优先级
         const defaults = (obj, ...defs) =>
             Object.assign({}, obj, ...defs.reverse(), obj);
-        console.log(defaults({ a: 1 }, { b: 2 }, { b: 6 }, { a: 3 }));
+
+        // 系统默认配置
+        const systemDefaults = {
+            fields: [
+                {
+                    name: "username",
+                    label: "用户名",
+                    type: "text",
+                    placeholder: "请输入用户名",
+                    required: false,
+                    validation: {
+                        minLength: 3,
+                        maxLength: 20
+                    }
+                },
+                {
+                    name: "email",
+                    label: "邮箱地址",
+                    type: "email",
+                    placeholder: "请输入邮箱地址",
+                    required: true,
+                    validation: {
+                        pattern: "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+                    }
+                },
+                {
+                    name: "age",
+                    label: "年龄",
+                    type: "number",
+                    placeholder: "请输入年龄",
+                    required: false,
+                    validation: {
+                        min: 18,
+                        max: 100
+                    }
+                },
+                {
+                    name: "role",
+                    label: "角色",
+                    type: "select",
+                    options: [
+                        { value: "user", label: "普通用户" },
+                        { value: "admin", label: "管理员" },
+                        { value: "guest", label: "访客" }
+                    ],
+                    defaultValue: "user",
+                    required: true
+                },
+                {
+                    name: "bio",
+                    label: "个人简介",
+                    type: "textarea",
+                    placeholder: "请简单介绍自己",
+                    rows: 4,
+                    required: false
+                }
+            ],
+            theme: "blue",
+            submitButtonText: "提交表单",
+            resetButtonText: "重置表单",
+            showValidationErrors: true,
+            validateOnBlur: true,
+            validateOnSubmit: true
+        };
+
+        // 初始用户配置
+        let userConfig = {
+            fields: [
+                {
+                    name: "username",
+                    label: "用户名",
+                    required: true
+                },
+                {
+                    name: "email",
+                    type: "email"
+                }
+            ],
+            theme: "blue"
+        };
+
+        // 合并配置
+        let mergedConfig = defaults(userConfig, systemDefaults);
+
+        // 显示配置信息
+        function displayConfigs() {
+            document.getElementById('default-config').textContent = JSON.stringify(systemDefaults, null, 2);
+            document.getElementById('merged-config').textContent = JSON.stringify(mergedConfig, null, 2);
+        }
+
+        // 根据配置生成表单
+        function generateForm(config) {
+            const formElement = document.getElementById('dynamic-form');
+            formElement.innerHTML = '';
+
+            // 应用主题
+            document.body.className = `theme-${config.theme} apply-theme`;
+
+            // 生成表单字段
+            config.fields.forEach(field => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+
+                // 创建标签
+                const label = document.createElement('label');
+                label.setAttribute('for', field.name);
+                label.textContent = field.label || field.name;
+                if (field.required) {
+                    label.className = 'required';
+                }
+                formGroup.appendChild(label);
+
+                // 创建输入元素
+                let input;
+
+                switch (field.type) {
+                    case 'textarea':
+                        input = document.createElement('textarea');
+                        input.rows = field.rows || 3;
+                        break;
+                    case 'select':
+                        input = document.createElement('select');
+                        if (field.options && Array.isArray(field.options)) {
+                            field.options.forEach(option => {
+                                const optionElement = document.createElement('option');
+                                optionElement.value = option.value;
+                                optionElement.textContent = option.label;
+                                if (field.defaultValue === option.value) {
+                                    optionElement.selected = true;
+                                }
+                                input.appendChild(optionElement);
+                            });
+                        }
+                        break;
+                    default:
+                        input = document.createElement('input');
+                        input.type = field.type || 'text';
+                        if (field.type === 'number') {
+                            if (field.validation) {
+                                if (field.validation.min !== undefined) {
+                                    input.min = field.validation.min;
+                                }
+                                if (field.validation.max !== undefined) {
+                                    input.max = field.validation.max;
+                                }
+                            }
+                        }
+                }
+
+                // 设置通用属性
+                input.id = field.name;
+                input.name = field.name;
+                input.placeholder = field.placeholder || '';
+                if (field.required) {
+                    input.required = true;
+                }
+
+                // 添加验证
+                if (field.validation) {
+                    if (field.validation.pattern) {
+                        input.pattern = field.validation.pattern;
+                    }
+                    if (field.validation.minLength) {
+                        input.minLength = field.validation.minLength;
+                    }
+                    if (field.validation.maxLength) {
+                        input.maxLength = field.validation.maxLength;
+                    }
+                }
+
+                formGroup.appendChild(input);
+                formElement.appendChild(formGroup);
+            });
+
+            // 更新按钮文本
+            document.getElementById('submit-form').textContent = config.submitButtonText || '提交表单';
+            document.getElementById('reset-form').textContent = config.resetButtonText || '重置表单';
+        }
+
+        // 应用用户配置
+        document.getElementById('apply-config').addEventListener('click', function () {
+            try {
+                const configText = document.getElementById('user-config').value;
+                userConfig = JSON.parse(configText);
+                mergedConfig = defaults(userConfig, systemDefaults);
+                displayConfigs();
+                generateForm(mergedConfig);
+                document.getElementById('config-error').textContent = '';
+            } catch (error) {
+                document.getElementById('config-error').textContent = `配置错误: ${error.message}`;
+            }
+        });
+
+        // 重置表单
+        document.getElementById('reset-form').addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('dynamic-form').reset();
+        });
+
+        // 提交表单
+        document.getElementById('submit-form').addEventListener('click', function (e) {
+            e.preventDefault();
+            const form = document.getElementById('dynamic-form');
+            if (form.checkValidity()) {
+                const formData = new FormData(form);
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                alert('表单提交成功！\n\n' + JSON.stringify(data, null, 2));
+            } else {
+                form.reportValidity();
+            }
+        });
+
+        // 初始化
+        displayConfigs();
+        generateForm(mergedConfig);
     </script>
 </body>
 
