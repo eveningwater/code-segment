@@ -1,23 +1,501 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>defer</title>
+    <title>图片画廊 - 延迟加载示例</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-container {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            background-color: #eee;
+        }
+
+        .image-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f1f1f1;
+            color: #999;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .gallery-image.loaded {
+            opacity: 1;
+        }
+
+        .gallery-content {
+            padding: 15px;
+        }
+
+        .gallery-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .gallery-description {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .gallery-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .load-more {
+            display: block;
+            margin: 30px auto;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .load-more:hover {
+            background-color: #2980b9;
+        }
+
+        .load-more:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .stats-content {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stat-item {
+            padding: 0 15px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="test"></div>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="container">
+        <header>
+            <h1>图片画廊</h1>
+            <p class="description">使用defer方法实现的图片延迟加载示例</p>
+        </header>
+
+        <div class="gallery" id="gallery"></div>
+
+        <button class="load-more" id="loadMoreBtn">加载更多</button>
+
+        <div class="stats">
+            <div class="stats-title">加载统计</div>
+            <div class="stats-content">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalImages">0</div>
+                    <div class="stat-label">总图片数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="loadedImages">0</div>
+                    <div class="stat-label">已加载图片</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgLoadTime">0</div>
+                    <div class="stat-label">平均加载时间(ms)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // defer函数实现 - 延迟执行函数
         const defer = (handler, ...args) => setTimeout(handler, 1, ...args);
-        defer(console.log, 'a');
-        console.log('b');
-        const longRunningFunction = () => {
-            document.querySelector('#test').innerHTML = 'Hello';
-        }
-        defer(longRunningFunction);
+
+        // 模拟图片数据
+        const imageData = [
+            {
+                id: 1,
+                title: '自然风景',
+                description: '壮丽的山脉和湖泊景观',
+                url: 'https://picsum.photos/id/10/800/600',
+                author: '张明',
+                date: '2023-05-15'
+            },
+            {
+                id: 2,
+                title: '城市夜景',
+                description: '繁华都市的夜晚灯光',
+                url: 'https://picsum.photos/id/20/800/600',
+                author: '李华',
+                date: '2023-06-22'
+            },
+            {
+                id: 3,
+                title: '海滩日落',
+                description: '金色阳光下的海滩景色',
+                url: 'https://picsum.photos/id/30/800/600',
+                author: '王芳',
+                date: '2023-07-08'
+            },
+            {
+                id: 4,
+                title: '森林小径',
+                description: '幽静的森林小路',
+                url: 'https://picsum.photos/id/40/800/600',
+                author: '赵强',
+                date: '2023-08-14'
+            },
+            {
+                id: 5,
+                title: '雪山风光',
+                description: '白雪皑皑的山峰',
+                url: 'https://picsum.photos/id/50/800/600',
+                author: '刘伟',
+                date: '2023-09-19'
+            },
+            {
+                id: 6,
+                title: '花卉特写',
+                description: '绚丽多彩的花朵特写',
+                url: 'https://picsum.photos/id/60/800/600',
+                author: '陈静',
+                date: '2023-10-25'
+            }
+        ];
+
+        // 更多图片数据 - 用于"加载更多"功能
+        const moreImageData = [
+            {
+                id: 7,
+                title: '建筑艺术',
+                description: '现代与古典建筑的完美结合',
+                url: 'https://picsum.photos/id/70/800/600',
+                author: '杨光',
+                date: '2023-11-03'
+            },
+            {
+                id: 8,
+                title: '动物世界',
+                description: '野生动物的自然栖息地',
+                url: 'https://picsum.photos/id/80/800/600',
+                author: '周明',
+                date: '2023-11-12'
+            },
+            {
+                id: 9,
+                title: '美食佳肴',
+                description: '精致美味的餐厅料理',
+                url: 'https://picsum.photos/id/90/800/600',
+                author: '郑华',
+                date: '2023-11-20'
+            },
+            {
+                id: 10,
+                title: '科技产品',
+                description: '最新科技产品展示',
+                url: 'https://picsum.photos/id/100/800/600',
+                author: '孙亮',
+                date: '2023-11-28'
+            },
+            {
+                id: 11,
+                title: '运动瞬间',
+                description: '激烈比赛中的精彩瞬间',
+                url: 'https://picsum.photos/id/110/800/600',
+                author: '吴强',
+                date: '2023-12-05'
+            },
+            {
+                id: 12,
+                title: '旅行探险',
+                description: '探索世界各地的奇妙风景',
+                url: 'https://picsum.photos/id/120/800/600',
+                author: '钱伟',
+                date: '2023-12-15'
+            }
+        ];
+
+        // 统计数据
+        let stats = {
+            totalImages: 0,
+            loadedImages: 0,
+            totalLoadTime: 0
+        };
+
+        // 更新统计信息
+        const updateStats = () => {
+            document.getElementById('totalImages').textContent = stats.totalImages;
+            document.getElementById('loadedImages').textContent = stats.loadedImages;
+            const avgTime = stats.loadedImages > 0 ? Math.round(stats.totalLoadTime / stats.loadedImages) : 0;
+            document.getElementById('avgLoadTime').textContent = avgTime;
+        };
+
+        // 创建图片元素
+        const createImageElement = (imageInfo) => {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-container';
+
+            const placeholder = document.createElement('div');
+            placeholder.className = 'image-placeholder';
+
+            const spinner = document.createElement('div');
+            spinner.className = 'spinner';
+            placeholder.appendChild(spinner);
+
+            const img = document.createElement('img');
+            img.className = 'gallery-image';
+            img.alt = imageInfo.title;
+            img.dataset.src = imageInfo.url;
+
+            imageContainer.appendChild(placeholder);
+            imageContainer.appendChild(img);
+
+            const content = document.createElement('div');
+            content.className = 'gallery-content';
+
+            const title = document.createElement('h3');
+            title.className = 'gallery-title';
+            title.textContent = imageInfo.title;
+
+            const description = document.createElement('p');
+            description.className = 'gallery-description';
+            description.textContent = imageInfo.description;
+
+            const meta = document.createElement('div');
+            meta.className = 'gallery-meta';
+            meta.innerHTML = `<span>作者: ${imageInfo.author}</span><span>日期: ${imageInfo.date}</span>`;
+
+            content.appendChild(title);
+            content.appendChild(description);
+            content.appendChild(meta);
+
+            galleryItem.appendChild(imageContainer);
+            galleryItem.appendChild(content);
+
+            return galleryItem;
+        };
+
+        // 加载图片函数 - 使用defer延迟加载
+        const loadImage = (img, placeholder) => {
+            const startTime = performance.now();
+
+            const onLoad = () => {
+                // 图片加载完成后的处理
+                const loadTime = performance.now() - startTime;
+
+                // 使用defer延迟显示图片，给用户更平滑的体验
+                defer(() => {
+                    img.classList.add('loaded');
+                    placeholder.style.display = 'none';
+
+                    // 更新统计信息
+                    stats.loadedImages++;
+                    stats.totalLoadTime += loadTime;
+                    updateStats();
+
+                    console.log(`图片 ${img.alt} 加载完成，耗时: ${loadTime.toFixed(2)}ms`);
+                });
+            };
+
+            const onError = () => {
+                // 图片加载失败的处理
+                defer(() => {
+                    placeholder.innerHTML = '<p>图片加载失败</p>';
+                    console.error(`图片 ${img.alt} 加载失败`);
+                });
+            };
+
+            // 设置图片源并绑定事件
+            img.onload = onLoad;
+            img.onerror = onError;
+            img.src = img.dataset.src;
+        };
+
+        // 检查图片是否在视口中
+        const isInViewport = (element) => {
+            const rect = element.getBoundingClientRect();
+            return (
+                rect.top >= -300 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight + 300) &&
+                rect.right <= window.innerWidth
+            );
+        };
+
+        // 延迟加载可见区域内的图片
+        const lazyLoadImages = () => {
+            const images = document.querySelectorAll('.gallery-image:not(.loaded)');
+
+            images.forEach(img => {
+                if (isInViewport(img.parentElement)) {
+                    const placeholder = img.previousElementSibling;
+                    loadImage(img, placeholder);
+                }
+            });
+        };
+
+        // 添加图片到画廊
+        const addImagesToGallery = (images) => {
+            const gallery = document.getElementById('gallery');
+            const fragment = document.createDocumentFragment();
+
+            images.forEach(imageInfo => {
+                const item = createImageElement(imageInfo);
+                fragment.appendChild(item);
+                stats.totalImages++;
+            });
+
+            gallery.appendChild(fragment);
+            updateStats();
+
+            // 使用defer延迟执行懒加载，让DOM有时间渲染
+            defer(lazyLoadImages);
+        };
+
+        // 初始化加载
+        addImagesToGallery(imageData);
+
+        // 加载更多按钮点击事件
+        document.getElementById('loadMoreBtn').addEventListener('click', function () {
+            this.disabled = true;
+            this.textContent = '加载中...';
+
+            // 使用defer模拟网络延迟，实际应用中可能是API请求
+            defer(() => {
+                addImagesToGallery(moreImageData);
+
+                // 加载完成后更新按钮状态
+                this.textContent = '已加载全部';
+            }, 1000); // 模拟1秒的网络延迟
+        });
+
+        // 滚动事件监听 - 滚动时检查并加载可见图片
+        window.addEventListener('scroll', () => {
+            // 使用defer延迟执行，避免频繁触发影响性能
+            defer(lazyLoadImages);
+        });
+
+        // 窗口大小改变时重新检查
+        window.addEventListener('resize', () => {
+            defer(lazyLoadImages);
+        });
     </script>
 </body>
 

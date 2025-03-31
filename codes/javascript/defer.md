@@ -13,6 +13,10 @@
 const defer = (handler, ...args) => setTimeout(handler, 1, ...args);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/defer.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,14 +24,15 @@ const defer = (handler, ...args) => setTimeout(handler, 1, ...args);
 defer(console.log, 'a'), console.log('b'); // logs 'b' then 'a'
 
 // Example B:
-document.querySelector('#someElement').innerHTML = 'Hello';
-longRunningFunction();
-// Browser will not update the HTML until this has finished
+const longRunningFunction = () => {
+    document.querySelector('#test')!.innerHTML = 'Hello';
+}
 defer(longRunningFunction);
-// Browser will update the HTML then run the function
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/defer.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/defer.html" data-language="html"></div>
 
