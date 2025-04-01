@@ -225,7 +225,7 @@
 - [深度合并对象--2022-03-23](codes/javascript/deep-merge.md)
 - [对象分配默认值--2022-03-24](codes/javascript/defaults.md)
 - [延迟调用函数--2022-03-25](codes/javascript/defer.md)
-- [角度转弧度--2022-03-26](codes/javascript/degreesToRads.md)
+- [角度转弧度--2022-03-26](codes/javascript/degrees-to-rads.md)
 - [延迟函数--2022-04-03](codes/javascript/delay.md)
 - [检测设备类型--2022-04-04](codes/javascript/detectDeviceType.md)
 - [检测语言类型--2022-04-05](codes/javascript/detectLanguage.md)

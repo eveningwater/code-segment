@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图导航角度计算器</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            background-color: #e8f4f8;
+            overflow: hidden;
+        }
+
+        .map-point {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #e74c3c;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .map-point.start {
+            background-color: #2ecc71;
+        }
+
+        .map-point.end {
+            background-color: #3498db;
+        }
+
+        .path-line {
+            position: absolute;
+            height: 2px;
+            background-color: #9b59b6;
+            transform-origin: 0 0;
+            z-index: 5;
+        }
+
+        .compass {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .compass-arrow {
+            width: 40px;
+            height: 2px;
+            background-color: #e74c3c;
+            transform-origin: 0 50%;
+            position: relative;
+        }
+
+        .compass-arrow::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -4px;
+            border-left: 10px solid #e74c3c;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .instructions {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>地图导航角度计算器</h1>
+
+        <div class="instructions">
+            <p>拖动地图上的起点（绿色）和终点（蓝色）来规划路线。系统将实时计算方向角度、弧度值和距离信息。</p>
+        </div>
+
+        <div class="controls">
+            <button id="reset-btn">重置路线</button>
+            <button id="add-point-btn">添加途经点</button>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-card">
+                <h3>方向角度</h3>
+                <div id="direction-deg" class="info-value">0°</div>
+            </div>
+            <div class="info-card">
+                <h3>方向弧度</h3>
+                <div id="direction-rad" class="info-value">0 rad</div>
+            </div>
+            <div class="info-card">
+                <h3>距离</h3>
+                <div id="distance" class="info-value">0 km</div>
+            </div>
+        </div>
+
+        <div class="map-container" id="map">
+            <div class="compass">
+                <div class="compass-arrow" id="compass-arrow"></div>
+            </div>
+            <div class="map-point start" id="start-point" style="left: 100px; top: 200px;">S</div>
+            <div class="map-point end" id="end-point" style="left: 300px; top: 200px;">E</div>
+        </div>
+    </div>
+
+    <script>
+        // 角度转弧度函数
+        const degreesToRads = deg => (Math.PI * deg) / 180.0;
+
+        // 弧度转角度函数
+        const radsToDegrees = rad => (rad * 180.0) / Math.PI;
+
+        // 计算两点之间的距离（模拟实际地图上的距离计算）
+        const calculateDistance = (x1, y1, x2, y2) => {
+            // 在实际应用中，这里会使用地球坐标系的计算公式
+            // 这里使用简化的欧几里得距离，并模拟为公里单位
+            const pixelDistance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            // 模拟比例尺：1像素 = 0.05公里
+            return (pixelDistance * 0.05).toFixed(2);
+        };
+
+        // 计算两点之间的角度（0-360度）
+        const calculateAngle = (x1, y1, x2, y2) => {
+            // 计算角度（弧度）
+            let rad = Math.atan2(y2 - y1, x2 - x1);
+
+            // 转换为0-360度范围
+            let deg = radsToDegrees(rad);
+            if (deg < 0) deg += 360;
+
+            return {
+                degrees: deg.toFixed(1),
+                radians: rad.toFixed(3)
+            };
+        };
+
+        // 绘制路径线
+        const drawPath = (x1, y1, x2, y2) => {
+            // 移除旧的路径线
+            const oldLines = document.querySelectorAll('.path-line');
+            oldLines.forEach(line => line.remove());
+
+            // 计算距离和角度
+            const distance = calculateDistance(x1, y1, x2, y2);
+            const angle = calculateAngle(x1, y1, x2, y2);
+
+            // 创建新的路径线
+            const pathLine = document.createElement('div');
+            pathLine.className = 'path-line';
+            pathLine.style.left = `${x1}px`;
+            pathLine.style.top = `${y1}px`;
+            pathLine.style.width = `${Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))}px`;
+            pathLine.style.transform = `rotate(${angle.degrees}deg)`;
+
+            // 添加到地图
+            document.getElementById('map').appendChild(pathLine);
+
+            // 更新指南针方向
+            document.getElementById('compass-arrow').style.transform = `rotate(${angle.degrees}deg)`;
+
+            // 更新信息面板
+            document.getElementById('direction-deg').textContent = `${angle.degrees}°`;
+            document.getElementById('direction-rad').textContent = `${angle.radians} rad`;
+            document.getElementById('distance').textContent = `${distance} km`;
+
+            return { distance, angle };
+        };
+
+        // 初始化拖拽功能
+        const initDraggable = (element) => {
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            element.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                offsetX = e.clientX - element.getBoundingClientRect().left;
+                offsetY = e.clientY - element.getBoundingClientRect().top;
+                element.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const mapRect = document.getElementById('map').getBoundingClientRect();
+                let newX = e.clientX - mapRect.left - offsetX + 10; // +10 for center adjustment
+                let newY = e.clientY - mapRect.top - offsetY + 10;
+
+                // 限制在地图范围内
+                newX = Math.max(0, Math.min(newX, mapRect.width));
+                newY = Math.max(0, Math.min(newY, mapRect.height));
+
+                element.style.left = `${newX}px`;
+                element.style.top = `${newY}px`;
+
+                // 更新路径
+                updatePath();
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    element.style.cursor = 'pointer';
+                }
+            });
+        };
+
+        // 更新路径和计算
+        const updatePath = () => {
+            const startPoint = document.getElementById('start-point');
+            const endPoint = document.getElementById('end-point');
+
+            const startX = parseInt(startPoint.style.left);
+            const startY = parseInt(startPoint.style.top);
+            const endX = parseInt(endPoint.style.left);
+            const endY = parseInt(endPoint.style.top);
+
+            drawPath(startX, startY, endX, endY);
+        };
+
+        // 添加途经点
+        const addWaypoint = () => {
+            const map = document.getElementById('map');
+            const pointCount = document.querySelectorAll('.map-point').length - 1; // 减去起点
+
+            const newPoint = document.createElement('div');
+            newPoint.className = 'map-point';
+            newPoint.textContent = pointCount;
+            newPoint.style.left = `${200 + Math.random() * 100}px`;
+            newPoint.style.top = `${100 + Math.random() * 200}px`;
+
+            map.appendChild(newPoint);
+            initDraggable(newPoint);
+
+            // 重新计算路径（这里简化为只计算起点到终点）
+            updatePath();
+        };
+
+        // 重置路线
+        const resetPath = () => {
+            // 移除所有途经点
+            const waypoints = document.querySelectorAll('.map-point:not(.start):not(.end)');
+            waypoints.forEach(point => point.remove());
+
+            // 重置起点和终点位置
+            const startPoint = document.getElementById('start-point');
+            const endPoint = document.getElementById('end-point');
+
+            startPoint.style.left = '100px';
+            startPoint.style.top = '200px';
+            endPoint.style.left = '300px';
+            endPoint.style.top = '200px';
+
+            // 更新路径
+            updatePath();
+        };
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化拖拽
+            initDraggable(document.getElementById('start-point'));
+            initDraggable(document.getElementById('end-point'));
+
+            // 初始化按钮事件
+            document.getElementById('reset-btn').addEventListener('click', resetPath);
+            document.getElementById('add-point-btn').addEventListener('click', addWaypoint);
+
+            // 初始绘制路径
+            updatePath();
+        });
+    </script>
+</body>
+
+</html>
