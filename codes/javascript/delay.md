@@ -13,6 +13,10 @@
 const delay = (handler, ms, ...args) => setTimeout(handler, ms, ...args);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/delay.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,6 +30,8 @@ delay(
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/delay.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/delay.html" data-language="html"></div>
 
