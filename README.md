@@ -228,7 +228,7 @@
 - [角度转弧度--2022-03-26](codes/javascript/degrees-to-rads.md)
 - [延迟函数--2022-04-03](codes/javascript/delay.md)
 - [检测设备类型--2022-04-04](codes/javascript/detect-device-type.md)
-- [检测语言类型--2022-04-05](codes/javascript/detectLanguage.md)
+- [检测语言类型--2022-04-05](codes/javascript/detect-language.md)
 - [计算数组的差集--2022-04-06](codes/javascript/difference.md)
 - [计算数组的差集（通过指定的函数）--2022-04-07](codes/javascript/differenceBy.md)
 - [计算数组的差集（通过指定不为 true 的比较函数）--2022-04-08](codes/javascript/differenceWith.md)
