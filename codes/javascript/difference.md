@@ -16,6 +16,10 @@ const difference = (a, b) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/difference.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,6 +27,8 @@ difference([1, 2, 3, 3], [1, 2, 4]); // [3, 3]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/difference.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/difference.html" data-language="html"></div>
 
