@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品库存比对工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .description {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .warehouse-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .warehouse {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .warehouse h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .product-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .product-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-weight: bold;
+        }
+
+        .product-category {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .product-price {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f4f8;
+            border-radius: 8px;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #555;
+        }
+
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .results h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .difference-list {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .difference-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .difference-item:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        .difference-item:last-child {
+            border-bottom: none;
+        }
+
+        .no-differences {
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .highlight {
+            background-color: #e8f4fd;
+            border-left: 3px solid #3498db;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>产品库存比对工具</h1>
+        <p class="description">比较两个仓库的产品库存，找出仅在一个仓库存在的产品，优化库存分配和补货决策</p>
+
+        <div class="controls">
+            <div class="filter-options">
+                <div class="filter-group">
+                    <label for="compare-by">比较方式：</label>
+                    <select id="compare-by">
+                        <option value="id">按产品ID</option>
+                        <option value="category">按产品类别</option>
+                        <option value="priceRange">按价格区间</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="direction">比较方向：</label>
+                    <select id="direction">
+                        <option value="aToB">仓库A中有而仓库B中没有的产品</option>
+                        <option value="bToA">仓库B中有而仓库A中没有的产品</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button id="compare-btn">比较库存</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="warehouse-section">
+            <div class="warehouse">
+                <h2>仓库 A</h2>
+                <div class="product-list" id="warehouse-a"></div>
+            </div>
+            <div class="warehouse">
+                <h2>仓库 B</h2>
+                <div class="product-list" id="warehouse-b"></div>
+            </div>
+        </div>
+
+        <div class="results">
+            <h2>比对结果</h2>
+            <div class="difference-list" id="difference-results"></div>
+        </div>
+    </div>
+
+    <script>
+        // differenceBy 函数实现
+        const differenceBy = (a, b, handler) => {
+            const s = new Set(b.map(handler));
+            return a.filter(item => !s.has(handler(item)));
+        };
+
+        // 模拟产品数据
+        const warehouseA = [
+            { id: 1, name: "智能手机 X1", category: "电子产品", price: 4999, stock: 120 },
+            { id: 2, name: "笔记本电脑 Pro", category: "电子产品", price: 8999, stock: 45 },
+            { id: 3, name: "无线耳机", category: "配件", price: 899, stock: 200 },
+            { id: 4, name: "智能手表", category: "配件", price: 1599, stock: 75 },
+            { id: 5, name: "平板电脑", category: "电子产品", price: 3699, stock: 60 },
+            { id: 6, name: "移动电源", category: "配件", price: 199, stock: 300 },
+            { id: 7, name: "蓝牙音箱", category: "音频设备", price: 499, stock: 85 },
+            { id: 8, name: "游戏手柄", category: "配件", price: 299, stock: 110 }
+        ];
+
+        const warehouseB = [
+            { id: 1, name: "智能手机 X1", category: "电子产品", price: 4999, stock: 80 },
+            { id: 2, name: "笔记本电脑 Pro", category: "电子产品", price: 8999, stock: 30 },
+            { id: 5, name: "平板电脑", category: "电子产品", price: 3699, stock: 40 },
+            { id: 6, name: "移动电源", category: "配件", price: 199, stock: 250 },
+            { id: 9, name: "智能音箱", category: "音频设备", price: 899, stock: 60 },
+            { id: 10, name: "VR眼镜", category: "电子产品", price: 2999, stock: 25 },
+            { id: 11, name: "机械键盘", category: "配件", price: 599, stock: 70 },
+            { id: 12, name: "显示器", category: "电子产品", price: 1499, stock: 35 }
+        ];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            renderWarehouse('warehouse-a', warehouseA);
+            renderWarehouse('warehouse-b', warehouseB);
+            document.getElementById('compare-btn').addEventListener('click', compareWarehouses);
+        });
+
+        // 渲染仓库产品列表
+        function renderWarehouse(elementId, products) {
+            const warehouseElement = document.getElementById(elementId);
+            warehouseElement.innerHTML = '';
+
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-item';
+                productElement.innerHTML = `
+                    <div>
+                        <div class="product-name">${product.name} (ID: ${product.id})</div>
+                        <div class="product-category">${product.category} | 库存: ${product.stock}件</div>
+                    </div>
+                    <div class="product-price">¥${product.price.toFixed(2)}</div>
+                `;
+                warehouseElement.appendChild(productElement);
+            });
+        }
+
+        // 比较仓库
+        function compareWarehouses() {
+            const compareBy = document.getElementById('compare-by').value;
+            const direction = document.getElementById('direction').value;
+
+            let sourceWarehouse, targetWarehouse, resultLabel;
+
+            if (direction === 'aToB') {
+                sourceWarehouse = warehouseA;
+                targetWarehouse = warehouseB;
+                resultLabel = '仓库A中有而仓库B中没有的产品';
+            } else {
+                sourceWarehouse = warehouseB;
+                targetWarehouse = warehouseA;
+                resultLabel = '仓库B中有而仓库A中没有的产品';
+            }
+
+            let handler;
+            switch (compareBy) {
+                case 'id':
+                    handler = item => item.id;
+                    break;
+                case 'category':
+                    handler = item => item.category;
+                    break;
+                case 'priceRange':
+                    // 按价格区间分组（每1000元一个区间）
+                    handler = item => Math.floor(item.price / 1000);
+                    break;
+            }
+
+            // 使用differenceBy函数找出差异
+            const differences = differenceBy(sourceWarehouse, targetWarehouse, handler);
+
+            // 渲染结果
+            renderDifferences(differences, compareBy, resultLabel);
+
+            // 高亮显示差异项
+            highlightDifferences(differences, direction);
+        }
+
+        // 渲染差异结果
+        function renderDifferences(differences, compareBy, resultLabel) {
+            const resultsElement = document.getElementById('difference-results');
+            resultsElement.innerHTML = '';
+
+            if (differences.length === 0) {
+                resultsElement.innerHTML = `<div class="no-differences">没有找到差异项</div>`;
+                return;
+            }
+
+            // 添加结果标题
+            const titleElement = document.createElement('div');
+            titleElement.className = 'difference-item';
+            titleElement.innerHTML = `<strong>${resultLabel}</strong><span>共 ${differences.length} 项</span>`;
+            resultsElement.appendChild(titleElement);
+
+            // 添加差异项
+            differences.forEach(product => {
+                const diffElement = document.createElement('div');
+                diffElement.className = 'difference-item';
+                diffElement.setAttribute('data-id', product.id);
+
+                let comparisonInfo = '';
+                if (compareBy === 'id') {
+                    comparisonInfo = `产品ID: ${product.id}`;
+                } else if (compareBy === 'category') {
+                    comparisonInfo = `产品类别: ${product.category}`;
+                } else if (compareBy === 'priceRange') {
+                    const rangeStart = Math.floor(product.price / 1000) * 1000;
+                    const rangeEnd = rangeStart + 999;
+                    comparisonInfo = `价格区间: ¥${rangeStart} - ¥${rangeEnd}`;
+                }
+
+                diffElement.innerHTML = `
+                    <div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-category">${comparisonInfo} | 库存: ${product.stock}件</div>
+                    </div>
+                    <div class="product-price">¥${product.price.toFixed(2)}</div>
+                `;
+                resultsElement.appendChild(diffElement);
+            });
+        }
+
+        // 高亮显示差异项
+        function highlightDifferences(differences, direction) {
+            // 先清除所有高亮
+            document.querySelectorAll('.product-item').forEach(item => {
+                item.classList.remove('highlight');
+            });
+
+            // 高亮差异项
+            const warehouseId = direction === 'aToB' ? 'warehouse-a' : 'warehouse-b';
+            const warehouseElement = document.getElementById(warehouseId);
+
+            differences.forEach(diff => {
+                const productItems = warehouseElement.querySelectorAll('.product-item');
+                productItems.forEach((item, index) => {
+                    if (index === differences.indexOf(diff)) {
+                        item.classList.add('highlight');
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

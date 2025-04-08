@@ -17,6 +17,10 @@ const differenceBy = (a, b, handler) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/difference-by.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,8 +30,10 @@ differenceBy([{ x: 2 }, { x: 1 }], [{ x: 1 }], v => v.x); // [2]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/differenceBy.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/difference-by.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/difference-by.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/differenceBy.html"></iframe>
+<iframe src="codes/javascript/html/difference-by.html"></iframe>
