@@ -11,8 +11,12 @@
 
 ```js
 const differenceWith = (a, b, handler = (a, b) => a === b) =>
-  arr.filter(a => val.findIndex(b => handler(a, b)) === -1);
+  a.filter(v1 => b.findIndex(v2 => handler(v1, v2)) === -1);
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/difference-with.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -27,8 +31,10 @@ differenceWith([1, 1.2, 1.3], [1, 1.3, 1.5]); // [1.2]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/differenceWith.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/difference-with.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/difference-with.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/differenceWith.html"></iframe>
+<iframe src="codes/javascript/html/difference-with.html"></iframe>

@@ -220,7 +220,7 @@
 - [检测语言类型--2022-04-05](codes/javascript/detect-language.md)
 - [计算数组的差集--2022-04-06](codes/javascript/difference.md)
 - [计算数组的差集（通过指定的函数）--2022-04-07](codes/javascript/difference-by.md)
-- [计算数组的差集（通过指定不为 true 的比较函数）--2022-04-08](codes/javascript/differenceWith.md)
+- [计算数组的差集（通过指定不为 true 的比较函数）--2022-04-08](codes/javascript/difference-with.md)
 - [深度查找对象属性--2022-04-14](codes/javascript/dig.md)
 - [数字转换成数组--2022-04-15](codes/javascript/digitize.md)
 - [计算两点之间的距离--2022-04-19](codes/javascript/distance.md)

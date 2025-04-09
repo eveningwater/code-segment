@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品库存比对工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .result-count {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #e74c3c;
+        }
+
+        .highlight {
+            background-color: #ffffcc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card full-width">
+        <h1>产品库存比对工具</h1>
+        <p>此工具帮助您比较两个仓库的产品库存，找出仅存在于一个仓库的产品，优化库存分配和补货决策。</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>仓库A - 主仓库</h2>
+            <table id="warehouse-a">
+                <thead>
+                    <tr>
+                        <th>产品ID</th>
+                        <th>产品名称</th>
+                        <th>类别</th>
+                        <th>价格</th>
+                        <th>库存量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>仓库B - 分仓库</h2>
+            <table id="warehouse-b">
+                <thead>
+                    <tr>
+                        <th>产品ID</th>
+                        <th>产品名称</th>
+                        <th>类别</th>
+                        <th>价格</th>
+                        <th>库存量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card full-width">
+            <h2>比对设置</h2>
+            <div class="form-group">
+                <label for="compare-by">比对方式：</label>
+                <select id="compare-by">
+                    <option value="id">按产品ID比对</option>
+                    <option value="category">按产品类别比对</option>
+                    <option value="price">按价格区间比对</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="direction">查找：</label>
+                <select id="direction">
+                    <option value="a-not-b">仅在仓库A存在的产品</option>
+                    <option value="b-not-a">仅在仓库B存在的产品</option>
+                </select>
+            </div>
+            <button id="compare-btn" class="btn">开始比对</button>
+        </div>
+
+        <div class="card full-width">
+            <h2>比对结果</h2>
+            <div id="result-count" class="result-count"></div>
+            <table id="result-table">
+                <thead>
+                    <tr>
+                        <th>产品ID</th>
+                        <th>产品名称</th>
+                        <th>类别</th>
+                        <th>价格</th>
+                        <th>库存量</th>
+                        <th>所属仓库</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 比对结果将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // differenceWith 方法实现
+        const differenceWith = (a, b, handler = (a, b) => a === b) =>
+            a.filter(v1 => b.findIndex(v2 => handler(v1, v2)) === -1);
+
+        // 模拟产品数据
+        const warehouseAProducts = [
+            { id: 101, name: '智能手机A', category: '电子产品', price: 2999, stock: 150 },
+            { id: 102, name: '笔记本电脑B', category: '电子产品', price: 5999, stock: 75 },
+            { id: 103, name: '无线耳机C', category: '电子产品', price: 899, stock: 200 },
+            { id: 104, name: '智能手表D', category: '电子产品', price: 1299, stock: 120 },
+            { id: 201, name: '运动鞋E', category: '服装鞋帽', price: 499, stock: 300 },
+            { id: 202, name: '休闲裤F', category: '服装鞋帽', price: 199, stock: 250 },
+            { id: 301, name: '保温杯G', category: '日用百货', price: 129, stock: 400 },
+            { id: 302, name: '不锈钢锅H', category: '日用百货', price: 329, stock: 100 },
+        ];
+
+        const warehouseBProducts = [
+            { id: 101, name: '智能手机A', category: '电子产品', price: 2999, stock: 80 },
+            { id: 103, name: '无线耳机C', category: '电子产品', price: 899, stock: 150 },
+            { id: 105, name: '平板电脑I', category: '电子产品', price: 3499, stock: 60 },
+            { id: 201, name: '运动鞋E', category: '服装鞋帽', price: 499, stock: 200 },
+            { id: 203, name: '牛仔裤J', category: '服装鞋帽', price: 259, stock: 180 },
+            { id: 204, name: 'T恤K', category: '服装鞋帽', price: 99, stock: 400 },
+            { id: 301, name: '保温杯G', category: '日用百货', price: 129, stock: 250 },
+            { id: 303, name: '餐具套装L', category: '日用百货', price: 199, stock: 150 },
+        ];
+
+        // 初始化表格数据
+        function initTables() {
+            const warehouseATable = document.getElementById('warehouse-a').getElementsByTagName('tbody')[0];
+            const warehouseBTable = document.getElementById('warehouse-b').getElementsByTagName('tbody')[0];
+
+            // 清空表格
+            warehouseATable.innerHTML = '';
+            warehouseBTable.innerHTML = '';
+
+            // 填充仓库A数据
+            warehouseAProducts.forEach(product => {
+                const row = warehouseATable.insertRow();
+                row.insertCell(0).textContent = product.id;
+                row.insertCell(1).textContent = product.name;
+                row.insertCell(2).textContent = product.category;
+                row.insertCell(3).textContent = `¥${product.price}`;
+                row.insertCell(4).textContent = product.stock;
+            });
+
+            // 填充仓库B数据
+            warehouseBProducts.forEach(product => {
+                const row = warehouseBTable.insertRow();
+                row.insertCell(0).textContent = product.id;
+                row.insertCell(1).textContent = product.name;
+                row.insertCell(2).textContent = product.category;
+                row.insertCell(3).textContent = `¥${product.price}`;
+                row.insertCell(4).textContent = product.stock;
+            });
+        }
+
+        // 比对产品
+        function compareProducts() {
+            const compareBy = document.getElementById('compare-by').value;
+            const direction = document.getElementById('direction').value;
+            const resultTable = document.getElementById('result-table').getElementsByTagName('tbody')[0];
+            const resultCount = document.getElementById('result-count');
+
+            // 清空结果表格
+            resultTable.innerHTML = '';
+
+            let sourceProducts, targetProducts, warehouseLabel;
+            if (direction === 'a-not-b') {
+                sourceProducts = warehouseAProducts;
+                targetProducts = warehouseBProducts;
+                warehouseLabel = '仓库A';
+            } else {
+                sourceProducts = warehouseBProducts;
+                targetProducts = warehouseAProducts;
+                warehouseLabel = '仓库B';
+            }
+
+            // 根据比对方式选择比较函数
+            let compareHandler;
+            switch (compareBy) {
+                case 'id':
+                    compareHandler = (a, b) => a.id === b.id;
+                    break;
+                case 'category':
+                    compareHandler = (a, b) => a.category === b.category;
+                    break;
+                case 'price':
+                    // 按价格区间比对（相差100元内视为同一价格区间）
+                    compareHandler = (a, b) => Math.abs(a.price - b.price) <= 100;
+                    break;
+                default:
+                    compareHandler = (a, b) => a.id === b.id;
+            }
+
+            // 使用differenceWith方法进行比对
+            const diffProducts = differenceWith(sourceProducts, targetProducts, compareHandler);
+
+            // 显示结果数量
+            resultCount.textContent = `找到 ${diffProducts.length} 个仅在${warehouseLabel}存在的产品`;
+
+            // 填充结果表格
+            diffProducts.forEach(product => {
+                const row = resultTable.insertRow();
+                row.insertCell(0).textContent = product.id;
+                row.insertCell(1).textContent = product.name;
+                row.insertCell(2).textContent = product.category;
+                row.insertCell(3).textContent = `¥${product.price}`;
+                row.insertCell(4).textContent = product.stock;
+                row.insertCell(5).textContent = warehouseLabel;
+
+                // 高亮显示结果行
+                row.classList.add('highlight');
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initTables();
+            document.getElementById('compare-btn').addEventListener('click', compareProducts);
+        });
+    </script>
+</body>
+
+</html>
