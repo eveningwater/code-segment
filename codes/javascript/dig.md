@@ -18,11 +18,15 @@ const dig = (obj, target) =>
         if (acc !== undefined) {
           return acc;
         }
-        if (typeof val === 'object') {
+        if (typeof val === 'object' && val !== null) {
           return dig(val, target);
         }
       }, undefined);
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/dig.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -39,6 +43,8 @@ dig(data, 'level4'); // undefined
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/dig.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/dig.html" data-language="html"></div>
 

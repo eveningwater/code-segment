@@ -4,12 +4,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dig</title>
+    <title>JSON数据导航工具 - 基于dig方法</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-bottom: 15px;
+            color: #4a6baf;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .description {
+            grid-column: 1 / -1;
+            line-height: 1.6;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4a6baf;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3a5999;
+        }
+
+        .result {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #4a6baf;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        .error {
+            border-left-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .favorites {
+            margin-top: 20px;
+        }
+
+        .favorite-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .favorite-item button {
+            padding: 5px 10px;
+            background-color: #dc3545;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: #4a6baf;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="container">
+        <div class="header card">
+            <h1>JSON数据导航工具</h1>
+            <div>
+                <button id="clearBtn">清除数据</button>
+                <button id="exampleBtn">加载示例</button>
+            </div>
+        </div>
+
+        <div class="description card">
+            <p>这个工具使用 <code>dig</code> 方法在复杂的嵌套JSON对象中查找特定属性，无需知道确切的路径。适用于API响应解析、配置管理和数据可视化等场景。</p>
+            <p>在左侧输入或粘贴JSON数据，然后在右侧指定要查找的属性名称。系统会自动在嵌套结构中查找该属性并返回结果。</p>
+        </div>
+
+        <div class="card">
+            <h2>JSON数据</h2>
+            <textarea id="jsonInput" placeholder="在这里粘贴您的JSON数据..."></textarea>
+            <div class="input-group">
+                <button id="validateBtn">验证JSON</button>
+                <div id="validationResult"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" data-tab="search">搜索</div>
+                <div class="tab" data-tab="history">历史记录</div>
+                <div class="tab" data-tab="favorites">收藏夹</div>
+            </div>
+
+            <div class="tab-content active" id="search-tab">
+                <h2>查找属性</h2>
+                <div class="input-group">
+                    <label for="propertyInput">属性名称:</label>
+                    <input type="text" id="propertyInput" placeholder="输入要查找的属性名称...">
+                </div>
+                <button id="searchBtn">查找</button>
+                <button id="saveBtn">保存到收藏夹</button>
+                <h3>结果:</h3>
+                <div id="searchResult" class="result">结果将显示在这里...</div>
+            </div>
+
+            <div class="tab-content" id="history-tab">
+                <h2>搜索历史</h2>
+                <div id="historyList"></div>
+            </div>
+
+            <div class="tab-content" id="favorites-tab">
+                <h2>收藏夹</h2>
+                <div id="favoritesList" class="favorites"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // dig函数实现 - 在嵌套对象中查找特定属性
         const dig = (obj, target) =>
             target in obj
                 ? obj[target]
@@ -17,19 +236,316 @@
                     if (acc !== undefined) {
                         return acc;
                     }
-                    if (typeof val === 'object') {
+                    if (typeof val === 'object' && val !== null) {
                         return dig(val, target);
                     }
                 }, undefined);
-        const data = {
-            level1: {
-                level2: {
-                    level3: 'some data'
+
+        // DOM元素
+        const jsonInput = document.getElementById('jsonInput');
+        const propertyInput = document.getElementById('propertyInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const searchResult = document.getElementById('searchResult');
+        const validateBtn = document.getElementById('validateBtn');
+        const validationResult = document.getElementById('validationResult');
+        const clearBtn = document.getElementById('clearBtn');
+        const exampleBtn = document.getElementById('exampleBtn');
+        const historyList = document.getElementById('historyList');
+        const favoritesList = document.getElementById('favoritesList');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // 历史记录和收藏夹
+        let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+        // 示例数据
+        const exampleData = {
+            "apiResponse": {
+                "status": "success",
+                "code": 200,
+                "data": {
+                    "user": {
+                        "id": 12345,
+                        "username": "demo_user",
+                        "email": "user@example.com",
+                        "profile": {
+                            "fullName": "Demo User",
+                            "avatar": "https://example.com/avatar.jpg",
+                            "preferences": {
+                                "theme": "dark",
+                                "notifications": true,
+                                "language": "zh-CN"
+                            }
+                        },
+                        "subscription": {
+                            "plan": "premium",
+                            "validUntil": "2023-12-31",
+                            "features": ["advanced_search", "export", "api_access"]
+                        }
+                    },
+                    "products": [
+                        {
+                            "id": "prod-001",
+                            "name": "高级数据分析工具",
+                            "price": 299.99,
+                            "category": "tools",
+                            "metadata": {
+                                "version": "2.1.0",
+                                "releaseDate": "2023-06-15"
+                            }
+                        },
+                        {
+                            "id": "prod-002",
+                            "name": "云存储服务",
+                            "price": 99.99,
+                            "category": "services",
+                            "metadata": {
+                                "storageLimit": "500GB",
+                                "encryption": true
+                            }
+                        }
+                    ],
+                    "stats": {
+                        "lastLogin": "2023-09-15T08:30:45Z",
+                        "totalLogins": 42,
+                        "usageMetrics": {
+                            "apiCalls": 1250,
+                            "storage": {
+                                "used": "125GB",
+                                "total": "500GB",
+                                "percentage": 25
+                            }
+                        }
+                    }
+                },
+                "meta": {
+                    "requestId": "req-789-abc-123",
+                    "timestamp": "2023-09-15T10:30:00Z",
+                    "processingTime": 120
                 }
             }
         };
-        console.log(dig(data, 'level3')); // 'some data'
-        console.log(dig(data, 'level4')); // undefined
+
+        // 加载示例数据
+        exampleBtn.addEventListener('click', () => {
+            jsonInput.value = JSON.stringify(exampleData, null, 2);
+            validateJson();
+        });
+
+        // 清除数据
+        clearBtn.addEventListener('click', () => {
+            jsonInput.value = '';
+            propertyInput.value = '';
+            searchResult.textContent = '结果将显示在这里...';
+            searchResult.classList.remove('error');
+            validationResult.textContent = '';
+        });
+
+        // 验证JSON
+        validateBtn.addEventListener('click', validateJson);
+
+        function validateJson() {
+            try {
+                const json = JSON.parse(jsonInput.value);
+                validationResult.textContent = '✓ JSON格式有效';
+                validationResult.style.color = 'green';
+                return json;
+            } catch (error) {
+                validationResult.textContent = '✗ JSON格式无效: ' + error.message;
+                validationResult.style.color = 'red';
+                return null;
+            }
+        }
+
+        // 搜索属性
+        searchBtn.addEventListener('click', searchProperty);
+
+        function searchProperty() {
+            const json = validateJson();
+            const property = propertyInput.value.trim();
+
+            if (!json) {
+                searchResult.textContent = '请先输入有效的JSON数据';
+                searchResult.classList.add('error');
+                return;
+            }
+
+            if (!property) {
+                searchResult.textContent = '请输入要查找的属性名称';
+                searchResult.classList.add('error');
+                return;
+            }
+
+            try {
+                const result = dig(json, property);
+
+                if (result !== undefined) {
+                    const resultStr = typeof result === 'object'
+                        ? JSON.stringify(result, null, 2)
+                        : String(result);
+
+                    searchResult.textContent = resultStr;
+                    searchResult.classList.remove('error');
+
+                    // 添加到历史记录
+                    addToHistory(property, resultStr);
+                } else {
+                    searchResult.textContent = `未找到属性 "${property}"`;
+                    searchResult.classList.add('error');
+                }
+            } catch (error) {
+                searchResult.textContent = '搜索时出错: ' + error.message;
+                searchResult.classList.add('error');
+            }
+        }
+
+        // 添加到历史记录
+        function addToHistory(property, result) {
+            const historyItem = {
+                property,
+                result,
+                timestamp: new Date().toISOString()
+            };
+
+            // 避免重复
+            searchHistory = searchHistory.filter(item => item.property !== property);
+            searchHistory.unshift(historyItem);
+
+            // 限制历史记录数量
+            if (searchHistory.length > 10) {
+                searchHistory.pop();
+            }
+
+            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+            renderHistory();
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            historyList.innerHTML = '';
+
+            if (searchHistory.length === 0) {
+                historyList.innerHTML = '<p>暂无搜索历史</p>';
+                return;
+            }
+
+            searchHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+
+                const date = new Date(item.timestamp);
+                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+
+                historyItem.innerHTML = `
+                    <strong>${item.property}</strong>
+                    <div><small>${formattedDate}</small></div>
+                `;
+
+                historyItem.addEventListener('click', () => {
+                    propertyInput.value = item.property;
+                    searchResult.textContent = item.result;
+                    searchResult.classList.remove('error');
+                    switchTab('search');
+                });
+
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // 保存到收藏夹
+        saveBtn.addEventListener('click', () => {
+            const property = propertyInput.value.trim();
+            const result = searchResult.textContent;
+
+            if (!property || result === '结果将显示在这里...' || searchResult.classList.contains('error')) {
+                alert('请先进行有效的搜索');
+                return;
+            }
+
+            // 避免重复
+            if (favorites.some(item => item.property === property)) {
+                alert('此属性已在收藏夹中');
+                return;
+            }
+
+            favorites.push({
+                property,
+                result,
+                timestamp: new Date().toISOString()
+            });
+
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            renderFavorites();
+            alert('已添加到收藏夹');
+        });
+
+        // 渲染收藏夹
+        function renderFavorites() {
+            favoritesList.innerHTML = '';
+
+            if (favorites.length === 0) {
+                favoritesList.innerHTML = '<p>暂无收藏项目</p>';
+                return;
+            }
+
+            favorites.forEach((item, index) => {
+                const favoriteItem = document.createElement('div');
+                favoriteItem.className = 'favorite-item';
+
+                favoriteItem.innerHTML = `
+                    <div>
+                        <strong>${item.property}</strong>
+                    </div>
+                    <button class="remove-btn" data-index="${index}">删除</button>
+                `;
+
+                favoriteItem.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('remove-btn')) {
+                        propertyInput.value = item.property;
+                        searchResult.textContent = item.result;
+                        searchResult.classList.remove('error');
+                        switchTab('search');
+                    }
+                });
+
+                favoritesList.appendChild(favoriteItem);
+            });
+
+            // 删除收藏项
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(e.target.dataset.index);
+                    favorites.splice(index, 1);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    renderFavorites();
+                });
+            });
+        }
+
+        // 标签切换
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                switchTab(tabName);
+            });
+        });
+
+        function switchTab(tabName) {
+            tabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+
+            tabContents.forEach(content => {
+                content.classList.toggle('active', content.id === `${tabName}-tab`);
+            });
+        }
+
+        // 初始化
+        renderHistory();
+        renderFavorites();
     </script>
 </body>
 
