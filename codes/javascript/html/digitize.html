@@ -1,18 +1,378 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>digitize</title>
+    <title>信用卡号验证与分析系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .card-input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card-info,
+        .card-analysis {
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-info h2,
+        .card-analysis h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .card-digits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .digit {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #3498db;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .card-type {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-type img {
+            width: 50px;
+            margin-right: 10px;
+        }
+
+        .validation-result {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .valid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .invalid {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .card-stats {
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="container">
+        <h1>信用卡号验证与分析系统</h1>
+
+        <div class="card-input-section">
+            <div class="input-group">
+                <input type="text" id="cardNumberInput" placeholder="请输入信用卡号码..." maxlength="19">
+                <button id="validateBtn">验证与分析</button>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="result-section hidden" id="resultSection">
+            <div class="card-info">
+                <h2>卡号信息</h2>
+                <div class="card-type" id="cardType">
+                    <span>卡片类型: <strong id="cardBrand">未知</strong></span>
+                </div>
+                <div class="validation-result" id="validationResult"></div>
+                <h3>卡号分解</h3>
+                <div class="card-digits" id="cardDigits"></div>
+            </div>
+
+            <div class="card-analysis">
+                <h2>卡号分析</h2>
+                <div class="card-stats" id="cardStats">
+                    <div class="stat-item">
+                        <span>卡号长度:</span>
+                        <span id="cardLength">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>数字总和:</span>
+                        <span id="digitSum">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>偶数位数字:</span>
+                        <span id="evenDigits">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>奇数位数字:</span>
+                        <span id="oddDigits">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>校验位:</span>
+                        <span id="checkDigit">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // digitize函数 - 将数字拆分为单个数字数组
         const digitize = n => [...`${Math.abs(n)}`].map(i => parseInt(i));
-        console.log(digitize(123)); // [1, 2, 3]
-        console.log(digitize(-123)); // [1, 2, 3]
+
+        // 获取DOM元素
+        const cardNumberInput = document.getElementById('cardNumberInput');
+        const validateBtn = document.getElementById('validateBtn');
+        const resultSection = document.getElementById('resultSection');
+        const cardDigits = document.getElementById('cardDigits');
+        const validationResult = document.getElementById('validationResult');
+        const cardBrand = document.getElementById('cardBrand');
+        const cardLength = document.getElementById('cardLength');
+        const digitSum = document.getElementById('digitSum');
+        const evenDigits = document.getElementById('evenDigits');
+        const oddDigits = document.getElementById('oddDigits');
+        const checkDigit = document.getElementById('checkDigit');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // 卡号格式化 - 添加空格
+        cardNumberInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\s+/g, '');
+            if (value.length > 0) {
+                value = value.match(new RegExp('.{1,4}', 'g')).join(' ');
+            }
+            e.target.value = value;
+        });
+
+        // 验证按钮点击事件
+        validateBtn.addEventListener('click', function () {
+            // 清除之前的错误信息
+            errorMessage.style.display = 'none';
+
+            // 获取卡号并移除空格
+            const cardNumber = cardNumberInput.value.replace(/\s+/g, '');
+
+            // 验证输入
+            if (!cardNumber) {
+                showError('请输入信用卡号码');
+                return;
+            }
+
+            if (!/^\d+$/.test(cardNumber)) {
+                showError('信用卡号码只能包含数字');
+                return;
+            }
+
+            // 使用digitize函数将卡号拆分为数字数组
+            const digits = digitize(parseInt(cardNumber));
+
+            // 显示结果区域
+            resultSection.classList.remove('hidden');
+
+            // 显示卡号分解
+            displayCardDigits(digits);
+
+            // 验证卡号有效性（使用Luhn算法）
+            const isValid = validateCardWithLuhn(digits);
+
+            // 显示验证结果
+            displayValidationResult(isValid);
+
+            // 识别卡片类型
+            identifyCardType(cardNumber);
+
+            // 分析卡号
+            analyzeCardNumber(digits);
+        });
+
+        // 显示卡号分解
+        function displayCardDigits(digits) {
+            cardDigits.innerHTML = '';
+            digits.forEach(digit => {
+                const digitElement = document.createElement('div');
+                digitElement.className = 'digit';
+                digitElement.textContent = digit;
+                cardDigits.appendChild(digitElement);
+            });
+        }
+
+        // 使用Luhn算法验证卡号
+        function validateCardWithLuhn(digits) {
+            // 复制数组并反转（从右到左处理）
+            const reversedDigits = [...digits].reverse();
+
+            let sum = 0;
+            for (let i = 0; i < reversedDigits.length; i++) {
+                let digit = reversedDigits[i];
+                // 对偶数位置的数字进行处理（考虑到数组索引从0开始）
+                if (i % 2 === 1) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+                sum += digit;
+            }
+
+            return sum % 10 === 0;
+        }
+
+        // 显示验证结果
+        function displayValidationResult(isValid) {
+            validationResult.textContent = isValid ? '✓ 卡号有效' : '✗ 卡号无效';
+            validationResult.className = 'validation-result ' + (isValid ? 'valid' : 'invalid');
+        }
+
+        // 识别卡片类型
+        function identifyCardType(cardNumber) {
+            let brand = '未知';
+
+            // 简单的卡片类型识别规则
+            if (/^4/.test(cardNumber)) {
+                brand = 'Visa';
+            } else if (/^5[1-5]/.test(cardNumber)) {
+                brand = 'MasterCard';
+            } else if (/^3[47]/.test(cardNumber)) {
+                brand = 'American Express';
+            } else if (/^6(?:011|5)/.test(cardNumber)) {
+                brand = 'Discover';
+            } else if (/^35(?:2[89]|[3-8][0-9])/.test(cardNumber)) {
+                brand = 'JCB';
+            } else if (/^62/.test(cardNumber)) {
+                brand = 'UnionPay';
+            }
+
+            cardBrand.textContent = brand;
+        }
+
+        // 分析卡号
+        function analyzeCardNumber(digits) {
+            // 卡号长度
+            cardLength.textContent = digits.length;
+
+            // 数字总和
+            const sum = digits.reduce((acc, curr) => acc + curr, 0);
+            digitSum.textContent = sum;
+
+            // 偶数位数字总和
+            const evenSum = digits.filter((_, i) => i % 2 === 1).reduce((acc, curr) => acc + curr, 0);
+            evenDigits.textContent = evenSum;
+
+            // 奇数位数字总和
+            const oddSum = digits.filter((_, i) => i % 2 === 0).reduce((acc, curr) => acc + curr, 0);
+            oddDigits.textContent = oddSum;
+
+            // 校验位（最后一位）
+            checkDigit.textContent = digits[digits.length - 1];
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            resultSection.classList.add('hidden');
+        }
     </script>
 </body>
 

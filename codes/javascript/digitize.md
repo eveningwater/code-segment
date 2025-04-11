@@ -14,6 +14,10 @@
 const digitize = n => [...`${Math.abs(n)}`].map(i => parseInt(i));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/digitize.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -22,6 +26,8 @@ digitize(-123); // [1, 2, 3]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/digitize.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/digitize.html" data-language="html"></div>
 
