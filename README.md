@@ -235,7 +235,7 @@
 - [深度查找对象属性--2022-04-14](codes/javascript/dig.md)
 - [数字转换成数组--2022-04-15](codes/javascript/digitize.md)
 - [计算两点之间的距离--2022-04-19](codes/javascript/distance.md)
-- [求除法的商和模--2022-04-20](codes/javascript/divmod.md)
+- [求除法的商和模--2022-04-20](codes/javascript/div-mod.md)
 - [截取数组--2022-04-21](codes/javascript/drop.md)
 - [截取数组(2)--2022-04-22](codes/javascript/dropRight.md)
 - [截取数组(3)--2022-04-23](codes/javascript/dropRightWhile.md)

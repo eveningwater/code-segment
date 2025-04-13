@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间单位转换器 - divMod应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .time-unit {
+            display: inline-block;
+            text-align: center;
+            margin: 0 10px;
+        }
+
+        .time-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .time-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .shortcuts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .shortcut-btn {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .shortcut-btn:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .history-section {
+            margin-top: 30px;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .history-value {
+            font-weight: bold;
+        }
+
+        .history-result {
+            color: #7f8c8d;
+        }
+
+        .clear-btn {
+            background-color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .live-preview {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>时间单位转换器</h1>
+        <p class="description">基于divMod方法的实用时间转换工具，适用于倒计时、视频时长等场景</p>
+
+        <div class="input-section">
+            <input type="number" id="seconds-input" placeholder="请输入秒数..." min="0">
+            <button id="convert-btn">转换</button>
+        </div>
+
+        <div class="shortcuts">
+            <button class="shortcut-btn" data-value="60">1分钟</button>
+            <button class="shortcut-btn" data-value="3600">1小时</button>
+            <button class="shortcut-btn" data-value="86400">1天</button>
+            <button class="shortcut-btn" data-value="604800">1周</button>
+            <button class="shortcut-btn" data-value="2592000">30天</button>
+        </div>
+
+        <div class="live-preview" id="live-preview"></div>
+
+        <div class="result-section" id="result-section">
+            <!-- 结果将在这里显示 -->
+        </div>
+
+        <div class="history-section">
+            <h2>转换历史</h2>
+            <div id="history-list">
+                <!-- 历史记录将在这里显示 -->
+            </div>
+            <button class="clear-btn" id="clear-history">清除历史记录</button>
+        </div>
+    </div>
+
+    <script>
+        // divMod函数：返回商和余数
+        const divMod = (x, y) => [Math.floor(x / y), x % y];
+
+        // 将秒数转换为天、小时、分钟和秒
+        function convertSeconds(totalSeconds) {
+            let seconds = parseInt(totalSeconds);
+
+            // 使用divMod计算天数和剩余秒数
+            const [days, remainingSecondsAfterDays] = divMod(seconds, 86400); // 86400 = 24 * 60 * 60
+
+            // 使用divMod计算小时数和剩余秒数
+            const [hours, remainingSecondsAfterHours] = divMod(remainingSecondsAfterDays, 3600); // 3600 = 60 * 60
+
+            // 使用divMod计算分钟数和剩余秒数
+            const [minutes, remainingSeconds] = divMod(remainingSecondsAfterHours, 60);
+
+            return {
+                days,
+                hours,
+                minutes,
+                seconds: remainingSeconds
+            };
+        }
+
+        // 格式化时间单位（添加复数形式）
+        function formatUnit(value, unit) {
+            return value === 1 ? `${value} ${unit}` : `${value} ${unit}s`;
+        }
+
+        // 格式化时间为可读字符串
+        function formatTime(timeObj) {
+            const parts = [];
+
+            if (timeObj.days > 0) {
+                parts.push(formatUnit(timeObj.days, '天'));
+            }
+
+            if (timeObj.hours > 0) {
+                parts.push(formatUnit(timeObj.hours, '小时'));
+            }
+
+            if (timeObj.minutes > 0) {
+                parts.push(formatUnit(timeObj.minutes, '分钟'));
+            }
+
+            if (timeObj.seconds > 0 || parts.length === 0) {
+                parts.push(formatUnit(timeObj.seconds, '秒'));
+            }
+
+            return parts.join(', ');
+        }
+
+        // 显示转换结果
+        function displayResult(seconds) {
+            const timeObj = convertSeconds(seconds);
+            const formattedTime = formatTime(timeObj);
+
+            const resultHTML = `
+                <div class="result-card">
+                    <div class="result-title">${seconds} 秒等于：</div>
+                    <div class="time-units">
+                        <div class="time-unit">
+                            <div class="time-value">${timeObj.days}</div>
+                            <div class="time-label">天</div>
+                        </div>
+                        <div class="time-unit">
+                            <div class="time-value">${timeObj.hours}</div>
+                            <div class="time-label">小时</div>
+                        </div>
+                        <div class="time-unit">
+                            <div class="time-value">${timeObj.minutes}</div>
+                            <div class="time-label">分钟</div>
+                        </div>
+                        <div class="time-unit">
+                            <div class="time-value">${timeObj.seconds}</div>
+                            <div class="time-label">秒</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('result-section').innerHTML = resultHTML;
+
+            // 添加到历史记录
+            addToHistory(seconds, formattedTime);
+        }
+
+        // 添加到历史记录
+        function addToHistory(seconds, result) {
+            const historyList = document.getElementById('history-list');
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <span class="history-value">${seconds} 秒</span>
+                <span class="history-result">${result}</span>
+            `;
+
+            // 添加点击事件，点击历史记录项可以重新显示结果
+            historyItem.addEventListener('click', () => {
+                document.getElementById('seconds-input').value = seconds;
+                displayResult(seconds);
+            });
+
+            // 将新的历史记录添加到顶部
+            historyList.insertBefore(historyItem, historyList.firstChild);
+
+            // 限制历史记录数量为10条
+            if (historyList.children.length > 10) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        // 实时预览
+        function updateLivePreview() {
+            const input = document.getElementById('seconds-input');
+            const livePreview = document.getElementById('live-preview');
+
+            if (input.value && !isNaN(input.value) && input.value > 0) {
+                const timeObj = convertSeconds(input.value);
+                livePreview.textContent = `预览: ${formatTime(timeObj)}`;
+            } else {
+                livePreview.textContent = '';
+            }
+        }
+
+        // 事件监听
+        document.addEventListener('DOMContentLoaded', () => {
+            const convertBtn = document.getElementById('convert-btn');
+            const secondsInput = document.getElementById('seconds-input');
+            const clearHistoryBtn = document.getElementById('clear-history');
+            const shortcutBtns = document.querySelectorAll('.shortcut-btn');
+
+            // 转换按钮点击事件
+            convertBtn.addEventListener('click', () => {
+                const seconds = secondsInput.value;
+                if (seconds && !isNaN(seconds) && seconds > 0) {
+                    displayResult(seconds);
+                } else {
+                    alert('请输入有效的秒数！');
+                }
+            });
+
+            // 输入框回车事件
+            secondsInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    convertBtn.click();
+                }
+                updateLivePreview();
+            });
+
+            // 输入框变化事件（实时预览）
+            secondsInput.addEventListener('input', updateLivePreview);
+
+            // 清除历史记录按钮点击事件
+            clearHistoryBtn.addEventListener('click', () => {
+                document.getElementById('history-list').innerHTML = '';
+            });
+
+            // 快捷按钮点击事件
+            shortcutBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const value = btn.getAttribute('data-value');
+                    secondsInput.value = value;
+                    updateLivePreview();
+                    displayResult(value);
+                });
+            });
+
+            // 初始化时显示一个示例
+            secondsInput.value = 3661; // 1小时1分1秒
+            updateLivePreview();
+            displayResult(3661);
+        });
+    </script>
+</body>
+
+</html>
