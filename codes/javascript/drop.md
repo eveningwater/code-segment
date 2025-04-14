@@ -13,6 +13,10 @@
 const drop = (arr, n = 1) => arr.slice(n);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/drop.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -22,6 +26,8 @@ drop([1, 2, 3], 42); // []
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/drop.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/drop.html" data-language="html"></div>
 

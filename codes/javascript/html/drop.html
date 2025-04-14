@@ -1,19 +1,423 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>drop</title>
+    <title>照片库管理工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .controls {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+        }
+
+        label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .photo-container {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-info {
+            padding: 15px;
+        }
+
+        .photo-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .photo-date {
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        .thumbnails {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 15px 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 60px;
+            flex-shrink: 0;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .thumbnail.active {
+            border-color: #3498db;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+            color: #777;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="container">
+        <h1>照片库管理工具</h1>
+
+        <div class="controls">
+            <div class="controls-row">
+                <div class="control-group">
+                    <label for="skipCount">跳过数量:</label>
+                    <input type="number" id="skipCount" min="0" value="0">
+                    <button id="applySkip">应用</button>
+                </div>
+
+                <div class="control-group">
+                    <button id="resetView">重置视图</button>
+                    <button id="batchSelect" style="margin-left: 10px;">批量选择</button>
+                </div>
+            </div>
+
+            <div id="batchControls" style="display: none; margin-top: 10px;">
+                <button id="selectAll">全选</button>
+                <button id="deselectAll" style="margin-left: 10px;">取消全选</button>
+                <button id="downloadSelected" style="margin-left: 10px;">下载选中</button>
+                <button id="deleteSelected" style="margin-left: 10px;">删除选中</button>
+            </div>
+        </div>
+
+        <div class="thumbnails" id="thumbnails"></div>
+
+        <div class="photo-grid" id="photoGrid"></div>
+
+        <div class="status" id="status"></div>
+    </div>
+
     <script>
+        // 使用drop函数从数组中跳过指定数量的元素
         const drop = (arr, n = 1) => arr.slice(n);
-        console.log(drop([1, 2, 3])); // [2, 3]
-        console.log(drop([1, 2, 3], 2)); // [3]
-        console.log(drop([1, 2, 3], 42)); // []
+
+        // 模拟照片数据
+        const allPhotos = [
+            { id: 1, title: '海滩日落', date: '2023-06-15', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=500&fit=crop' },
+            { id: 2, title: '城市天际线', date: '2023-07-22', url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=500&h=500&fit=crop' },
+            { id: 3, title: '山脉风景', date: '2023-08-03', url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=500&h=500&fit=crop' },
+            { id: 4, title: '森林小径', date: '2023-08-10', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=500&fit=crop' },
+            { id: 5, title: '湖泊倒影', date: '2023-09-05', url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=500&h=500&fit=crop' },
+            { id: 6, title: '雪山景观', date: '2023-09-18', url: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=500&h=500&fit=crop' },
+            { id: 7, title: '热带海滩', date: '2023-10-02', url: 'https://images.unsplash.com/photo-1520454974749-611b7248ffdb?w=500&h=500&fit=crop' },
+            { id: 8, title: '沙漠日出', date: '2023-10-15', url: 'https://images.unsplash.com/photo-1682686581362-796145f0e123?w=500&h=500&fit=crop' },
+            { id: 9, title: '瀑布景观', date: '2023-11-07', url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=500&h=500&fit=crop' },
+            { id: 10, title: '极光夜空', date: '2023-11-20', url: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=500&h=500&fit=crop' },
+            { id: 11, title: '城市夜景', date: '2023-12-01', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=500&h=500&fit=crop' },
+            { id: 12, title: '田园风光', date: '2023-12-15', url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=500&fit=crop' },
+        ];
+
+        let currentPhotos = [...allPhotos];
+        let selectedPhotos = [];
+        let isSelectionMode = false;
+
+        // DOM元素
+        const photoGrid = document.getElementById('photoGrid');
+        const thumbnails = document.getElementById('thumbnails');
+        const skipCountInput = document.getElementById('skipCount');
+        const applySkipBtn = document.getElementById('applySkip');
+        const resetViewBtn = document.getElementById('resetView');
+        const batchSelectBtn = document.getElementById('batchSelect');
+        const batchControls = document.getElementById('batchControls');
+        const selectAllBtn = document.getElementById('selectAll');
+        const deselectAllBtn = document.getElementById('deselectAll');
+        const downloadSelectedBtn = document.getElementById('downloadSelected');
+        const deleteSelectedBtn = document.getElementById('deleteSelected');
+        const statusEl = document.getElementById('status');
+
+        // 渲染照片网格
+        function renderPhotoGrid(photos) {
+            photoGrid.innerHTML = '';
+
+            if (photos.length === 0) {
+                statusEl.textContent = '没有照片可显示';
+                return;
+            }
+
+            statusEl.textContent = `显示 ${photos.length} 张照片`;
+
+            photos.forEach(photo => {
+                const photoCard = document.createElement('div');
+                photoCard.className = 'photo-card';
+                photoCard.dataset.id = photo.id;
+
+                if (isSelectionMode) {
+                    photoCard.style.position = 'relative';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.style.position = 'absolute';
+                    checkbox.style.top = '10px';
+                    checkbox.style.right = '10px';
+                    checkbox.style.width = '20px';
+                    checkbox.style.height = '20px';
+                    checkbox.style.zIndex = '1';
+                    checkbox.checked = selectedPhotos.includes(photo.id);
+
+                    checkbox.addEventListener('change', () => {
+                        if (checkbox.checked) {
+                            if (!selectedPhotos.includes(photo.id)) {
+                                selectedPhotos.push(photo.id);
+                            }
+                        } else {
+                            selectedPhotos = selectedPhotos.filter(id => id !== photo.id);
+                        }
+                        updateThumbnailSelection();
+                    });
+
+                    photoCard.appendChild(checkbox);
+                }
+
+                photoCard.innerHTML += `
+                    <div class="photo-container">
+                        <img src="${photo.url}" alt="${photo.title}">
+                    </div>
+                    <div class="photo-info">
+                        <div class="photo-title">${photo.title}</div>
+                        <div class="photo-date">${photo.date}</div>
+                    </div>
+                `;
+
+                photoGrid.appendChild(photoCard);
+            });
+        }
+
+        // 渲染缩略图
+        function renderThumbnails(photos) {
+            thumbnails.innerHTML = '';
+
+            allPhotos.forEach((photo, index) => {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'thumbnail';
+                if (photos.some(p => p.id === photo.id)) {
+                    thumbnail.classList.add('active');
+                }
+                if (selectedPhotos.includes(photo.id)) {
+                    thumbnail.style.border = '2px solid #e74c3c';
+                }
+
+                thumbnail.innerHTML = `<img src="${photo.url}" alt="${photo.title}">`;
+
+                thumbnail.addEventListener('click', () => {
+                    const skipCount = index;
+                    skipCountInput.value = skipCount;
+                    applySkip.click();
+                });
+
+                thumbnails.appendChild(thumbnail);
+            });
+        }
+
+        // 更新缩略图选择状态
+        function updateThumbnailSelection() {
+            const thumbnailElements = thumbnails.querySelectorAll('.thumbnail');
+
+            thumbnailElements.forEach((thumbnail, index) => {
+                if (selectedPhotos.includes(allPhotos[index].id)) {
+                    thumbnail.style.border = '2px solid #e74c3c';
+                } else {
+                    thumbnail.style.border = thumbnail.classList.contains('active') ?
+                        '2px solid #3498db' : '2px solid transparent';
+                }
+            });
+        }
+
+        // 应用跳过功能
+        applySkipBtn.addEventListener('click', () => {
+            const skipCount = parseInt(skipCountInput.value) || 0;
+
+            if (skipCount >= allPhotos.length) {
+                currentPhotos = [];
+                statusEl.textContent = '跳过数量超过照片总数，没有照片可显示';
+            } else {
+                // 使用drop函数跳过指定数量的照片
+                currentPhotos = drop(allPhotos, skipCount);
+                statusEl.textContent = `已跳过前 ${skipCount} 张照片，显示剩余 ${currentPhotos.length} 张`;
+            }
+
+            renderPhotoGrid(currentPhotos);
+            renderThumbnails(currentPhotos);
+        });
+
+        // 重置视图
+        resetViewBtn.addEventListener('click', () => {
+            skipCountInput.value = 0;
+            currentPhotos = [...allPhotos];
+            renderPhotoGrid(currentPhotos);
+            renderThumbnails(currentPhotos);
+            statusEl.textContent = `显示全部 ${currentPhotos.length} 张照片`;
+        });
+
+        // 批量选择模式
+        batchSelectBtn.addEventListener('click', () => {
+            isSelectionMode = !isSelectionMode;
+            batchSelectBtn.textContent = isSelectionMode ? '取消批量选择' : '批量选择';
+            batchControls.style.display = isSelectionMode ? 'block' : 'none';
+            renderPhotoGrid(currentPhotos);
+        });
+
+        // 全选
+        selectAllBtn.addEventListener('click', () => {
+            selectedPhotos = currentPhotos.map(photo => photo.id);
+            renderPhotoGrid(currentPhotos);
+            updateThumbnailSelection();
+        });
+
+        // 取消全选
+        deselectAllBtn.addEventListener('click', () => {
+            selectedPhotos = [];
+            renderPhotoGrid(currentPhotos);
+            updateThumbnailSelection();
+        });
+
+        // 下载选中
+        downloadSelectedBtn.addEventListener('click', () => {
+            if (selectedPhotos.length === 0) {
+                alert('请先选择要下载的照片');
+                return;
+            }
+
+            alert(`已开始下载 ${selectedPhotos.length} 张照片`);
+            // 实际应用中，这里会调用下载API
+        });
+
+        // 删除选中
+        deleteSelectedBtn.addEventListener('click', () => {
+            if (selectedPhotos.length === 0) {
+                alert('请先选择要删除的照片');
+                return;
+            }
+
+            if (confirm(`确定要删除选中的 ${selectedPhotos.length} 张照片吗？`)) {
+                // 从当前显示的照片中移除选中的照片
+                currentPhotos = currentPhotos.filter(photo => !selectedPhotos.includes(photo.id));
+
+                // 从所有照片中移除选中的照片
+                for (let i = allPhotos.length - 1; i >= 0; i--) {
+                    if (selectedPhotos.includes(allPhotos[i].id)) {
+                        allPhotos.splice(i, 1);
+                    }
+                }
+
+                selectedPhotos = [];
+                renderPhotoGrid(currentPhotos);
+                renderThumbnails(currentPhotos);
+                statusEl.textContent = `已删除选中照片，当前显示 ${currentPhotos.length} 张照片`;
+            }
+        });
+
+        // 初始化页面
+        renderPhotoGrid(currentPhotos);
+        renderThumbnails(currentPhotos);
     </script>
 </body>
 
