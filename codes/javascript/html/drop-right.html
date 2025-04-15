@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理系统 - dropRight应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .task-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .task-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .task-item {
+            padding: 12px 15px;
+            border-left: 4px solid #3498db;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background-color: #eef7ff;
+        }
+
+        .task-item .task-date {
+            color: #7f8c8d;
+            font-size: 0.85em;
+        }
+
+        .task-item .task-priority {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .priority-high {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .priority-medium {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .priority-low {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .empty-list {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .info-panel {
+            background-color: #eef7ff;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .code-block {
+            background-color: #f8f8f8;
+            border-left: 4px solid #2c3e50;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>任务管理系统</h1>
+
+        <div class="task-controls">
+            <select id="dropCount">
+                <option value="1">移除最近1个任务</option>
+                <option value="2">移除最近2个任务</option>
+                <option value="3">移除最近3个任务</option>
+                <option value="5">移除最近5个任务</option>
+            </select>
+            <button id="dropButton">应用dropRight</button>
+        </div>
+
+        <ul id="taskList" class="task-list"></ul>
+
+        <div class="info-panel">
+            <h3>dropRight函数说明</h3>
+            <p>dropRight函数用于从数组末尾移除指定数量的元素，返回剩余元素组成的新数组。</p>
+            <div class="code-block">
+                const dropRight = (arr, n = 1) => arr.slice(0, -n);
+            </div>
+            <p>在本应用中，我们使用dropRight函数来移除任务列表中最近添加的任务。</p>
+        </div>
+    </div>
+
+    <script>
+        // 保留原始的dropRight函数实现
+        const dropRight = (arr, n = 1) => arr.slice(0, -n);
+
+        // 示例任务数据
+        let tasks = [
+            { id: 1, name: "完成项目文档", date: "2023-06-15", priority: "high" },
+            { id: 2, name: "客户会议准备", date: "2023-06-16", priority: "medium" },
+            { id: 3, name: "代码审查", date: "2023-06-17", priority: "medium" },
+            { id: 4, name: "更新测试用例", date: "2023-06-18", priority: "low" },
+            { id: 5, name: "部署新功能", date: "2023-06-19", priority: "high" },
+            { id: 6, name: "团队周会", date: "2023-06-20", priority: "medium" },
+            { id: 7, name: "修复已知bug", date: "2023-06-21", priority: "high" },
+        ];
+
+        // 获取DOM元素
+        const taskList = document.getElementById('taskList');
+        const dropButton = document.getElementById('dropButton');
+        const dropCount = document.getElementById('dropCount');
+
+        // 渲染任务列表
+        function renderTasks() {
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<div class="empty-list">没有待处理的任务</div>';
+                return;
+            }
+
+            taskList.innerHTML = '';
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'task-item';
+                li.innerHTML = `
+                    <span>${task.name}</span>
+                    <div>
+                        <span class="task-date">${task.date}</span>
+                        <span class="task-priority priority-${task.priority}">${getPriorityText(task.priority)}</span>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+
+        // 获取优先级文本
+        function getPriorityText(priority) {
+            switch (priority) {
+                case 'high': return '高';
+                case 'medium': return '中';
+                case 'low': return '低';
+                default: return '';
+            }
+        }
+
+        // 应用dropRight函数移除最近的任务
+        function applyDropRight() {
+            const count = parseInt(dropCount.value);
+            if (count >= tasks.length) {
+                alert(`当前只有${tasks.length}个任务，无法移除${count}个任务！`);
+                return;
+            }
+
+            // 使用dropRight函数移除最近的任务
+            const removedTasks = tasks.slice(-count);
+            tasks = dropRight(tasks, count);
+
+            // 显示移除的任务信息
+            const removedNames = removedTasks.map(t => t.name).join('、');
+            alert(`已移除${count}个最近的任务：${removedNames}`);
+
+            // 重新渲染任务列表
+            renderTasks();
+
+            // 在控制台显示结果
+            console.log('应用dropRight后的任务列表:', tasks);
+            console.log('被移除的任务:', removedTasks);
+        }
+
+        // 添加事件监听
+        dropButton.addEventListener('click', applyDropRight);
+
+        // 初始渲染
+        renderTasks();
+
+        // 控制台输出原始dropRight函数的示例
+        console.log('原始dropRight函数示例:');
+        console.log(dropRight([1, 2, 3])); // [1, 2]
+        console.log(dropRight([1, 2, 3], 2)); // [1]
+        console.log(dropRight([1, 2, 3], 42)); // []
+    </script>
+</body>
+
+</html>
