@@ -17,16 +17,22 @@ const dropRightWhile = (arr, handler) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/drop-right-while.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
-dropRightWhile([1, 2, 3, 4], n => n < 3); // [1, 2]
+dropRightWhile([1, 2, 3, 4], (n) => n < 3); // [1, 2]
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/dropRightWhile.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/drop-right-while.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/drop-right-while.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/dropRightWhile.html"></iframe>
+<iframe src="codes/javascript/html/drop-right-while.html"></iframe>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品库存管理系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .product-list {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .low-stock {
+            color: #ff4444;
+        }
+
+        .expired {
+            color: #ff0000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>商品库存管理系统</h1>
+    <div class="controls">
+        <button onclick="filterLowStock()">筛选低库存商品</button>
+        <button onclick="filterNearExpiry()">筛选临期商品</button>
+        <button onclick="resetList()">重置列表</button>
+    </div>
+    <div id="productList" class="product-list"></div>
+
+    <script>
+        // dropRightWhile函数实现
+        const dropRightWhile = (arr, handler) => {
+            let rightIndex = arr.length;
+            while (rightIndex-- && !handler(arr[rightIndex]));
+            return arr.slice(0, rightIndex + 1);
+        };
+
+        // 商品数据
+        let products = [
+            { name: '苹果', stock: 50, expiry: '2024-03-20' },
+            { name: '香蕉', stock: 30, expiry: '2024-02-25' },
+            { name: '橙子', stock: 10, expiry: '2024-02-15' },
+            { name: '葡萄', stock: 5, expiry: '2024-02-10' },
+            { name: '西瓜', stock: 15, expiry: '2024-03-15' }
+        ];
+
+        let currentProducts = [...products];
+
+        // 渲染商品列表
+        function renderProducts(productList) {
+            const container = document.getElementById('productList');
+            container.innerHTML = productList.map(product => {
+                const today = new Date();
+                const expiryDate = new Date(product.expiry);
+                const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+                const stockClass = product.stock < 20 ? 'low-stock' : '';
+                const expiryClass = daysUntilExpiry < 14 ? 'expired' : '';
+
+                return `
+                    <div class="product-item">
+                        <span class="${stockClass} ${expiryClass}">${product.name}</span>
+                        <div>
+                            <span>库存: ${product.stock}</span>
+                            <span style="margin-left: 20px;">到期时间: ${product.expiry}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 筛选低库存商品
+        function filterLowStock() {
+            currentProducts = dropRightWhile([...products], product => product.stock >= 20);
+            renderProducts(currentProducts);
+        }
+
+        // 筛选临期商品
+        function filterNearExpiry() {
+            const today = new Date();
+            currentProducts = dropRightWhile([...products], product => {
+                const expiryDate = new Date(product.expiry);
+                const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                return daysUntilExpiry >= 14;
+            });
+            renderProducts(currentProducts);
+        }
+
+        // 重置列表
+        function resetList() {
+            currentProducts = [...products];
+            renderProducts(currentProducts);
+        }
+
+        // 初始化显示
+        renderProducts(products);
+    </script>
+</body>
+
+</html>
