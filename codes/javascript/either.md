@@ -15,11 +15,15 @@ const either =
     f(...args) || g(...args);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/either.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
-const isEven = num => num % 2 === 0;
-const isPositive = num => num > 0;
+const isEven = (num) => num % 2 === 0;
+const isPositive = (num) => num > 0;
 const isPositiveOrEven = either(isPositive, isEven);
 isPositiveOrEven(4); // true
 isPositiveOrEven(3); // true
@@ -27,8 +31,10 @@ isPositiveOrEven(3); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isPositiveOrEven.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/either.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/either.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isPositiveOrEven.html"></iframe>
+<iframe src="codes/javascript/html/either.html"></iframe>

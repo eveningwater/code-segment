@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单验证系统 - Either函数应用</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        .validation-message {
+            margin-top: 5px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .success {
+            color: #2ecc71;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .code-section {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+        }
+
+        .code-section h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>注册表单验证</h1>
+    <form id="registrationForm">
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" placeholder="请输入用户名">
+            <div id="usernameValidation" class="validation-message"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">邮箱</label>
+            <input type="text" id="email" placeholder="请输入邮箱">
+            <div id="emailValidation" class="validation-message"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="请输入密码">
+            <div id="passwordValidation" class="validation-message"></div>
+        </div>
+
+        <button type="submit" id="submitBtn" disabled>注册</button>
+    </form>
+
+    <div class="code-section">
+        <h3>Either函数实现</h3>
+        <pre>
+<code class="language-javascript">
+// Either函数定义 - 组合两个函数，任一函数返回true则结果为true
+const either = (f, g) => (...args) => f(...args) || g(...args);
+
+// 示例：密码验证组合函数
+const hasMinLength = pwd => pwd.length >= 8;
+const hasSpecialChar = pwd => /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+
+// 使用either组合验证规则
+const isStrongPassword = either(
+    pwd => hasMinLength(pwd) && hasSpecialChar(pwd),
+    pwd => pwd.length >= 12
+);
+</code>
+        </pre>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://www.eveningwater.com/static/plugin/popbox.min.js"></script>
+    <script>
+        // Either函数定义 - 组合两个函数，任一函数返回true则结果为true
+        const either = (f, g) => (...args) => f(...args) || g(...args);
+
+        // 用户名验证函数
+        const isLongEnough = username => username.length >= 3;
+        const isAlphaNumeric = username => /^[a-zA-Z0-9]+$/.test(username);
+        const isValidUsername = either(
+            username => username === 'admin', // 特殊用户名直接通过
+            username => isLongEnough(username) && isAlphaNumeric(username) // 普通用户名需满足长度和字符要求
+        );
+
+        // 邮箱验证函数
+        const isGmail = email => /^[\w.-]+@gmail\.com$/.test(email);
+        const isCompanyEmail = email => /^[\w.-]+@company\.com$/.test(email);
+        const isValidEmail = either(isGmail, isCompanyEmail);
+
+        // 密码验证函数
+        const hasMinLength = pwd => pwd.length >= 8;
+        const hasSpecialChar = pwd => /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+        const isStrongPassword = either(
+            pwd => hasMinLength(pwd) && hasSpecialChar(pwd), // 8位以上且包含特殊字符
+            pwd => pwd.length >= 12 // 或者12位以上的长密码
+        );
+
+        // 获取DOM元素
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const usernameValidation = document.getElementById('usernameValidation');
+        const emailValidation = document.getElementById('emailValidation');
+        const passwordValidation = document.getElementById('passwordValidation');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // 表单验证状态
+        const formState = {
+            username: false,
+            email: false,
+            password: false
+        };
+
+        // 更新提交按钮状态
+        function updateSubmitButton() {
+            submitBtn.disabled = !(formState.username && formState.email && formState.password);
+        }
+
+        // 用户名输入验证
+        usernameInput.addEventListener('input', function () {
+            const username = this.value.trim();
+            if (!username) {
+                usernameValidation.textContent = '';
+                formState.username = false;
+            } else if (isValidUsername(username)) {
+                usernameValidation.textContent = '✓ 用户名有效';
+                usernameValidation.className = 'validation-message success';
+                formState.username = true;
+            } else {
+                usernameValidation.textContent = '✗ 用户名必须至少3个字符且只包含字母和数字';
+                usernameValidation.className = 'validation-message error';
+                formState.username = false;
+            }
+            updateSubmitButton();
+        });
+
+        // 邮箱输入验证
+        emailInput.addEventListener('input', function () {
+            const email = this.value.trim();
+            if (!email) {
+                emailValidation.textContent = '';
+                formState.email = false;
+            } else if (isValidEmail(email)) {
+                emailValidation.textContent = '✓ 邮箱有效';
+                emailValidation.className = 'validation-message success';
+                formState.email = true;
+            } else {
+                emailValidation.textContent = '✗ 邮箱必须是Gmail或公司邮箱';
+                emailValidation.className = 'validation-message error';
+                formState.email = false;
+            }
+            updateSubmitButton();
+        });
+
+        // 密码输入验证
+        passwordInput.addEventListener('input', function () {
+            const password = this.value;
+            if (!password) {
+                passwordValidation.textContent = '';
+                formState.password = false;
+            } else if (isStrongPassword(password)) {
+                passwordValidation.textContent = '✓ 密码强度足够';
+                passwordValidation.className = 'validation-message success';
+                formState.password = true;
+            } else {
+                passwordValidation.textContent = '✗ 密码必须至少8位且包含特殊字符，或至少12位';
+                passwordValidation.className = 'validation-message error';
+                formState.password = false;
+            }
+            updateSubmitButton();
+        });
+
+        // 表单提交处理
+        document.getElementById('registrationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            ewConfirm({
+                title: "温馨提示",
+                content: '注册成功！表单验证通过。'
+            });
+            // 在实际应用中，这里会发送数据到服务器
+        });
+        hljs.highlightAll();
+    </script>
+</body>
+
+</html>
