@@ -229,7 +229,7 @@
 - [截取数组(2)--2022-04-22](codes/javascript/drop-right.md)
 - [截取数组(3)--2022-04-23](codes/javascript/drop-right-while.md)
 - [二者之一--2022-04-25](codes/javascript/either.md)
-- [判断元素--2022-04-26](codes/javascript/elementContains.md)
+- [判断元素--2022-04-26](codes/javascript/element-contains.md)
 - [判断元素是否处于关注焦点状态--2022-04-27](codes/javascript/elementIsFocused.md)
 - [检测元素是否在视口可见--2022-04-28](codes/javascript/elementIsVisibleInViewport.md)
 - [比较两个值是否相等--2022-04-29](codes/javascript/equals.md)
