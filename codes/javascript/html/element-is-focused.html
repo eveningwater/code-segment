@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能表单验证系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+            outline: none;
+        }
+
+        .help-text {
+            position: absolute;
+            left: 0;
+            top: 100%;
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+
+        .help-text.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .validation-message {
+            font-size: 14px;
+            margin-top: 8px;
+            color: #e74c3c;
+            display: none;
+        }
+
+        .validation-message.success {
+            color: #2ecc71;
+        }
+
+        .validation-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #3a7bc8;
+        }
+
+        .submit-btn:disabled {
+            background-color: #b3b3b3;
+            cursor: not-allowed;
+        }
+
+        .form-status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .form-status.success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .form-status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>会员注册</h1>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" autocomplete="off">
+                <div class="help-text" id="usernameHelp">请输入3-16位字母、数字或下划线</div>
+                <div class="validation-message" id="usernameValidation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">电子邮箱</label>
+                <input type="email" id="email" name="email" autocomplete="off">
+                <div class="help-text" id="emailHelp">请输入有效的电子邮箱地址</div>
+                <div class="validation-message" id="emailValidation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password">
+                <div class="help-text" id="passwordHelp">密码需包含字母和数字，长度至少8位</div>
+                <div class="validation-message" id="passwordValidation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">确认密码</label>
+                <input type="password" id="confirmPassword" name="confirmPassword">
+                <div class="help-text" id="confirmPasswordHelp">请再次输入密码进行确认</div>
+                <div class="validation-message" id="confirmPasswordValidation"></div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>注册</button>
+        </form>
+        <div class="form-status" id="formStatus"></div>
+    </div>
+
+    <script>
+        // 核心函数：检查元素是否获得焦点
+        const elementIsFocused = el => el === document.activeElement;
+
+        // 获取所有表单元素
+        const form = document.getElementById('registrationForm');
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const submitBtn = document.getElementById('submitBtn');
+        const formStatus = document.getElementById('formStatus');
+
+        // 帮助文本和验证消息元素
+        const helpTexts = document.querySelectorAll('.help-text');
+        const validationMessages = document.querySelectorAll('.validation-message');
+
+        // 表单验证状态
+        const formValidation = {
+            username: false,
+            email: false,
+            password: false,
+            confirmPassword: false
+        };
+
+        // 验证规则
+        const validationRules = {
+            username: (value) => {
+                const regex = /^[a-zA-Z0-9_]{3,16}$/;
+                return regex.test(value) ? '' : '用户名必须是3-16位字母、数字或下划线';
+            },
+            email: (value) => {
+                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return regex.test(value) ? '' : '请输入有效的电子邮箱地址';
+            },
+            password: (value) => {
+                const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+                return regex.test(value) ? '' : '密码需包含字母和数字，长度至少8位';
+            },
+            confirmPassword: (value) => {
+                return value === passwordInput.value ? '' : '两次输入的密码不一致';
+            }
+        };
+
+        // 为所有输入框添加焦点事件监听器
+        const inputs = [usernameInput, emailInput, passwordInput, confirmPasswordInput];
+
+        inputs.forEach(input => {
+            // 焦点获取事件
+            input.addEventListener('focus', () => {
+                // 使用elementIsFocused检查元素是否获得焦点
+                if (elementIsFocused(input)) {
+                    // 显示对应的帮助文本
+                    const helpText = document.getElementById(`${input.id}Help`);
+                    helpText.classList.add('active');
+
+                    console.log(`${input.id} 获得了焦点`);
+                }
+            });
+
+            // 焦点失去事件
+            input.addEventListener('blur', () => {
+                // 隐藏帮助文本
+                const helpText = document.getElementById(`${input.id}Help`);
+                helpText.classList.remove('active');
+
+                // 验证输入
+                validateInput(input);
+            });
+
+            // 输入事件
+            input.addEventListener('input', () => {
+                // 如果当前输入框有焦点，实时验证
+                if (elementIsFocused(input)) {
+                    validateInput(input);
+                }
+
+                // 如果是密码框，同时验证确认密码框
+                if (input.id === 'password' && confirmPasswordInput.value) {
+                    validateInput(confirmPasswordInput);
+                }
+            });
+        });
+
+        // 验证单个输入框
+        function validateInput(input) {
+            const value = input.value.trim();
+            const fieldName = input.id;
+            const validationMessage = document.getElementById(`${fieldName}Validation`);
+
+            // 应用验证规则
+            const errorMessage = validationRules[fieldName](value);
+
+            if (errorMessage) {
+                // 验证失败
+                validationMessage.textContent = errorMessage;
+                validationMessage.classList.add('show');
+                validationMessage.classList.remove('success');
+                formValidation[fieldName] = false;
+                input.style.borderColor = '#e74c3c';
+            } else if (value) {
+                // 验证成功
+                validationMessage.textContent = '✓ 验证通过';
+                validationMessage.classList.add('show', 'success');
+                formValidation[fieldName] = true;
+                input.style.borderColor = '#2ecc71';
+            } else {
+                // 输入为空
+                validationMessage.classList.remove('show');
+                formValidation[fieldName] = false;
+                input.style.borderColor = '#ddd';
+            }
+
+            // 更新提交按钮状态
+            updateSubmitButton();
+        }
+
+        // 更新提交按钮状态
+        function updateSubmitButton() {
+            const allValid = Object.values(formValidation).every(valid => valid);
+            submitBtn.disabled = !allValid;
+        }
+
+        // 表单提交事件
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // 模拟表单提交
+            submitBtn.textContent = '提交中...';
+            submitBtn.disabled = true;
+
+            // 模拟网络请求
+            setTimeout(() => {
+                formStatus.textContent = '注册成功！欢迎加入我们！';
+                formStatus.classList.add('success');
+                form.reset();
+
+                // 重置验证状态
+                Object.keys(formValidation).forEach(key => {
+                    formValidation[key] = false;
+                });
+
+                // 重置输入框样式
+                inputs.forEach(input => {
+                    input.style.borderColor = '#ddd';
+                });
+
+                // 隐藏所有验证消息
+                validationMessages.forEach(msg => {
+                    msg.classList.remove('show');
+                });
+
+                submitBtn.textContent = '注册';
+            }, 1500);
+        });
+
+        // 添加一个实用功能：当用户点击其他地方时，检查哪个元素有焦点
+        document.addEventListener('click', (e) => {
+            const focusedElement = document.activeElement;
+            const focusedElementId = focusedElement.id;
+
+            // 使用elementIsFocused检查各个输入框的焦点状态
+            inputs.forEach(input => {
+                if (elementIsFocused(input)) {
+                    console.log(`当前焦点在: ${input.id}`);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
