@@ -242,7 +242,7 @@
 - [二者之一--2022-04-25](codes/javascript/either.md)
 - [判断元素--2022-04-26](codes/javascript/element-contains.md)
 - [判断元素是否处于关注焦点状态--2022-04-27](codes/javascript/element-is-focused.md)
-- [检测元素是否在视口可见--2022-04-28](codes/javascript/elementIsVisibleInViewport.md)
+- [检测元素是否在视口可见--2022-04-28](codes/javascript/element-is-visible-in-viewport.md)
 - [比较两个值是否相等--2022-04-29](codes/javascript/equals.md)
 - [转义正则表达式--2022-05-02](codes/javascript/escapeRegExp.md)
 - [计算两点之间的距离--2022-05-04](codes/javascript/euclideanDistance.md)
