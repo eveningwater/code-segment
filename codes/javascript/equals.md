@@ -21,7 +21,7 @@ const equals = (a, b) => {
   if (a instanceof Date && b instanceof Date) {
     return a.getTime() === b.getTime();
   }
-  if (!a || !b || (typeof a !== 'object' && typeof b !== 'object')) {
+  if (!a || !b || (typeof a !== "object" && typeof b !== "object")) {
     return a === b;
   }
   if (a.prototype !== b.prototype) {
@@ -31,21 +31,27 @@ const equals = (a, b) => {
   if (keys.length !== Object.keys(b).length) {
     return false;
   }
-  return keys.every(k => equals(a[k], b[k]));
+  return keys.every((k) => equals(a[k], b[k]));
 };
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/equals.ts" data-language="typescript"></div>
 
 > 调用方式:
 
 ```js
 equals(
-  { a: [2, { e: 3 }], b: [4], c: 'foo' },
-  { a: [2, { e: 3 }], b: [4], c: 'foo' }
+  { a: [2, { e: 3 }], b: [4], c: "foo" },
+  { a: [2, { e: 3 }], b: [4], c: "foo" }
 ); // true
 equals([1, 2, 3], { 0: 1, 1: 2, 2: 3 }); // true
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/equals.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/equals.html" data-language="html"></div>
 

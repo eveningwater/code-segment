@@ -4,11 +4,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>equals</title>
+    <title>JSON对象比较工具</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .json-editor {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .json-editor h2 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button.reset {
+            background-color: #f44336;
+        }
+
+        button.reset:hover {
+            background-color: #d32f2f;
+        }
+
+        button.example {
+            background-color: #2196F3;
+        }
+
+        button.example:hover {
+            background-color: #0b7dda;
+        }
+
+        .result {
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result h2 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        .equal {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .not-equal {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .diff-view {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .diff-added {
+            background-color: #e6ffed;
+            color: #22863a;
+        }
+
+        .diff-removed {
+            background-color: #ffeef0;
+            color: #cb2431;
+        }
+
+        .error {
+            color: #f44336;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
+    <h1>JSON对象比较工具</h1>
+
+    <div class="container">
+        <div class="json-editor">
+            <h2>对象 A</h2>
+            <textarea id="jsonA" placeholder="请输入有效的JSON对象..."></textarea>
+            <div id="errorA" class="error"></div>
+        </div>
+
+        <div class="json-editor">
+            <h2>对象 B</h2>
+            <textarea id="jsonB" placeholder="请输入有效的JSON对象..."></textarea>
+            <div id="errorB" class="error"></div>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button id="compareBtn">比较对象</button>
+        <button id="exampleBtn" class="example">加载示例</button>
+        <button id="resetBtn" class="reset">重置</button>
+    </div>
+
+    <div class="result" id="result">
+        <h2>比较结果</h2>
+        <p>请输入JSON对象并点击"比较对象"按钮</p>
+    </div>
+
     <script>
+        // 深度比较函数
         const equals = (a, b) => {
             if (a === b) {
                 return true;
@@ -28,11 +183,191 @@
             }
             return keys.every(k => equals(a[k], b[k]));
         };
-        console.log(equals(
-            { a: [2, { e: 3 }], b: [4], c: 'foo' },
-            { a: [2, { e: 3 }], b: [4], c: 'foo' }
-        )); // true
-        console.log(equals([1, 2, 3], { 0: 1, 1: 2, 2: 3 })); // true
+
+        // 查找差异的函数
+        const findDifferences = (a, b, path = '') => {
+            const differences = [];
+
+            // 如果两个值完全相等，返回空数组
+            if (a === b) return differences;
+
+            // 处理基本类型
+            if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) {
+                return [`${path}: ${JSON.stringify(a)} !== ${JSON.stringify(b)}`];
+            }
+
+            // 处理日期
+            if (a instanceof Date && b instanceof Date) {
+                if (a.getTime() !== b.getTime()) {
+                    return [`${path}: ${a.toISOString()} !== ${b.toISOString()}`];
+                }
+                return differences;
+            }
+
+            // 处理数组和对象
+            const keysA = Object.keys(a);
+            const keysB = Object.keys(b);
+
+            // 检查A中有但B中没有的键
+            for (const key of keysA) {
+                const currentPath = path ? `${path}.${key}` : key;
+
+                if (!keysB.includes(key)) {
+                    differences.push(`${currentPath}: 在对象B中不存在`);
+                    continue;
+                }
+
+                // 递归比较嵌套值
+                const nestedDiffs = findDifferences(a[key], b[key], currentPath);
+                differences.push(...nestedDiffs);
+            }
+
+            // 检查B中有但A中没有的键
+            for (const key of keysB) {
+                const currentPath = path ? `${path}.${key}` : key;
+
+                if (!keysA.includes(key)) {
+                    differences.push(`${currentPath}: 在对象A中不存在`);
+                }
+            }
+
+            return differences;
+        };
+
+        // DOM元素
+        const jsonATextarea = document.getElementById('jsonA');
+        const jsonBTextarea = document.getElementById('jsonB');
+        const errorADiv = document.getElementById('errorA');
+        const errorBDiv = document.getElementById('errorB');
+        const resultDiv = document.getElementById('result');
+        const compareBtn = document.getElementById('compareBtn');
+        const exampleBtn = document.getElementById('exampleBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // 解析JSON并处理错误
+        const parseJSON = (jsonStr, errorDiv) => {
+            errorDiv.textContent = '';
+            try {
+                return JSON.parse(jsonStr);
+            } catch (error) {
+                errorDiv.textContent = `解析错误: ${error.message}`;
+                return null;
+            }
+        };
+
+        // 比较两个JSON对象
+        const compareObjects = () => {
+            const objA = parseJSON(jsonATextarea.value, errorADiv);
+            const objB = parseJSON(jsonBTextarea.value, errorBDiv);
+
+            if (objA === null || objB === null) {
+                return;
+            }
+
+            const isEqual = equals(objA, objB);
+            const differences = isEqual ? [] : findDifferences(objA, objB);
+
+            // 显示结果
+            let resultHTML = `<h2>比较结果</h2>`;
+
+            if (isEqual) {
+                resultHTML += `<p><span class="equal">✓ 对象完全相等</span></p>`;
+            } else {
+                resultHTML += `<p><span class="not-equal">✗ 对象不相等</span></p>`;
+
+                if (differences.length > 0) {
+                    resultHTML += `<h3>差异详情:</h3>`;
+                    resultHTML += `<div class="diff-view">`;
+
+                    differences.forEach(diff => {
+                        if (diff.includes('不存在')) {
+                            if (diff.includes('对象B中不存在')) {
+                                resultHTML += `<div class="diff-removed">- ${diff}</div>`;
+                            } else {
+                                resultHTML += `<div class="diff-added">+ ${diff}</div>`;
+                            }
+                        } else {
+                            resultHTML += `<div>${diff}</div>`;
+                        }
+                    });
+
+                    resultHTML += `</div>`;
+                }
+            }
+
+            resultDiv.innerHTML = resultHTML;
+        };
+
+        // 加载示例数据
+        const loadExamples = () => {
+            const exampleA = {
+                user: {
+                    id: 1001,
+                    name: "张三",
+                    roles: ["admin", "editor"],
+                    preferences: {
+                        theme: "dark",
+                        notifications: true
+                    },
+                    lastLogin: "2023-05-15T08:30:00Z"
+                },
+                products: [
+                    { id: 1, name: "商品A", price: 99.99, inStock: true },
+                    { id: 2, name: "商品B", price: 149.99, inStock: false }
+                ],
+                settings: {
+                    currency: "CNY",
+                    language: "zh-CN"
+                }
+            };
+
+            const exampleB = {
+                user: {
+                    id: 1001,
+                    name: "张三",
+                    roles: ["admin", "editor", "viewer"],  // 添加了一个角色
+                    preferences: {
+                        theme: "light",  // 改变了主题
+                        notifications: true
+                    },
+                    lastLogin: "2023-05-15T08:30:00Z"
+                },
+                products: [
+                    { id: 1, name: "商品A", price: 89.99, inStock: true },  // 改变了价格
+                    { id: 2, name: "商品B", price: 149.99, inStock: false }
+                ],
+                settings: {
+                    currency: "CNY",
+                    language: "zh-CN"
+                },
+                newFeature: true  // 添加了新字段
+            };
+
+            jsonATextarea.value = JSON.stringify(exampleA, null, 2);
+            jsonBTextarea.value = JSON.stringify(exampleB, null, 2);
+
+            errorADiv.textContent = '';
+            errorBDiv.textContent = '';
+        };
+
+        // 重置表单
+        const resetForm = () => {
+            jsonATextarea.value = '';
+            jsonBTextarea.value = '';
+            errorADiv.textContent = '';
+            errorBDiv.textContent = '';
+            resultDiv.innerHTML = `<h2>比较结果</h2><p>请输入JSON对象并点击"比较对象"按钮</p>`;
+        };
+
+        // 事件监听器
+        compareBtn.addEventListener('click', compareObjects);
+        exampleBtn.addEventListener('click', loadExamples);
+        resetBtn.addEventListener('click', resetForm);
+
+        // 初始加载示例数据
+        loadExamples();
+        // 自动执行一次比较
+        compareObjects();
     </script>
 </body>
 
