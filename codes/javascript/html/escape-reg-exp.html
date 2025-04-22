@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正则表达式搜索工具</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .escaped-pattern {
+            font-family: monospace;
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        .match-result {
+            margin-top: 15px;
+        }
+
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 2px 0;
+        }
+
+        .example-list {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .example-item {
+            background-color: #e9f7fe;
+            border: 1px solid #c5e4f3;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .example-item:hover {
+            background-color: #d0ebf6;
+        }
+
+        .info-box {
+            background-color: #e9f7fe;
+            border-left: 4px solid #4CAF50;
+            padding: 10px 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>正则表达式搜索工具</h1>
+
+        <div class="info-box">
+            <p>这个工具使用 <code>escapeRegExp</code> 函数来安全地处理用户输入的搜索模式，防止正则表达式注入问题。</p>
+            <p>在实际业务中，这对于构建安全的搜索功能、文本过滤器或数据验证非常重要。</p>
+        </div>
+
+        <div class="form-group">
+            <label for="pattern">搜索模式：</label>
+            <input type="text" id="pattern" placeholder="输入要搜索的文本模式...">
+        </div>
+
+        <div class="form-group">
+            <label for="text">测试文本：</label>
+            <textarea id="text" placeholder="输入要搜索的文本内容..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <button id="search-btn">搜索</button>
+            <button id="clear-btn">清除</button>
+        </div>
+
+        <div class="example-list">
+            <div class="example-item" data-pattern="(test)"
+                data-text="This is a test string with (test) in parentheses.">搜索带括号的文本</div>
+            <div class="example-item" data-pattern="user.name"
+                data-text="The user.name property contains 'John'. Another username is 'Alice'.">搜索带点的属性名</div>
+            <div class="example-item" data-pattern="price: $10.99"
+                data-text="Items: shirt price: $10.99, pants price: $20.50">搜索价格模式</div>
+            <div class="example-item" data-pattern="[重要]" data-text="[重要] 系统将于明天维护。[提示] 请提前保存您的工作。">搜索带方括号的标签</div>
+        </div>
+
+        <div class="result" id="result" style="display: none;">
+            <h3>搜索结果</h3>
+            <div class="form-group">
+                <label>转义后的正则表达式模式：</label>
+                <div class="escaped-pattern" id="escaped-pattern"></div>
+            </div>
+            <div class="match-result" id="match-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // 转义正则表达式特殊字符的函数
+        const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        // 获取DOM元素
+        const patternInput = document.getElementById('pattern');
+        const textInput = document.getElementById('text');
+        const searchBtn = document.getElementById('search-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const resultDiv = document.getElementById('result');
+        const escapedPatternDiv = document.getElementById('escaped-pattern');
+        const matchResultDiv = document.getElementById('match-result');
+
+        // 搜索函数
+        function performSearch() {
+            const pattern = patternInput.value.trim();
+            const text = textInput.value.trim();
+
+            if (!pattern || !text) {
+                alert('请输入搜索模式和测试文本');
+                return;
+            }
+
+            // 使用escapeRegExp函数转义用户输入的搜索模式
+            const escapedPattern = escapeRegExp(pattern);
+
+            try {
+                // 创建正则表达式对象
+                const regex = new RegExp(escapedPattern, 'gi');
+
+                // 显示转义后的模式
+                escapedPatternDiv.textContent = escapedPattern;
+
+                // 查找匹配项并高亮显示
+                let matches = 0;
+                const highlightedText = text.replace(regex, match => {
+                    matches++;
+                    return `<span class="highlight">${match}</span>`;
+                });
+
+                // 显示结果
+                if (matches > 0) {
+                    matchResultDiv.innerHTML = `
+                        <p>找到 ${matches} 个匹配项：</p>
+                        <div>${highlightedText}</div>
+                    `;
+                } else {
+                    matchResultDiv.innerHTML = '<p>未找到匹配项</p>';
+                }
+
+                resultDiv.style.display = 'block';
+
+            } catch (error) {
+                alert('创建正则表达式时出错：' + error.message);
+            }
+        }
+
+        // 清除函数
+        function clearAll() {
+            patternInput.value = '';
+            textInput.value = '';
+            resultDiv.style.display = 'none';
+        }
+
+        // 加载示例数据
+        function loadExample(pattern, text) {
+            patternInput.value = pattern;
+            textInput.value = text;
+            performSearch();
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', performSearch);
+        clearBtn.addEventListener('click', clearAll);
+
+        // 为示例添加点击事件
+        document.querySelectorAll('.example-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const pattern = item.getAttribute('data-pattern');
+                const text = item.getAttribute('data-text');
+                loadExample(pattern, text);
+            });
+        });
+
+        // 业务场景示例：模拟从API获取数据并过滤
+        function filterDataExample(searchPattern, data) {
+            // 使用escapeRegExp确保搜索模式安全
+            const safePattern = escapeRegExp(searchPattern);
+            const regex = new RegExp(safePattern, 'i');
+
+            // 过滤数据
+            return data.filter(item => regex.test(item.name) || regex.test(item.description));
+        }
+
+        // 业务场景示例：构建安全的查询字符串解析器
+        function parseQueryString(queryString) {
+            const params = {};
+            const pairs = queryString.split('&');
+
+            for (const pair of pairs) {
+                const [key, value] = pair.split('=');
+                if (key && value) {
+                    // 使用escapeRegExp确保键值安全，防止注入
+                    const safeKey = escapeRegExp(decodeURIComponent(key));
+                    params[safeKey] = decodeURIComponent(value);
+                }
+            }
+
+            return params;
+        }
+    </script>
+</body>
+
+</html>
