@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品推荐系统 - 基于欧几里得距离</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .section-title {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .preference-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .preference-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .preference-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #dfe6e9;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.15s ease-in-out;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #2980b9;
+        }
+
+        .slider-value {
+            width: 40px;
+            text-align: center;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .products-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            background-color: white;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .product-features {
+            margin-bottom: 15px;
+            color: #7f8c8d;
+        }
+
+        .feature {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .feature-name {
+            color: #34495e;
+        }
+
+        .feature-value {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .match-score {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 10px;
+        }
+
+        .match-label {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .match-high {
+            background-color: #27ae60;
+        }
+
+        .match-medium {
+            background-color: #f39c12;
+        }
+
+        .match-low {
+            background-color: #e74c3c;
+        }
+
+        .results-summary {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .preference-controls {
+                flex-direction: column;
+            }
+
+            .products-container {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>产品推荐系统</h1>
+        <p class="description">基于欧几里得距离算法的个性化产品推荐</p>
+
+        <div class="section">
+            <h2 class="section-title">设置您的偏好</h2>
+            <div class="preference-controls">
+                <div class="preference-group">
+                    <label class="preference-label">价格偏好</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="price-preference">
+                        <span class="slider-value" id="price-value">5</span>
+                    </div>
+                </div>
+
+                <div class="preference-group">
+                    <label class="preference-label">性能偏好</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="performance-preference">
+                        <span class="slider-value" id="performance-value">5</span>
+                    </div>
+                </div>
+
+                <div class="preference-group">
+                    <label class="preference-label">外观偏好</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="design-preference">
+                        <span class="slider-value" id="design-value">5</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" id="recommend-btn">获取推荐</button>
+        </div>
+
+        <div class="section hidden" id="results-section">
+            <h2 class="section-title">推荐结果</h2>
+            <div class="results-summary" id="results-summary"></div>
+            <div class="products-container" id="products-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // 欧几里得距离计算函数
+        const euclideanDistance = (a, b) => Math.hypot(...Object.keys(a).map(k => b[k] - a[k]));
+
+        // 产品数据
+        const products = [
+            {
+                id: 1,
+                name: "超薄笔记本电脑 X1",
+                features: {
+                    price: 8,      // 1-10 (10表示最便宜)
+                    performance: 7, // 1-10 (10表示性能最好)
+                    design: 9      // 1-10 (10表示设计最好)
+                },
+                description: "轻薄设计，适合商务人士"
+            },
+            {
+                id: 2,
+                name: "游戏笔记本 G7",
+                features: {
+                    price: 4,
+                    performance: 9,
+                    design: 6
+                },
+                description: "高性能，适合游戏玩家"
+            },
+            {
+                id: 3,
+                name: "全能笔记本 A5",
+                features: {
+                    price: 6,
+                    performance: 6,
+                    design: 7
+                },
+                description: "平衡的性能和价格，适合大多数用户"
+            },
+            {
+                id: 4,
+                name: "入门笔记本 E3",
+                features: {
+                    price: 9,
+                    performance: 4,
+                    design: 5
+                },
+                description: "经济实惠，适合基本办公和学习"
+            },
+            {
+                id: 5,
+                name: "设计师笔记本 D8",
+                features: {
+                    price: 5,
+                    performance: 8,
+                    design: 10
+                },
+                description: "出色的显示屏和设计，适合创意工作者"
+            },
+            {
+                id: 6,
+                name: "商务笔记本 B6",
+                features: {
+                    price: 7,
+                    performance: 5,
+                    design: 8
+                },
+                description: "可靠耐用，适合商务办公"
+            }
+        ];
+
+        // 获取DOM元素
+        const priceSlider = document.getElementById('price-preference');
+        const priceValue = document.getElementById('price-value');
+        const performanceSlider = document.getElementById('performance-preference');
+        const performanceValue = document.getElementById('performance-value');
+        const designSlider = document.getElementById('design-preference');
+        const designValue = document.getElementById('design-value');
+        const recommendBtn = document.getElementById('recommend-btn');
+        const resultsSection = document.getElementById('results-section');
+        const productsContainer = document.getElementById('products-container');
+        const resultsSummary = document.getElementById('results-summary');
+
+        // 更新滑块值显示
+        priceSlider.addEventListener('input', () => {
+            priceValue.textContent = priceSlider.value;
+        });
+
+        performanceSlider.addEventListener('input', () => {
+            performanceValue.textContent = performanceSlider.value;
+        });
+
+        designSlider.addEventListener('input', () => {
+            designValue.textContent = designSlider.value;
+        });
+
+        // 推荐按钮点击事件
+        recommendBtn.addEventListener('click', () => {
+            // 获取用户偏好
+            const userPreferences = {
+                price: parseInt(priceSlider.value),
+                performance: parseInt(performanceSlider.value),
+                design: parseInt(designSlider.value)
+            };
+
+            // 计算每个产品与用户偏好的欧几里得距离
+            const productsWithDistance = products.map(product => {
+                const distance = euclideanDistance(userPreferences, product.features);
+                // 计算匹配度百分比（距离越小，匹配度越高）
+                // 最大可能距离是 sqrt(3 * (10-1)^2) = sqrt(243) ≈ 15.6
+                const maxPossibleDistance = Math.sqrt(3 * Math.pow(9, 2));
+                const matchPercentage = Math.round((1 - distance / maxPossibleDistance) * 100);
+
+                return {
+                    ...product,
+                    distance,
+                    matchPercentage
+                };
+            });
+
+            // 按匹配度排序（距离越小越匹配）
+            productsWithDistance.sort((a, b) => a.distance - b.distance);
+
+            // 显示结果
+            displayResults(productsWithDistance, userPreferences);
+        });
+
+        // 显示推荐结果
+        function displayResults(productsWithDistance, userPreferences) {
+            // 清空之前的结果
+            productsContainer.innerHTML = '';
+
+            // 显示结果区域
+            resultsSection.classList.remove('hidden');
+
+            // 更新结果摘要
+            const bestMatch = productsWithDistance[0];
+            resultsSummary.innerHTML = `
+                <p>根据您的偏好（价格: ${userPreferences.price}, 性能: ${userPreferences.performance}, 外观: ${userPreferences.design}），</p>
+                <p>我们为您找到了 ${productsWithDistance.length} 个推荐产品，最佳匹配度为 ${bestMatch.matchPercentage}%</p>
+            `;
+
+            // 为每个产品创建卡片
+            productsWithDistance.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+
+                // 确定匹配标签类型
+                let matchLabelClass = 'match-low';
+                if (product.matchPercentage >= 80) {
+                    matchLabelClass = 'match-high';
+                } else if (product.matchPercentage >= 60) {
+                    matchLabelClass = 'match-medium';
+                }
+
+                productCard.innerHTML = `
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-features">
+                        <div class="feature">
+                            <span class="feature-name">价格:</span>
+                            <span class="feature-value">${product.features.price}</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-name">性能:</span>
+                            <span class="feature-value">${product.features.performance}</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-name">外观:</span>
+                            <span class="feature-value">${product.features.design}</span>
+                        </div>
+                        <p>${product.description}</p>
+                    </div>
+                    <div class="match-score">
+                        匹配度: <span class="match-label ${matchLabelClass}">${product.matchPercentage}%</span>
+                    </div>
+                `;
+
+                productsContainer.appendChild(productCard);
+            });
+
+            // 滚动到结果区域
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
