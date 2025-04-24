@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售数据采样分析工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #eef2f7;
+            border-radius: 6px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+        }
+
+        label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        select,
+        button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .data-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .data-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #f2f6fc;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        .highlight {
+            background-color: #e3f2fd !important;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>销售数据采样分析工具</h1>
+
+        <div class="control-panel">
+            <div class="control-group">
+                <label for="sampling-interval">采样间隔:</label>
+                <select id="sampling-interval">
+                    <option value="2">每2天</option>
+                    <option value="3">每3天</option>
+                    <option value="5">每5天</option>
+                    <option value="7">每7天</option>
+                    <option value="10">每10天</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="data-period">数据周期:</label>
+                <select id="data-period">
+                    <option value="30">最近30天</option>
+                    <option value="60">最近60天</option>
+                    <option value="90">最近90天</option>
+                </select>
+            </div>
+            <button id="analyze-btn">分析数据</button>
+        </div>
+
+        <div class="data-container">
+            <div class="data-section">
+                <h2>原始销售数据</h2>
+                <div id="original-data-container">
+                    <table class="data-table" id="original-data">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>销售额 (元)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="data-section">
+                <h2>采样数据分析</h2>
+                <div id="sampled-data-container">
+                    <table class="data-table" id="sampled-data">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>销售额 (元)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="summary" id="data-summary"></div>
+            </div>
+        </div>
+
+        <div class="chart-container" id="chart"></div>
+    </div>
+
+    <script>
+        // 保留原始的everyNth函数实现
+        const everyNth = (arr, nth) => arr.filter((e, i) => i % nth === nth - 1);
+
+        // 生成模拟销售数据
+        function generateSalesData(days) {
+            const data = [];
+            const today = new Date();
+
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+
+                // 生成一些随机波动的销售数据，模拟真实业务场景
+                // 周末销售额略高，工作日有随机波动
+                const dayOfWeek = date.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                let baseAmount = 5000 + Math.random() * 3000;
+                if (isWeekend) {
+                    baseAmount *= 1.5; // 周末销售额提升50%
+                }
+
+                // 添加一些随机的促销活动高峰
+                if (Math.random() < 0.1) {
+                    baseAmount *= 2; // 10%概率出现促销活动，销售额翻倍
+                }
+
+                const amount = Math.round(baseAmount);
+
+                data.push({
+                    date: formatDate(date),
+                    amount: amount
+                });
+            }
+
+            return data;
+        }
+
+        // 格式化日期为 YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 渲染数据表格
+        function renderTable(data, tableId) {
+            const tableBody = document.querySelector(`#${tableId} tbody`);
+            tableBody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.amount.toLocaleString('zh-CN')}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 计算数据统计信息
+        function calculateStats(data) {
+            const amounts = data.map(item => item.amount);
+            const total = amounts.reduce((sum, amount) => sum + amount, 0);
+            const average = total / amounts.length;
+            const max = Math.max(...amounts);
+            const min = Math.min(...amounts);
+
+            return {
+                total: total.toLocaleString('zh-CN'),
+                average: Math.round(average).toLocaleString('zh-CN'),
+                max: max.toLocaleString('zh-CN'),
+                min: min.toLocaleString('zh-CN'),
+                count: data.length
+            };
+        }
+
+        // 渲染数据统计信息
+        function renderSummary(stats) {
+            const summaryEl = document.getElementById('data-summary');
+            summaryEl.innerHTML = `
+                <p><strong>采样数据点数:</strong> ${stats.count}个</p>
+                <p><strong>总销售额:</strong> ¥${stats.total}</p>
+                <p><strong>平均销售额:</strong> ¥${stats.average}</p>
+                <p><strong>最高销售额:</strong> ¥${stats.max}</p>
+                <p><strong>最低销售额:</strong> ¥${stats.min}</p>
+            `;
+        }
+
+        // 简单的图表渲染函数（实际项目中可以使用专业的图表库如ECharts或Chart.js）
+        function renderChart(originalData, sampledData) {
+            const chartContainer = document.getElementById('chart');
+            chartContainer.innerHTML = '';
+
+            // 找出最大销售额以确定图表高度比例
+            const allAmounts = [...originalData, ...sampledData].map(item => item.amount);
+            const maxAmount = Math.max(...allAmounts);
+
+            // 创建图表容器
+            const chartContent = document.createElement('div');
+            chartContent.style.display = 'flex';
+            chartContent.style.alignItems = 'flex-end';
+            chartContent.style.height = '100%';
+            chartContent.style.gap = '2px';
+
+            // 渲染原始数据柱状图（灰色）
+            originalData.forEach((item, index) => {
+                const bar = document.createElement('div');
+                const height = (item.amount / maxAmount) * 250;
+
+                bar.style.width = `${100 / originalData.length}%`;
+                bar.style.maxWidth = '20px';
+                bar.style.height = `${height}px`;
+                bar.style.backgroundColor = '#ccc';
+                bar.style.position = 'relative';
+
+                // 为采样点添加不同颜色
+                const isSampled = sampledData.some(s => s.date === item.date);
+                if (isSampled) {
+                    bar.style.backgroundColor = '#3498db';
+                }
+
+                // 添加提示信息
+                bar.title = `${item.date}: ¥${item.amount.toLocaleString('zh-CN')}`;
+
+                chartContent.appendChild(bar);
+            });
+
+            chartContainer.appendChild(chartContent);
+        }
+
+        // 分析数据并更新UI
+        function analyzeData() {
+            const interval = parseInt(document.getElementById('sampling-interval').value);
+            const period = parseInt(document.getElementById('data-period').value);
+
+            // 生成模拟销售数据
+            const salesData = generateSalesData(period);
+
+            // 使用everyNth函数采样数据
+            const sampledData = everyNth(salesData, interval);
+
+            // 渲染数据表格
+            renderTable(salesData, 'original-data');
+            renderTable(sampledData, 'sampled-data');
+
+            // 计算并渲染统计信息
+            const stats = calculateStats(sampledData);
+            renderSummary(stats);
+
+            // 渲染图表
+            renderChart(salesData, sampledData);
+
+            // 高亮显示采样数据在原始表格中的对应行
+            highlightSampledRows(salesData, sampledData);
+        }
+
+        // 高亮显示采样数据在原始表格中的对应行
+        function highlightSampledRows(originalData, sampledData) {
+            const originalRows = document.querySelectorAll('#original-data tbody tr');
+
+            // 清除所有高亮
+            originalRows.forEach(row => row.classList.remove('highlight'));
+
+            // 为采样数据添加高亮
+            const sampledDates = sampledData.map(item => item.date);
+
+            originalRows.forEach((row, index) => {
+                if (sampledDates.includes(originalData[index].date)) {
+                    row.classList.add('highlight');
+                }
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始分析
+            analyzeData();
+
+            // 添加按钮点击事件
+            document.getElementById('analyze-btn').addEventListener('click', analyzeData);
+
+            // 添加下拉框变化事件
+            document.getElementById('sampling-interval').addEventListener('change', analyzeData);
+            document.getElementById('data-period').addEventListener('change', analyzeData);
+        });
+    </script>
+</body>
+
+</html>
