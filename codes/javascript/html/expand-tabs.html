@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码缩进转换工具</title>
+    <!-- 添加Highlight.js库和样式 -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+    <!-- 添加CodeMirror编辑器 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .editor-container,
+        .preview-container {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #444;
+            font-size: 1.2em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .CodeMirror {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            box-sizing: border-box;
+        }
+
+        pre {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #282c34;
+            overflow: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-family: monospace;
+            color: #abb2bf;
+        }
+
+        .controls {
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .info {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .example-code {
+            margin-top: 20px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .example-code h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>代码缩进转换工具</h1>
+
+    <div class="info">
+        <p>这个工具可以帮助开发者将代码中的制表符(Tab)转换为指定数量的空格，保持代码格式的一致性。在团队协作中，统一代码缩进风格非常重要。</p>
+    </div>
+
+    <div class="container">
+        <div class="editor-container">
+            <h2>输入代码（包含Tab）</h2>
+            <div class="controls">
+                <label for="tabSize">Tab宽度:</label>
+                <input type="number" id="tabSize" value="4" min="1" max="8">
+                <button id="convertBtn">转换</button>
+                <button id="loadExampleBtn">加载示例</button>
+            </div>
+            <div id="editor"></div>
+        </div>
+
+        <div class="preview-container">
+            <h2>转换后的代码</h2>
+            <pre><code id="codeOutput" class="language-javascript">转换后的代码将显示在这里...</code></pre>
+        </div>
+    </div>
+
+    <div class="example-code">
+        <h3>expandTabs 函数实现</h3>
+        <code>const expandTabs = (str, count) => str.replace(/\t/g, ' '.repeat(count));</code>
+        <p>这个函数接收两个参数：</p>
+        <ul>
+            <li><code>str</code>: 包含制表符的字符串</li>
+            <li><code>count</code>: 每个制表符要替换的空格数量</li>
+        </ul>
+        <p>函数使用正则表达式 <code>/\t/g</code> 查找所有制表符，并用 <code>count</code> 数量的空格替换它们。</p>
+    </div>
+
+    <script>
+        // 核心函数：将制表符转换为指定数量的空格
+        const expandTabs = (str, count) => str.replace(/\t/g, ' '.repeat(count));
+
+        // DOM 元素
+        const codeOutput = document.getElementById('codeOutput');
+        const tabSize = document.getElementById('tabSize');
+        const convertBtn = document.getElementById('convertBtn');
+        const loadExampleBtn = document.getElementById('loadExampleBtn');
+
+        // 声明编辑器变量
+        let editor;
+
+        // 转换函数
+        function convertCode() {
+            if (!editor) return;
+
+            const inputCode = editor.getValue();
+            const tabWidth = parseInt(tabSize.value, 10);
+
+            if (inputCode.trim() === '') {
+                codeOutput.textContent = '请先输入代码...';
+                return;
+            }
+
+            const convertedCode = expandTabs(inputCode, tabWidth);
+            codeOutput.textContent = convertedCode;
+
+            // 应用代码高亮
+            hljs.highlightElement(codeOutput);
+        }
+
+        // 加载示例代码
+        function loadExample() {
+            if (!editor) return;
+
+            const exampleCode = `
+function calculateTotal(items) {
+	// 计算商品总价
+	let total = 0;
+	for (let i = 0; i < items.length; i++) {
+		const item = items[i];
+		// 应用折扣
+		if (item.discount) {
+			total += item.price * (1 - item.discount);
+		} else {
+			total += item.price;
+		}
+	}
+	return total;
+}`;
+
+            editor.setValue(exampleCode);
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', function () {
+            // 初始化编辑器
+            editor = CodeMirror(document.getElementById('editor'), {
+                mode: 'javascript',
+                theme: 'dracula',
+                lineNumbers: true,
+                indentUnit: 4,
+                tabSize: parseInt(tabSize.value, 10),
+                indentWithTabs: true,
+                smartIndent: true,
+                extraKeys: {
+                    'Tab': function (cm) {
+                        cm.replaceSelection('\t');
+                    }
+                }
+            });
+
+            // 事件监听
+            convertBtn.addEventListener('click', convertCode);
+            loadExampleBtn.addEventListener('click', function () {
+                loadExample();
+                convertCode(); // 加载示例后立即转换并高亮
+            });
+
+            // 实时预览（当用户输入或更改Tab宽度时）
+            editor.on('change', convertCode);
+            tabSize.addEventListener('change', function () {
+                const newTabSize = parseInt(tabSize.value, 10);
+                editor.setOption('tabSize', newTabSize);
+                convertCode();
+            });
+
+            // 初始化高亮
+            hljs.highlightElement(codeOutput);
+        });
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', function () {
+            // 设置编辑器初始Tab大小
+            editor.setOption('tabSize', parseInt(tabSize.value, 10));
+        });
+    </script>
+</body>
+
+</html>

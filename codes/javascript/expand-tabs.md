@@ -9,19 +9,25 @@
 > 代码如下:
 
 ```js
-const expandTabs = (str, count) => str.replace(/\t/g, ' '.repeat(count));
+const expandTabs = (str, count) => str.replace(/\t/g, " ".repeat(count));
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/expand-tabs.ts" data-language="typescript"></div>
 
 > 调用方式:
 
 ```js
-expandTabs('\t\tlorem', 3); // '      lorem'
+expandTabs("\t\tlorem", 3); // '      lorem'
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/expandTabs.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/expand-tabs.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/expand-tabs.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/expandTabs.html"></iframe>
+<iframe src="codes/javascript/html/expand-tabs.html"></iframe>

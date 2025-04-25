@@ -247,7 +247,7 @@
 - [转义正则表达式--2022-05-02](codes/javascript/escape-reg-exp.md)
 - [计算两点之间的距离--2022-05-04](codes/javascript/euclidean-distance.md)
 - [返回数组的第 n 个元素--2022-05-05](codes/javascript/every-nth.md)
-- [将制表符转换为空格--2022-05-06](codes/javascript/expandTabs.md)
+- [将制表符转换为空格--2022-05-06](codes/javascript/expand-tabs.md)
 - [扩展 hex 颜色--2022-05-08](codes/javascript/extendHex.md)
 - [计算一个数的阶乘--2022-05-09](codes/javascript/factorial.md)
 - [将华氏温度转换为摄氏温度--2022-05-10](codes/javascript/fahrenheitToCelsius.md)
