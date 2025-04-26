@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>颜色选择器 - extendHex实战应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .color-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .preview-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .color-preview {
+            height: 150px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+            font-size: 18px;
+        }
+
+        .color-info {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .color-info p {
+            margin: 5px 0;
+        }
+
+        .theme-preview {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .theme-title {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .theme-elements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .theme-element {
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .element-header {
+            padding: 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .element-body {
+            padding: 15px;
+            background-color: white;
+            min-height: 100px;
+        }
+
+        .element-footer {
+            padding: 10px 15px;
+            font-size: 14px;
+            color: white;
+        }
+
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .palette-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: transform 0.2s;
+        }
+
+        .palette-color:hover {
+            transform: scale(1.1);
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            color: #ff3860;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>颜色选择器应用</h1>
+        <p class="description">输入简写的十六进制颜色代码（如 #f00 或 f00），实时预览并应用到网页元素</p>
+
+        <div class="color-picker">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="shortHexInput">简写十六进制颜色代码:</label>
+                    <input type="text" id="shortHexInput" placeholder="例如: #f00 或 f00" maxlength="4">
+                    <div id="errorMessage" class="error">请输入有效的简写十六进制颜色代码（3位数字/字母）</div>
+                </div>
+
+                <div class="form-group">
+                    <label>预设颜色:</label>
+                    <div class="color-palette" id="colorPalette">
+                        <!-- 预设颜色将通过JS动态添加 -->
+                    </div>
+                </div>
+
+                <button id="applyThemeBtn">应用到主题</button>
+            </div>
+
+            <div class="preview-section">
+                <label>颜色预览:</label>
+                <div class="color-preview" id="colorPreview">
+                    等待输入...
+                </div>
+
+                <div class="color-info" id="colorInfo">
+                    <p>简写格式: <span id="shortHexDisplay">-</span></p>
+                    <p>完整格式: <span id="fullHexDisplay">-</span></p>
+                    <p>RGB格式: <span id="rgbDisplay">-</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="theme-preview">
+            <h2 class="theme-title">主题预览</h2>
+            <div class="theme-elements">
+                <div class="theme-element">
+                    <div class="element-header" id="themeHeader">卡片标题</div>
+                    <div class="element-body">
+                        <p>这是一个示例卡片内容，展示如何将选择的颜色应用到UI元素中。</p>
+                    </div>
+                    <div class="element-footer" id="themeFooter">卡片底部</div>
+                </div>
+
+                <div class="theme-element">
+                    <div class="element-header" id="themeHeader2">产品信息</div>
+                    <div class="element-body">
+                        <p>产品名称: 高级会员套餐</p>
+                        <p>价格: ¥199/月</p>
+                        <button id="themeButton">立即购买</button>
+                    </div>
+                    <div class="element-footer" id="themeFooter2">限时优惠</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 保留原有的extendHex函数实现
+        const extendHex = shortHex => {
+            return '#' +
+                shortHex
+                    .slice(shortHex.startsWith('#') ? 1 : 0)
+                    .split('')
+                    .map(x => x + x)
+                    .join('');
+        };
+
+        // 辅助函数：将十六进制转换为RGB
+        const hexToRgb = hex => {
+            // 移除#前缀并确保是完整的6位十六进制
+            const cleanHex = hex.startsWith('#') ? hex.slice(1) : hex;
+
+            // 解析RGB值
+            const r = parseInt(cleanHex.substring(0, 2), 16);
+            const g = parseInt(cleanHex.substring(2, 4), 16);
+            const b = parseInt(cleanHex.substring(4, 6), 16);
+
+            return `rgb(${r}, ${g}, ${b})`;
+        };
+
+        // 辅助函数：检查文本颜色是否应该为黑色或白色（基于背景色亮度）
+        const getContrastColor = hexColor => {
+            // 移除#前缀
+            const hex = hexColor.startsWith('#') ? hexColor.slice(1) : hexColor;
+
+            // 转换为RGB
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+
+            // 计算亮度 (基于人眼对不同颜色的感知)
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+            // 如果亮度大于128，返回黑色，否则返回白色
+            return brightness > 128 ? '#000000' : '#ffffff';
+        };
+
+        // 辅助函数：验证简写十六进制颜色代码
+        const isValidShortHex = hex => {
+            // 移除可能的#前缀
+            const cleanHex = hex.startsWith('#') ? hex.slice(1) : hex;
+
+            // 检查是否为3位十六进制
+            return /^[0-9A-Fa-f]{3}$/.test(cleanHex);
+        };
+
+        // 初始化预设颜色面板
+        const initColorPalette = () => {
+            const presetColors = [
+                '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff',
+                '#f80', '#8f0', '#08f', '#80f', '#f08', '#0f8'
+            ];
+
+            const palette = document.getElementById('colorPalette');
+
+            presetColors.forEach(color => {
+                const fullColor = extendHex(color);
+                const colorElement = document.createElement('div');
+                colorElement.className = 'palette-color';
+                colorElement.style.backgroundColor = fullColor;
+                colorElement.setAttribute('data-color', color);
+                colorElement.title = color;
+
+                colorElement.addEventListener('click', () => {
+                    document.getElementById('shortHexInput').value = color;
+                    updateColorPreview(color);
+                });
+
+                palette.appendChild(colorElement);
+            });
+        };
+
+        // 更新颜色预览和信息
+        const updateColorPreview = shortHex => {
+            if (!isValidShortHex(shortHex)) {
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('errorMessage').style.display = 'none';
+
+            // 确保有#前缀的简写格式
+            const formattedShortHex = shortHex.startsWith('#') ? shortHex : `#${shortHex}`;
+
+            // 获取完整的十六进制
+            const fullHex = extendHex(shortHex);
+
+            // 获取RGB格式
+            const rgb = hexToRgb(fullHex);
+
+            // 更新预览区域
+            const previewElement = document.getElementById('colorPreview');
+            previewElement.style.backgroundColor = fullHex;
+            previewElement.textContent = fullHex;
+            previewElement.style.color = getContrastColor(fullHex);
+
+            // 更新颜色信息
+            document.getElementById('shortHexDisplay').textContent = formattedShortHex;
+            document.getElementById('fullHexDisplay').textContent = fullHex;
+            document.getElementById('rgbDisplay').textContent = rgb;
+        };
+
+        // 应用颜色到主题元素
+        const applyColorToTheme = fullHex => {
+            const contrastColor = getContrastColor(fullHex);
+
+            // 应用到主题元素
+            const themeElements = [
+                'themeHeader', 'themeFooter', 'themeHeader2', 'themeFooter2', 'themeButton'
+            ];
+
+            themeElements.forEach(id => {
+                const element = document.getElementById(id);
+                element.style.backgroundColor = fullHex;
+                element.style.color = contrastColor;
+            });
+        };
+
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', () => {
+            // 初始化颜色面板
+            initColorPalette();
+
+            // 监听输入变化
+            const inputElement = document.getElementById('shortHexInput');
+            inputElement.addEventListener('input', e => {
+                const value = e.target.value;
+                if (value.length >= 3) {
+                    updateColorPreview(value);
+                }
+            });
+
+            // 监听应用按钮点击
+            document.getElementById('applyThemeBtn').addEventListener('click', () => {
+                const shortHex = document.getElementById('shortHexInput').value;
+                if (isValidShortHex(shortHex)) {
+                    const fullHex = extendHex(shortHex);
+                    applyColorToTheme(fullHex);
+                } else {
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            });
+
+            // 默认加载一个示例颜色
+            inputElement.value = '#59f';
+            updateColorPreview('#59f');
+            applyColorToTheme(extendHex('#59f'));
+        });
+    </script>
+</body>
+
+</html>
