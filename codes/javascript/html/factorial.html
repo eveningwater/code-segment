@@ -1,24 +1,335 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>factorial</title>
+    <title>组合数学计算器 - 阶乘应用</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #2c3e50;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .calculator-section,
+        .application-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+
+        .formula {
+            font-family: monospace;
+            background-color: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .example-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #2ecc71;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .steps {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <h1>组合数学计算器 - 阶乘在实际业务中的应用</h1>
+
+    <div class="container">
+        <div class="calculator-section">
+            <h2>组合计算器</h2>
+            <div class="form-group">
+                <label for="calc-type">计算类型：</label>
+                <select id="calc-type">
+                    <option value="combination">组合数 C(n,k)</option>
+                    <option value="permutation">排列数 P(n,k)</option>
+                    <option value="factorial">阶乘 n!</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="n-value">总数量 (n)：</label>
+                <input type="number" id="n-value" min="0" max="170" value="6">
+            </div>
+
+            <div class="form-group" id="k-group">
+                <label for="k-value">选择数量 (k)：</label>
+                <input type="number" id="k-value" min="0" max="170" value="3">
+            </div>
+
+            <button id="calculate-btn">计算结果</button>
+
+            <div class="result" id="result-container">
+                <p>请输入数值并点击计算按钮</p>
+            </div>
+
+            <div class="steps" id="calculation-steps">
+                <!-- 计算步骤将在这里显示 -->
+            </div>
+        </div>
+
+        <div class="application-section">
+            <h2>实际应用场景</h2>
+
+            <div class="example-card">
+                <h3>商品促销组合方案</h3>
+                <p>某电商平台有8种商品，需要选择3种进行促销组合。可能的组合方案数量为：</p>
+                <p class="formula">C(8,3) = 8!/(3!(8-3)!) = 56 种组合</p>
+                <button class="example-btn" data-n="8" data-k="3" data-type="combination">计算此示例</button>
+            </div>
+
+            <div class="example-card">
+                <h3>团队人员排班安排</h3>
+                <p>一个10人团队中需要选择4人并确定他们的工作顺序。可能的排班方式为：</p>
+                <p class="formula">P(10,4) = 10!/(10-4)! = 5040 种排列</p>
+                <button class="example-btn" data-n="10" data-k="4" data-type="permutation">计算此示例</button>
+            </div>
+
+            <div class="example-card">
+                <h3>产品测试路径分析</h3>
+                <p>一个应用有5个功能模块，用户可以按任意顺序访问所有模块。可能的访问路径数为：</p>
+                <p class="formula">5! = 120 种路径</p>
+                <button class="example-btn" data-n="5" data-k="5" data-type="factorial">计算此示例</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 阶乘函数 - 保留原有实现
         const factorial = n =>
             n < 0
                 ? (() => {
-                    throw new TypeError('Negative numbers are not allowed!');
+                    throw new TypeError('负数不允许计算阶乘！');
                 })()
                 : n <= 1
                     ? 1
                     : n * factorial(n - 1);
-        console.log(factorial(6));
+
+        // 计算组合数 C(n,k) = n! / (k! * (n-k)!)
+        function combination(n, k) {
+            if (k > n) throw new Error('k不能大于n');
+            // 使用更高效的计算方式避免大数溢出
+            let result = 1;
+            for (let i = 1; i <= k; i++) {
+                result = result * (n - (k - i)) / i;
+            }
+            return Math.round(result); // 处理浮点数精度问题
+        }
+
+        // 计算排列数 P(n,k) = n! / (n-k)!
+        function permutation(n, k) {
+            if (k > n) throw new Error('k不能大于n');
+            let result = 1;
+            for (let i = 0; i < k; i++) {
+                result *= (n - i);
+            }
+            return result;
+        }
+
+        // 格式化大数
+        function formatNumber(num) {
+            return num.toLocaleString('zh-CN');
+        }
+
+        // 生成计算步骤说明
+        function generateSteps(type, n, k, result) {
+            let steps = '<h4>计算步骤：</h4><ol>';
+
+            if (type === 'factorial') {
+                steps += `<li>计算 ${n}! (${n}的阶乘)</li>`;
+                steps += `<li>阶乘公式：n! = n × (n-1) × (n-2) × ... × 2 × 1</li>`;
+                steps += `<li>${n}! = ${n}`;
+                for (let i = n - 1; i >= 1; i--) {
+                    steps += ` × ${i}`;
+                }
+                steps += ` = ${formatNumber(result)}</li>`;
+            }
+            else if (type === 'combination') {
+                steps += `<li>计算组合数 C(${n},${k})</li>`;
+                steps += `<li>组合公式：C(n,k) = n! / (k! × (n-k)!)</li>`;
+                steps += `<li>C(${n},${k}) = ${n}! / (${k}! × (${n}-${k})!)</li>`;
+                steps += `<li>C(${n},${k}) = ${n}! / (${k}! × ${n - k}!)</li>`;
+                steps += `<li>C(${n},${k}) = ${formatNumber(result)}</li>`;
+            }
+            else if (type === 'permutation') {
+                steps += `<li>计算排列数 P(${n},${k})</li>`;
+                steps += `<li>排列公式：P(n,k) = n! / (n-k)!</li>`;
+                steps += `<li>P(${n},${k}) = ${n}! / (${n}-${k})!</li>`;
+                steps += `<li>P(${n},${k}) = ${n}! / ${n - k}!</li>`;
+                steps += `<li>P(${n},${k}) = ${formatNumber(result)}</li>`;
+            }
+
+            steps += '</ol>';
+            return steps;
+        }
+
+        // 更新UI显示计算类型
+        function updateCalculatorUI() {
+            const calcType = document.getElementById('calc-type').value;
+            const kGroup = document.getElementById('k-group');
+
+            if (calcType === 'factorial') {
+                kGroup.style.display = 'none';
+            } else {
+                kGroup.style.display = 'block';
+            }
+        }
+
+        // 执行计算并显示结果
+        function performCalculation() {
+            const resultContainer = document.getElementById('result-container');
+            const stepsContainer = document.getElementById('calculation-steps');
+            const calcType = document.getElementById('calc-type').value;
+            const nValue = parseInt(document.getElementById('n-value').value);
+            let kValue = 0;
+            let result = 0;
+            let formula = '';
+
+            try {
+                if (calcType !== 'factorial') {
+                    kValue = parseInt(document.getElementById('k-value').value);
+                    if (kValue > nValue) {
+                        throw new Error('选择数量(k)不能大于总数量(n)');
+                    }
+                }
+
+                if (nValue < 0) {
+                    throw new Error('数值不能为负数');
+                }
+
+                if (calcType === 'combination') {
+                    result = combination(nValue, kValue);
+                    formula = `C(${nValue},${kValue}) = ${formatNumber(result)}`;
+                } else if (calcType === 'permutation') {
+                    result = permutation(nValue, kValue);
+                    formula = `P(${nValue},${kValue}) = ${formatNumber(result)}`;
+                } else { // factorial
+                    result = factorial(nValue);
+                    formula = `${nValue}! = ${formatNumber(result)}`;
+                }
+
+                resultContainer.innerHTML = `
+                    <h3>计算结果</h3>
+                    <p class="formula">${formula}</p>
+                `;
+
+                stepsContainer.innerHTML = generateSteps(calcType, nValue, kValue, result);
+
+            } catch (error) {
+                resultContainer.innerHTML = `<p class="error">错误：${error.message}</p>`;
+                stepsContainer.innerHTML = '';
+            }
+        }
+
+        // 设置事件监听器
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化UI
+            updateCalculatorUI();
+
+            // 计算类型变更事件
+            document.getElementById('calc-type').addEventListener('change', updateCalculatorUI);
+
+            // 计算按钮点击事件
+            document.getElementById('calculate-btn').addEventListener('click', performCalculation);
+
+            // 示例按钮点击事件
+            document.querySelectorAll('.example-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const n = parseInt(this.getAttribute('data-n'));
+                    const k = parseInt(this.getAttribute('data-k'));
+                    const type = this.getAttribute('data-type');
+
+                    document.getElementById('n-value').value = n;
+                    document.getElementById('calc-type').value = type;
+                    updateCalculatorUI();
+
+                    if (type !== 'factorial') {
+                        document.getElementById('k-value').value = k;
+                    }
+
+                    performCalculation();
+                });
+            });
+
+            // 初始计算
+            performCalculation();
+        });
     </script>
 </body>
 
