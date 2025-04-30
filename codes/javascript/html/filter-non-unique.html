@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品去重工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 200px;
+            resize: vertical;
+            outline: none;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .data-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            flex: 1;
+            min-width: 200px;
+            margin: 0 10px 10px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .product-card {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            background-color: #f2f2f2;
+            border-radius: 4px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .product-category {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .product-id {
+            color: #95a5a6;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+        }
+
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .stat-card {
+                min-width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>商品去重工具</h1>
+            <p class="description">基于商品ID去除重复商品，保留独特商品信息</p>
+        </header>
+
+        <div class="input-section">
+            <div class="form-group">
+                <label for="productData">输入商品数据 (JSON格式):</label>
+                <textarea id="productData" placeholder='[
+  {"id": 101, "name": "无线蓝牙耳机", "category": "电子产品", "price": 299, "image": "headphone.jpg"},
+  {"id": 102, "name": "机械键盘", "category": "电脑配件", "price": 399, "image": "keyboard.jpg"},
+  {"id": 101, "name": "无线蓝牙耳机", "category": "电子产品", "price": 299, "image": "headphone.jpg"},
+  {"id": 103, "name": "智能手表", "category": "电子产品", "price": 899, "image": "watch.jpg"},
+  {"id": 104, "name": "游戏鼠标", "category": "电脑配件", "price": 199, "image": "mouse.jpg"},
+  {"id": 102, "name": "机械键盘", "category": "电脑配件", "price": 399, "image": "keyboard.jpg"},
+  {"id": 105, "name": "移动电源", "category": "电子产品", "price": 129, "image": "powerbank.jpg"}
+]'></textarea>
+            </div>
+            <button id="loadSample" type="button">加载示例数据</button>
+            <button id="processData" type="button">处理数据</button>
+        </div>
+
+        <div class="results-section" id="results" style="display: none;">
+            <h2>处理结果</h2>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>原始商品数量</h3>
+                    <div class="value" id="totalProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>去重后商品数量</h3>
+                    <div class="value" id="uniqueProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>重复商品数量</h3>
+                    <div class="value" id="duplicateProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>重复率</h3>
+                    <div class="value" id="duplicateRate">0%</div>
+                </div>
+            </div>
+
+            <h3>独特商品列表</h3>
+            <div id="productList">
+                <!-- 商品卡片将通过JavaScript动态填充 -->
+                <div class="empty-state">暂无数据</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 商品去重工具 | 基于filterNonUnique算法</p>
+        </footer>
+    </div>
+
+    <script>
+        // 核心函数：过滤非唯一元素，保留唯一元素
+        const filterNonUnique = arr =>
+            [...new Set(arr)].filter(i => arr.indexOf(i) === arr.lastIndexOf(i));
+
+        // 根据商品ID去重，保留唯一商品
+        const filterNonUniqueProducts = (products) => {
+            // 提取所有商品ID
+            const productIds = products.map(product => product.id);
+
+            // 使用filterNonUnique函数找出唯一的商品ID
+            const uniqueIds = filterNonUnique(productIds);
+
+            // 根据唯一ID筛选商品
+            return products.filter(product => uniqueIds.includes(product.id));
+        };
+
+        // 加载示例数据
+        document.getElementById('loadSample').addEventListener('click', function () {
+            const sampleData = [
+                { "id": 101, "name": "无线蓝牙耳机", "category": "电子产品", "price": 299, "image": "headphone.jpg" },
+                { "id": 102, "name": "机械键盘", "category": "电脑配件", "price": 399, "image": "keyboard.jpg" },
+                { "id": 101, "name": "无线蓝牙耳机", "category": "电子产品", "price": 299, "image": "headphone.jpg" },
+                { "id": 103, "name": "智能手表", "category": "电子产品", "price": 899, "image": "watch.jpg" },
+                { "id": 104, "name": "游戏鼠标", "category": "电脑配件", "price": 199, "image": "mouse.jpg" },
+                { "id": 102, "name": "机械键盘", "category": "电脑配件", "price": 399, "image": "keyboard.jpg" },
+                { "id": 105, "name": "移动电源", "category": "电子产品", "price": 129, "image": "powerbank.jpg" }
+            ];
+            document.getElementById('productData').value = JSON.stringify(sampleData, null, 2);
+        });
+
+        // 处理数据按钮点击事件
+        document.getElementById('processData').addEventListener('click', function () {
+            try {
+                // 获取输入的JSON数据
+                const inputData = document.getElementById('productData').value.trim();
+                if (!inputData) {
+                    alert('请输入商品数据');
+                    return;
+                }
+
+                // 解析JSON数据
+                const products = JSON.parse(inputData);
+                if (!Array.isArray(products)) {
+                    alert('输入数据必须是商品数组');
+                    return;
+                }
+
+                // 使用filterNonUniqueProducts函数处理数据
+                const uniqueProducts = filterNonUniqueProducts(products);
+
+                // 计算统计数据
+                const totalCount = products.length;
+                const uniqueCount = uniqueProducts.length;
+                const duplicateCount = totalCount - uniqueCount;
+                const duplicateRate = totalCount > 0 ? ((duplicateCount / totalCount) * 100).toFixed(1) : 0;
+
+                // 更新统计信息
+                document.getElementById('totalProducts').textContent = totalCount;
+                document.getElementById('uniqueProducts').textContent = uniqueCount;
+                document.getElementById('duplicateProducts').textContent = duplicateCount;
+                document.getElementById('duplicateRate').textContent = duplicateRate + '%';
+
+                // 显示结果区域
+                document.getElementById('results').style.display = 'block';
+
+                // 渲染商品列表
+                renderProductList(uniqueProducts);
+
+            } catch (error) {
+                alert('处理数据时出错: ' + error.message);
+            }
+        });
+
+        // 渲染商品列表
+        function renderProductList(products) {
+            const productListElement = document.getElementById('productList');
+            productListElement.innerHTML = '';
+
+            if (products.length === 0) {
+                productListElement.innerHTML = '<div class="empty-state">没有找到独特商品</div>';
+                return;
+            }
+
+            // 为每个商品创建卡片
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+
+                // 商品图片
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'product-image';
+                // 使用商品名称首字母作为图片占位符
+                const firstLetter = product.name.charAt(0).toUpperCase();
+                imageContainer.innerHTML = `<div style="font-size: 24px; color: #3498db;">${firstLetter}</div>`;
+
+                // 商品详情
+                const productDetails = document.createElement('div');
+                productDetails.className = 'product-details';
+
+                productDetails.innerHTML = `
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-category">${product.category}</div>
+                    <div class="product-price">¥${product.price.toFixed(2)}</div>
+                    <div class="product-id">商品ID: ${product.id}</div>
+                `;
+
+                productCard.appendChild(imageContainer);
+                productCard.appendChild(productDetails);
+                productListElement.appendChild(productCard);
+            });
+        }
+    </script>
+</body>
+
+</html>
