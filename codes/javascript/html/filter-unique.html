@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品数据查重工具</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            grid-column: 1 / 2;
+        }
+
+        .result-section {
+            grid-column: 2 / 3;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+            margin: 5px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .product-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-weight: bold;
+        }
+
+        .product-category {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .product-price {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .product-id {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .highlight {
+            background-color: #ffffcc;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .duplicate-badge {
+            background-color: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>产品数据查重工具</h1>
+    <p>此工具使用 filterUnique 方法检测产品数据中的重复项，帮助您识别和管理重复的产品ID。</p>
+
+    <div class="container">
+        <div class="input-section">
+            <div class="card">
+                <h2>输入产品数据 (JSON格式)</h2>
+                <textarea id="productData" placeholder="请输入产品数据，格式如：[{" id": 1, "name" : "产品1" , "category" : "类别1"
+                    , "price" : 100}, ...]"></textarea>
+                <div class="error" id="errorMessage"></div>
+                <div style="margin-top: 15px;">
+                    <button id="loadSampleBtn">加载示例数据</button>
+                    <button id="processBtn">处理数据</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <div class="card">
+                <h2>统计信息</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalProducts">0</div>
+                        <div class="stat-label">总产品数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="uniqueProducts">0</div>
+                        <div class="stat-label">唯一产品数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="duplicateProducts">0</div>
+                        <div class="stat-label">重复产品数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="duplicateRate">0%</div>
+                        <div class="stat-label">重复率</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>唯一产品列表</h2>
+                <div class="product-list" id="productList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // filterUnique 方法 - 筛选出数组中所有重复出现的元素
+        const filterUnique = arr => [...new Set(arr)].filter(i => arr.indexOf(i) !== arr.lastIndexOf(i));
+
+        // 示例数据
+        const sampleData = [
+            { id: 1, name: "智能手机A", category: "电子产品", price: 4999 },
+            { id: 2, name: "笔记本电脑B", category: "电子产品", price: 8999 },
+            { id: 3, name: "无线耳机C", category: "配件", price: 1299 },
+            { id: 2, name: "笔记本电脑B（促销版）", category: "电子产品", price: 8599 },
+            { id: 4, name: "智能手表D", category: "可穿戴设备", price: 2499 },
+            { id: 5, name: "平板电脑E", category: "电子产品", price: 3699 },
+            { id: 3, name: "无线耳机C（限定版）", category: "配件", price: 1499 },
+            { id: 6, name: "智能音箱F", category: "智能家居", price: 899 },
+            { id: 7, name: "移动电源G", category: "配件", price: 199 },
+            { id: 2, name: "笔记本电脑B（国际版）", category: "电子产品", price: 9299 }
+        ];
+
+        // DOM 元素
+        const productDataTextarea = document.getElementById('productData');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadSampleBtn = document.getElementById('loadSampleBtn');
+        const processBtn = document.getElementById('processBtn');
+        const totalProductsEl = document.getElementById('totalProducts');
+        const uniqueProductsEl = document.getElementById('uniqueProducts');
+        const duplicateProductsEl = document.getElementById('duplicateProducts');
+        const duplicateRateEl = document.getElementById('duplicateRate');
+        const productListEl = document.getElementById('productList');
+
+        // 加载示例数据
+        loadSampleBtn.addEventListener('click', () => {
+            productDataTextarea.value = JSON.stringify(sampleData, null, 2);
+            errorMessage.textContent = '';
+        });
+
+        // 处理数据
+        processBtn.addEventListener('click', () => {
+            try {
+                // 解析JSON数据
+                const data = JSON.parse(productDataTextarea.value);
+                if (!Array.isArray(data)) {
+                    throw new Error('输入数据必须是数组格式');
+                }
+
+                // 提取产品ID
+                const productIds = data.map(product => product.id);
+
+                // 使用filterUnique方法找出重复的产品ID
+                const duplicateIds = filterUnique(productIds);
+
+                // 计算统计信息
+                const totalProducts = data.length;
+                const duplicateProducts = duplicateIds.length > 0 ?
+                    data.filter(product => duplicateIds.includes(product.id)).length : 0;
+                const uniqueProducts = totalProducts - duplicateProducts;
+                const duplicateRate = totalProducts > 0 ?
+                    Math.round((duplicateProducts / totalProducts) * 100) : 0;
+
+                // 更新统计信息
+                totalProductsEl.textContent = totalProducts;
+                uniqueProductsEl.textContent = uniqueProducts;
+                duplicateProductsEl.textContent = duplicateProducts;
+                duplicateRateEl.textContent = `${duplicateRate}%`;
+
+                // 渲染产品列表
+                renderProductList(data, duplicateIds);
+
+                errorMessage.textContent = '';
+            } catch (error) {
+                errorMessage.textContent = `错误: ${error.message}`;
+                // 清空统计信息
+                totalProductsEl.textContent = '0';
+                uniqueProductsEl.textContent = '0';
+                duplicateProductsEl.textContent = '0';
+                duplicateRateEl.textContent = '0%';
+                productListEl.innerHTML = '';
+            }
+        });
+
+        // 渲染产品列表
+        function renderProductList(products, duplicateIds) {
+            productListEl.innerHTML = '';
+
+            // 按ID分组产品
+            const groupedProducts = {};
+            products.forEach(product => {
+                if (!groupedProducts[product.id]) {
+                    groupedProducts[product.id] = [];
+                }
+                groupedProducts[product.id].push(product);
+            });
+
+            // 先渲染重复的产品
+            duplicateIds.forEach(id => {
+                const productsWithId = groupedProducts[id];
+                productsWithId.forEach(product => {
+                    const productItem = createProductItem(product, true);
+                    productListEl.appendChild(productItem);
+                });
+            });
+
+            // 再渲染唯一的产品
+            Object.keys(groupedProducts).forEach(id => {
+                if (!duplicateIds.includes(parseInt(id)) && !duplicateIds.includes(id)) {
+                    const product = groupedProducts[id][0];
+                    const productItem = createProductItem(product, false);
+                    productListEl.appendChild(productItem);
+                }
+            });
+        }
+
+        // 创建产品项
+        function createProductItem(product, isDuplicate) {
+            const productItem = document.createElement('div');
+            productItem.className = `product-item ${isDuplicate ? 'highlight' : ''}`;
+
+            const productInfo = document.createElement('div');
+
+            const nameEl = document.createElement('div');
+            nameEl.className = 'product-name';
+            nameEl.textContent = product.name;
+            if (isDuplicate) {
+                const badge = document.createElement('span');
+                badge.className = 'duplicate-badge';
+                badge.textContent = '重复';
+                nameEl.appendChild(badge);
+            }
+
+            const categoryEl = document.createElement('div');
+            categoryEl.className = 'product-category';
+            categoryEl.textContent = product.category;
+
+            const idEl = document.createElement('div');
+            idEl.className = 'product-id';
+            idEl.textContent = `ID: ${product.id}`;
+
+            productInfo.appendChild(nameEl);
+            productInfo.appendChild(categoryEl);
+            productInfo.appendChild(idEl);
+
+            const priceEl = document.createElement('div');
+            priceEl.className = 'product-price';
+            priceEl.textContent = `¥${product.price}`;
+
+            productItem.appendChild(productInfo);
+            productItem.appendChild(priceEl);
+
+            return productItem;
+        }
+    </script>
+</body>
+
+</html>
