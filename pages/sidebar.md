@@ -244,7 +244,7 @@
 - [数组去重--2022-05-12](codes/javascript/filter-non-unique.md)
 - [数组去重（根据回调函数）--2022-05-13](codes/javascript/filter-non-uniqueBy.md)
 - [获取数组的交集--2022-05-14](codes/javascript/filter-unique.md)
-- [找到元素最近的锚点元素（即超链接元素）--2022-05-16](codes/javascript/findClosestAnchor.md)
+- [找到元素最近的锚点元素（即超链接元素）--2022-05-16](codes/javascript/find-closest-anchor.md)
 - [找到元素最近的匹配元素--2022-05-17](codes/javascript/findClosestMatchingNode.md)
 - [查找所有连续元素的数组--2022-05-18](codes/javascript/findConsecutive.md)
 - [查找根据回调函数返回真值的前 n 个元素--2022-05-19](codes/javascript/findFirstN.md)

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能文档导航系统</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --highlight-color: #f39c12;
+            --light-color: #ecf0f1;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --border-radius: 6px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            height: fit-content;
+        }
+
+        .toc {
+            list-style-type: none;
+        }
+
+        .toc li {
+            margin-bottom: 10px;
+        }
+
+        .toc a {
+            display: block;
+            padding: 8px 10px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .toc a:hover {
+            background-color: var(--light-color);
+        }
+
+        .toc a.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin: 15px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        code {
+            background-color: var(--light-color);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: monospace;
+            position: relative;
+        }
+
+        .info-box {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .warning-box {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid var(--highlight-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .highlight {
+            background-color: rgba(243, 156, 18, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .tooltip {
+            position: fixed;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            z-index: 100;
+            box-shadow: var(--box-shadow);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        .navigation-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+            max-width: 300px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .navigation-info.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .navigation-info h4 {
+            margin-bottom: 5px;
+            color: var(--highlight-color);
+        }
+
+        .navigation-info p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .navigation-info a {
+            color: var(--light-color);
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+
+        .clickable:hover {
+            text-decoration: underline;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>智能文档导航系统</h1>
+            <p>点击文档中的任何元素，系统会自动找到最近的锚点并提供导航信息</p>
+        </header>
+
+        <aside class="sidebar">
+            <h3>目录</h3>
+            <ul class="toc" id="toc">
+                <li><a href="#section-1" class="active">1. 智能导航简介</a></li>
+                <li><a href="#section-2">2. 核心功能</a></li>
+                <li><a href="#section-3">3. 技术实现</a></li>
+                <li><a href="#section-4">4. 应用场景</a></li>
+                <li><a href="#section-5">5. 最佳实践</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <section id="section-1" class="section">
+                <h2>1. 智能导航简介</h2>
+                <p class="clickable">智能文档导航系统是一种现代化的<a href="#intro-detail">文档浏览辅助工具</a>，它能够帮助用户在复杂的文档结构中快速定位和理解内容。</p>
+                <div id="intro-detail" class="info-box">
+                    <h3>什么是智能导航？</h3>
+                    <p class="clickable">
+                        智能导航利用<code>findClosestAnchor</code>等方法，分析用户点击的元素与文档结构的关系，自动找到最相关的锚点，提供上下文信息和快速跳转功能。</p>
+                </div>
+                <p class="clickable">与传统导航不同，智能导航系统能够：</p>
+                <ul>
+                    <li class="clickable">理解用户的浏览意图</li>
+                    <li class="clickable">提供相关内容的上下文</li>
+                    <li class="clickable">实现精准的内容定位</li>
+                </ul>
+            </section>
+
+            <section id="section-2" class="section">
+                <h2>2. 核心功能</h2>
+                <p class="clickable">本系统的核心功能包括：</p>
+                <h3 class="clickable">2.1 智能锚点识别</h3>
+                <p class="clickable">当用户点击文档中的任何元素时，系统会<a href="#anchor-detection">自动识别最近的锚点</a>，并提供相关导航信息。</p>
+                <div id="anchor-detection" class="code-block">
+                    <pre><code>// 查找最近的锚点元素
+const findClosestAnchor = node => {
+    for (let n = node; n.parentNode; n = n.parentNode) {
+        if (n.nodeName.toLowerCase() === 'a') {
+            return n;
+        }
+    }
+    return null;
+};</code></pre>
+                </div>
+                <h3 class="clickable">2.2 上下文感知</h3>
+                <p class="clickable">系统能够分析锚点的上下文，提供相关内容的摘要和导航建议。</p>
+                <h3 class="clickable">2.3 实时反馈</h3>
+                <p class="clickable">用户操作时，系统提供实时视觉反馈，增强交互体验。</p>
+            </section>
+
+            <section id="section-3" class="section">
+                <h2>3. 技术实现</h2>
+                <p class="clickable">本系统的核心技术实现包括：</p>
+                <h3 class="clickable">3.1 DOM遍历算法</h3>
+                <p class="clickable">使用递归遍历DOM树，查找最近的锚点元素。</p>
+                <h3 class="clickable">3.2 事件委托</h3>
+                <p class="clickable">通过事件委托机制，高效处理文档中的点击事件。</p>
+                <div class="warning-box">
+                    <h3 class="clickable">注意事项</h3>
+                    <p class="clickable">在大型文档中使用时，应考虑性能优化，避免频繁DOM操作导致的性能问题。</p>
+                </div>
+            </section>
+
+            <section id="section-4" class="section">
+                <h2>4. 应用场景</h2>
+                <p class="clickable">智能导航系统适用于多种场景：</p>
+                <ul>
+                    <li class="clickable"><strong>技术文档</strong>：API文档、开发指南等</li>
+                    <li class="clickable"><strong>在线教程</strong>：学习平台、教育网站</li>
+                    <li class="clickable"><strong>产品手册</strong>：用户指南、操作说明</li>
+                    <li class="clickable"><strong>知识库</strong>：企业内部知识管理系统</li>
+                </ul>
+            </section>
+
+            <section id="section-5" class="section">
+                <h2>5. 最佳实践</h2>
+                <p class="clickable">为了获得最佳体验，建议：</p>
+                <ul>
+                    <li class="clickable">合理设置文档结构，使用语义化标签</li>
+                    <li class="clickable">为重要内容添加明确的锚点</li>
+                    <li class="clickable">保持锚点ID的唯一性和描述性</li>
+                    <li class="clickable">考虑移动设备上的用户体验</li>
+                </ul>
+                <p class="clickable">更多详情，请参考<a href="#best-practices">最佳实践指南</a>。</p>
+                <div id="best-practices" class="info-box">
+                    <h3 class="clickable">文档结构建议</h3>
+                    <p class="clickable">使用清晰的层次结构，合理划分章节和小节，确保每个重要内容都有对应的锚点。</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+    <div class="navigation-info" id="navigationInfo">
+        <h4>导航信息</h4>
+        <p id="anchorInfo">未找到相关锚点</p>
+        <p id="sectionInfo"></p>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        hljs.highlightAll(document.querySelectorAll('pre code'));
+        // 查找最近的锚点元素
+        const findClosestAnchor = node => {
+            for (let n = node; n.parentNode; n = n.parentNode) {
+                if (n.nodeName.toLowerCase() === 'a') {
+                    return n;
+                }
+            }
+            return null;
+        };
+
+        // 查找最近的section元素
+        const findClosestSection = node => {
+            for (let n = node; n.parentNode; n = n.parentNode) {
+                if (n.nodeName.toLowerCase() === 'section') {
+                    return n;
+                }
+            }
+            return null;
+        };
+
+        // 获取DOM元素
+        const tooltip = document.getElementById('tooltip');
+        const navigationInfo = document.getElementById('navigationInfo');
+        const anchorInfo = document.getElementById('anchorInfo');
+        const sectionInfo = document.getElementById('sectionInfo');
+        const tocLinks = document.querySelectorAll('.toc a');
+
+        // 初始化高亮当前活动的目录项
+        function updateActiveTocItem(sectionId) {
+            tocLinks.forEach(link => {
+                if (link.getAttribute('href') === '#' + sectionId) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // 初始化页面，高亮当前部分
+        function initPage() {
+            const hash = window.location.hash || '#section-1';
+            const sectionId = hash.substring(1);
+            updateActiveTocItem(sectionId);
+
+            // 平滑滚动到当前部分
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 监听目录点击事件
+        document.getElementById('toc').addEventListener('click', (e) => {
+            if (e.target.tagName.toLowerCase() === 'a') {
+                e.preventDefault();
+                const href = e.target.getAttribute('href');
+                const sectionId = href.substring(1);
+
+                updateActiveTocItem(sectionId);
+
+                // 平滑滚动到目标部分
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                    history.pushState(null, null, href);
+                }
+            }
+        });
+
+        // 监听文档点击事件
+        document.querySelector('.content').addEventListener('click', (e) => {
+            // 移除所有现有高亮
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.classList.remove('highlight');
+            });
+
+            // 高亮点击的元素
+            let targetElement = e.target;
+            if (targetElement.classList.contains('clickable')) {
+                targetElement.classList.add('highlight');
+            }
+
+            // 查找最近的锚点
+            const closestAnchor = findClosestAnchor(targetElement);
+
+            // 查找最近的section
+            const closestSection = findClosestSection(targetElement);
+
+            // 更新导航信息
+            if (closestAnchor) {
+                const href = closestAnchor.getAttribute('href');
+                const text = closestAnchor.textContent;
+
+                anchorInfo.innerHTML = `找到锚点: <a href="${href}">${text}</a>`;
+
+                // 如果是页内锚点，滚动到目标位置
+                if (href && href.startsWith('#')) {
+                    const targetId = href.substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                        targetElement.classList.add('highlight');
+                    }
+                }
+            } else {
+                anchorInfo.textContent = '未找到相关锚点';
+            }
+
+            if (closestSection) {
+                const sectionId = closestSection.id;
+                const sectionTitle = closestSection.querySelector('h2').textContent;
+                sectionInfo.innerHTML = `当前章节: <a href="#${sectionId}">${sectionTitle}</a>`;
+
+                // 更新目录高亮
+                updateActiveTocItem(sectionId);
+            } else {
+                sectionInfo.textContent = '';
+            }
+
+            // 显示导航信息
+            navigationInfo.classList.add('show');
+            setTimeout(() => {
+                navigationInfo.classList.remove('show');
+            }, 3000);
+        });
+
+        // 鼠标移动时显示工具提示
+        document.querySelector('.content').addEventListener('mousemove', (e) => {
+            const target = e.target;
+            if (target.classList.contains('clickable')) {
+                tooltip.textContent = '点击查看相关导航';
+                tooltip.style.left = `${e.pageX + 10}px`;
+                tooltip.style.top = `${e.pageY + 10}px`;
+                tooltip.classList.add('show');
+            } else {
+                tooltip.classList.remove('show');
+            }
+        });
+
+        // 鼠标离开内容区域时隐藏工具提示
+        document.querySelector('.content').addEventListener('mouseleave', () => {
+            tooltip.classList.remove('show');
+        });
+
+        // 初始化页面
+        window.addEventListener('load', initPage);
+        window.addEventListener('hashchange', initPage);
+    </script>
+</body>
+
+</html>

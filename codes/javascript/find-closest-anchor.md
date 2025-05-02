@@ -11,9 +11,9 @@
 > 代码如下:
 
 ```js
-const findClosestAnchor = node => {
+const findClosestAnchor = (node) => {
   for (let n = node; n.parentNode; n = n.parentNode) {
-    if (n.nodeName.toLowerCase() === 'a') {
+    if (n.nodeName.toLowerCase() === "a") {
       return n;
     }
   }
@@ -21,16 +21,22 @@ const findClosestAnchor = node => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-closest-anchor.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
-findClosestAnchor(document.querySelector('a > span')); // a
+findClosestAnchor(document.querySelector("a > span")); // a
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findClosestAnchor.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-closest-anchor.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-closest-anchor.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findClosestAnchor.html"></iframe>
+<iframe src="codes/javascript/html/find-closest-anchor.html"></iframe>
