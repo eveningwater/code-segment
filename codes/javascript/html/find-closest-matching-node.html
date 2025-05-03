@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电商产品卡片交互 - findClosestMatchingNode 实战应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .product-price {
+            font-size: 16px;
+            color: #e44d26;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-cart {
+            background-color: #4CAF50;
+            color: white;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .btn-cart:hover {
+            background-color: #45a049;
+        }
+
+        .btn-wishlist {
+            background-color: transparent;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn-wishlist:hover {
+            background-color: #f1f1f1;
+        }
+
+        .wishlist-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23666" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #ff9800;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .action-log {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .log-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .log-entries {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .highlight {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            transition: background-color 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>电商产品卡片交互示例</h1>
+            <p class="description">本示例展示了如何使用 findClosestMatchingNode
+                方法在电商网站中实现产品卡片交互功能。点击产品卡片上的任意元素，系统将识别出最近的产品卡片并执行相应操作。</p>
+        </header>
+
+        <div class="products-grid" id="productsGrid">
+            <!-- 产品卡片将通过 JavaScript 动态生成 -->
+        </div>
+
+        <div class="action-log">
+            <h2 class="log-title">操作日志</h2>
+            <div class="log-entries" id="logEntries">
+                <!-- 操作日志将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // findClosestMatchingNode 方法实现
+        const findClosestMatchingNode = (node, selector) => {
+            for (let n = node; n.parentNode; n = n.parentNode) {
+                if (n.matches && n.matches(selector)) {
+                    return n;
+                }
+            }
+            return null;
+        };
+
+        // 模拟产品数据
+        const products = [
+            {
+                id: 1,
+                name: '高品质无线耳机',
+                price: '¥299',
+                description: '蓝牙5.0技术，降噪功能，长达8小时续航时间。',
+                image: 'https://via.placeholder.com/300x200?text=Wireless+Headphones',
+                badge: '热销'
+            },
+            {
+                id: 2,
+                name: '智能手表',
+                price: '¥699',
+                description: '心率监测，睡眠追踪，防水设计，多种运动模式。',
+                image: 'https://via.placeholder.com/300x200?text=Smart+Watch'
+            },
+            {
+                id: 3,
+                name: '便携式蓝牙音箱',
+                price: '¥199',
+                description: '360°环绕立体声，防水设计，长达12小时播放时间。',
+                image: 'https://via.placeholder.com/300x200?text=Bluetooth+Speaker',
+                badge: '新品'
+            },
+            {
+                id: 4,
+                name: '高清摄像头',
+                price: '¥399',
+                description: '1080p高清画质，广角镜头，自动对焦，夜视功能。',
+                image: 'https://via.placeholder.com/300x200?text=HD+Camera'
+            },
+            {
+                id: 5,
+                name: '机械键盘',
+                price: '¥499',
+                description: '机械轴体，RGB背光，人体工学设计，防水防尘。',
+                image: 'https://via.placeholder.com/300x200?text=Mechanical+Keyboard',
+                badge: '限时折扣'
+            },
+            {
+                id: 6,
+                name: '游戏鼠标',
+                price: '¥199',
+                description: '高精度传感器，可编程按键，人体工学设计。',
+                image: 'https://via.placeholder.com/300x200?text=Gaming+Mouse'
+            }
+        ];
+
+        // 购物车和收藏夹
+        const cart = [];
+        const wishlist = [];
+
+        // 渲染产品卡片
+        function renderProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.dataset.productId = product.id;
+
+                let badgeHtml = '';
+                if (product.badge) {
+                    badgeHtml = `<div class="product-badge">${product.badge}</div>`;
+                }
+
+                productCard.innerHTML = `
+                    ${badgeHtml}
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-price">${product.price}</div>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-actions">
+                            <button class="btn btn-cart">加入购物车</button>
+                            <button class="btn btn-wishlist"><span class="wishlist-icon"></span></button>
+                        </div>
+                    </div>
+                `;
+
+                productsGrid.appendChild(productCard);
+            });
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // 添加操作日志
+        function addLogEntry(message) {
+            const logEntries = document.getElementById('logEntries');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logEntries.prepend(logEntry);
+        }
+
+        // 高亮显示产品卡片
+        function highlightProductCard(card) {
+            card.classList.add('highlight');
+            setTimeout(() => {
+                card.classList.remove('highlight');
+            }, 1000);
+        }
+
+        // 添加到购物车
+        function addToCart(productId) {
+            const product = products.find(p => p.id == productId);
+            if (product && !cart.includes(productId)) {
+                cart.push(productId);
+                showNotification(`已将 ${product.name} 添加到购物车`);
+                addLogEntry(`已将 ${product.name} 添加到购物车`);
+            }
+        }
+
+        // 添加到收藏夹
+        function addToWishlist(productId) {
+            const product = products.find(p => p.id == productId);
+            if (product && !wishlist.includes(productId)) {
+                wishlist.push(productId);
+                showNotification(`已将 ${product.name} 添加到收藏夹`);
+                addLogEntry(`已将 ${product.name} 添加到收藏夹`);
+            }
+        }
+
+        // 查看产品详情
+        function viewProductDetails(productId) {
+            const product = products.find(p => p.id == productId);
+            if (product) {
+                showNotification(`正在查看 ${product.name} 的详细信息`);
+                addLogEntry(`查看了 ${product.name} 的详细信息`);
+            }
+        }
+
+        // 初始化页面
+        function init() {
+            renderProducts();
+
+            // 使用事件委托处理点击事件
+            document.getElementById('productsGrid').addEventListener('click', function (event) {
+                // 使用 findClosestMatchingNode 方法找到最近的产品卡片
+                const productCard = findClosestMatchingNode(event.target, '.product-card');
+
+                if (productCard) {
+                    const productId = productCard.dataset.productId;
+                    highlightProductCard(productCard);
+
+                    // 根据点击的元素执行不同的操作
+                    if (event.target.classList.contains('btn-cart')) {
+                        addToCart(productId);
+                    } else if (event.target.classList.contains('btn-wishlist') || event.target.classList.contains('wishlist-icon')) {
+                        addToWishlist(productId);
+                    } else if (event.target.classList.contains('product-image')) {
+                        viewProductDetails(productId);
+                    }
+                }
+            });
+
+            addLogEntry('页面初始化完成，等待用户操作...');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
