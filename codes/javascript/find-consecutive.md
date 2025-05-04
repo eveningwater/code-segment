@@ -14,6 +14,10 @@ const findConsecutive = (arr, n) =>
   arr.slice(n - 1).map((v, i) => arr.slice(i, i + n));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-consecutive.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,8 +27,10 @@ findConsecutive([1, 2, 3, 4, 5], 2);
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findConsecutive.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-consecutive.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-consecutive.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findConsecutive.html"></iframe>
+<iframe src="codes/javascript/html/find-consecutive.html"></iframe>

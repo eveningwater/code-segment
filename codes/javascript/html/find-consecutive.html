@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票价格趋势分析工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        input,
+        textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button.secondary {
+            background-color: #95a5a6;
+        }
+
+        button.secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .price-chart {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+            gap: 2px;
+        }
+
+        .price-bar {
+            flex: 1;
+            background-color: #3498db;
+            position: relative;
+            transition: height 0.5s;
+            min-width: 10px;
+        }
+
+        .price-bar.up {
+            background-color: #2ecc71;
+        }
+
+        .price-bar.down {
+            background-color: #e74c3c;
+        }
+
+        .price-bar:hover::after {
+            content: attr(data-price);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #34495e;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .analysis-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-card h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .trend-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .trend-item.up {
+            background-color: rgba(46, 204, 113, 0.1);
+            border-left: 3px solid #2ecc71;
+        }
+
+        .trend-item.down {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 3px solid #e74c3c;
+        }
+
+        .trend-item.neutral {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 3px solid #3498db;
+        }
+
+        .trend-days {
+            font-weight: bold;
+        }
+
+        .trend-values {
+            font-family: monospace;
+            margin-top: 5px;
+            color: #7f8c8d;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>股票价格趋势分析工具</h1>
+        <p class="description">分析股票价格的连续上涨或下跌趋势，帮助您识别潜在的交易机会</p>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="stockData">股票价格数据（每行一个价格，按时间顺序）：</label>
+                <textarea id="stockData" placeholder="例如：
+100.5
+101.2
+102.8
+101.5
+100.9
+102.3
+104.5
+105.2
+104.8"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="trendDays">连续趋势天数：</label>
+                <input type="number" id="trendDays" min="2" max="10" value="3">
+            </div>
+
+            <div class="buttons">
+                <button id="analyzeBtn">分析趋势</button>
+                <button id="sampleDataBtn" class="secondary">加载示例数据</button>
+                <button id="clearBtn" class="secondary">清空数据</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="chart-container">
+                <div id="priceChart" class="price-chart"></div>
+            </div>
+
+            <div class="analysis-results" id="analysisResults">
+                <div class="no-data">请输入股票价格数据并点击"分析趋势"按钮</div>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2023 股票价格趋势分析工具 | 基于 findConsecutive 算法
+        </footer>
+    </div>
+
+    <script>
+        // 核心函数：findConsecutive - 查找数组中连续的n个元素
+        const findConsecutive = (arr, n) =>
+            arr.slice(n - 1).map((v, i) => arr.slice(i, i + n));
+
+        // DOM 元素
+        const stockDataInput = document.getElementById('stockData');
+        const trendDaysInput = document.getElementById('trendDays');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const sampleDataBtn = document.getElementById('sampleDataBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const priceChart = document.getElementById('priceChart');
+        const analysisResults = document.getElementById('analysisResults');
+
+        // 示例数据
+        const sampleData = `102.5
+103.2
+104.8
+106.5
+105.9
+104.3
+103.5
+102.8
+103.6
+105.2
+107.5
+108.9
+110.2
+109.5
+108.7
+107.8
+108.3
+110.5
+112.7
+114.2
+113.8
+112.5
+111.9
+113.2
+115.7`;
+
+        // 加载示例数据
+        sampleDataBtn.addEventListener('click', () => {
+            stockDataInput.value = sampleData;
+        });
+
+        // 清空数据
+        clearBtn.addEventListener('click', () => {
+            stockDataInput.value = '';
+            priceChart.innerHTML = '';
+            analysisResults.innerHTML = '<div class="no-data">请输入股票价格数据并点击"分析趋势"按钮</div>';
+        });
+
+        // 分析趋势
+        analyzeBtn.addEventListener('click', () => {
+            // 获取输入数据
+            const rawData = stockDataInput.value.trim();
+            if (!rawData) {
+                alert('请输入股票价格数据');
+                return;
+            }
+
+            // 解析价格数据
+            const prices = rawData.split('\n')
+                .map(line => parseFloat(line.trim()))
+                .filter(price => !isNaN(price));
+
+            if (prices.length < 2) {
+                alert('请至少输入两个有效的价格数据');
+                return;
+            }
+
+            // 获取趋势天数
+            const trendDays = parseInt(trendDaysInput.value);
+            if (trendDays < 2 || trendDays > Math.min(10, prices.length)) {
+                alert(`趋势天数必须在2到${Math.min(10, prices.length)}之间`);
+                return;
+            }
+
+            // 绘制价格图表
+            renderPriceChart(prices);
+
+            // 分析连续上涨和下跌趋势
+            analyzeStockTrends(prices, trendDays);
+        });
+
+        // 绘制价格图表
+        function renderPriceChart(prices) {
+            // 清空图表
+            priceChart.innerHTML = '';
+
+            // 找出最大和最小价格，用于计算比例
+            const maxPrice = Math.max(...prices);
+            const minPrice = Math.min(...prices);
+            const range = maxPrice - minPrice;
+            const baseHeight = 20; // 最小高度（像素）
+
+            // 为每个价格创建一个柱状图
+            prices.forEach((price, index) => {
+                // 计算高度百分比（相对于价格范围）
+                const heightPercent = range === 0 ? 100 : ((price - minPrice) / range) * 100;
+                const height = baseHeight + (heightPercent * (280 - baseHeight) / 100);
+
+                // 创建价格柱
+                const bar = document.createElement('div');
+                bar.className = 'price-bar';
+                bar.style.height = `${height}px`;
+                bar.setAttribute('data-price', price.toFixed(2));
+                bar.setAttribute('data-day', `Day ${index + 1}`);
+
+                // 设置上涨/下跌颜色
+                if (index > 0) {
+                    if (price > prices[index - 1]) {
+                        bar.classList.add('up');
+                    } else if (price < prices[index - 1]) {
+                        bar.classList.add('down');
+                    }
+                }
+
+                priceChart.appendChild(bar);
+            });
+        }
+
+        // 分析股票趋势
+        function analyzeStockTrends(prices, trendDays) {
+            // 使用 findConsecutive 函数获取所有连续的价格序列
+            const consecutiveGroups = findConsecutive(prices, trendDays);
+
+            // 分析上涨和下跌趋势
+            const upwardTrends = [];
+            const downwardTrends = [];
+            const stableTrends = [];
+
+            consecutiveGroups.forEach((group, index) => {
+                // 检查是否是连续上涨
+                const isUpward = group.every((price, i) => i === 0 || price > group[i - 1]);
+                // 检查是否是连续下跌
+                const isDownward = group.every((price, i) => i === 0 || price < group[i - 1]);
+                // 如果既不是上涨也不是下跌，则认为是稳定
+                const isStable = !isUpward && !isDownward;
+
+                // 计算变化百分比
+                const startPrice = group[0];
+                const endPrice = group[group.length - 1];
+                const changePercent = ((endPrice - startPrice) / startPrice * 100).toFixed(2);
+
+                // 创建趋势对象
+                const trend = {
+                    startDay: index + 1,
+                    endDay: index + trendDays,
+                    startPrice: startPrice.toFixed(2),
+                    endPrice: endPrice.toFixed(2),
+                    changePercent: changePercent,
+                    prices: group.map(p => p.toFixed(2))
+                };
+
+                // 根据趋势类型添加到相应数组
+                if (isUpward) upwardTrends.push(trend);
+                else if (isDownward) downwardTrends.push(trend);
+                else stableTrends.push(trend);
+            });
+
+            // 渲染分析结果
+            renderAnalysisResults(upwardTrends, downwardTrends, stableTrends, trendDays);
+        }
+
+        // 渲染分析结果
+        function renderAnalysisResults(upwardTrends, downwardTrends, stableTrends, trendDays) {
+            // 清空结果区域
+            analysisResults.innerHTML = '';
+
+            // 创建上涨趋势卡片
+            const upwardCard = createTrendCard(
+                `连续${trendDays}天上涨趋势`,
+                upwardTrends,
+                'up',
+                '在这些时间段内，股票价格连续上涨'
+            );
+            analysisResults.appendChild(upwardCard);
+
+            // 创建下跌趋势卡片
+            const downwardCard = createTrendCard(
+                `连续${trendDays}天下跌趋势`,
+                downwardTrends,
+                'down',
+                '在这些时间段内，股票价格连续下跌'
+            );
+            analysisResults.appendChild(downwardCard);
+
+            // 创建稳定趋势卡片
+            const stableCard = createTrendCard(
+                `${trendDays}天内波动趋势`,
+                stableTrends,
+                'neutral',
+                '在这些时间段内，股票价格既有上涨也有下跌'
+            );
+            analysisResults.appendChild(stableCard);
+        }
+
+        // 创建趋势卡片
+        function createTrendCard(title, trends, trendType, description) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+
+            // 添加标题
+            const cardTitle = document.createElement('h3');
+            cardTitle.textContent = title;
+            card.appendChild(cardTitle);
+
+            // 添加描述
+            if (description) {
+                const cardDesc = document.createElement('p');
+                cardDesc.textContent = description;
+                cardDesc.style.marginBottom = '15px';
+                card.appendChild(cardDesc);
+            }
+
+            // 添加趋势项
+            if (trends.length === 0) {
+                const noTrend = document.createElement('p');
+                noTrend.className = 'no-data';
+                noTrend.textContent = '未发现此类趋势';
+                card.appendChild(noTrend);
+            } else {
+                trends.forEach(trend => {
+                    const trendItem = document.createElement('div');
+                    trendItem.className = `trend-item ${trendType}`;
+
+                    // 添加趋势天数信息
+                    const trendDays = document.createElement('div');
+                    trendDays.className = 'trend-days';
+                    trendDays.textContent = `Day ${trend.startDay} - Day ${trend.endDay}: ${trend.changePercent}%`;
+                    trendItem.appendChild(trendDays);
+
+                    // 添加价格值
+                    const trendValues = document.createElement('div');
+                    trendValues.className = 'trend-values';
+                    trendValues.textContent = trend.prices.join(' → ');
+                    trendItem.appendChild(trendValues);
+
+                    card.appendChild(trendItem);
+                });
+            }
+
+            return card;
+        }
+    </script>
+</body>
+
+</html>
