@@ -258,7 +258,7 @@
 - [找到元素最近的锚点元素（即超链接元素）--2022-05-16](codes/javascript/find-closest-anchor.md)
 - [找到元素最近的匹配元素--2022-05-17](codes/javascript/find-closest-matching-node.md)
 - [查找所有连续元素的数组--2022-05-18](codes/javascript/find-consecutive.md)
-- [查找根据回调函数返回真值的前 n 个元素--2022-05-19](codes/javascript/findFirstN.md)
+- [查找根据回调函数返回真值的前 n 个元素--2022-05-19](codes/javascript/find-first-n.md)
 - [根据回调函数指定的返回值查找对象属性名--2022-05-20](codes/javascript/findKey.md)
 - [根据指定值查找对象所有属性名--2022-05-21](codes/javascript/findKeys.md)
 - [查找提供的函数为其返回真值的最后一个元素--2022-05-22](codes/javascript/findLast.md)

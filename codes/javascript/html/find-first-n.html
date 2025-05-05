@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能产品搜索系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .search-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button.secondary {
+            background-color: #95a5a6;
+        }
+
+        button.secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .results-count {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .results-limit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-limit label {
+            margin-bottom: 0;
+        }
+
+        .results-limit select {
+            width: 70px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image {
+            height: 200px;
+            background-color: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-image svg {
+            width: 100px;
+            height: 100px;
+            color: #bdc3c7;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .product-category {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .product-stock {
+            font-size: 14px;
+            color: #27ae60;
+        }
+
+        .product-stock.low {
+            color: #f39c12;
+        }
+
+        .product-stock.out {
+            color: #e74c3c;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        .highlight {
+            background-color: #ffffcc;
+            padding: 2px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>智能产品搜索系统</h1>
+        <p class="description">基于findFirstN算法的高效产品筛选工具，快速找到符合条件的商品</p>
+
+        <div class="search-section">
+            <div class="search-row">
+                <div class="search-group">
+                    <label for="nameSearch">产品名称</label>
+                    <input type="text" id="nameSearch" placeholder="输入关键词搜索产品名称">
+                </div>
+                <div class="search-group">
+                    <label for="categoryFilter">产品类别</label>
+                    <select id="categoryFilter">
+                        <option value="">全部类别</option>
+                        <option value="电子产品">电子产品</option>
+                        <option value="家居用品">家居用品</option>
+                        <option value="办公用品">办公用品</option>
+                        <option value="服装">服装</option>
+                        <option value="食品">食品</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-row">
+                <div class="search-group">
+                    <label for="minPrice">最低价格</label>
+                    <input type="number" id="minPrice" placeholder="最低价格" min="0">
+                </div>
+                <div class="search-group">
+                    <label for="maxPrice">最高价格</label>
+                    <input type="number" id="maxPrice" placeholder="最高价格" min="0">
+                </div>
+                <div class="search-group">
+                    <label for="stockFilter">库存状态</label>
+                    <select id="stockFilter">
+                        <option value="">全部</option>
+                        <option value="instock">有库存</option>
+                        <option value="lowstock">库存不足</option>
+                        <option value="outofstock">无库存</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button id="searchBtn">搜索产品</button>
+                <button id="resetBtn" class="secondary">重置筛选条件</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <div class="results-count" id="resultsCount">找到 0 个产品</div>
+                <div class="results-limit">
+                    <label for="resultLimit">显示数量:</label>
+                    <select id="resultLimit">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="productGrid" class="product-grid">
+                <div class="no-results">请使用上方的筛选条件搜索产品</div>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2023 智能产品搜索系统 | 基于 findFirstN 算法
+        </footer>
+    </div>
+
+    <script>
+        // 核心函数：findFirstN - 查找数组中符合条件的前N个元素
+        const findFirstN = (arr, matcher, n = 1) => {
+            const res = [];
+            for (const i in arr) {
+                const el = arr[i];
+                if (matcher(el, i, arr)) {
+                    res.push(el);
+                }
+                if (res.length === n) {
+                    return res;
+                }
+            }
+            return res;
+        };
+
+        // 模拟产品数据
+        const products = [
+            { id: 1, name: "智能手机 Pro", category: "电子产品", price: 4999, stock: 120 },
+            { id: 2, name: "超薄笔记本电脑", category: "电子产品", price: 6599, stock: 85 },
+            { id: 3, name: "无线蓝牙耳机", category: "电子产品", price: 799, stock: 200 },
+            { id: 4, name: "智能手表", category: "电子产品", price: 1299, stock: 150 },
+            { id: 5, name: "4K高清显示器", category: "电子产品", price: 2499, stock: 60 },
+            { id: 6, name: "人体工学办公椅", category: "办公用品", price: 899, stock: 45 },
+            { id: 7, name: "实木书桌", category: "家居用品", price: 1599, stock: 30 },
+            { id: 8, name: "多功能文件柜", category: "办公用品", price: 499, stock: 75 },
+            { id: 9, name: "LED台灯", category: "家居用品", price: 129, stock: 200 },
+            { id: 10, name: "防水运动手表", category: "电子产品", price: 899, stock: 100 },
+            { id: 11, name: "纯棉T恤", category: "服装", price: 99, stock: 300 },
+            { id: 12, name: "牛仔裤", category: "服装", price: 199, stock: 250 },
+            { id: 13, name: "休闲运动鞋", category: "服装", price: 399, stock: 180 },
+            { id: 14, name: "保温杯", category: "家居用品", price: 89, stock: 400 },
+            { id: 15, name: "机械键盘", category: "电子产品", price: 349, stock: 120 },
+            { id: 16, name: "无线鼠标", category: "电子产品", price: 129, stock: 150 },
+            { id: 17, name: "电竞显示器", category: "电子产品", price: 1899, stock: 40 },
+            { id: 18, name: "办公文具套装", category: "办公用品", price: 59, stock: 500 },
+            { id: 19, name: "有机蔬菜礼盒", category: "食品", price: 199, stock: 30 },
+            { id: 20, name: "进口巧克力", category: "食品", price: 59, stock: 200 },
+            { id: 21, name: "坚果礼盒", category: "食品", price: 139, stock: 150 },
+            { id: 22, name: "智能音箱", category: "电子产品", price: 399, stock: 80 },
+            { id: 23, name: "防晒衣", category: "服装", price: 159, stock: 120 },
+            { id: 24, name: "便携式充电宝", category: "电子产品", price: 159, stock: 200 },
+            { id: 25, name: "多功能打印机", category: "办公用品", price: 999, stock: 50 },
+            { id: 26, name: "真无线蓝牙耳机", category: "电子产品", price: 599, stock: 0 },
+            { id: 27, name: "智能体重秤", category: "家居用品", price: 129, stock: 5 },
+            { id: 28, name: "防水手机壳", category: "电子产品", price: 49, stock: 300 },
+            { id: 29, name: "高清网络摄像头", category: "电子产品", price: 299, stock: 0 },
+            { id: 30, name: "可调节升降桌", category: "办公用品", price: 1299, stock: 10 }
+        ];
+
+        // DOM 元素
+        const nameSearchInput = document.getElementById('nameSearch');
+        const categoryFilterSelect = document.getElementById('categoryFilter');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const stockFilterSelect = document.getElementById('stockFilter');
+        const searchBtn = document.getElementById('searchBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultLimitSelect = document.getElementById('resultLimit');
+        const resultsCountDiv = document.getElementById('resultsCount');
+        const productGridDiv = document.getElementById('productGrid');
+
+        // 搜索产品
+        searchBtn.addEventListener('click', () => {
+            const nameSearch = nameSearchInput.value.trim().toLowerCase();
+            const categoryFilter = categoryFilterSelect.value;
+            const minPrice = minPriceInput.value ? parseFloat(minPriceInput.value) : 0;
+            const maxPrice = maxPriceInput.value ? parseFloat(maxPriceInput.value) : Infinity;
+            const stockFilter = stockFilterSelect.value;
+            const resultLimit = parseInt(resultLimitSelect.value);
+
+            // 使用 findFirstN 函数查找符合条件的产品
+            const matchedProducts = findFirstN(products, product => {
+                // 名称匹配
+                const nameMatch = nameSearch === '' || product.name.toLowerCase().includes(nameSearch);
+
+                // 类别匹配
+                const categoryMatch = categoryFilter === '' || product.category === categoryFilter;
+
+                // 价格范围匹配
+                const priceMatch = product.price >= minPrice && product.price <= maxPrice;
+
+                // 库存状态匹配
+                let stockMatch = true;
+                if (stockFilter === 'instock') {
+                    stockMatch = product.stock > 10;
+                } else if (stockFilter === 'lowstock') {
+                    stockMatch = product.stock > 0 && product.stock <= 10;
+                } else if (stockFilter === 'outofstock') {
+                    stockMatch = product.stock === 0;
+                }
+
+                // 所有条件都匹配才返回true
+                return nameMatch && categoryMatch && priceMatch && stockMatch;
+            }, resultLimit);
+
+            // 显示结果
+            displayProducts(matchedProducts, nameSearch);
+        });
+
+        // 重置筛选条件
+        resetBtn.addEventListener('click', () => {
+            nameSearchInput.value = '';
+            categoryFilterSelect.value = '';
+            minPriceInput.value = '';
+            maxPriceInput.value = '';
+            stockFilterSelect.value = '';
+            resultLimitSelect.value = '10';
+
+            // 显示所有产品（限制为10个）
+            const allProducts = findFirstN(products, () => true, 10);
+            displayProducts(allProducts);
+        });
+
+        // 显示产品
+        function displayProducts(products, highlightText = '') {
+            // 更新结果数量
+            resultsCountDiv.textContent = `找到 ${products.length} 个产品`;
+
+            // 清空产品网格
+            productGridDiv.innerHTML = '';
+
+            // 如果没有结果
+            if (products.length === 0) {
+                productGridDiv.innerHTML = '<div class="no-results">没有找到符合条件的产品</div>';
+                return;
+            }
+
+            // 创建产品卡片
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+
+                // 产品图片（使用SVG图标代替）
+                const productImage = document.createElement('div');
+                productImage.className = 'product-image';
+                productImage.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <line x1="21.95" y1="21.95" x2="16.95" y2="16.95"></line>
+                </svg>`;
+
+                // 产品信息
+                const productInfo = document.createElement('div');
+                productInfo.className = 'product-info';
+
+                // 产品名称（高亮搜索关键词）
+                let productName = product.name;
+                if (highlightText && productName.toLowerCase().includes(highlightText.toLowerCase())) {
+                    const regex = new RegExp(highlightText, 'gi');
+                    productName = productName.replace(regex, match => `<span class="highlight">${match}</span>`);
+                }
+
+                // 库存状态
+                let stockClass = 'product-stock';
+                let stockText = `库存充足 (${product.stock})`;
+                if (product.stock === 0) {
+                    stockClass += ' out';
+                    stockText = '无库存';
+                } else if (product.stock <= 10) {
+                    stockClass += ' low';
+                    stockText = `库存不足 (${product.stock})`;
+                }
+
+                // 设置产品信息HTML
+                productInfo.innerHTML = `
+                    <div class="product-name">${productName}</div>
+                    <div class="product-category">${product.category}</div>
+                    <div class="product-price">¥${product.price.toFixed(2)}</div>
+                    <div class="${stockClass}">${stockText}</div>
+                `;
+
+                // 添加到卡片
+                productCard.appendChild(productImage);
+                productCard.appendChild(productInfo);
+
+                // 添加到网格
+                productGridDiv.appendChild(productCard);
+            });
+        }
+
+        // 初始加载显示前10个产品
+        window.addEventListener('load', () => {
+            const initialProducts = findFirstN(products, () => true, 10);
+            displayProducts(initialProducts);
+        });
+    </script>
+</body>
+
+</html>

@@ -25,17 +25,23 @@ const findFirstN = (arr, matcher, n = 1) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-first-n.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
-findFirstN([1, 2, 4, 6], n => n % 2 === 0, 2); // [2, 4]
-findFirstN([1, 2, 4, 6], n => n % 2 === 0, 5); // [2, 4, 6]
+findFirstN([1, 2, 4, 6], (n) => n % 2 === 0, 2); // [2, 4]
+findFirstN([1, 2, 4, 6], (n) => n % 2 === 0, 5); // [2, 4, 6]
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findFirstN.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-first-n.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-first-n.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findFirstN.html"></iframe>
+<iframe src="codes/javascript/html/find-first-n.html"></iframe>
