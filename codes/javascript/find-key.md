@@ -11,8 +11,12 @@
 
 ```js
 const findKey = (obj, handler) =>
-  Object.keys(obj).find(key => handler(obj[key], key, obj));
+  Object.keys(obj).find((key) => handler(obj[key], key, obj));
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-key.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -21,16 +25,18 @@ findKey(
   {
     barney: { age: 36, active: true },
     fred: { age: 40, active: false },
-    pebbles: { age: 1, active: true }
+    pebbles: { age: 1, active: true },
   },
-  x => x['active']
+  (x) => x["active"]
 ); // 'barney'
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findKey.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-key.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-key.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findKey.html"></iframe>
+<iframe src="codes/javascript/html/find-key.html"></iframe>
