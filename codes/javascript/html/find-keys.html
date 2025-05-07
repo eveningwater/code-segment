@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品库存管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .stats-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border-radius: 6px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-card.in-stock {
+            background-color: #2ecc71;
+        }
+
+        .stat-card.low-stock {
+            background-color: #f39c12;
+        }
+
+        .stat-card.out-of-stock {
+            background-color: #e74c3c;
+        }
+
+        .stat-card.all {
+            background-color: #3498db;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-header {
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .product-category {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+            display: flex;
+        }
+
+        .info-label {
+            font-weight: bold;
+            width: 100px;
+            color: #7f8c8d;
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .product-footer {
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ddd;
+        }
+
+        .stock-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-in-stock {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .status-low-stock {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .status-out-of-stock {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            grid-column: 1 / -1;
+        }
+
+        .action-button {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>产品库存管理系统</h1>
+        <p class="description">基于findKeys方法的高效库存筛选系统</p>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="stockFilter">库存状态:</label>
+                <select id="stockFilter">
+                    <option value="all">全部</option>
+                    <option value="in-stock">有库存</option>
+                    <option value="low-stock">库存不足</option>
+                    <option value="out-of-stock">无库存</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="categoryFilter">产品类别:</label>
+                <select id="categoryFilter">
+                    <option value="all">全部</option>
+                    <option value="电子产品">电子产品</option>
+                    <option value="家居用品">家居用品</option>
+                    <option value="办公用品">办公用品</option>
+                    <option value="食品饮料">食品饮料</option>
+                </select>
+            </div>
+
+            <button id="filterBtn">筛选</button>
+            <button id="resetBtn" style="background-color: #95a5a6;">重置</button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card all">
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">总产品数</div>
+            </div>
+            <div class="stat-card in-stock">
+                <div class="stat-value" id="inStockCount">0</div>
+                <div class="stat-label">有库存</div>
+            </div>
+            <div class="stat-card low-stock">
+                <div class="stat-value" id="lowStockCount">0</div>
+                <div class="stat-label">库存不足</div>
+            </div>
+            <div class="stat-card out-of-stock">
+                <div class="stat-value" id="outOfStockCount">0</div>
+                <div class="stat-label">无库存</div>
+            </div>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <!-- 产品卡片将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 核心函数：findKeys - 在对象中查找所有具有特定值的键
+        const findKeys = (obj, val) => Object.keys(obj).filter(key => obj[key] === val);
+
+        // 产品数据
+        const products = {
+            'prod001': {
+                id: 'prod001',
+                name: '智能手机',
+                category: '电子产品',
+                price: 3999,
+                stock: 45,
+                stockStatus: 'in-stock', // 有库存
+                supplier: '科技电子有限公司',
+                lastUpdated: '2023-05-15'
+            },
+            'prod002': {
+                id: 'prod002',
+                name: '笔记本电脑',
+                category: '电子产品',
+                price: 6999,
+                stock: 12,
+                stockStatus: 'low-stock', // 库存不足
+                supplier: '科技电子有限公司',
+                lastUpdated: '2023-06-10'
+            },
+            'prod003': {
+                id: 'prod003',
+                name: '无线耳机',
+                category: '电子产品',
+                price: 899,
+                stock: 0,
+                stockStatus: 'out-of-stock', // 无库存
+                supplier: '音频科技有限公司',
+                lastUpdated: '2023-04-22'
+            },
+            'prod004': {
+                id: 'prod004',
+                name: '办公椅',
+                category: '办公用品',
+                price: 599,
+                stock: 28,
+                stockStatus: 'in-stock',
+                supplier: '舒适家居有限公司',
+                lastUpdated: '2023-05-30'
+            },
+            'prod005': {
+                id: 'prod005',
+                name: '书桌',
+                category: '家居用品',
+                price: 1299,
+                stock: 5,
+                stockStatus: 'low-stock',
+                supplier: '舒适家居有限公司',
+                lastUpdated: '2023-06-05'
+            },
+            'prod006': {
+                id: 'prod006',
+                name: '台灯',
+                category: '家居用品',
+                price: 199,
+                stock: 0,
+                stockStatus: 'out-of-stock',
+                supplier: '照明科技有限公司',
+                lastUpdated: '2023-03-18'
+            },
+            'prod007': {
+                id: 'prod007',
+                name: '打印机',
+                category: '办公用品',
+                price: 1499,
+                stock: 8,
+                stockStatus: 'low-stock',
+                supplier: '办公设备有限公司',
+                lastUpdated: '2023-05-12'
+            },
+            'prod008': {
+                id: 'prod008',
+                name: '矿泉水（24瓶装）',
+                category: '食品饮料',
+                price: 36,
+                stock: 120,
+                stockStatus: 'in-stock',
+                supplier: '饮品供应有限公司',
+                lastUpdated: '2023-06-15'
+            },
+            'prod009': {
+                id: 'prod009',
+                name: '咖啡豆（500g）',
+                category: '食品饮料',
+                price: 89,
+                stock: 3,
+                stockStatus: 'low-stock',
+                supplier: '咖啡进口有限公司',
+                lastUpdated: '2023-06-01'
+            },
+            'prod010': {
+                id: 'prod010',
+                name: '平板电脑',
+                category: '电子产品',
+                price: 2999,
+                stock: 18,
+                stockStatus: 'in-stock',
+                supplier: '科技电子有限公司',
+                lastUpdated: '2023-05-25'
+            },
+            'prod011': {
+                id: 'prod011',
+                name: '文件柜',
+                category: '办公用品',
+                price: 899,
+                stock: 0,
+                stockStatus: 'out-of-stock',
+                supplier: '办公设备有限公司',
+                lastUpdated: '2023-04-10'
+            },
+            'prod012': {
+                id: 'prod012',
+                name: '巧克力礼盒',
+                category: '食品饮料',
+                price: 158,
+                stock: 0,
+                stockStatus: 'out-of-stock',
+                supplier: '食品进口有限公司',
+                lastUpdated: '2023-02-28'
+            }
+        };
+
+        // DOM元素
+        const stockFilterSelect = document.getElementById('stockFilter');
+        const categoryFilterSelect = document.getElementById('categoryFilter');
+        const filterBtn = document.getElementById('filterBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const productGridDiv = document.getElementById('productGrid');
+        const totalCountDiv = document.getElementById('totalCount');
+        const inStockCountDiv = document.getElementById('inStockCount');
+        const lowStockCountDiv = document.getElementById('lowStockCount');
+        const outOfStockCountDiv = document.getElementById('outOfStockCount');
+
+        // 根据库存状态获取对应的CSS类和显示文本
+        function getStockStatusInfo(status) {
+            switch (status) {
+                case 'in-stock':
+                    return { class: 'status-in-stock', text: '有库存' };
+                case 'low-stock':
+                    return { class: 'status-low-stock', text: '库存不足' };
+                case 'out-of-stock':
+                    return { class: 'status-out-of-stock', text: '无库存' };
+                default:
+                    return { class: '', text: status };
+            }
+        }
+
+        // 创建产品卡片
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            const statusInfo = getStockStatusInfo(product.stockStatus);
+
+            card.innerHTML = `
+                <div class="product-header">
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-category">${product.category}</div>
+                </div>
+                <div class="product-info">
+                    <div class="info-item">
+                        <div class="info-label">价格:</div>
+                        <div class="info-value">¥${product.price.toFixed(2)}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">库存:</div>
+                        <div class="info-value">${product.stock}件</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">供应商:</div>
+                        <div class="info-value">${product.supplier}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">更新日期:</div>
+                        <div class="info-value">${product.lastUpdated}</div>
+                    </div>
+                </div>
+                <div class="product-footer">
+                    <div class="stock-status ${statusInfo.class}">${statusInfo.text}</div>
+                    <button class="action-button">补充库存</button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            // 使用findKeys函数查找不同库存状态的产品
+            const inStockProducts = findKeys(products, 'in-stock');
+            const lowStockProducts = findKeys(products, 'low-stock');
+            const outOfStockProducts = findKeys(products, 'out-of-stock');
+
+            totalCountDiv.textContent = Object.keys(products).length;
+            inStockCountDiv.textContent = inStockProducts.length;
+            lowStockCountDiv.textContent = lowStockProducts.length;
+            outOfStockCountDiv.textContent = outOfStockProducts.length;
+        }
+
+        // 显示所有产品
+        function displayAllProducts() {
+            productGridDiv.innerHTML = '';
+            const productIds = Object.keys(products);
+
+            if (productIds.length === 0) {
+                productGridDiv.innerHTML = '<div class="no-results">没有产品数据</div>';
+                return;
+            }
+
+            productIds.forEach(id => {
+                const productCard = createProductCard(products[id]);
+                productGridDiv.appendChild(productCard);
+            });
+        }
+
+        // 筛选产品
+        function filterProducts() {
+            const stockStatus = stockFilterSelect.value;
+            const category = categoryFilterSelect.value;
+
+            productGridDiv.innerHTML = '';
+            let filteredProductIds = [];
+
+            // 使用findKeys函数查找符合库存状态的产品
+            if (stockStatus !== 'all') {
+                // 这里是findKeys方法的核心应用 - 查找所有具有特定库存状态的产品
+                filteredProductIds = findKeys(products, stockStatus);
+            } else {
+                filteredProductIds = Object.keys(products);
+            }
+
+            // 进一步按类别筛选
+            if (category !== 'all') {
+                filteredProductIds = filteredProductIds.filter(id => {
+                    return products[id].category === category;
+                });
+            }
+
+            if (filteredProductIds.length === 0) {
+                productGridDiv.innerHTML = '<div class="no-results">没有找到符合条件的产品</div>';
+                return;
+            }
+
+            filteredProductIds.forEach(id => {
+                const productCard = createProductCard(products[id]);
+                productGridDiv.appendChild(productCard);
+            });
+        }
+
+        // 事件监听
+        filterBtn.addEventListener('click', filterProducts);
+
+        resetBtn.addEventListener('click', () => {
+            stockFilterSelect.value = 'all';
+            categoryFilterSelect.value = 'all';
+            displayAllProducts();
+        });
+
+        // 初始加载
+        window.addEventListener('load', () => {
+            // 修正产品数据中的stockStatus，确保它是字符串值而不是对象引用
+            Object.keys(products).forEach(key => {
+                const product = products[key];
+                products[key] = {
+                    ...product,
+                    stockStatus: product.stockStatus
+                };
+            });
+
+            updateStats();
+            displayAllProducts();
+        });
+    </script>
+</body>
+
+</html>

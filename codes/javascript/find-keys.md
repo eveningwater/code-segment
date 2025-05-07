@@ -10,8 +10,13 @@
 > 代码如下:
 
 ```js
-const findKeys = (obj, val) => Object.keys(obj).filter(key => obj[key] === val);
+const findKeys = (obj, val) =>
+  Object.keys(obj).filter((key) => obj[key] === val);
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-keys.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -19,15 +24,17 @@ const findKeys = (obj, val) => Object.keys(obj).filter(key => obj[key] === val);
 const ages = {
   Leo: 20,
   Zoey: 21,
-  Jane: 20
+  Jane: 20,
 };
 findKeys(ages, 20); // [ 'Leo', 'Jane' ]
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findKeys.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-keys.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-keys.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findKeys.html"></iframe>
+<iframe src="codes/javascript/html/find-keys.html"></iframe>
