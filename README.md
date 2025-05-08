@@ -261,7 +261,7 @@
 - [查找根据回调函数返回真值的前 n 个元素--2022-05-19](codes/javascript/find-first-n.md)
 - [根据回调函数指定的返回值查找对象属性名--2022-05-20](codes/javascript/find-key.md)
 - [根据指定值查找对象所有属性名--2022-05-21](codes/javascript/find-keys.md)
-- [查找提供的函数为其返回真值的最后一个元素--2022-05-22](codes/javascript/findLast.md)
+- [查找提供的函数为其返回真值的最后一个元素--2022-05-22](codes/javascript/find-last.md)
 - [查找提供的函数为其返回真值的最后一个元素的索引--2022-05-23](codes/javascript/findLastIndex.md)
 - [查找提供的函数为其返回真值的最后一个元素的属性名--2022-05-24](codes/javascript/findLastKey.md)
 - [新增类名--2022-05-25](codes/javascript/addClass.md)

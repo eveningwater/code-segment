@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最近交易记录查询系统 - findLast应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .filter-group {
+            flex: 1 1 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            padding: 20px;
+            border-radius: 6px;
+            background-color: #f1f8ff;
+            border-left: 4px solid #3498db;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-card h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .transaction-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #7f8c8d;
+            font-size: 12px;
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            display: none;
+        }
+
+        .no-result.show {
+            display: block;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .status-success {
+            background-color: #2ecc71;
+        }
+
+        .status-pending {
+            background-color: #f39c12;
+        }
+
+        .status-failed {
+            background-color: #e74c3c;
+        }
+
+        .status-refunded {
+            background-color: #9b59b6;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .data-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .data-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .data-table tr:hover {
+            background-color: #f5f7fa;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>最近交易记录查询系统</h1>
+            <p class="description">基于findLast方法实现的交易记录查询工具，可以快速找到满足条件的最近一笔交易</p>
+        </header>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="transaction-type">交易类型</label>
+                <select id="transaction-type">
+                    <option value="">全部类型</option>
+                    <option value="payment">付款</option>
+                    <option value="refund">退款</option>
+                    <option value="transfer">转账</option>
+                    <option value="deposit">充值</option>
+                    <option value="withdrawal">提现</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="payment-method">支付方式</label>
+                <select id="payment-method">
+                    <option value="">全部方式</option>
+                    <option value="alipay">支付宝</option>
+                    <option value="wechat">微信支付</option>
+                    <option value="creditcard">信用卡</option>
+                    <option value="bankcard">银行卡</option>
+                    <option value="cash">现金</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="transaction-status">交易状态</label>
+                <select id="transaction-status">
+                    <option value="">全部状态</option>
+                    <option value="success">成功</option>
+                    <option value="pending">处理中</option>
+                    <option value="failed">失败</option>
+                    <option value="refunded">已退款</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="min-amount">最小金额</label>
+                <input type="number" id="min-amount" placeholder="最小金额" min="0">
+            </div>
+
+            <div class="filter-group">
+                <label for="max-amount">最大金额</label>
+                <input type="number" id="max-amount" placeholder="最大金额" min="0">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button id="search-btn" class="btn-primary">查询最近交易</button>
+            <button id="reset-btn" class="btn-secondary">重置条件</button>
+        </div>
+
+        <div class="result-section">
+            <div id="result-card" class="result-card">
+                <h3>查询结果：最近一笔满足条件的交易</h3>
+                <div id="transaction-details" class="transaction-details">
+                    <!-- 结果将在这里动态显示 -->
+                </div>
+            </div>
+            <div id="no-result" class="no-result">
+                <p>没有找到符合条件的交易记录</p>
+            </div>
+        </div>
+
+        <div class="data-section">
+            <h3>交易数据示例</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>交易ID</th>
+                        <th>交易类型</th>
+                        <th>金额</th>
+                        <th>支付方式</th>
+                        <th>交易状态</th>
+                        <th>交易时间</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <!-- 数据将在这里动态显示 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // findLast方法实现 - 查找数组中最后一个满足条件的元素
+        const findLast = (arr, handler) => arr.filter(handler).pop();
+
+        // 模拟交易数据
+        const transactions = [
+            {
+                id: 'T20230001',
+                type: 'payment',
+                amount: 1299.00,
+                paymentMethod: 'alipay',
+                status: 'success',
+                time: '2023-05-15 14:30:25',
+                merchant: '电子商城',
+                description: '购买智能手机',
+                currency: 'CNY',
+                userId: 'U10001'
+            },
+            {
+                id: 'T20230002',
+                type: 'refund',
+                amount: 299.50,
+                paymentMethod: 'alipay',
+                status: 'success',
+                time: '2023-05-16 09:45:12',
+                merchant: '服装专卖店',
+                description: '退款-不合适尺码',
+                currency: 'CNY',
+                userId: 'U10002'
+            },
+            {
+                id: 'T20230003',
+                type: 'transfer',
+                amount: 5000.00,
+                paymentMethod: 'bankcard',
+                status: 'success',
+                time: '2023-05-17 16:20:33',
+                merchant: '个人转账',
+                description: '家庭生活费',
+                currency: 'CNY',
+                userId: 'U10001'
+            },
+            {
+                id: 'T20230004',
+                type: 'payment',
+                amount: 459.90,
+                paymentMethod: 'wechat',
+                status: 'failed',
+                time: '2023-05-18 20:15:40',
+                merchant: '超市连锁',
+                description: '日常购物',
+                currency: 'CNY',
+                userId: 'U10003'
+            },
+            {
+                id: 'T20230005',
+                type: 'deposit',
+                amount: 10000.00,
+                paymentMethod: 'bankcard',
+                status: 'success',
+                time: '2023-05-19 11:05:22',
+                merchant: '银行存款',
+                description: '工资入账',
+                currency: 'CNY',
+                userId: 'U10001'
+            },
+            {
+                id: 'T20230006',
+                type: 'payment',
+                amount: 89.90,
+                paymentMethod: 'wechat',
+                status: 'success',
+                time: '2023-05-20 18:30:15',
+                merchant: '餐饮店',
+                description: '晚餐消费',
+                currency: 'CNY',
+                userId: 'U10002'
+            },
+            {
+                id: 'T20230007',
+                type: 'withdrawal',
+                amount: 2000.00,
+                paymentMethod: 'bankcard',
+                status: 'pending',
+                time: '2023-05-21 09:10:05',
+                merchant: 'ATM取款',
+                description: '现金提取',
+                currency: 'CNY',
+                userId: 'U10003'
+            },
+            {
+                id: 'T20230008',
+                type: 'payment',
+                amount: 4599.00,
+                paymentMethod: 'creditcard',
+                status: 'success',
+                time: '2023-05-22 14:25:30',
+                merchant: '电器商城',
+                description: '购买家电',
+                currency: 'CNY',
+                userId: 'U10001'
+            },
+            {
+                id: 'T20230009',
+                type: 'refund',
+                amount: 4599.00,
+                paymentMethod: 'creditcard',
+                status: 'refunded',
+                time: '2023-05-23 16:40:18',
+                merchant: '电器商城',
+                description: '退款-商品质量问题',
+                currency: 'CNY',
+                userId: 'U10001'
+            },
+            {
+                id: 'T20230010',
+                type: 'payment',
+                amount: 199.00,
+                paymentMethod: 'alipay',
+                status: 'success',
+                time: '2023-05-24 10:50:42',
+                merchant: '书店',
+                description: '购买图书',
+                currency: 'CNY',
+                userId: 'U10002'
+            }
+        ];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function () {
+            // 填充数据表格
+            populateDataTable();
+
+            // 绑定查询按钮事件
+            document.getElementById('search-btn').addEventListener('click', searchLastTransaction);
+
+            // 绑定重置按钮事件
+            document.getElementById('reset-btn').addEventListener('click', resetFilters);
+        });
+
+        // 填充数据表格
+        function populateDataTable() {
+            const tableBody = document.getElementById('data-table-body');
+            tableBody.innerHTML = '';
+
+            transactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.id}</td>
+                    <td>${getTransactionTypeName(transaction.type)}</td>
+                    <td>¥${transaction.amount.toFixed(2)}</td>
+                    <td>${getPaymentMethodName(transaction.paymentMethod)}</td>
+                    <td><span class="status-badge status-${transaction.status}">${getStatusName(transaction.status)}</span></td>
+                    <td>${transaction.time}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 查询最后一笔满足条件的交易
+        function searchLastTransaction() {
+            // 获取筛选条件
+            const type = document.getElementById('transaction-type').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+            const status = document.getElementById('transaction-status').value;
+            const minAmount = parseFloat(document.getElementById('min-amount').value) || 0;
+            const maxAmount = parseFloat(document.getElementById('max-amount').value) || Infinity;
+
+            // 使用findLast方法查找最后一笔满足条件的交易
+            const result = findLast(transactions, transaction => {
+                // 检查是否满足所有筛选条件
+                const typeMatch = !type || transaction.type === type;
+                const paymentMethodMatch = !paymentMethod || transaction.paymentMethod === paymentMethod;
+                const statusMatch = !status || transaction.status === status;
+                const amountMatch = transaction.amount >= minAmount &&
+                    (maxAmount === Infinity || transaction.amount <= maxAmount);
+
+                return typeMatch && paymentMethodMatch && statusMatch && amountMatch;
+            });
+
+            // 显示结果
+            displayResult(result);
+        }
+
+        // 显示查询结果
+        function displayResult(transaction) {
+            const resultCard = document.getElementById('result-card');
+            const noResult = document.getElementById('no-result');
+            const detailsContainer = document.getElementById('transaction-details');
+
+            if (transaction) {
+                // 有结果，显示详情
+                detailsContainer.innerHTML = `
+                    <div class="detail-item">
+                        <span class="detail-label">交易ID</span>
+                        <span class="detail-value">${transaction.id}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">交易类型</span>
+                        <span class="detail-value">${getTransactionTypeName(transaction.type)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">交易金额</span>
+                        <span class="detail-value">¥${transaction.amount.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">支付方式</span>
+                        <span class="detail-value">${getPaymentMethodName(transaction.paymentMethod)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">交易状态</span>
+                        <span class="detail-value">
+                            <span class="status-badge status-${transaction.status}">${getStatusName(transaction.status)}</span>
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">交易时间</span>
+                        <span class="detail-value">${transaction.time}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">商户名称</span>
+                        <span class="detail-value">${transaction.merchant}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">交易描述</span>
+                        <span class="detail-value">${transaction.description}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">货币类型</span>
+                        <span class="detail-value">${transaction.currency}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">用户ID</span>
+                        <span class="detail-value">${transaction.userId}</span>
+                    </div>
+                `;
+
+                resultCard.classList.add('show');
+                noResult.classList.remove('show');
+            } else {
+                // 无结果
+                resultCard.classList.remove('show');
+                noResult.classList.add('show');
+            }
+        }
+
+        // 重置筛选条件
+        function resetFilters() {
+            document.getElementById('transaction-type').value = '';
+            document.getElementById('payment-method').value = '';
+            document.getElementById('transaction-status').value = '';
+            document.getElementById('min-amount').value = '';
+            document.getElementById('max-amount').value = '';
+
+            // 隐藏结果
+            document.getElementById('result-card').classList.remove('show');
+            document.getElementById('no-result').classList.remove('show');
+        }
+
+        // 获取交易类型名称
+        function getTransactionTypeName(type) {
+            const typeMap = {
+                'payment': '付款',
+                'refund': '退款',
+                'transfer': '转账',
+                'deposit': '充值',
+                'withdrawal': '提现'
+            };
+            return typeMap[type] || type;
+        }
+
+        // 获取支付方式名称
+        function getPaymentMethodName(method) {
+            const methodMap = {
+                'alipay': '支付宝',
+                'wechat': '微信支付',
+                'creditcard': '信用卡',
+                'bankcard': '银行卡',
+                'cash': '现金'
+            };
+            return methodMap[method] || method;
+        }
+
+        // 获取状态名称
+        function getStatusName(status) {
+            const statusMap = {
+                'success': '成功',
+                'pending': '处理中',
+                'failed': '失败',
+                'refunded': '已退款'
+            };
+            return statusMap[status] || status;
+        }
+    </script>
+</body>
+
+</html>
