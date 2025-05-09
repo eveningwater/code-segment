@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品版本历史查询系统 - findLastIndex 应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #bdc3c7;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .result-count {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .version-card {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .version-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .version-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .version-date {
+            color: #7f8c8d;
+        }
+
+        .version-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .type-major {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .type-minor {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .type-patch {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .version-features {
+            margin-top: 15px;
+        }
+
+        .feature-list {
+            list-style-type: none;
+        }
+
+        .feature-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 40px 0;
+            color: #7f8c8d;
+        }
+
+        .latest-version {
+            background-color: #f1f9ff;
+            border-left: 4px solid #3498db;
+        }
+
+        .version-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .info-item {
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            margin-right: 5px;
+            color: #34495e;
+        }
+
+        .search-result-highlight {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .search-result-content {
+            color: #34495e;
+        }
+
+        @media (max-width: 768px) {
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>产品版本历史查询系统</h1>
+            <p class="subtitle">基于 findLastIndex 方法的高效版本查询工具</p>
+        </header>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label class="filter-label" for="version-type">版本类型</label>
+                <select id="version-type">
+                    <option value="">全部类型</option>
+                    <option value="major">主要版本 (Major)</option>
+                    <option value="minor">次要版本 (Minor)</option>
+                    <option value="patch">补丁版本 (Patch)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="feature-keyword">功能关键词</label>
+                <input type="text" id="feature-keyword" placeholder="搜索功能描述...">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="developer">开发者</label>
+                <select id="developer">
+                    <option value="">全部开发者</option>
+                    <option value="张三">张三</option>
+                    <option value="李四">李四</option>
+                    <option value="王五">王五</option>
+                    <option value="赵六">赵六</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="date-from">发布日期（起）</label>
+                <input type="date" id="date-from">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="date-to">发布日期（止）</label>
+                <input type="date" id="date-to">
+            </div>
+
+            <div class="filter-group btn-group">
+                <button class="btn-primary" id="search-btn">查询版本</button>
+                <button class="btn-secondary" id="reset-btn">重置条件</button>
+            </div>
+        </div>
+
+        <div class="search-result-highlight" id="latest-match-result" style="display: none;">
+            <div class="search-result-title">最近匹配版本</div>
+            <div class="search-result-content" id="latest-match-content"></div>
+        </div>
+
+        <div class="result-section">
+            <div class="result-header">
+                <h2 class="result-title">版本历史记录</h2>
+                <div class="result-count" id="result-count">共 <span id="count-number">0</span> 个版本</div>
+            </div>
+
+            <div id="version-list">
+                <!-- 版本卡片将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // findLastIndex 方法实现
+        const findLastIndex = (arr, handler) =>
+            (arr
+                .map((val, i) => [i, val])
+                .filter(([i, val]) => handler(val, i, arr))
+                .pop() || [-1])[0];
+
+        // 模拟产品版本数据
+        const versionHistory = [
+            {
+                version: "3.2.1",
+                type: "patch",
+                date: "2023-11-15",
+                developer: "张三",
+                department: "前端开发部",
+                features: [
+                    "修复了用户头像上传失败的问题",
+                    "优化了移动端页面加载速度",
+                    "修复了iOS设备上的兼容性问题"
+                ],
+                dependencies: ["React 18.2.0", "Node.js 16.x"],
+                testCoverage: "92%"
+            },
+            {
+                version: "3.2.0",
+                type: "minor",
+                date: "2023-10-28",
+                developer: "李四",
+                department: "前端开发部",
+                features: [
+                    "新增了黑暗模式支持",
+                    "优化了表单验证逻辑",
+                    "新增了多语言支持（英语、日语、韩语）"
+                ],
+                dependencies: ["React 18.2.0", "Node.js 16.x"],
+                testCoverage: "89%"
+            },
+            {
+                version: "3.1.2",
+                type: "patch",
+                date: "2023-09-15",
+                developer: "王五",
+                department: "后端开发部",
+                features: [
+                    "修复了用户注册邮箱验证的bug",
+                    "优化了API响应速度",
+                    "修复了数据库连接池泄漏问题"
+                ],
+                dependencies: ["React 18.1.0", "Node.js 16.x"],
+                testCoverage: "90%"
+            },
+            {
+                version: "3.1.1",
+                type: "patch",
+                date: "2023-08-20",
+                developer: "赵六",
+                department: "测试部",
+                features: [
+                    "修复了支付流程中的安全漏洞",
+                    "优化了错误日志记录格式",
+                    "修复了IE浏览器兼容性问题"
+                ],
+                dependencies: ["React 18.1.0", "Node.js 16.x"],
+                testCoverage: "87%"
+            },
+            {
+                version: "3.1.0",
+                type: "minor",
+                date: "2023-07-10",
+                developer: "张三",
+                department: "前端开发部",
+                features: [
+                    "新增了数据可视化仪表盘",
+                    "优化了移动端响应式布局",
+                    "新增了文件拖拽上传功能"
+                ],
+                dependencies: ["React 18.1.0", "Node.js 16.x"],
+                testCoverage: "85%"
+            },
+            {
+                version: "3.0.0",
+                type: "major",
+                date: "2023-06-01",
+                developer: "李四",
+                department: "架构部",
+                features: [
+                    "全新的UI设计和用户体验",
+                    "重构了核心业务逻辑",
+                    "提升了系统整体性能和稳定性",
+                    "新增了实时协作功能",
+                    "支持了更多第三方集成"
+                ],
+                dependencies: ["React 18.0.0", "Node.js 16.x"],
+                testCoverage: "94%"
+            },
+            {
+                version: "2.3.1",
+                type: "patch",
+                date: "2023-04-15",
+                developer: "王五",
+                department: "后端开发部",
+                features: [
+                    "修复了用户权限验证的bug",
+                    "优化了数据库查询性能",
+                    "修复了定时任务执行失败的问题"
+                ],
+                dependencies: ["React 17.0.2", "Node.js 14.x"],
+                testCoverage: "88%"
+            },
+            {
+                version: "2.3.0",
+                type: "minor",
+                date: "2023-03-10",
+                developer: "赵六",
+                department: "前端开发部",
+                features: [
+                    "新增了用户行为分析功能",
+                    "优化了页面加载性能",
+                    "新增了自定义主题设置"
+                ],
+                dependencies: ["React 17.0.2", "Node.js 14.x"],
+                testCoverage: "86%"
+            },
+            {
+                version: "2.2.0",
+                type: "minor",
+                date: "2023-02-01",
+                developer: "张三",
+                department: "前端开发部",
+                features: [
+                    "新增了批量操作功能",
+                    "优化了表格组件性能",
+                    "新增了数据导出为Excel功能"
+                ],
+                dependencies: ["React 17.0.2", "Node.js 14.x"],
+                testCoverage: "84%"
+            },
+            {
+                version: "2.1.0",
+                type: "minor",
+                date: "2023-01-05",
+                developer: "李四",
+                department: "前端开发部",
+                features: [
+                    "新增了消息通知中心",
+                    "优化了搜索功能",
+                    "新增了用户反馈收集功能"
+                ],
+                dependencies: ["React 17.0.2", "Node.js 14.x"],
+                testCoverage: "82%"
+            },
+            {
+                version: "2.0.0",
+                type: "major",
+                date: "2022-12-01",
+                developer: "王五",
+                department: "架构部",
+                features: [
+                    "重构了前端架构，采用组件化设计",
+                    "优化了API接口设计",
+                    "提升了系统安全性",
+                    "新增了多角色权限管理",
+                    "优化了移动端体验"
+                ],
+                dependencies: ["React 17.0.0", "Node.js 14.x"],
+                testCoverage: "90%"
+            },
+            {
+                version: "1.5.2",
+                type: "patch",
+                date: "2022-10-15",
+                developer: "赵六",
+                department: "测试部",
+                features: [
+                    "修复了登录验证的安全漏洞",
+                    "优化了错误提示信息",
+                    "修复了Safari浏览器兼容性问题"
+                ],
+                dependencies: ["React 16.13.1", "Node.js 12.x"],
+                testCoverage: "85%"
+            }
+        ];
+
+        // DOM 元素
+        const versionTypeSelect = document.getElementById('version-type');
+        const featureKeywordInput = document.getElementById('feature-keyword');
+        const developerSelect = document.getElementById('developer');
+        const dateFromInput = document.getElementById('date-from');
+        const dateToInput = document.getElementById('date-to');
+        const searchBtn = document.getElementById('search-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const versionList = document.getElementById('version-list');
+        const countNumber = document.getElementById('count-number');
+        const latestMatchResult = document.getElementById('latest-match-result');
+        const latestMatchContent = document.getElementById('latest-match-content');
+
+        // 初始化页面
+        function initPage() {
+            renderVersionList(versionHistory);
+            countNumber.textContent = versionHistory.length;
+        }
+
+        // 渲染版本列表
+        function renderVersionList(versions) {
+            versionList.innerHTML = '';
+
+            if (versions.length === 0) {
+                versionList.innerHTML = '<div class="no-result">没有找到匹配的版本记录</div>';
+                return;
+            }
+
+            versions.forEach(version => {
+                const versionCard = document.createElement('div');
+                versionCard.className = 'version-card';
+
+                // 高亮显示关键词
+                const keyword = featureKeywordInput.value.trim();
+                const highlightedFeatures = version.features.map(feature => {
+                    if (keyword && feature.includes(keyword)) {
+                        return feature.replace(new RegExp(keyword, 'g'), `<span class="highlight">${keyword}</span>`);
+                    }
+                    return feature;
+                });
+
+                versionCard.innerHTML = `
+                    <div class="version-header">
+                        <div>
+                            <span class="version-number">v${version.version}</span>
+                            <span class="version-type type-${version.type}">${getVersionTypeText(version.type)}</span>
+                        </div>
+                        <div class="version-date">${formatDate(version.date)}</div>
+                    </div>
+                    <div class="version-info">
+                        <div class="info-item">
+                            <span class="info-label">开发者:</span> ${version.developer}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">部门:</span> ${version.department}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">测试覆盖率:</span> ${version.testCoverage}
+                        </div>
+                    </div>
+                    <div class="version-features">
+                        <h3>更新内容:</h3>
+                        <ul class="feature-list">
+                            ${highlightedFeatures.map(feature => `<li class="feature-item">${feature}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="version-info">
+                        <div class="info-item">
+                            <span class="info-label">依赖:</span> ${version.dependencies.join(', ')}
+                        </div>
+                    </div>
+                `;
+
+                versionList.appendChild(versionCard);
+            });
+        }
+
+        // 搜索版本
+        function searchVersions() {
+            const versionType = versionTypeSelect.value;
+            const featureKeyword = featureKeywordInput.value.trim();
+            const developer = developerSelect.value;
+            const dateFrom = dateFromInput.value;
+            const dateTo = dateToInput.value;
+
+            // 过滤版本
+            const filteredVersions = versionHistory.filter(version => {
+                // 版本类型筛选
+                if (versionType && version.type !== versionType) {
+                    return false;
+                }
+
+                // 功能关键词筛选
+                if (featureKeyword && !version.features.some(feature => feature.includes(featureKeyword))) {
+                    return false;
+                }
+
+                // 开发者筛选
+                if (developer && version.developer !== developer) {
+                    return false;
+                }
+
+                // 日期范围筛选
+                if (dateFrom && new Date(version.date) < new Date(dateFrom)) {
+                    return false;
+                }
+
+                if (dateTo && new Date(version.date) > new Date(dateTo)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            // 使用 findLastIndex 查找最近的匹配版本
+            const lastMatchIndex = findLastIndex(filteredVersions, () => true);
+
+            // 渲染结果
+            renderVersionList(filteredVersions);
+            countNumber.textContent = filteredVersions.length;
+
+            // 显示最近匹配版本信息
+            if (lastMatchIndex !== -1) {
+                const latestVersion = filteredVersions[lastMatchIndex];
+                latestMatchResult.style.display = 'block';
+                latestMatchContent.innerHTML = `
+                    <p>根据您的筛选条件，最近的匹配版本是 <strong>v${latestVersion.version}</strong> (${getVersionTypeText(latestVersion.type)})，
+                    由 <strong>${latestVersion.developer}</strong> 于 <strong>${formatDate(latestVersion.date)}</strong> 发布。</p>
+                    <p>该版本的主要更新：${latestVersion.features[0]}</p>
+                `;
+
+                // 高亮显示最近的匹配版本卡片
+                setTimeout(() => {
+                    const versionCards = document.querySelectorAll('.version-card');
+                    if (versionCards[0]) {
+                        versionCards[0].classList.add('latest-version');
+                        versionCards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            } else {
+                latestMatchResult.style.display = 'none';
+            }
+        }
+
+        // 重置筛选条件
+        function resetFilters() {
+            versionTypeSelect.value = '';
+            featureKeywordInput.value = '';
+            developerSelect.value = '';
+            dateFromInput.value = '';
+            dateToInput.value = '';
+
+            renderVersionList(versionHistory);
+            countNumber.textContent = versionHistory.length;
+            latestMatchResult.style.display = 'none';
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // 获取版本类型文本
+        function getVersionTypeText(type) {
+            const typeMap = {
+                'major': '主要版本',
+                'minor': '次要版本',
+                'patch': '补丁版本'
+            };
+            return typeMap[type] || type;
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', searchVersions);
+        resetBtn.addEventListener('click', resetFilters);
+
+        // 初始化页面
+        initPage();
+    </script>
+</body>
+
+</html>

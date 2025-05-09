@@ -19,17 +19,23 @@ const findLastIndex = (arr, handler) =>
     .pop() || [-1])[0];
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-last-index.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
-findLastIndex([1, 2, 3, 4], n => n % 2 === 1); // 2 (index of the value 3)
-findLastIndex([1, 2, 3, 4], n => n === 5); // -1 (default value when not found)
+findLastIndex([1, 2, 3, 4], (n) => n % 2 === 1); // 2 (index of the value 3)
+findLastIndex([1, 2, 3, 4], (n) => n === 5); // -1 (default value when not found)
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findLastIndex.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-last-index.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-last-index.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findLastIndex.html"></iframe>
+<iframe src="codes/javascript/html/find-last-index.html"></iframe>
