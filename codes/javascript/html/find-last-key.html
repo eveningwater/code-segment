@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人力资源管理系统 - findLastKey 应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #bdc3c7;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .result-count {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .employee-card {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .employee-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .employee-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .employee-id {
+            color: #7f8c8d;
+        }
+
+        .department-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+            background-color: #3498db;
+            color: white;
+        }
+
+        .position-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .employee-details {
+            margin-top: 15px;
+        }
+
+        .detail-list {
+            list-style-type: none;
+        }
+
+        .detail-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .detail-value {
+            color: #7f8c8d;
+        }
+
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 40px 0;
+            color: #7f8c8d;
+        }
+
+        .latest-match {
+            background-color: #f1f9ff;
+            border-left: 4px solid #3498db;
+        }
+
+        .search-result-highlight {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .search-result-content {
+            color: #34495e;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-active {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .status-inactive {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .status-leave {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .status-probation {
+            background-color: #9b59b6;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>人力资源管理系统</h1>
+            <p class="subtitle">基于 findLastKey 方法的高效员工查询工具</p>
+        </header>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label class="filter-label" for="department">部门</label>
+                <select id="department">
+                    <option value="">全部部门</option>
+                    <option value="技术部">技术部</option>
+                    <option value="市场部">市场部</option>
+                    <option value="销售部">销售部</option>
+                    <option value="人事部">人事部</option>
+                    <option value="财务部">财务部</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="position">职位</label>
+                <select id="position">
+                    <option value="">全部职位</option>
+                    <option value="工程师">工程师</option>
+                    <option value="经理">经理</option>
+                    <option value="主管">主管</option>
+                    <option value="专员">专员</option>
+                    <option value="总监">总监</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="status">状态</label>
+                <select id="status">
+                    <option value="">全部状态</option>
+                    <option value="active">在职</option>
+                    <option value="inactive">离职</option>
+                    <option value="leave">休假</option>
+                    <option value="probation">试用期</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="min-salary">最低薪资</label>
+                <input type="number" id="min-salary" placeholder="最低薪资...">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="max-salary">最高薪资</label>
+                <input type="number" id="max-salary" placeholder="最高薪资...">
+            </div>
+
+            <div class="filter-group btn-group">
+                <button class="btn-primary" id="search-btn">查询员工</button>
+                <button class="btn-secondary" id="reset-btn">重置条件</button>
+            </div>
+        </div>
+
+        <div class="search-result-highlight" id="latest-match-result" style="display: none;">
+            <div class="search-result-title">最后匹配员工</div>
+            <div class="search-result-content" id="latest-match-content"></div>
+        </div>
+
+        <div class="result-section">
+            <div class="result-header">
+                <h2 class="result-title">员工列表</h2>
+                <div class="result-count" id="result-count">共 <span id="count-number">0</span> 名员工</div>
+            </div>
+
+            <div id="employee-list">
+                <!-- 员工卡片将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // findLastKey 方法实现
+        const findLastKey = (obj, handler) =>
+            Object.keys(obj)
+                .reverse()
+                .find(key => handler(obj[key], key, obj));
+
+        // 模拟员工数据
+        const employees = {
+            "emp001": {
+                id: "emp001",
+                name: "张三",
+                department: "技术部",
+                position: "高级工程师",
+                salary: 18000,
+                entryDate: "2020-05-15",
+                status: "active",
+                skills: ["JavaScript", "React", "Node.js"],
+                projects: ["电商平台重构", "CRM系统开发"],
+                performance: "优秀"
+            },
+            "emp002": {
+                id: "emp002",
+                name: "李四",
+                department: "市场部",
+                position: "市场经理",
+                salary: 20000,
+                entryDate: "2019-08-10",
+                status: "active",
+                skills: ["市场分析", "品牌推广", "活动策划"],
+                projects: ["年度品牌推广", "新品上市活动"],
+                performance: "良好"
+            },
+            "emp003": {
+                id: "emp003",
+                name: "王五",
+                department: "销售部",
+                position: "销售主管",
+                salary: 15000,
+                entryDate: "2021-02-20",
+                status: "leave",
+                skills: ["客户沟通", "谈判技巧", "销售策略"],
+                projects: ["大客户开发", "销售团队建设"],
+                performance: "优秀"
+            },
+            "emp004": {
+                id: "emp004",
+                name: "赵六",
+                department: "人事部",
+                position: "人事专员",
+                salary: 12000,
+                entryDate: "2022-01-05",
+                status: "active",
+                skills: ["招聘", "培训", "绩效管理"],
+                projects: ["人才招聘计划", "员工培训体系建设"],
+                performance: "良好"
+            },
+            "emp005": {
+                id: "emp005",
+                name: "钱七",
+                department: "财务部",
+                position: "财务经理",
+                salary: 22000,
+                entryDate: "2018-11-15",
+                status: "active",
+                skills: ["财务分析", "预算管理", "税务规划"],
+                projects: ["财务系统优化", "成本控制方案"],
+                performance: "优秀"
+            },
+            "emp006": {
+                id: "emp006",
+                name: "孙八",
+                department: "技术部",
+                position: "前端工程师",
+                salary: 16000,
+                entryDate: "2021-06-10",
+                status: "probation",
+                skills: ["HTML", "CSS", "JavaScript", "Vue"],
+                projects: ["用户界面重设计", "移动端适配"],
+                performance: "良好"
+            },
+            "emp007": {
+                id: "emp007",
+                name: "周九",
+                department: "技术部",
+                position: "后端工程师",
+                salary: 17000,
+                entryDate: "2020-09-20",
+                status: "active",
+                skills: ["Java", "Spring Boot", "MySQL", "Redis"],
+                projects: ["接口优化", "数据库重构"],
+                performance: "优秀"
+            },
+            "emp008": {
+                id: "emp008",
+                name: "吴十",
+                department: "市场部",
+                position: "市场专员",
+                salary: 13000,
+                entryDate: "2022-03-15",
+                status: "active",
+                skills: ["社交媒体运营", "内容创作", "数据分析"],
+                projects: ["社交媒体矩阵建设", "内容营销策略"],
+                performance: "良好"
+            },
+            "emp009": {
+                id: "emp009",
+                name: "郑十一",
+                department: "销售部",
+                position: "销售代表",
+                salary: 14000,
+                entryDate: "2021-10-10",
+                status: "inactive",
+                skills: ["客户开发", "产品演示", "合同谈判"],
+                projects: ["区域市场拓展", "客户关系维护"],
+                performance: "一般"
+            },
+            "emp010": {
+                id: "emp010",
+                name: "王十二",
+                department: "财务部",
+                position: "财务专员",
+                salary: 12500,
+                entryDate: "2022-02-28",
+                status: "active",
+                skills: ["会计核算", "报表编制", "税务申报"],
+                projects: ["财务流程优化", "税务筹划"],
+                performance: "良好"
+            },
+            "emp011": {
+                id: "emp011",
+                name: "李十三",
+                department: "人事部",
+                position: "招聘主管",
+                salary: 16000,
+                entryDate: "2020-07-15",
+                status: "active",
+                skills: ["人才筛选", "面试技巧", "人才评估"],
+                projects: ["校园招聘", "社会招聘"],
+                performance: "优秀"
+            },
+            "emp012": {
+                id: "emp012",
+                name: "张十四",
+                department: "技术部",
+                position: "测试工程师",
+                salary: 15000,
+                entryDate: "2021-04-10",
+                status: "active",
+                skills: ["自动化测试", "性能测试", "安全测试"],
+                projects: ["测试自动化平台", "性能优化"],
+                performance: "良好"
+            }
+        };
+
+        // DOM 元素
+        const departmentSelect = document.getElementById('department');
+        const positionSelect = document.getElementById('position');
+        const statusSelect = document.getElementById('status');
+        const minSalaryInput = document.getElementById('min-salary');
+        const maxSalaryInput = document.getElementById('max-salary');
+        const searchBtn = document.getElementById('search-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const employeeList = document.getElementById('employee-list');
+        const countNumber = document.getElementById('count-number');
+        const latestMatchResult = document.getElementById('latest-match-result');
+        const latestMatchContent = document.getElementById('latest-match-content');
+
+        // 初始化页面
+        function initPage() {
+            renderEmployeeList(employees);
+            countNumber.textContent = Object.keys(employees).length;
+        }
+
+        // 渲染员工列表
+        function renderEmployeeList(employeesObj) {
+            employeeList.innerHTML = '';
+
+            if (Object.keys(employeesObj).length === 0) {
+                employeeList.innerHTML = '<div class="no-result">没有找到匹配的员工记录</div>';
+                return;
+            }
+
+            for (const empId in employeesObj) {
+                const employee = employeesObj[empId];
+                const employeeCard = document.createElement('div');
+                employeeCard.className = 'employee-card';
+                employeeCard.setAttribute('data-id', empId);
+
+                employeeCard.innerHTML = `
+                    <div class="employee-header">
+                        <div>
+                            <span class="employee-name">${employee.name}</span>
+                            <span class="department-tag">${employee.department}</span>
+                            <span class="position-tag">${employee.position}</span>
+                            <span class="status-badge status-${employee.status}">${getStatusText(employee.status)}</span>
+                        </div>
+                        <div class="employee-id">${employee.id}</div>
+                    </div>
+                    <div class="employee-details">
+                        <ul class="detail-list">
+                            <li class="detail-item">
+                                <span class="detail-label">薪资</span>
+                                <span class="detail-value">¥${employee.salary.toLocaleString()}/月</span>
+                            </li>
+                            <li class="detail-item">
+                                <span class="detail-label">入职日期</span>
+                                <span class="detail-value">${formatDate(employee.entryDate)}</span>
+                            </li>
+                            <li class="detail-item">
+                                <span class="detail-label">技能</span>
+                                <span class="detail-value">${employee.skills.join(', ')}</span>
+                            </li>
+                            <li class="detail-item">
+                                <span class="detail-label">项目</span>
+                                <span class="detail-value">${employee.projects.join(', ')}</span>
+                            </li>
+                            <li class="detail-item">
+                                <span class="detail-label">绩效</span>
+                                <span class="detail-value">${employee.performance}</span>
+                            </li>
+                        </ul>
+                    </div>
+                `;
+
+                employeeList.appendChild(employeeCard);
+            }
+        }
+
+        // 搜索员工
+        function searchEmployees() {
+            const department = departmentSelect.value;
+            const position = positionSelect.value;
+            const status = statusSelect.value;
+            const minSalary = minSalaryInput.value ? parseInt(minSalaryInput.value) : 0;
+            const maxSalary = maxSalaryInput.value ? parseInt(maxSalaryInput.value) : Infinity;
+
+            // 构建筛选条件
+            const filterCondition = (employee) => {
+                // 部门筛选
+                if (department && employee.department !== department) {
+                    return false;
+                }
+
+                // 职位筛选
+                if (position && !employee.position.includes(position)) {
+                    return false;
+                }
+
+                // 状态筛选
+                if (status && employee.status !== status) {
+                    return false;
+                }
+
+                // 薪资范围筛选
+                if (employee.salary < minSalary || employee.salary > maxSalary) {
+                    return false;
+                }
+
+                return true;
+            };
+
+            // 使用 findLastKey 查找最后一个匹配的员工
+            const lastMatchKey = findLastKey(employees, filterCondition);
+
+            // 过滤符合条件的员工
+            const filteredEmployees = {};
+            for (const empId in employees) {
+                if (filterCondition(employees[empId])) {
+                    filteredEmployees[empId] = employees[empId];
+                }
+            }
+
+            // 渲染结果
+            renderEmployeeList(filteredEmployees);
+            countNumber.textContent = Object.keys(filteredEmployees).length;
+
+            // 显示最后匹配员工信息
+            if (lastMatchKey) {
+                const latestEmployee = employees[lastMatchKey];
+                latestMatchResult.style.display = 'block';
+                latestMatchContent.innerHTML = `
+                    <p>根据您的筛选条件，最后匹配的员工是 <strong>${latestEmployee.name}</strong>，
+                    ${latestEmployee.department} 的 ${latestEmployee.position}，
+                    当前状态为 <strong>${getStatusText(latestEmployee.status)}</strong>。</p>
+                    <p>月薪：¥${latestEmployee.salary.toLocaleString()}，入职日期：${formatDate(latestEmployee.entryDate)}，绩效：${latestEmployee.performance}</p>
+                `;
+
+                // 高亮显示最后匹配的员工卡片
+                setTimeout(() => {
+                    const employeeCards = document.querySelectorAll('.employee-card');
+                    employeeCards.forEach(card => {
+                        if (card.getAttribute('data-id') === lastMatchKey) {
+                            card.classList.add('latest-match');
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                }, 100);
+            } else {
+                latestMatchResult.style.display = 'none';
+            }
+        }
+
+        // 重置筛选条件
+        function resetFilters() {
+            departmentSelect.value = '';
+            positionSelect.value = '';
+            statusSelect.value = '';
+            minSalaryInput.value = '';
+            maxSalaryInput.value = '';
+
+            renderEmployeeList(employees);
+            countNumber.textContent = Object.keys(employees).length;
+            latestMatchResult.style.display = 'none';
+
+            // 移除所有高亮
+            const employeeCards = document.querySelectorAll('.employee-card');
+            employeeCards.forEach(card => {
+                card.classList.remove('latest-match');
+            });
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'active': '在职',
+                'inactive': '离职',
+                'leave': '休假',
+                'probation': '试用期'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 事件监听
+        searchBtn.addEventListener('click', searchEmployees);
+        resetBtn.addEventListener('click', resetFilters);
+
+        // 初始化页面
+        initPage();
+    </script>
+</body>
+
+</html>

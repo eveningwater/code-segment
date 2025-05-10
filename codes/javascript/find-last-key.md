@@ -14,8 +14,12 @@
 const findLastKey = (obj, handler) =>
   Object.keys(obj)
     .reverse()
-    .find(key => handler(obj[key], key, obj));
+    .find((key) => handler(obj[key], key, obj));
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-last-key.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -24,16 +28,18 @@ findLastKey(
   {
     barney: { age: 36, active: true },
     fred: { age: 40, active: false },
-    pebbles: { age: 1, active: true }
+    pebbles: { age: 1, active: true },
   },
-  x => x['active']
+  (x) => x["active"]
 ); // 'pebbles'
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findLastKey.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-last-key.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-last-key.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findLastKey.html"></iframe>
+<iframe src="codes/javascript/html/find-last-key.html"></iframe>
