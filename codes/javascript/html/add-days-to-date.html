@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目日程规划工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 16px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .project-form {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input[type="date"] {
+            cursor: pointer;
+        }
+
+        .milestone-container {
+            margin-top: 20px;
+        }
+
+        .milestone-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .milestone-row input {
+            flex: 3;
+            margin-right: 10px;
+        }
+
+        .milestone-row select,
+        .milestone-row input[type="number"] {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-add {
+            background-color: #2ecc71;
+        }
+
+        .btn-add:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-remove {
+            background-color: #e74c3c;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .btn-remove:hover {
+            background-color: #c0392b;
+        }
+
+        .timeline {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .timeline-title {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .timeline-export {
+            display: flex;
+            gap: 10px;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #3498db;
+            z-index: 1;
+        }
+
+        .timeline-item:after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            width: 2px;
+            height: calc(100% + 15px);
+            background-color: #ddd;
+            z-index: 0;
+        }
+
+        .timeline-item:last-child:after {
+            display: none;
+        }
+
+        .timeline-date {
+            width: 120px;
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timeline-days {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .milestone-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .milestone-row input,
+            .milestone-row select,
+            .milestone-row input[type="number"] {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .btn-remove {
+                align-self: flex-end;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+            }
+
+            .timeline-date {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>项目日程规划工具</h1>
+            <p class="description">输入项目开始日期和里程碑信息，自动计算各阶段的时间安排，帮助您更好地规划项目进度。</p>
+        </header>
+
+        <div class="project-form">
+            <div class="form-group">
+                <label for="project-name">项目名称</label>
+                <input type="text" id="project-name" placeholder="请输入项目名称">
+            </div>
+
+            <div class="form-group">
+                <label for="start-date">开始日期</label>
+                <input type="date" id="start-date">
+            </div>
+
+            <div class="form-group">
+                <label>里程碑设置</label>
+                <div id="milestones" class="milestone-container">
+                    <!-- 里程碑将通过JS动态添加 -->
+                </div>
+                <button id="add-milestone" class="btn btn-add">添加里程碑</button>
+            </div>
+
+            <div class="form-group">
+                <button id="generate-timeline" class="btn">生成时间线</button>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-header">
+                <h2 class="timeline-title">项目时间线</h2>
+                <div class="timeline-export">
+                    <button id="export-json" class="btn">导出JSON</button>
+                    <button id="export-csv" class="btn">导出CSV</button>
+                </div>
+            </div>
+
+            <div id="timeline-content">
+                <div class="empty-state">
+                    <i>📅</i>
+                    <p>请填写项目信息并生成时间线</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 核心日期计算函数
+        const addDaysToDate = (date, n) => {
+            const d = new Date(date);
+            d.setDate(d.getDate() + n);
+            return d.toISOString().split('T')[0];
+        };
+
+        // 格式化日期显示
+        const formatDate = (dateString) => {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            return new Date(dateString).toLocaleDateString('zh-CN', options);
+        };
+
+        // 初始化日期为今天
+        document.getElementById('start-date').valueAsDate = new Date();
+
+        // 添加默认的两个里程碑
+        const milestonesContainer = document.getElementById('milestones');
+        addMilestone('需求分析', 7);
+        addMilestone('设计阶段', 14);
+
+        // 添加里程碑函数
+        function addMilestone(name = '', days = 7) {
+            const milestoneRow = document.createElement('div');
+            milestoneRow.className = 'milestone-row';
+            milestoneRow.innerHTML = `
+                <input type="text" class="milestone-name" placeholder="里程碑名称" value="${name}">
+                <input type="number" class="milestone-days" placeholder="天数" min="1" value="${days}">
+                <button class="btn btn-remove">删除</button>
+            `;
+            milestonesContainer.appendChild(milestoneRow);
+
+            // 添加删除事件
+            milestoneRow.querySelector('.btn-remove').addEventListener('click', function () {
+                milestoneRow.remove();
+            });
+        }
+
+        // 添加里程碑按钮事件
+        document.getElementById('add-milestone').addEventListener('click', function () {
+            addMilestone();
+        });
+
+        // 生成时间线按钮事件
+        document.getElementById('generate-timeline').addEventListener('click', function () {
+            const projectName = document.getElementById('project-name').value;
+            const startDate = document.getElementById('start-date').value;
+
+            if (!projectName) {
+                alert('请输入项目名称');
+                return;
+            }
+
+            if (!startDate) {
+                alert('请选择开始日期');
+                return;
+            }
+
+            // 收集所有里程碑
+            const milestones = [];
+            let currentDate = startDate;
+
+            // 添加项目开始作为第一个里程碑
+            milestones.push({
+                name: '项目开始',
+                date: currentDate,
+                days: 0
+            });
+
+            // 处理用户添加的里程碑
+            document.querySelectorAll('.milestone-row').forEach(row => {
+                const name = row.querySelector('.milestone-name').value;
+                const days = parseInt(row.querySelector('.milestone-days').value, 10);
+
+                if (name && !isNaN(days)) {
+                    currentDate = addDaysToDate(currentDate, days);
+                    milestones.push({
+                        name: name,
+                        date: currentDate,
+                        days: days
+                    });
+                }
+            });
+
+            // 渲染时间线
+            renderTimeline(milestones, projectName);
+
+            // 存储数据到本地存储
+            saveProject(projectName, startDate, milestones);
+        });
+
+        // 渲染时间线
+        function renderTimeline(milestones, projectName) {
+            const timelineContent = document.getElementById('timeline-content');
+            timelineContent.innerHTML = '';
+
+            if (milestones.length === 0) {
+                timelineContent.innerHTML = `
+                    <div class="empty-state">
+                        <i>📅</i>
+                        <p>请填写项目信息并生成时间线</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 添加项目标题
+            const timelineTitle = document.createElement('div');
+            timelineTitle.className = 'timeline-item';
+            timelineTitle.innerHTML = `
+                <div class="timeline-date">${formatDate(milestones[0].date)}</div>
+                <div class="timeline-content">
+                    <div class="timeline-name">${projectName}</div>
+                    <div class="timeline-days">项目启动</div>
+                </div>
+            `;
+            timelineContent.appendChild(timelineTitle);
+
+            // 添加各个里程碑
+            for (let i = 1; i < milestones.length; i++) {
+                const milestone = milestones[i];
+                const milestoneElement = document.createElement('div');
+                milestoneElement.className = 'timeline-item';
+                milestoneElement.innerHTML = `
+                    <div class="timeline-date">${formatDate(milestone.date)}</div>
+                    <div class="timeline-content">
+                        <div class="timeline-name">${milestone.name}</div>
+                        <div class="timeline-days">+${milestone.days}天</div>
+                    </div>
+                `;
+                timelineContent.appendChild(milestoneElement);
+            }
+
+            // 添加项目结束
+            const lastMilestone = milestones[milestones.length - 1];
+            const endDate = addDaysToDate(lastMilestone.date, 0); // 最后一个里程碑的日期就是结束日期
+            const totalDays = Math.round((new Date(endDate) - new Date(milestones[0].date)) / (1000 * 60 * 60 * 24));
+
+            const timelineEnd = document.createElement('div');
+            timelineEnd.className = 'timeline-item';
+            timelineEnd.innerHTML = `
+                <div class="timeline-date">${formatDate(endDate)}</div>
+                <div class="timeline-content">
+                    <div class="timeline-name">项目完成</div>
+                    <div class="timeline-days">总计: ${totalDays}天</div>
+                </div>
+            `;
+            timelineContent.appendChild(timelineEnd);
+        }
+
+        // 保存项目到本地存储
+        function saveProject(name, startDate, milestones) {
+            const project = {
+                name: name,
+                startDate: startDate,
+                milestones: milestones,
+                createdAt: new Date().toISOString()
+            };
+
+            let projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            projects.push(project);
+            localStorage.setItem('projects', JSON.stringify(projects));
+        }
+
+        // 导出JSON
+        document.getElementById('export-json').addEventListener('click', function () {
+            const projectName = document.getElementById('project-name').value;
+            if (!projectName) {
+                alert('请先生成时间线');
+                return;
+            }
+
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            const project = projects.find(p => p.name === projectName);
+
+            if (project) {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(project, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", projectName + "_timeline.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            }
+        });
+
+        // 导出CSV
+        document.getElementById('export-csv').addEventListener('click', function () {
+            const projectName = document.getElementById('project-name').value;
+            if (!projectName) {
+                alert('请先生成时间线');
+                return;
+            }
+
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            const project = projects.find(p => p.name === projectName);
+
+            if (project) {
+                let csvContent = "里程碑名称,日期,天数\n";
+
+                // 添加项目开始
+                csvContent += `项目开始,${project.milestones[0].date},0\n`;
+
+                // 添加各个里程碑
+                for (let i = 1; i < project.milestones.length; i++) {
+                    const milestone = project.milestones[i];
+                    csvContent += `${milestone.name},${milestone.date},${milestone.days}\n`;
+                }
+
+                // 添加项目结束
+                const lastMilestone = project.milestones[project.milestones.length - 1];
+                const totalDays = Math.round((new Date(lastMilestone.date) - new Date(project.milestones[0].date)) / (1000 * 60 * 60 * 24));
+                csvContent += `项目完成,${lastMilestone.date},${totalDays}\n`;
+
+                const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", projectName + "_timeline.csv");
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }
+        });
+    </script>
+</body>
+
+</html>
