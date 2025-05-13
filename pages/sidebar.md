@@ -255,7 +255,7 @@
 - [查找提供的函数为其返回真值的最后一个元素的属性名--2022-05-24](codes/javascript/find-last-key.md)
 - [新增类名--2022-05-25](codes/javascript/add-class.md)
 - [往日期里添加天数--2022-05-26](codes/javascript/add-days-to-date.md)
-- [给所有元素添加点击事件--2022-05-27](codes/javascript/addEventListenerAll.md)
+- [给所有元素添加点击事件--2022-05-27](codes/javascript/add-event-listener-all.md)
 - [往日期里添加分钟--2022-05-28](codes/javascript/addMinutesToDate.md)
 - [添加样式--2022-05-30](codes/javascript/addStyles.md)
 - [添加周--2022-05-31](codes/javascript/addWeekDays.md)

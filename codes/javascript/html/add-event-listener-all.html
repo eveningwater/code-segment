@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线考试系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .exam-info {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option:hover {
+            background-color: #f8f9fa;
+            border-color: #bdc3c7;
+        }
+
+        .option.selected {
+            background-color: #e8f4fd;
+            border-color: #3498db;
+        }
+
+        .option.correct {
+            background-color: #e8f8f5;
+            border-color: #2ecc71;
+        }
+
+        .option.incorrect {
+            background-color: #fdedeb;
+            border-color: #e74c3c;
+        }
+
+        .option-label {
+            font-weight: 600;
+            margin-right: 8px;
+            color: #7f8c8d;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+
+        .feedback {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+        }
+
+        .review-btn {
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>前端开发技能测试</h1>
+            <div class="exam-info">
+                <span>总分: 100分</span>
+                <span>题目数量: 5</span>
+                <span>时间限制: <span class="timer">10:00</span></span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="progress-text">
+                    <span>已完成: <span id="completed-count">0</span>/5</span>
+                    <span>剩余: <span id="remaining-count">5</span></span>
+                </div>
+            </div>
+        </header>
+
+        <div id="exam-container">
+            <!-- 问题将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="navigation">
+            <button id="prev-btn" class="btn btn-secondary">上一题</button>
+            <button id="next-btn" class="btn btn-primary">下一题</button>
+            <button id="submit-btn" class="btn btn-success hidden">提交答案</button>
+        </div>
+
+        <div id="result-container" class="result-container">
+            <h2>测试结果</h2>
+            <div class="score">0</div>
+            <div class="feedback">感谢参与测试！</div>
+            <button id="review-btn" class="btn btn-primary review-btn">查看答案解析</button>
+        </div>
+    </div>
+
+    <script>
+        // 核心函数：为多个元素添加相同的事件监听器
+        const addEventListenerAll = (targets, type, listener, options, useCapture) => Array.from(targets).forEach((
+            target, index) => target.addEventListener(type, e => listener(e, index), options, useCapture));
+
+        // 考试数据
+        const examData = [
+            {
+                question: "以下哪个是JavaScript的基本数据类型？",
+                options: ["Object", "Array", "String", "Function"],
+                correctAnswer: 2,
+                explanation: "JavaScript的基本数据类型包括String、Number、Boolean、Null、Undefined和Symbol（ES6新增）。Object、Array和Function都是引用类型。"
+            },
+            {
+                question: "关于CSS盒模型，以下说法正确的是？",
+                options: [
+                    "默认情况下，width属性包含内容、内边距和边框",
+                    "box-sizing: border-box使width包含内容、内边距和边框",
+                    "margin属于盒模型的内部区域",
+                    "padding不影响元素的实际宽度"
+                ],
+                correctAnswer: 1,
+                explanation: "默认情况下（box-sizing: content-box），width只包含内容区域。设置box-sizing: border-box后，width属性将包含内容、内边距和边框。"
+            },
+            {
+                question: "以下哪个HTML5标签用于定义文章的主要内容？",
+                options: ["<section>", "<article>", "<main>", "<content>"],
+                correctAnswer: 2,
+                explanation: "<main>标签用于指定文档的主要内容，一个文档中应该只有一个<main>元素。<article>表示独立的内容，<section>表示文档中的一个区域。"
+            },
+            {
+                question: "以下哪个不是React的生命周期方法？",
+                options: ["componentDidMount", "componentWillUpdate", "onStateChange", "shouldComponentUpdate"],
+                correctAnswer: 2,
+                explanation: "React没有onStateChange生命周期方法。componentDidMount、componentWillUpdate和shouldComponentUpdate都是React的生命周期方法。"
+            },
+            {
+                question: "关于Promise，以下说法错误的是？",
+                options: [
+                    "Promise.all()在所有Promise都成功时返回结果数组",
+                    "Promise.race()返回最先解决或拒绝的Promise结果",
+                    "Promise一旦resolved，状态就不能再改变",
+                    "Promise可以通过catch()方法捕获前面then()中的错误"
+                ],
+                correctAnswer: 3,
+                explanation: "Promise.catch()方法用于捕获Promise链中的错误，包括前面then()中的错误。其他选项都是正确的。"
+            }
+        ];
+
+        // 应用状态
+        let currentQuestionIndex = 0;
+        const userAnswers = new Array(examData.length).fill(null);
+        let examSubmitted = false;
+        let timerInterval;
+        let timeLeft = 10 * 60; // 10分钟，以秒为单位
+
+        // DOM元素
+        const examContainer = document.getElementById('exam-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultContainer = document.getElementById('result-container');
+        const progressBar = document.getElementById('progress');
+        const completedCount = document.getElementById('completed-count');
+        const remainingCount = document.getElementById('remaining-count');
+        const timerElement = document.querySelector('.timer');
+        const reviewBtn = document.getElementById('review-btn');
+
+        // 初始化考试
+        function initExam() {
+            renderQuestion(currentQuestionIndex);
+            updateNavigation();
+            updateProgress();
+            startTimer();
+
+            // 添加导航按钮事件
+            prevBtn.addEventListener('click', goToPreviousQuestion);
+            nextBtn.addEventListener('click', goToNextQuestion);
+            submitBtn.addEventListener('click', submitExam);
+            reviewBtn.addEventListener('click', reviewAnswers);
+        }
+
+        // 渲染当前问题
+        function renderQuestion(index) {
+            const question = examData[index];
+            examContainer.innerHTML = '';
+
+            const questionContainer = document.createElement('div');
+            questionContainer.className = 'question-container';
+
+            // 添加问题标题
+            const questionElement = document.createElement('div');
+            questionElement.className = 'question';
+            questionElement.textContent = `${index + 1}. ${question.question}`;
+            questionContainer.appendChild(questionElement);
+
+            // 添加选项
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options';
+
+            // 创建选项元素
+            question.options.forEach((option, optionIndex) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (userAnswers[index] === optionIndex) {
+                    optionElement.classList.add('selected');
+                }
+
+                // 如果考试已提交，显示正确/错误状态
+                if (examSubmitted) {
+                    if (optionIndex === question.correctAnswer) {
+                        optionElement.classList.add('correct');
+                    } else if (userAnswers[index] === optionIndex) {
+                        optionElement.classList.add('incorrect');
+                    }
+                }
+
+                const optionLabel = document.createElement('span');
+                optionLabel.className = 'option-label';
+                optionLabel.textContent = String.fromCharCode(65 + optionIndex) + '. ';
+
+                optionElement.appendChild(optionLabel);
+                optionElement.appendChild(document.createTextNode(option));
+                optionsContainer.appendChild(optionElement);
+            });
+
+            questionContainer.appendChild(optionsContainer);
+
+            // 如果考试已提交，显示解释
+            if (examSubmitted) {
+                const explanationElement = document.createElement('div');
+                explanationElement.className = 'explanation';
+                explanationElement.style.marginTop = '20px';
+                explanationElement.style.padding = '15px';
+                explanationElement.style.backgroundColor = '#f8f9fa';
+                explanationElement.style.borderRadius = '4px';
+                explanationElement.style.borderLeft = '4px solid #3498db';
+
+                const explanationTitle = document.createElement('div');
+                explanationTitle.style.fontWeight = 'bold';
+                explanationTitle.style.marginBottom = '5px';
+                explanationTitle.textContent = '解析：';
+
+                explanationElement.appendChild(explanationTitle);
+                explanationElement.appendChild(document.createTextNode(question.explanation));
+                questionContainer.appendChild(explanationElement);
+            }
+
+            examContainer.appendChild(questionContainer);
+
+            // 使用addEventListenerAll为所有选项添加点击事件
+            const options = optionsContainer.querySelectorAll('.option');
+            addEventListenerAll(options, 'click', handleOptionClick, null, false);
+        }
+
+        // 处理选项点击
+        function handleOptionClick(e, index) {
+            if (examSubmitted) return; // 如果考试已提交，不允许更改答案
+
+            const options = e.currentTarget.parentElement.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            e.currentTarget.classList.add('selected');
+
+            // 更新用户答案
+            userAnswers[currentQuestionIndex] = index;
+            updateProgress();
+            updateNavigation();
+        }
+
+        // 更新导航按钮状态
+        function updateNavigation() {
+            prevBtn.disabled = currentQuestionIndex === 0;
+
+            if (currentQuestionIndex === examData.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+
+            // 如果所有问题都已回答，启用提交按钮
+            submitBtn.disabled = userAnswers.includes(null);
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            const progressPercentage = (answeredCount / examData.length) * 100;
+
+            progressBar.style.width = `${progressPercentage}%`;
+            completedCount.textContent = answeredCount;
+            remainingCount.textContent = examData.length - answeredCount;
+        }
+
+        // 前往上一题
+        function goToPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion(currentQuestionIndex);
+                updateNavigation();
+            }
+        }
+
+        // 前往下一题
+        function goToNextQuestion() {
+            if (currentQuestionIndex < examData.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion(currentQuestionIndex);
+                updateNavigation();
+            }
+        }
+
+        // 提交考试
+        function submitExam() {
+            if (userAnswers.includes(null)) {
+                alert('请回答所有问题后再提交！');
+                return;
+            }
+
+            examSubmitted = true;
+            clearInterval(timerInterval);
+
+            // 计算分数
+            let correctCount = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === examData[index].correctAnswer) {
+                    correctCount++;
+                }
+            });
+
+            const score = Math.round((correctCount / examData.length) * 100);
+
+            // 显示结果
+            document.querySelector('.score').textContent = score;
+
+            // 根据分数提供反馈
+            const feedbackElement = document.querySelector('.feedback');
+            if (score >= 80) {
+                feedbackElement.textContent = '优秀！你对前端开发有很好的理解。';
+            } else if (score >= 60) {
+                feedbackElement.textContent = '不错！你掌握了前端开发的基础知识。';
+            } else {
+                feedbackElement.textContent = '继续努力！建议你复习前端开发的基础概念。';
+            }
+
+            // 隐藏考试界面，显示结果
+            examContainer.style.display = 'none';
+            document.querySelector('.navigation').style.display = 'none';
+            resultContainer.style.display = 'block';
+        }
+
+        // 查看答案解析
+        function reviewAnswers() {
+            resultContainer.style.display = 'none';
+            examContainer.style.display = 'block';
+            document.querySelector('.navigation').style.display = 'flex';
+
+            // 隐藏提交按钮，只显示导航按钮
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+
+            // 重新渲染当前问题，显示解析
+            currentQuestionIndex = 0;
+            renderQuestion(currentQuestionIndex);
+            updateNavigation();
+        }
+
+        // 开始计时器
+        function startTimer() {
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('时间到！系统将自动提交你的答案。');
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // 当剩余时间少于1分钟时，显示红色警告
+            if (timeLeft < 60) {
+                timerElement.style.color = '#e74c3c';
+            }
+        }
+
+        // 初始化考试
+        initExam();
+    </script>
+</body>
+
+</html>
