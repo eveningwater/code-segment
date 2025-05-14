@@ -14,21 +14,27 @@
 const addMinutesToDate = (date, n) => {
   const d = new Date(date);
   d.setTime(d.getTime() + n * 60000);
-  return d.toISOString().split('.')[0].replace('T', ' ');
+  return d.toISOString().split(".")[0].replace("T", " ");
 };
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/add-minutes-to-date.ts" data-language="typescript"></div>
 
 > 调用方式:
 
 ```js
-addMinutesToDate('2020-10-19 12:00:00', 10); // '2020-10-19 12:10:00'
-addMinutesToDate('2020-10-19', -10); // '2020-10-18 23:50:00'
+addMinutesToDate("2020-10-19 12:00:00", 10); // '2020-10-19 12:10:00'
+addMinutesToDate("2020-10-19", -10); // '2020-10-18 23:50:00'
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/addMinutesToDate.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/add-minutes-to-date.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/add-minutes-to-date.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/addMinutesToDate.html"></iframe>
+<iframe src="codes/javascript/html/add-minutes-to-date.html"></iframe>

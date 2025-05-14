@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会议室预约系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .meeting-rooms {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .room-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-header {
+            background-color: #3498db;
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .room-body {
+            padding: 15px;
+        }
+
+        .room-info {
+            margin-bottom: 15px;
+        }
+
+        .room-info p {
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .room-info span {
+            color: #7f8c8d;
+        }
+
+        .room-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .bookings-container {
+            margin-top: 30px;
+        }
+
+        .bookings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .bookings-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .bookings-filter {
+            display: flex;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-upcoming {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+
+        .status-ongoing {
+            background-color: #e8f8f5;
+            color: #2ecc71;
+        }
+
+        .status-completed {
+            background-color: #f8f9fa;
+            color: #95a5a6;
+        }
+
+        .status-cancelled {
+            background-color: #fdedeb;
+            color: #e74c3c;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #3498db;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .action-btn:hover {
+            text-decoration: underline;
+        }
+
+        .action-btn.cancel {
+            color: #e74c3c;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .time-display {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+
+            .meeting-rooms {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>会议室预约系统</h1>
+            <p class="subtitle">轻松预约会议室，高效管理会议时间</p>
+        </header>
+
+        <div class="form-container">
+            <div>
+                <div class="form-group">
+                    <label for="meeting-name">会议名称</label>
+                    <input type="text" id="meeting-name" placeholder="请输入会议名称">
+                </div>
+                <div class="form-group">
+                    <label for="meeting-room">会议室</label>
+                    <select id="meeting-room">
+                        <option value="">请选择会议室</option>
+                        <option value="A101">A101 - 小型会议室 (最多8人)</option>
+                        <option value="B201">B201 - 中型会议室 (最多15人)</option>
+                        <option value="C301">C301 - 大型会议室 (最多30人)</option>
+                        <option value="D401">D401 - 董事会议室 (最多20人)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="attendees">参会人数</label>
+                    <input type="number" id="attendees" min="1" max="30" placeholder="请输入参会人数">
+                </div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label for="meeting-date">会议日期</label>
+                    <input type="date" id="meeting-date">
+                </div>
+                <div class="form-group">
+                    <label for="start-time">开始时间</label>
+                    <input type="time" id="start-time">
+                </div>
+                <div class="form-group">
+                    <label for="duration">会议时长 (分钟)</label>
+                    <select id="duration">
+                        <option value="30">30分钟</option>
+                        <option value="60" selected>60分钟</option>
+                        <option value="90">90分钟</option>
+                        <option value="120">120分钟</option>
+                        <option value="180">180分钟</option>
+                        <option value="240">240分钟</option>
+                    </select>
+                </div>
+                <div class="time-display" id="end-time-display">
+                    结束时间: <span id="end-time">--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button id="reset-btn" class="btn btn-secondary">重置</button>
+            <button id="book-btn" class="btn btn-primary">预约会议</button>
+        </div>
+
+        <div class="bookings-container">
+            <div class="bookings-header">
+                <div class="bookings-title">我的预约</div>
+                <div class="bookings-filter">
+                    <select id="status-filter">
+                        <option value="all">所有状态</option>
+                        <option value="upcoming">即将开始</option>
+                        <option value="ongoing">进行中</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                    <select id="date-filter">
+                        <option value="all">所有日期</option>
+                        <option value="today">今天</option>
+                        <option value="tomorrow">明天</option>
+                        <option value="week">本周</option>
+                        <option value="month">本月</option>
+                    </select>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>会议名称</th>
+                        <th>会议室</th>
+                        <th>日期</th>
+                        <th>开始时间</th>
+                        <th>结束时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-table">
+                    <!-- 预约记录将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 取消预约确认模态框 -->
+    <div id="cancel-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">取消预约</div>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要取消此次会议预约吗？此操作无法撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close-btn">取消</button>
+                <button class="btn btn-danger" id="confirm-cancel-btn">确认取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 核心函数：在日期上添加或减去分钟数
+        const addMinutesToDate = (date, n) => {
+            const d = new Date(date);
+            d.setTime(d.getTime() + n * 60000);
+            return d.toISOString().split('.')[0].replace('T', ' ');
+        };
+
+        // DOM元素
+        const meetingNameInput = document.getElementById('meeting-name');
+        const meetingRoomSelect = document.getElementById('meeting-room');
+        const attendeesInput = document.getElementById('attendees');
+        const meetingDateInput = document.getElementById('meeting-date');
+        const startTimeInput = document.getElementById('start-time');
+        const durationSelect = document.getElementById('duration');
+        const endTimeDisplay = document.getElementById('end-time');
+        const resetBtn = document.getElementById('reset-btn');
+        const bookBtn = document.getElementById('book-btn');
+        const bookingsTable = document.getElementById('bookings-table');
+        const statusFilter = document.getElementById('status-filter');
+        const dateFilter = document.getElementById('date-filter');
+        const cancelModal = document.getElementById('cancel-modal');
+        const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+        const modalCloseButtons = document.querySelectorAll('.modal-close, .modal-close-btn');
+
+        // 应用状态
+        let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+        let currentBookingId = null;
+
+        // 初始化日期为今天
+        const today = new Date();
+        meetingDateInput.value = today.toISOString().split('T')[0];
+
+        // 初始化开始时间为当前时间的下一个整点或半点
+        const currentHour = today.getHours();
+        const currentMinute = today.getMinutes();
+        let startHour = currentHour;
+        let startMinute = currentMinute < 30 ? 30 : 0;
+
+        if (currentMinute >= 30) {
+            startHour = (currentHour + 1) % 24;
+        }
+
+        startTimeInput.value = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+
+        // 计算并显示结束时间
+        function updateEndTime() {
+            const date = meetingDateInput.value;
+            const time = startTimeInput.value;
+            const duration = parseInt(durationSelect.value);
+
+            if (date && time) {
+                const dateTimeString = `${date} ${time}:00`;
+                const endDateTime = addMinutesToDate(dateTimeString, duration);
+                const endTimeOnly = endDateTime.split(' ')[1].substring(0, 5);
+                endTimeDisplay.textContent = endTimeOnly;
+            } else {
+                endTimeDisplay.textContent = '--:--';
+            }
+        }
+
+        // 格式化日期时间
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+
+            return {
+                date: `${year}-${month}-${day}`,
+                time: `${hours}:${minutes}`,
+                dateTime: date
+            };
+        }
+
+        // 生成唯一ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // 添加预约
+        function addBooking() {
+            const meetingName = meetingNameInput.value.trim();
+            const meetingRoom = meetingRoomSelect.value;
+            const attendees = attendeesInput.value;
+            const meetingDate = meetingDateInput.value;
+            const startTime = startTimeInput.value;
+            const duration = parseInt(durationSelect.value);
+
+            // 表单验证
+            if (!meetingName || !meetingRoom || !attendees || !meetingDate || !startTime) {
+                alert('请填写所有必填字段');
+                return;
+            }
+
+            // 创建开始时间和结束时间
+            const startDateTime = `${meetingDate} ${startTime}:00`;
+            const endDateTime = addMinutesToDate(startDateTime, duration);
+
+            // 检查时间冲突
+            const hasConflict = checkTimeConflict(meetingRoom, startDateTime, endDateTime);
+            if (hasConflict) {
+                alert('该时间段已被预约，请选择其他时间');
+                return;
+            }
+
+            // 创建新预约
+            const newBooking = {
+                id: generateId(),
+                meetingName,
+                meetingRoom,
+                attendees,
+                startDateTime,
+                endDateTime,
+                duration,
+                status: 'upcoming',
+                createdAt: new Date().toISOString()
+            };
+
+            // 添加到预约列表
+            bookings.push(newBooking);
+            saveBookings();
+            renderBookings();
+            resetForm();
+
+            alert('会议预约成功！');
+        }
+
+        // 检查时间冲突
+        function checkTimeConflict(room, start, end) {
+            const startTime = new Date(start).getTime();
+            const endTime = new Date(end).getTime();
+
+            return bookings.some(booking => {
+                if (booking.status === 'cancelled' || booking.meetingRoom !== room) {
+                    return false;
+                }
+
+                const bookingStart = new Date(booking.startDateTime).getTime();
+                const bookingEnd = new Date(booking.endDateTime).getTime();
+
+                return (startTime < bookingEnd && endTime > bookingStart);
+            });
+        }
+
+        // 更新预约状态
+        function updateBookingStatuses() {
+            const now = new Date().getTime();
+
+            bookings.forEach(booking => {
+                if (booking.status === 'cancelled') {
+                    return;
+                }
+
+                const startTime = new Date(booking.startDateTime).getTime();
+                const endTime = new Date(booking.endDateTime).getTime();
+
+                if (now < startTime) {
+                    booking.status = 'upcoming';
+                } else if (now >= startTime && now < endTime) {
+                    booking.status = 'ongoing';
+                } else {
+                    booking.status = 'completed';
+                }
+            });
+
+            saveBookings();
+        }
+
+        // 取消预约
+        function cancelBooking(id) {
+            const booking = bookings.find(b => b.id === id);
+            if (booking) {
+                booking.status = 'cancelled';
+                saveBookings();
+                renderBookings();
+                closeModal();
+            }
+        }
+
+        // 保存预约到本地存储
+        function saveBookings() {
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+        }
+
+        // 重置表单
+        function resetForm() {
+            meetingNameInput.value = '';
+            meetingRoomSelect.value = '';
+            attendeesInput.value = '';
+            durationSelect.value = '60';
+            updateEndTime();
+        }
+
+        // 渲染预约列表
+        function renderBookings() {
+            updateBookingStatuses();
+
+            // 获取筛选条件
+            const statusValue = statusFilter.value;
+            const dateValue = dateFilter.value;
+
+            // 筛选预约
+            let filteredBookings = bookings;
+
+            if (statusValue !== 'all') {
+                filteredBookings = filteredBookings.filter(booking => booking.status === statusValue);
+            }
+
+            if (dateValue !== 'all') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                const weekStart = new Date(today);
+                weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekEnd.getDate() + 7);
+
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+                filteredBookings = filteredBookings.filter(booking => {
+                    const bookingDate = new Date(booking.startDateTime);
+                    bookingDate.setHours(0, 0, 0, 0);
+
+                    if (dateValue === 'today') {
+                        return bookingDate.getTime() === today.getTime();
+                    } else if (dateValue === 'tomorrow') {
+                        return bookingDate.getTime() === tomorrow.getTime();
+                    } else if (dateValue === 'week') {
+                        return bookingDate >= weekStart && bookingDate < weekEnd;
+                    } else if (dateValue === 'month') {
+                        return bookingDate >= monthStart && bookingDate <= monthEnd;
+                    }
+
+                    return true;
+                });
+            }
+
+            // 按开始时间排序
+            filteredBookings.sort((a, b) => {
+                return new Date(a.startDateTime) - new Date(b.startDateTime);
+            });
+
+            // 清空表格
+            bookingsTable.innerHTML = '';
+
+            // 添加预约行
+            if (filteredBookings.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `<td colspan="7" style="text-align: center;">暂无预约记录</td>`;
+                bookingsTable.appendChild(emptyRow);
+                return;
+            }
+
+            filteredBookings.forEach(booking => {
+                const startInfo = formatDateTime(booking.startDateTime);
+                const endInfo = formatDateTime(booking.endDateTime);
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${booking.meetingName}</td>
+                    <td>${booking.meetingRoom}</td>
+                    <td>${startInfo.date}</td>
+                    <td>${startInfo.time}</td>
+                    <td>${endInfo.time}</td>
+                    <td>
+                        <span class="status status-${booking.status}">
+                            ${getStatusText(booking.status)}
+                        </span>
+                    </td>
+                    <td>
+                        ${booking.status === 'upcoming' ?
+                        `<button class="action-btn cancel" data-id="${booking.id}">取消</button>` : ''}
+                        <button class="action-btn" data-id="${booking.id}">详情</button>
+                    </td>
+                `;
+
+                bookingsTable.appendChild(row);
+            });
+
+            // 添加取消按钮事件
+            document.querySelectorAll('.action-btn.cancel').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentBookingId = e.target.dataset.id;
+                    openModal();
+                });
+            });
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'upcoming': '即将开始',
+                'ongoing': '进行中',
+                'completed': '已完成',
+                'cancelled': '已取消'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 打开模态框
+        function openModal() {
+            cancelModal.style.display = 'flex';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            cancelModal.style.display = 'none';
+            currentBookingId = null;
+        }
+
+        // 事件监听
+        meetingDateInput.addEventListener('change', updateEndTime);
+        startTimeInput.addEventListener('change', updateEndTime);
+        durationSelect.addEventListener('change', updateEndTime);
+        resetBtn.addEventListener('click', resetForm);
+        bookBtn.addEventListener('click', addBooking);
+        statusFilter.addEventListener('change', renderBookings);
+        dateFilter.addEventListener('change', renderBookings);
+        confirmCancelBtn.addEventListener('click', () => cancelBooking(currentBookingId));
+        modalCloseButtons.forEach(btn => btn.addEventListener('click', closeModal));
+
+        // 初始化
+        updateEndTime();
+        renderBookings();
+
+        // 定期更新预约状态（每分钟）
+        setInterval(renderBookings, 60000);
+    </script>
+</body>
+
+</html>
