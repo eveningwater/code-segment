@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电商产品展示 - addStyles 实战应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .theme-switch,
+        .view-mode {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-active {
+            background-color: #e6f7ff;
+            border-color: #91d5ff;
+            color: #1890ff;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .products.list-view {
+            grid-template-columns: 1fr;
+        }
+
+        .product-card {
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f5222d;
+            margin-bottom: 12px;
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .products.list-view .product-card {
+            display: flex;
+        }
+
+        .products.list-view .product-image {
+            width: 200px;
+            height: 200px;
+        }
+
+        .products.list-view .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .products.list-view .product-desc {
+            flex: 1;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .products.list-view .product-card {
+                flex-direction: column;
+            }
+
+            .products.list-view .product-image {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">StyleShop</div>
+            <div class="controls">
+                <div class="theme-switch">
+                    <button id="light-theme" class="btn btn-outline btn-active">浅色</button>
+                    <button id="dark-theme" class="btn btn-outline">深色</button>
+                </div>
+                <div class="view-mode">
+                    <button id="grid-view" class="btn btn-outline btn-active">网格视图</button>
+                    <button id="list-view" class="btn btn-outline">列表视图</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-title">分类</div>
+                <div class="filter-options">
+                    <button class="btn btn-outline btn-active" data-category="all">全部</button>
+                    <button class="btn btn-outline" data-category="clothing">服装</button>
+                    <button class="btn btn-outline" data-category="electronics">电子产品</button>
+                    <button class="btn btn-outline" data-category="home">家居</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-title">价格区间</div>
+                <div class="filter-options">
+                    <button class="btn btn-outline btn-active" data-price="all">全部</button>
+                    <button class="btn btn-outline" data-price="0-100">¥0-100</button>
+                    <button class="btn btn-outline" data-price="100-500">¥100-500</button>
+                    <button class="btn btn-outline" data-price="500+">¥500以上</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-title">状态</div>
+                <div class="filter-options">
+                    <button class="btn btn-outline btn-active" data-status="all">全部</button>
+                    <button class="btn btn-outline" data-status="in-stock">有货</button>
+                    <button class="btn btn-outline" data-status="low-stock">库存紧张</button>
+                    <button class="btn btn-outline" data-status="out-of-stock">缺货</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="products" id="products-container">
+            <!-- 产品卡片将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // addStyles 方法定义 - 核心功能
+        const addStyles = (el, styles) => Object.assign(el.style, styles);
+
+        // 模拟产品数据
+        const products = [
+            {
+                id: 1,
+                name: '时尚连帽卫衣',
+                price: 199,
+                description: '舒适面料，多色可选，适合日常休闲穿着',
+                image: 'https://placehold.co/300x200/e9f7fe/333333?text=连帽卫衣',
+                category: 'clothing',
+                status: 'in-stock'
+            },
+            {
+                id: 2,
+                name: '无线蓝牙耳机',
+                price: 599,
+                description: '高清音质，长效续航，智能降噪',
+                image: 'https://placehold.co/300x200/fef5e9/333333?text=蓝牙耳机',
+                category: 'electronics',
+                status: 'low-stock'
+            },
+            {
+                id: 3,
+                name: '北欧风格台灯',
+                price: 129,
+                description: '简约设计，护眼光源，触控调光',
+                image: 'https://placehold.co/300x200/f5e9fe/333333?text=台灯',
+                category: 'home',
+                status: 'in-stock'
+            },
+            {
+                id: 4,
+                name: '智能手表',
+                price: 899,
+                description: '健康监测，多功能运动模式，长效续航',
+                image: 'https://placehold.co/300x200/e9fef5/333333?text=智能手表',
+                category: 'electronics',
+                status: 'in-stock'
+            },
+            {
+                id: 5,
+                name: '纯棉T恤',
+                price: 89,
+                description: '柔软透气，多色可选，经典款式',
+                image: 'https://placehold.co/300x200/fee9e9/333333?text=纯棉T恤',
+                category: 'clothing',
+                status: 'out-of-stock'
+            },
+            {
+                id: 6,
+                name: '多功能厨房刀具套装',
+                price: 299,
+                description: '锋利耐用，人体工学手柄，易于清洁',
+                image: 'https://placehold.co/300x200/f5fee9/333333?text=刀具套装',
+                category: 'home',
+                status: 'in-stock'
+            }
+        ];
+
+        // 当前筛选条件
+        let currentFilters = {
+            category: 'all',
+            price: 'all',
+            status: 'all'
+        };
+
+        // 当前视图模式
+        let currentViewMode = 'grid';
+
+        // 当前主题
+        let currentTheme = 'light';
+
+        // DOM元素
+        const productsContainer = document.getElementById('products-container');
+        const notification = document.getElementById('notification');
+
+        // 初始化页面
+        function initPage() {
+            renderProducts();
+            setupEventListeners();
+        }
+
+        // 渲染产品列表
+        function renderProducts() {
+            // 清空容器
+            productsContainer.innerHTML = '';
+
+            // 筛选产品
+            const filteredProducts = products.filter(product => {
+                // 分类筛选
+                if (currentFilters.category !== 'all' && product.category !== currentFilters.category) {
+                    return false;
+                }
+
+                // 价格筛选
+                if (currentFilters.price !== 'all') {
+                    if (currentFilters.price === '0-100' && (product.price < 0 || product.price > 100)) {
+                        return false;
+                    } else if (currentFilters.price === '100-500' && (product.price < 100 || product.price > 500)) {
+                        return false;
+                    } else if (currentFilters.price === '500+' && product.price < 500) {
+                        return false;
+                    }
+                }
+
+                // 状态筛选
+                if (currentFilters.status !== 'all' && product.status !== currentFilters.status) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            // 创建产品卡片
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.dataset.id = product.id;
+
+                // 设置产品卡片内容
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">¥${product.price}</div>
+                        <div class="product-desc">${product.description}</div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary add-to-cart">加入购物车</button>
+                            <button class="btn btn-outline add-to-wishlist">收藏</button>
+                        </div>
+                    </div>
+                `;
+
+                // 为缺货商品添加样式
+                if (product.status === 'out-of-stock') {
+                    addStyles(productCard, {
+                        opacity: '0.7',
+                        pointerEvents: 'none'
+                    });
+
+                    const outOfStockLabel = document.createElement('div');
+                    outOfStockLabel.textContent = '缺货';
+                    addStyles(outOfStockLabel, {
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        backgroundColor: '#ff4d4f',
+                        color: 'white',
+                        padding: '5px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px'
+                    });
+
+                    productCard.style.position = 'relative';
+                    productCard.appendChild(outOfStockLabel);
+                }
+
+                // 为库存紧张商品添加标签
+                if (product.status === 'low-stock') {
+                    const lowStockLabel = document.createElement('div');
+                    lowStockLabel.textContent = '库存紧张';
+                    addStyles(lowStockLabel, {
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        backgroundColor: '#faad14',
+                        color: 'white',
+                        padding: '5px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px'
+                    });
+
+                    productCard.style.position = 'relative';
+                    productCard.appendChild(lowStockLabel);
+                }
+
+                productsContainer.appendChild(productCard);
+            });
+
+            // 如果没有产品，显示空状态
+            if (filteredProducts.length === 0) {
+                const emptyState = document.createElement('div');
+                addStyles(emptyState, {
+                    gridColumn: '1 / -1',
+                    textAlign: 'center',
+                    padding: '50px 0',
+                    color: '#999'
+                });
+                emptyState.textContent = '没有找到符合条件的产品';
+                productsContainer.appendChild(emptyState);
+            }
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 分类筛选
+            document.querySelectorAll('[data-category]').forEach(button => {
+                button.addEventListener('click', () => {
+                    // 移除所有分类按钮的活跃状态
+                    document.querySelectorAll('[data-category]').forEach(btn => {
+                        btn.classList.remove('btn-active');
+                    });
+
+                    // 添加当前按钮的活跃状态
+                    button.classList.add('btn-active');
+
+                    // 更新筛选条件
+                    currentFilters.category = button.dataset.category;
+
+                    // 重新渲染产品
+                    renderProducts();
+                });
+            });
+
+            // 价格筛选
+            document.querySelectorAll('[data-price]').forEach(button => {
+                button.addEventListener('click', () => {
+                    // 移除所有价格按钮的活跃状态
+                    document.querySelectorAll('[data-price]').forEach(btn => {
+                        btn.classList.remove('btn-active');
+                    });
+
+                    // 添加当前按钮的活跃状态
+                    button.classList.add('btn-active');
+
+                    // 更新筛选条件
+                    currentFilters.price = button.dataset.price;
+
+                    // 重新渲染产品
+                    renderProducts();
+                });
+            });
+
+            // 状态筛选
+            document.querySelectorAll('[data-status]').forEach(button => {
+                button.addEventListener('click', () => {
+                    // 移除所有状态按钮的活跃状态
+                    document.querySelectorAll('[data-status]').forEach(btn => {
+                        btn.classList.remove('btn-active');
+                    });
+
+                    // 添加当前按钮的活跃状态
+                    button.classList.add('btn-active');
+
+                    // 更新筛选条件
+                    currentFilters.status = button.dataset.status;
+
+                    // 重新渲染产品
+                    renderProducts();
+                });
+            });
+
+            // 视图模式切换
+            document.getElementById('grid-view').addEventListener('click', () => {
+                document.getElementById('grid-view').classList.add('btn-active');
+                document.getElementById('list-view').classList.remove('btn-active');
+                productsContainer.classList.remove('list-view');
+                currentViewMode = 'grid';
+            });
+
+            document.getElementById('list-view').addEventListener('click', () => {
+                document.getElementById('list-view').classList.add('btn-active');
+                document.getElementById('grid-view').classList.remove('btn-active');
+                productsContainer.classList.add('list-view');
+                currentViewMode = 'list';
+            });
+
+            // 主题切换
+            document.getElementById('light-theme').addEventListener('click', () => {
+                document.getElementById('light-theme').classList.add('btn-active');
+                document.getElementById('dark-theme').classList.remove('btn-active');
+                applyTheme('light');
+            });
+
+            document.getElementById('dark-theme').addEventListener('click', () => {
+                document.getElementById('dark-theme').classList.add('btn-active');
+                document.getElementById('light-theme').classList.remove('btn-active');
+                applyTheme('dark');
+            });
+
+            // 加入购物车和收藏按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-to-cart')) {
+                    const productCard = e.target.closest('.product-card');
+                    const productId = productCard.dataset.id;
+                    const product = products.find(p => p.id == productId);
+
+                    // 使用 addStyles 方法添加点击反馈效果
+                    const button = e.target;
+                    const originalStyles = {
+                        backgroundColor: button.style.backgroundColor,
+                        transform: button.style.transform
+                    };
+
+                    addStyles(button, {
+                        backgroundColor: '#52c41a',
+                        transform: 'scale(0.95)'
+                    });
+
+                    setTimeout(() => {
+                        addStyles(button, originalStyles);
+                    }, 200);
+
+                    showNotification(`已将 ${product.name} 加入购物车`, '#52c41a');
+                }
+
+                if (e.target.classList.contains('add-to-wishlist')) {
+                    const productCard = e.target.closest('.product-card');
+                    const productId = productCard.dataset.id;
+                    const product = products.find(p => p.id == productId);
+
+                    // 切换收藏按钮样式
+                    const button = e.target;
+                    if (button.classList.contains('btn-active')) {
+                        button.classList.remove('btn-active');
+                        showNotification(`已取消收藏 ${product.name}`, '#faad14');
+                    } else {
+                        button.classList.add('btn-active');
+                        showNotification(`已收藏 ${product.name}`, '#1890ff');
+                    }
+                }
+            });
+        }
+
+        // 应用主题
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                addStyles(document.body, {
+                    backgroundColor: '#1f1f1f',
+                    color: '#f0f0f0'
+                });
+
+                // 更新卡片样式
+                document.querySelectorAll('.product-card').forEach(card => {
+                    addStyles(card, {
+                        backgroundColor: '#2a2a2a',
+                        borderColor: '#333'
+                    });
+                });
+
+                // 更新产品名称样式
+                document.querySelectorAll('.product-name').forEach(name => {
+                    addStyles(name, {
+                        color: '#f0f0f0'
+                    });
+                });
+
+                // 更新产品描述样式
+                document.querySelectorAll('.product-desc').forEach(desc => {
+                    addStyles(desc, {
+                        color: '#aaa'
+                    });
+                });
+
+                // 更新按钮样式
+                document.querySelectorAll('.btn-outline').forEach(btn => {
+                    if (!btn.classList.contains('btn-active')) {
+                        addStyles(btn, {
+                            borderColor: '#444',
+                            color: '#ddd'
+                        });
+                    }
+                });
+
+                // 更新标题样式
+                document.querySelectorAll('.filter-title').forEach(title => {
+                    addStyles(title, {
+                        color: '#ddd'
+                    });
+                });
+
+                // 更新头部样式
+                addStyles(document.querySelector('header'), {
+                    borderBottomColor: '#333'
+                });
+            } else {
+                addStyles(document.body, {
+                    backgroundColor: '#fff',
+                    color: '#333'
+                });
+
+                // 更新卡片样式
+                document.querySelectorAll('.product-card').forEach(card => {
+                    addStyles(card, {
+                        backgroundColor: '#fff',
+                        borderColor: '#eee'
+                    });
+                });
+
+                // 更新产品名称样式
+                document.querySelectorAll('.product-name').forEach(name => {
+                    addStyles(name, {
+                        color: '#333'
+                    });
+                });
+
+                // 更新产品描述样式
+                document.querySelectorAll('.product-desc').forEach(desc => {
+                    addStyles(desc, {
+                        color: '#666'
+                    });
+                });
+
+                // 更新按钮样式
+                document.querySelectorAll('.btn-outline').forEach(btn => {
+                    if (!btn.classList.contains('btn-active')) {
+                        addStyles(btn, {
+                            borderColor: '#d9d9d9',
+                            color: '#333'
+                        });
+                    }
+                });
+
+                // 更新标题样式
+                document.querySelectorAll('.filter-title').forEach(title => {
+                    addStyles(title, {
+                        color: '#333'
+                    });
+                });
+
+                // 更新头部样式
+                addStyles(document.querySelector('header'), {
+                    borderBottomColor: '#eee'
+                });
+            }
+
+            currentTheme = theme;
+        }
+
+        // 显示通知
+        function showNotification(message, color) {
+            // 设置通知内容和样式
+            notification.textContent = message;
+            addStyles(notification, {
+                backgroundColor: color,
+                boxShadow: `0 4px 12px ${color}40`
+            });
+
+            // 显示通知
+            notification.classList.add('show');
+
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+
+</html>
