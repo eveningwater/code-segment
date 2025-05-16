@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目交付时间计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1890ff;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .calculator-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .projects-panel {
+            flex: 2;
+            min-width: 300px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #1890ff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .btn {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e6e6e6;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .result.error {
+            background-color: #fff2f0;
+            border-color: #ffccc7;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #fafafa;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-planning {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .status-in-progress {
+            background-color: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-completed {
+            background-color: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-delayed {
+            background-color: #fff2f0;
+            color: #f5222d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #1890ff;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            text-decoration: underline;
+        }
+
+        .action-btn.delete {
+            color: #f5222d;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>项目交付时间计算器</h1>
+            <p class="description">基于工作日（周一至周五）计算项目交付时间，自动跳过周末，帮助您更准确地规划项目进度。</p>
+        </header>
+
+        <div class="main-content">
+            <div class="calculator-panel">
+                <h2>计算交付日期</h2>
+                <div class="form-group">
+                    <label for="project-name">项目名称</label>
+                    <input type="text" id="project-name" placeholder="请输入项目名称">
+                </div>
+                <div class="form-group">
+                    <label for="start-date">开始日期</label>
+                    <input type="date" id="start-date">
+                </div>
+                <div class="form-group">
+                    <label for="workdays">所需工作日数量</label>
+                    <input type="number" id="workdays" min="1" placeholder="请输入工作日数量">
+                </div>
+                <div class="form-group">
+                    <label for="project-type">项目类型</label>
+                    <select id="project-type">
+                        <option value="development">软件开发</option>
+                        <option value="design">UI/UX设计</option>
+                        <option value="marketing">市场营销</option>
+                        <option value="research">研究调研</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priority">优先级</label>
+                    <select id="priority">
+                        <option value="high">高</option>
+                        <option value="medium" selected>中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="calculate-btn" class="btn">计算交付日期</button>
+                    <button id="reset-btn" class="btn btn-secondary">重置</button>
+                </div>
+                <div id="result" class="result">
+                    <p>预计交付日期: <strong id="delivery-date"></strong></p>
+                    <p>总工作日: <strong id="total-workdays"></strong></p>
+                    <p>日历天数: <strong id="calendar-days"></strong></p>
+                </div>
+            </div>
+
+            <div class="projects-panel">
+                <h2>项目交付计划</h2>
+                <div id="projects-table-container">
+                    <div class="empty-state">
+                        <i>📋</i>
+                        <p>暂无项目数据</p>
+                        <p>请使用左侧表单添加项目</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // addWeekDays 方法：计算工作日（跳过周末）
+        const addWeekDays = (startDate, count) =>
+            Array.from({ length: count }).reduce(date => {
+                date = new Date(date.setDate(date.getDate() + 1));
+                if (date.getDay() % 6 === 0) {
+                    date = new Date(date.setDate(date.getDate() + (date.getDay() / 6 + 1)));
+                }
+                return date;
+            }, new Date(startDate));
+
+        // 格式化日期为 YYYY-MM-DD 格式
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        // 格式化日期为更友好的显示格式
+        const formatDateForDisplay = (dateString) => {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const weekday = weekdays[date.getDay()];
+            return `${year}年${month}月${day}日 (${weekday})`;
+        };
+
+        // 计算两个日期之间的日历天数（包括周末）
+        const calculateCalendarDays = (startDate, endDate) => {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        };
+
+        // 获取项目状态
+        const getProjectStatus = (startDate, endDate) => {
+            const today = new Date();
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            if (today < start) {
+                return { status: 'planning', text: '规划中' };
+            } else if (today >= start && today <= end) {
+                return { status: 'in-progress', text: '进行中' };
+            } else if (today > end) {
+                return { status: 'completed', text: '已完成' };
+            }
+        };
+
+        // 初始化本地存储
+        const initLocalStorage = () => {
+            if (!localStorage.getItem('projects')) {
+                localStorage.setItem('projects', JSON.stringify([]));
+            }
+        };
+
+        // 保存项目到本地存储
+        const saveProject = (project) => {
+            const projects = JSON.parse(localStorage.getItem('projects')) || [];
+            project.id = Date.now().toString();
+            projects.push(project);
+            localStorage.setItem('projects', JSON.stringify(projects));
+            renderProjects();
+        };
+
+        // 从本地存储中删除项目
+        const deleteProject = (projectId) => {
+            let projects = JSON.parse(localStorage.getItem('projects')) || [];
+            projects = projects.filter(project => project.id !== projectId);
+            localStorage.setItem('projects', JSON.stringify(projects));
+            renderProjects();
+        };
+
+        // 将项目标记为延迟
+        const markProjectAsDelayed = (projectId) => {
+            const projects = JSON.parse(localStorage.getItem('projects')) || [];
+            const updatedProjects = projects.map(project => {
+                if (project.id === projectId) {
+                    project.isDelayed = true;
+                }
+                return project;
+            });
+            localStorage.setItem('projects', JSON.stringify(updatedProjects));
+            renderProjects();
+        };
+
+        // 渲染项目列表
+        const renderProjects = () => {
+            const projects = JSON.parse(localStorage.getItem('projects')) || [];
+            const container = document.getElementById('projects-table-container');
+
+            if (projects.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i>📋</i>
+                        <p>暂无项目数据</p>
+                        <p>请使用左侧表单添加项目</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>项目名称</th>
+                            <th>类型</th>
+                            <th>开始日期</th>
+                            <th>交付日期</th>
+                            <th>工作日</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            projects.forEach(project => {
+                let status;
+                if (project.isDelayed) {
+                    status = { status: 'delayed', text: '已延期' };
+                } else {
+                    status = getProjectStatus(project.startDate, project.deliveryDate);
+                }
+
+                const projectTypes = {
+                    'development': '软件开发',
+                    'design': 'UI/UX设计',
+                    'marketing': '市场营销',
+                    'research': '研究调研',
+                    'other': '其他'
+                };
+
+                tableHTML += `
+                    <tr>
+                        <td>${project.name}</td>
+                        <td>${projectTypes[project.type] || project.type}</td>
+                        <td>${formatDateForDisplay(project.startDate)}</td>
+                        <td>${formatDateForDisplay(project.deliveryDate)}</td>
+                        <td>${project.workdays}</td>
+                        <td><span class="status-badge status-${status.status}">${status.text}</span></td>
+                        <td class="actions">
+                            ${status.status === 'in-progress' ? `<button class="action-btn delay" data-id="${project.id}">标记延期</button>` : ''}
+                            <button class="action-btn delete" data-id="${project.id}">删除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+
+            // 添加事件监听器
+            document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const projectId = e.target.getAttribute('data-id');
+                    deleteProject(projectId);
+                });
+            });
+
+            document.querySelectorAll('.action-btn.delay').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const projectId = e.target.getAttribute('data-id');
+                    markProjectAsDelayed(projectId);
+                });
+            });
+        };
+
+        // 初始化应用
+        const initApp = () => {
+            initLocalStorage();
+            renderProjects();
+
+            // 设置今天的日期为默认开始日期
+            const today = new Date();
+            document.getElementById('start-date').value = formatDate(today);
+
+            // 计算按钮点击事件
+            document.getElementById('calculate-btn').addEventListener('click', () => {
+                const projectName = document.getElementById('project-name').value.trim();
+                const startDateValue = document.getElementById('start-date').value;
+                const workdaysValue = document.getElementById('workdays').value;
+                const projectType = document.getElementById('project-type').value;
+                const priority = document.getElementById('priority').value;
+                const resultElement = document.getElementById('result');
+
+                // 验证输入
+                if (!projectName || !startDateValue || !workdaysValue) {
+                    resultElement.classList.add('error');
+                    resultElement.style.display = 'block';
+                    resultElement.innerHTML = '<p>请填写所有必填字段</p>';
+                    return;
+                }
+
+                const startDate = new Date(startDateValue);
+                const workdays = parseInt(workdaysValue, 10);
+
+                if (isNaN(workdays) || workdays <= 0) {
+                    resultElement.classList.add('error');
+                    resultElement.style.display = 'block';
+                    resultElement.innerHTML = '<p>工作日数量必须是正整数</p>';
+                    return;
+                }
+
+                // 计算交付日期
+                const deliveryDate = addWeekDays(startDate, workdays);
+                const calendarDays = calculateCalendarDays(startDate, deliveryDate);
+
+                // 显示结果
+                resultElement.classList.remove('error');
+                resultElement.style.display = 'block';
+                document.getElementById('delivery-date').textContent = formatDateForDisplay(deliveryDate);
+                document.getElementById('total-workdays').textContent = workdays;
+                document.getElementById('calendar-days').textContent = calendarDays;
+
+                // 保存项目
+                const project = {
+                    name: projectName,
+                    startDate: startDateValue,
+                    deliveryDate: formatDate(deliveryDate),
+                    workdays: workdays,
+                    calendarDays: calendarDays,
+                    type: projectType,
+                    priority: priority,
+                    isDelayed: false
+                };
+
+                saveProject(project);
+            });
+
+            // 重置按钮点击事件
+            document.getElementById('reset-btn').addEventListener('click', () => {
+                document.getElementById('project-name').value = '';
+                document.getElementById('start-date').value = formatDate(new Date());
+                document.getElementById('workdays').value = '';
+                document.getElementById('project-type').selectedIndex = 0;
+                document.getElementById('priority').selectedIndex = 1;
+                document.getElementById('result').style.display = 'none';
+            });
+        };
+
+        // 页面加载完成后初始化应用
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>

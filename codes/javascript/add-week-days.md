@@ -13,7 +13,7 @@
 
 ```js
 const addWeekDays = (startDate, count) =>
-  Array.from({ length: count }).reduce(date => {
+  Array.from({ length: count }).reduce((date) => {
     date = new Date(date.setDate(date.getDate() + 1));
     if (date.getDay() % 6 === 0) {
       date = new Date(date.setDate(date.getDate() + (date.getDay() / 6 + 1)));
@@ -22,17 +22,23 @@ const addWeekDays = (startDate, count) =>
   }, startDate);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/add-week-days.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
-addWeekDays(new Date('Oct 09, 2020'), 5); // 'Oct 16, 2020'
-addWeekDays(new Date('Oct 12, 2020'), 5); // 'Oct 19, 2020'
+addWeekDays(new Date("Oct 09, 2020"), 5); // 'Oct 16, 2020'
+addWeekDays(new Date("Oct 12, 2020"), 5); // 'Oct 19, 2020'
 ```
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/addWeekDays.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/add-week-days.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/add-week-days.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/addWeekDays.html"></iframe>
+<iframe src="codes/javascript/html/add-week-days.html"></iframe>
