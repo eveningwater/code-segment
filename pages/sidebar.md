@@ -259,7 +259,7 @@
 - [往日期里添加分钟--2022-05-28](codes/javascript/add-minutes-to-date.md)
 - [添加样式--2022-05-30](codes/javascript/add-styles.md)
 - [添加周--2022-05-31](codes/javascript/add-week-days.md)
-- [查找提供的函数为其返回真值的最后 n 个元素--2022-06-01](codes/javascript/findLastN.md)
+- [查找提供的函数为其返回真值的最后 n 个元素--2022-06-01](codes/javascript/find-last-n.md)
 - [字符串数组转换为对象--2022-06-02](codes/javascript/flags.md)
 - [根据指定值查找对象路径--2022-06-03](codes/javascript/findPath.md)
 - [不可变的数据插入--2022-06-03](codes/javascript/immutableInsert.md)

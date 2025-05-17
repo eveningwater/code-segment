@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易记录分析系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #1890ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .filter-panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        .result-panel {
+            flex: 2;
+            min-width: 300px;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #1890ff;
+            margin-bottom: 20px;
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .btn {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e6e6e6;
+        }
+
+        .transaction-list {
+            margin-top: 20px;
+        }
+
+        .transaction-card {
+            background-color: #fafafa;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #1890ff;
+            transition: transform 0.3s;
+        }
+
+        .transaction-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .transaction-title {
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .amount-income {
+            color: #52c41a;
+        }
+
+        .amount-expense {
+            color: #f5222d;
+        }
+
+        .transaction-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .transaction-category {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .category-shopping {
+            background-color: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .category-food {
+            background-color: #f6ffed;
+            color: #52c41a;
+        }
+
+        .category-transport {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .category-entertainment {
+            background-color: #f9f0ff;
+            color: #722ed1;
+        }
+
+        .category-housing {
+            background-color: #fff2e8;
+            color: #fa541c;
+        }
+
+        .category-income {
+            background-color: #e6fffb;
+            color: #13c2c2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .summary-panel {
+            background-color: #f0f5ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #1890ff;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .filter-panel {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>交易记录分析系统</h1>
+            <p class="description">快速查找和分析您的最近交易记录</p>
+        </header>
+
+        <div class="main-content">
+            <div class="filter-panel">
+                <h2>筛选条件</h2>
+                <div class="form-group">
+                    <label for="transaction-type">交易类型</label>
+                    <select id="transaction-type">
+                        <option value="all">全部</option>
+                        <option value="income">收入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">交易类别</label>
+                    <select id="category">
+                        <option value="all">全部类别</option>
+                        <option value="shopping">购物</option>
+                        <option value="food">餐饮</option>
+                        <option value="transport">交通</option>
+                        <option value="entertainment">娱乐</option>
+                        <option value="housing">住房</option>
+                        <option value="income">工资收入</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="min-amount">最小金额</label>
+                    <input type="number" id="min-amount" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="max-amount">最大金额</label>
+                    <input type="number" id="max-amount" placeholder="不限">
+                </div>
+                <div class="form-group">
+                    <label for="result-count">显示结果数量</label>
+                    <input type="number" id="result-count" value="3" min="1" max="10">
+                </div>
+                <div>
+                    <button id="search-btn" class="btn">查找交易</button>
+                    <button id="reset-btn" class="btn btn-secondary">重置</button>
+                </div>
+            </div>
+
+            <div class="result-panel">
+                <h2>分析结果</h2>
+                <div id="summary-container"></div>
+                <div id="transaction-list" class="transaction-list">
+                    <div class="empty-state">
+                        <i>📊</i>
+                        <p>请使用左侧筛选条件查找交易记录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // findLastN 方法：从数组末尾开始查找符合条件的元素
+        const findLastN = (arr, matcher, n = 1) => {
+            const res = [];
+            for (let i = arr.length - 1; i >= 0; i--) {
+                const el = arr[i];
+                const match = matcher(el, i, arr);
+                if (match) {
+                    res.unshift(el);
+                }
+                if (res.length === n) {
+                    return res;
+                }
+            }
+            return res;
+        };
+
+        // 模拟交易数据
+        const transactions = [
+            {
+                id: 1,
+                title: '超市购物',
+                amount: -258.75,
+                type: 'expense',
+                category: 'shopping',
+                date: '2023-06-15',
+                description: '周末采购生活用品'
+            },
+            {
+                id: 2,
+                title: '工资收入',
+                amount: 8500,
+                type: 'income',
+                category: 'income',
+                date: '2023-06-10',
+                description: '6月份工资'
+            },
+            {
+                id: 3,
+                title: '餐厅晚餐',
+                amount: -368,
+                type: 'expense',
+                category: 'food',
+                date: '2023-06-08',
+                description: '和朋友聚餐'
+            },
+            {
+                id: 4,
+                title: '电影票',
+                amount: -80,
+                type: 'expense',
+                category: 'entertainment',
+                date: '2023-06-05',
+                description: '观看新上映电影'
+            },
+            {
+                id: 5,
+                title: '公交卡充值',
+                amount: -100,
+                type: 'expense',
+                category: 'transport',
+                date: '2023-06-03',
+                description: '月度交通卡充值'
+            },
+            {
+                id: 6,
+                title: '房租支出',
+                amount: -2800,
+                type: 'expense',
+                category: 'housing',
+                date: '2023-06-01',
+                description: '6月份房租'
+            },
+            {
+                id: 7,
+                title: '兼职收入',
+                amount: 1200,
+                type: 'income',
+                category: 'income',
+                date: '2023-05-28',
+                description: '周末兼职收入'
+            },
+            {
+                id: 8,
+                title: '网上购物',
+                amount: -499,
+                type: 'expense',
+                category: 'shopping',
+                date: '2023-05-25',
+                description: '购买新衣服'
+            },
+            {
+                id: 9,
+                title: '外卖午餐',
+                amount: -45,
+                type: 'expense',
+                category: 'food',
+                date: '2023-05-22',
+                description: '工作日午餐'
+            },
+            {
+                id: 10,
+                title: '出租车',
+                amount: -38,
+                type: 'expense',
+                category: 'transport',
+                date: '2023-05-20',
+                description: '加班回家'
+            },
+            {
+                id: 11,
+                title: '游戏购买',
+                amount: -199,
+                type: 'expense',
+                category: 'entertainment',
+                date: '2023-05-18',
+                description: '购买新游戏'
+            },
+            {
+                id: 12,
+                title: '水电费',
+                amount: -350,
+                type: 'expense',
+                category: 'housing',
+                date: '2023-05-15',
+                description: '月度水电费'
+            },
+            {
+                id: 13,
+                title: '奖金收入',
+                amount: 2000,
+                type: 'income',
+                category: 'income',
+                date: '2023-05-10',
+                description: '季度绩效奖金'
+            },
+            {
+                id: 14,
+                title: '超市购物',
+                amount: -312.5,
+                type: 'expense',
+                category: 'shopping',
+                date: '2023-05-08',
+                description: '日常生活用品'
+            },
+            {
+                id: 15,
+                title: '餐厅聚餐',
+                amount: -520,
+                type: 'expense',
+                category: 'food',
+                date: '2023-05-05',
+                description: '朋友生日聚餐'
+            }
+        ];
+
+        // 格式化金额
+        const formatAmount = (amount) => {
+            const absAmount = Math.abs(amount);
+            return absAmount.toFixed(2);
+        };
+
+        // 格式化日期
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}年${month}月${day}日`;
+        };
+
+        // 渲染交易记录
+        const renderTransactions = (transactions) => {
+            const container = document.getElementById('transaction-list');
+
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i>🔍</i>
+                        <p>未找到符合条件的交易记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            transactions.forEach(transaction => {
+                const amountClass = transaction.type === 'income' ? 'amount-income' : 'amount-expense';
+                const amountSign = transaction.type === 'income' ? '+' : '-';
+                const categoryClass = `category-${transaction.category}`;
+
+                html += `
+                    <div class="transaction-card">
+                        <div class="transaction-header">
+                            <div class="transaction-title">${transaction.title}</div>
+                            <div class="transaction-amount ${amountClass}">${amountSign}￥${formatAmount(transaction.amount)}</div>
+                        </div>
+                        <div class="transaction-details">
+                            <div>
+                                <span class="transaction-category ${categoryClass}">${getCategoryName(transaction.category)}</span>
+                                <span class="transaction-date">${formatDate(transaction.date)}</span>
+                            </div>
+                            <div class="transaction-description">${transaction.description}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        };
+
+        // 获取类别名称
+        const getCategoryName = (category) => {
+            const categoryNames = {
+                'shopping': '购物',
+                'food': '餐饮',
+                'transport': '交通',
+                'entertainment': '娱乐',
+                'housing': '住房',
+                'income': '收入'
+            };
+            return categoryNames[category] || category;
+        };
+
+        // 渲染结果摘要
+        const renderSummary = (transactions) => {
+            const container = document.getElementById('summary-container');
+
+            if (transactions.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            // 计算总金额
+            const totalAmount = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+
+            // 计算最大交易
+            const maxTransaction = transactions.reduce((max, transaction) =>
+                Math.abs(transaction.amount) > Math.abs(max.amount) ? transaction : max, transactions[0]);
+
+            // 计算最早和最晚日期
+            const dates = transactions.map(t => new Date(t.date));
+            const earliestDate = new Date(Math.min(...dates));
+            const latestDate = new Date(Math.max(...dates));
+
+            const html = `
+                <div class="summary-panel">
+                    <div class="summary-title">查询结果摘要</div>
+                    <div class="summary-item">
+                        <span class="summary-label">符合条件的交易:</span>
+                        <span class="summary-value">${transactions.length}笔</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">总金额:</span>
+                        <span class="summary-value ${totalAmount >= 0 ? 'amount-income' : 'amount-expense'}">￥${formatAmount(totalAmount)}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">最大交易:</span>
+                        <span class="summary-value">${maxTransaction.title} (￥${formatAmount(maxTransaction.amount)})</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">日期范围:</span>
+                        <span class="summary-value">${formatDate(earliestDate)} - ${formatDate(latestDate)}</span>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        };
+
+        // 搜索交易记录
+        const searchTransactions = () => {
+            const transactionType = document.getElementById('transaction-type').value;
+            const category = document.getElementById('category').value;
+            const minAmount = document.getElementById('min-amount').value;
+            const maxAmount = document.getElementById('max-amount').value;
+            const resultCount = parseInt(document.getElementById('result-count').value, 10) || 3;
+
+            // 使用 findLastN 方法查找符合条件的交易记录
+            const results = findLastN(transactions, transaction => {
+                // 交易类型筛选
+                if (transactionType !== 'all' && transaction.type !== transactionType) {
+                    return false;
+                }
+
+                // 类别筛选
+                if (category !== 'all' && transaction.category !== category) {
+                    return false;
+                }
+
+                // 金额范围筛选
+                const amount = Math.abs(transaction.amount);
+                if (minAmount && amount < parseFloat(minAmount)) {
+                    return false;
+                }
+                if (maxAmount && amount > parseFloat(maxAmount)) {
+                    return false;
+                }
+
+                return true;
+            }, resultCount);
+
+            renderTransactions(results);
+            renderSummary(results);
+        };
+
+        // 重置筛选条件
+        const resetFilters = () => {
+            document.getElementById('transaction-type').value = 'all';
+            document.getElementById('category').value = 'all';
+            document.getElementById('min-amount').value = '';
+            document.getElementById('max-amount').value = '';
+            document.getElementById('result-count').value = '3';
+
+            document.getElementById('transaction-list').innerHTML = `
+                <div class="empty-state">
+                    <i>📊</i>
+                    <p>请使用左侧筛选条件查找交易记录</p>
+                </div>
+            `;
+
+            document.getElementById('summary-container').innerHTML = '';
+        };
+
+        // 初始化应用
+        const initApp = () => {
+            // 添加事件监听器
+            document.getElementById('search-btn').addEventListener('click', searchTransactions);
+            document.getElementById('reset-btn').addEventListener('click', resetFilters);
+        };
+
+        // 页面加载完成后初始化应用
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
