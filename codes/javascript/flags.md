@@ -12,6 +12,10 @@
 const flags = arr => arr.reduce((acc, item) => ({ ...acc, [item]: true }), {});
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/flags.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,6 +23,8 @@ flags(['red', 'green']); // { red: true, green: true }
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/flags.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/flags.html" data-language="html"></div>
 

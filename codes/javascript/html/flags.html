@@ -1,17 +1,523 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>flags</title>
+    <title>权限管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #1e88e5;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .panel {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            color: #1e88e5;
+        }
+
+        .roles-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .permissions-panel {
+            flex: 2;
+            min-width: 400px;
+        }
+
+        .preview-panel {
+            flex: 2;
+            min-width: 400px;
+        }
+
+        .role-list {
+            list-style: none;
+        }
+
+        .role-item {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #f5f7fa;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .role-item:hover {
+            background-color: #e3f2fd;
+        }
+
+        .role-item.active {
+            background-color: #bbdefb;
+            border-left: 4px solid #1e88e5;
+        }
+
+        .permission-group {
+            margin-bottom: 20px;
+        }
+
+        .permission-group-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .permission-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .permission-item label {
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        .preview-section {
+            margin-bottom: 20px;
+        }
+
+        .preview-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .preview-content {
+            background-color: #f5f7fa;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background-color: #f5f7fa;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .feature-card.disabled {
+            opacity: 0.5;
+            background-color: #f5f5f5;
+            color: #999;
+        }
+
+        .feature-card i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #1e88e5;
+        }
+
+        .feature-card.disabled i {
+            color: #bdbdbd;
+        }
+
+        .feature-name {
+            font-size: 14px;
+        }
+
+        .btn {
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #1976d2;
+        }
+
+        .btn-save {
+            margin-top: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(200%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .panel {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <header>
+        <h1>企业权限管理系统</h1>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="panel roles-panel">
+                <h2 class="panel-title">角色列表</h2>
+                <ul class="role-list" id="roleList">
+                    <li class="role-item active" data-role="admin">系统管理员</li>
+                    <li class="role-item" data-role="manager">部门经理</li>
+                    <li class="role-item" data-role="editor">内容编辑</li>
+                    <li class="role-item" data-role="user">普通用户</li>
+                </ul>
+                <button class="btn btn-save" id="saveButton">保存权限设置</button>
+            </div>
+
+            <div class="panel permissions-panel">
+                <h2 class="panel-title">权限配置</h2>
+                <div class="permission-group">
+                    <h3 class="permission-group-title">内容管理</h3>
+                    <div class="permission-list">
+                        <div class="permission-item">
+                            <input type="checkbox" id="content_create" class="permission-checkbox"
+                                data-permission="content_create">
+                            <label for="content_create">创建内容</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="content_edit" class="permission-checkbox"
+                                data-permission="content_edit">
+                            <label for="content_edit">编辑内容</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="content_delete" class="permission-checkbox"
+                                data-permission="content_delete">
+                            <label for="content_delete">删除内容</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="content_publish" class="permission-checkbox"
+                                data-permission="content_publish">
+                            <label for="content_publish">发布内容</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <h3 class="permission-group-title">用户管理</h3>
+                    <div class="permission-list">
+                        <div class="permission-item">
+                            <input type="checkbox" id="user_create" class="permission-checkbox"
+                                data-permission="user_create">
+                            <label for="user_create">创建用户</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="user_edit" class="permission-checkbox"
+                                data-permission="user_edit">
+                            <label for="user_edit">编辑用户</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="user_delete" class="permission-checkbox"
+                                data-permission="user_delete">
+                            <label for="user_delete">删除用户</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="user_view" class="permission-checkbox"
+                                data-permission="user_view">
+                            <label for="user_view">查看用户</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <h3 class="permission-group-title">系统设置</h3>
+                    <div class="permission-list">
+                        <div class="permission-item">
+                            <input type="checkbox" id="system_settings" class="permission-checkbox"
+                                data-permission="system_settings">
+                            <label for="system_settings">系统设置</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="system_backup" class="permission-checkbox"
+                                data-permission="system_backup">
+                            <label for="system_backup">系统备份</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="system_logs" class="permission-checkbox"
+                                data-permission="system_logs">
+                            <label for="system_logs">查看日志</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <h3 class="permission-group-title">数据分析</h3>
+                    <div class="permission-list">
+                        <div class="permission-item">
+                            <input type="checkbox" id="data_view" class="permission-checkbox"
+                                data-permission="data_view">
+                            <label for="data_view">查看数据</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="data_export" class="permission-checkbox"
+                                data-permission="data_export">
+                            <label for="data_export">导出数据</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="data_import" class="permission-checkbox"
+                                data-permission="data_import">
+                            <label for="data_import">导入数据</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel preview-panel">
+                <h2 class="panel-title">权限预览</h2>
+                <div class="preview-section">
+                    <h3 class="preview-title">JSON 格式</h3>
+                    <pre class="preview-content" id="jsonPreview">{
+    // 权限配置将显示在这里
+}</pre>
+                </div>
+
+                <div class="preview-section">
+                    <h3 class="preview-title">功能预览</h3>
+                    <div class="feature-grid" id="featureGrid">
+                        <div class="feature-card" data-feature="content_create">
+                            <i class="fas fa-file-alt"></i>
+                            <div class="feature-name">创建内容</div>
+                        </div>
+                        <div class="feature-card" data-feature="content_edit">
+                            <i class="fas fa-edit"></i>
+                            <div class="feature-name">编辑内容</div>
+                        </div>
+                        <div class="feature-card" data-feature="content_delete">
+                            <i class="fas fa-trash-alt"></i>
+                            <div class="feature-name">删除内容</div>
+                        </div>
+                        <div class="feature-card" data-feature="content_publish">
+                            <i class="fas fa-upload"></i>
+                            <div class="feature-name">发布内容</div>
+                        </div>
+                        <div class="feature-card" data-feature="user_create">
+                            <i class="fas fa-user-plus"></i>
+                            <div class="feature-name">创建用户</div>
+                        </div>
+                        <div class="feature-card" data-feature="user_edit">
+                            <i class="fas fa-user-edit"></i>
+                            <div class="feature-name">编辑用户</div>
+                        </div>
+                        <div class="feature-card" data-feature="system_settings">
+                            <i class="fas fa-cogs"></i>
+                            <div class="feature-name">系统设置</div>
+                        </div>
+                        <div class="feature-card" data-feature="data_export">
+                            <i class="fas fa-file-export"></i>
+                            <div class="feature-name">导出数据</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">权限设置已保存</div>
+
     <script>
+        // 核心方法：将数组转换为标记对象
         const flags = arr => arr.reduce((acc, item) => ({ ...acc, [item]: true }), {});
-        console.log(flags(['red', 'green']));
+
+        // 角色权限数据
+        const rolePermissions = {
+            admin: flags([
+                'content_create', 'content_edit', 'content_delete', 'content_publish',
+                'user_create', 'user_edit', 'user_delete', 'user_view',
+                'system_settings', 'system_backup', 'system_logs',
+                'data_view', 'data_export', 'data_import'
+            ]),
+            manager: flags([
+                'content_create', 'content_edit', 'content_publish',
+                'user_view',
+                'data_view', 'data_export'
+            ]),
+            editor: flags([
+                'content_create', 'content_edit', 'content_publish',
+                'data_view'
+            ]),
+            user: flags([
+                'content_create',
+                'data_view'
+            ])
+        };
+
+        // 当前选中的角色
+        let currentRole = 'admin';
+        let tempPermissions = { ...rolePermissions[currentRole] };
+
+        // DOM 元素
+        const roleList = document.getElementById('roleList');
+        const jsonPreview = document.getElementById('jsonPreview');
+        const featureGrid = document.getElementById('featureGrid');
+        const saveButton = document.getElementById('saveButton');
+        const notification = document.getElementById('notification');
+        const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
+
+        // 初始化界面
+        function initUI() {
+            updatePermissionCheckboxes();
+            updatePreview();
+            updateFeatureGrid();
+        }
+
+        // 更新权限复选框状态
+        function updatePermissionCheckboxes() {
+            permissionCheckboxes.forEach(checkbox => {
+                const permission = checkbox.dataset.permission;
+                checkbox.checked = tempPermissions[permission] || false;
+            });
+        }
+
+        // 更新 JSON 预览
+        function updatePreview() {
+            const permissionsArray = Object.keys(tempPermissions).filter(key => tempPermissions[key]);
+            const permissionsObject = flags(permissionsArray);
+
+            jsonPreview.textContent = JSON.stringify(permissionsObject, null, 4);
+        }
+
+        // 更新功能卡片显示
+        function updateFeatureGrid() {
+            const featureCards = featureGrid.querySelectorAll('.feature-card');
+
+            featureCards.forEach(card => {
+                const feature = card.dataset.feature;
+                if (tempPermissions[feature]) {
+                    card.classList.remove('disabled');
+                } else {
+                    card.classList.add('disabled');
+                }
+            });
+        }
+
+        // 切换角色
+        roleList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('role-item')) {
+                // 更新选中状态
+                document.querySelector('.role-item.active').classList.remove('active');
+                e.target.classList.add('active');
+
+                // 获取角色并更新权限
+                currentRole = e.target.dataset.role;
+                tempPermissions = { ...rolePermissions[currentRole] };
+
+                // 更新界面
+                initUI();
+            }
+        });
+
+        // 权限复选框变化
+        permissionCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const permission = checkbox.dataset.permission;
+
+                if (checkbox.checked) {
+                    tempPermissions[permission] = true;
+                } else {
+                    delete tempPermissions[permission];
+                }
+
+                updatePreview();
+                updateFeatureGrid();
+            });
+        });
+
+        // 保存权限设置
+        saveButton.addEventListener('click', () => {
+            // 保存当前权限设置到角色权限数据
+            rolePermissions[currentRole] = { ...tempPermissions };
+
+            // 显示通知
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+
+            // 在实际应用中，这里会有一个 API 请求来保存数据到服务器
+            console.log('保存权限设置:', rolePermissions);
+        });
+
+        // 初始化界面
+        initUI();
     </script>
 </body>
 
