@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组织架构导航系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .org-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .org-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .org-card.highlight {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .breadcrumb-item {
+            cursor: pointer;
+        }
+
+        .breadcrumb-item:hover {
+            color: #0d6efd;
+        }
+
+        .search-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .path-node {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .node-details {
+            margin-top: 10px;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .department-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: #0d6efd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4 text-center">组织架构导航系统</h1>
+
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="搜索部门或员工...">
+                    <button class="btn btn-primary" id="searchBtn">搜索</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <nav aria-label="breadcrumb" id="navigationPath" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" data-path="">公司总部</li>
+                    </ol>
+                </nav>
+
+                <div id="searchResults" class="search-result d-none">
+                    <h5>搜索结果</h5>
+                    <div id="pathDisplay"></div>
+                    <div id="nodeDetails" class="node-details"></div>
+                </div>
+
+                <div id="orgContent">
+                    <!-- 组织结构内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // findPath 方法 - 用于在对象中查找指定值的路径
+        const findPath = (obj, val, key = 'id') => {
+            let res = [];
+            const handler = (o, p) =>
+                Object.keys(o).some(k => {
+                    res = p.concat(isNaN(Number(k)) ? k : +k);
+                    return (
+                        (key === 'id' && o[k] === val) ||
+                        (o[key] === val) ||
+                        (o[k] && typeof o[k] === 'object' && handler(o[k], res))
+                    );
+                });
+            handler(obj, []);
+            return res;
+        };
+
+        // 组织架构数据
+        const organizationData = {
+            id: 'company',
+            name: '科技创新集团',
+            type: 'department',
+            description: '致力于推动技术创新和数字化转型的领先企业',
+            children: [
+                {
+                    id: 'tech',
+                    name: '技术研发中心',
+                    type: 'department',
+                    description: '负责公司核心技术研发和产品创新',
+                    children: [
+                        {
+                            id: 'frontend',
+                            name: '前端开发部',
+                            type: 'department',
+                            description: '负责公司所有产品的用户界面和交互体验开发',
+                            children: [
+                                {
+                                    id: 'zhang',
+                                    name: '张工',
+                                    type: 'employee',
+                                    position: '前端技术专家',
+                                    email: 'zhang@example.com',
+                                    phone: '13800001111'
+                                },
+                                {
+                                    id: 'wang',
+                                    name: '王工',
+                                    type: 'employee',
+                                    position: '高级前端工程师',
+                                    email: 'wang@example.com',
+                                    phone: '13800002222'
+                                }
+                            ]
+                        },
+                        {
+                            id: 'backend',
+                            name: '后端开发部',
+                            type: 'department',
+                            description: '负责服务端架构设计和API开发',
+                            children: [
+                                {
+                                    id: 'li',
+                                    name: '李工',
+                                    type: 'employee',
+                                    position: '后端架构师',
+                                    email: 'li@example.com',
+                                    phone: '13800003333'
+                                },
+                                {
+                                    id: 'zhao',
+                                    name: '赵工',
+                                    type: 'employee',
+                                    position: '高级后端工程师',
+                                    email: 'zhao@example.com',
+                                    phone: '13800004444'
+                                }
+                            ]
+                        },
+                        {
+                            id: 'qa',
+                            name: '质量保障部',
+                            type: 'department',
+                            description: '负责产品质量测试和用户体验保障',
+                            children: [
+                                {
+                                    id: 'sun',
+                                    name: '孙工',
+                                    type: 'employee',
+                                    position: '测试经理',
+                                    email: 'sun@example.com',
+                                    phone: '13800005555'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'product',
+                    name: '产品管理部',
+                    type: 'department',
+                    description: '负责产品规划、设计和生命周期管理',
+                    children: [
+                        {
+                            id: 'chen',
+                            name: '陈经理',
+                            type: 'employee',
+                            position: '产品总监',
+                            email: 'chen@example.com',
+                            phone: '13800006666'
+                        },
+                        {
+                            id: 'design',
+                            name: '用户体验设计组',
+                            type: 'department',
+                            description: '负责产品界面设计和用户体验优化',
+                            children: [
+                                {
+                                    id: 'liu',
+                                    name: '刘设计',
+                                    type: 'employee',
+                                    position: 'UI/UX设计师',
+                                    email: 'liu@example.com',
+                                    phone: '13800007777'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'marketing',
+                    name: '市场营销部',
+                    type: 'department',
+                    description: '负责产品推广、市场分析和品牌建设',
+                    children: [
+                        {
+                            id: 'wu',
+                            name: '吴总',
+                            type: 'employee',
+                            position: '市场总监',
+                            email: 'wu@example.com',
+                            phone: '13800008888'
+                        }
+                    ]
+                },
+                {
+                    id: 'hr',
+                    name: '人力资源部',
+                    type: 'department',
+                    description: '负责人才招聘、培训和员工关系管理',
+                    children: [
+                        {
+                            id: 'zhou',
+                            name: '周经理',
+                            type: 'employee',
+                            position: 'HR经理',
+                            email: 'zhou@example.com',
+                            phone: '13800009999'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 当前显示的节点ID
+        let currentNodeId = 'company';
+
+        // 根据路径获取节点
+        function getNodeByPath(path) {
+            let node = organizationData;
+            for (let i = 1; i < path.length; i++) {
+                if (path[i] === 'children') {
+                    continue;
+                }
+                if (typeof path[i] === 'number') {
+                    node = node.children[path[i]];
+                }
+            }
+            return node;
+        }
+
+        // 根据ID获取节点
+        function getNodeById(id) {
+            const path = findPath(organizationData, id);
+            return getNodeByPath(path);
+        }
+
+        // 渲染组织结构
+        function renderOrganization(nodeId = 'company') {
+            const node = getNodeById(nodeId);
+            currentNodeId = nodeId;
+
+            // 更新导航路径
+            updateNavigationPath(nodeId);
+
+            // 渲染当前节点的子节点
+            const orgContent = document.getElementById('orgContent');
+            orgContent.innerHTML = '';
+
+            if (!node.children || node.children.length === 0) {
+                orgContent.innerHTML = '<div class="alert alert-info">该节点下没有子节点</div>';
+                return;
+            }
+
+            node.children.forEach(child => {
+                const card = document.createElement('div');
+                card.className = 'org-card';
+                card.dataset.id = child.id;
+
+                let iconHtml = '';
+                if (child.type === 'department') {
+                    iconHtml = `<div class="department-icon">${child.name.charAt(0)}</div>`;
+                } else {
+                    iconHtml = `<div class="employee-avatar">${child.name.charAt(0)}</div>`;
+                }
+
+                let cardContent = `
+                    <div class="d-flex align-items-center">
+                        ${iconHtml}
+                        <div>
+                            <h5 class="mb-1">${child.name}</h5>
+                            <p class="mb-1 text-muted">${child.type === 'department' ? '部门' : child.position}</p>
+                        </div>
+                    </div>
+                `;
+
+                if (child.description) {
+                    cardContent += `<p class="mt-2">${child.description}</p>`;
+                }
+
+                if (child.type === 'employee') {
+                    cardContent += `
+                        <div class="mt-2">
+                            <small class="d-block"><strong>邮箱:</strong> ${child.email}</small>
+                            <small class="d-block"><strong>电话:</strong> ${child.phone}</small>
+                        </div>
+                    `;
+                }
+
+                if (child.type === 'department' && child.children && child.children.length > 0) {
+                    cardContent += `
+                        <div class="mt-2 text-end">
+                            <span class="badge bg-primary">${child.children.length} 个成员</span>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = cardContent;
+
+                // 添加点击事件
+                if (child.type === 'department') {
+                    card.addEventListener('click', () => {
+                        renderOrganization(child.id);
+                    });
+                }
+
+                orgContent.appendChild(card);
+            });
+        }
+
+        // 更新导航路径
+        function updateNavigationPath(nodeId) {
+            const path = findPath(organizationData, nodeId);
+            const breadcrumb = document.getElementById('navigationPath').querySelector('ol');
+            breadcrumb.innerHTML = '';
+
+            // 添加根节点
+            const rootItem = document.createElement('li');
+            rootItem.className = 'breadcrumb-item';
+            rootItem.textContent = organizationData.name;
+            rootItem.dataset.id = organizationData.id;
+            rootItem.addEventListener('click', () => renderOrganization(organizationData.id));
+            breadcrumb.appendChild(rootItem);
+
+            // 添加路径节点
+            let currentPath = [];
+            for (let i = 0; i < path.length; i++) {
+                if (path[i] === 'children') continue;
+                if (typeof path[i] === 'number') {
+                    currentPath.push('children', path[i]);
+                    const node = getNodeByPath(['', ...currentPath]);
+                    if (node.type === 'department') {
+                        const item = document.createElement('li');
+                        item.className = node.id === nodeId ? 'breadcrumb-item active' : 'breadcrumb-item';
+                        item.textContent = node.name;
+                        item.dataset.id = node.id;
+                        if (node.id !== nodeId) {
+                            item.addEventListener('click', () => renderOrganization(node.id));
+                        }
+                        breadcrumb.appendChild(item);
+                    }
+                }
+            }
+        }
+
+        // 搜索功能
+        function searchNode() {
+            const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!searchInput) return;
+
+            // 递归搜索函数
+            function searchInNode(node, results) {
+                if (node.name.toLowerCase().includes(searchInput) ||
+                    (node.id && node.id.toLowerCase().includes(searchInput)) ||
+                    (node.position && node.position.toLowerCase().includes(searchInput))) {
+                    results.push(node);
+                }
+
+                if (node.children && node.children.length > 0) {
+                    node.children.forEach(child => searchInNode(child, results));
+                }
+
+                return results;
+            }
+
+            const results = searchInNode(organizationData, []);
+            displaySearchResults(results);
+        }
+
+        // 显示搜索结果
+        function displaySearchResults(results) {
+            const searchResults = document.getElementById('searchResults');
+            const pathDisplay = document.getElementById('pathDisplay');
+            const nodeDetails = document.getElementById('nodeDetails');
+
+            searchResults.classList.remove('d-none');
+            pathDisplay.innerHTML = '';
+            nodeDetails.innerHTML = '';
+
+            if (results.length === 0) {
+                pathDisplay.innerHTML = '<div class="alert alert-warning">未找到匹配结果</div>';
+                return;
+            }
+
+            // 显示第一个结果的路径
+            const firstResult = results[0];
+            const path = findPath(organizationData, firstResult.id);
+
+            // 构建路径显示
+            let pathHtml = '<div><strong>路径:</strong> ';
+            let currentNode = organizationData;
+            pathHtml += `<span class="path-node" data-id="${currentNode.id}">${currentNode.name}</span>`;
+
+            for (let i = 1; i < path.length; i++) {
+                if (path[i] === 'children') continue;
+                if (typeof path[i] === 'number') {
+                    currentNode = currentNode.children[path[i]];
+                    if (currentNode.type === 'department') {
+                        pathHtml += ` <span class="text-muted">></span> <span class="path-node" data-id="${currentNode.id}">${currentNode.name}</span>`;
+                    }
+                }
+            }
+
+            if (firstResult.type === 'employee') {
+                pathHtml += ` <span class="text-muted">></span> <span class="path-node" data-id="${firstResult.id}">${firstResult.name}</span>`;
+            }
+
+            pathHtml += '</div>';
+            pathDisplay.innerHTML = pathHtml;
+
+            // 添加路径节点点击事件
+            const pathNodes = pathDisplay.querySelectorAll('.path-node');
+            pathNodes.forEach(node => {
+                node.addEventListener('click', () => {
+                    const nodeId = node.dataset.id;
+                    renderOrganization(nodeId);
+                    searchResults.classList.add('d-none');
+                });
+            });
+
+            // 显示节点详情
+            let detailsHtml = '<div class="card mt-3">';
+            detailsHtml += '<div class="card-header">节点详情</div>';
+            detailsHtml += '<div class="card-body">';
+
+            if (firstResult.type === 'department') {
+                detailsHtml += `
+                    <h5 class="card-title">${firstResult.name}</h5>
+                    <p class="card-text"><strong>类型:</strong> 部门</p>
+                    <p class="card-text"><strong>ID:</strong> ${firstResult.id}</p>
+                    ${firstResult.description ? `<p class="card-text"><strong>描述:</strong> ${firstResult.description}</p>` : ''}
+                    ${firstResult.children ? `<p class="card-text"><strong>成员数:</strong> ${firstResult.children.length}</p>` : ''}
+                `;
+            } else {
+                detailsHtml += `
+                    <h5 class="card-title">${firstResult.name}</h5>
+                    <p class="card-text"><strong>类型:</strong> 员工</p>
+                    <p class="card-text"><strong>ID:</strong> ${firstResult.id}</p>
+                    <p class="card-text"><strong>职位:</strong> ${firstResult.position}</p>
+                    <p class="card-text"><strong>邮箱:</strong> ${firstResult.email}</p>
+                    <p class="card-text"><strong>电话:</strong> ${firstResult.phone}</p>
+                `;
+            }
+
+            detailsHtml += '</div></div>';
+            nodeDetails.innerHTML = detailsHtml;
+
+            // 如果有多个结果，显示其他结果列表
+            if (results.length > 1) {
+                let otherResultsHtml = '<div class="mt-3"><h6>其他匹配结果:</h6><ul class="list-group">';
+
+                for (let i = 1; i < results.length; i++) {
+                    const result = results[i];
+                    otherResultsHtml += `
+                        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${result.id}">
+                            ${result.name}
+                            <span class="badge ${result.type === 'department' ? 'bg-primary' : 'bg-secondary'} rounded-pill">
+                                ${result.type === 'department' ? '部门' : '员工'}
+                            </span>
+                        </li>
+                    `;
+                }
+
+                otherResultsHtml += '</ul></div>';
+                nodeDetails.innerHTML += otherResultsHtml;
+
+                // 添加其他结果点击事件
+                const resultItems = nodeDetails.querySelectorAll('.list-group-item');
+                resultItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const nodeId = item.dataset.id;
+                        const node = getNodeById(nodeId);
+                        displaySearchResults([node]);
+                    });
+                });
+            }
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 渲染初始组织结构
+            renderOrganization();
+
+            // 添加搜索按钮事件
+            document.getElementById('searchBtn').addEventListener('click', searchNode);
+
+            // 添加搜索输入框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchNode();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

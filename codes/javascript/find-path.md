@@ -27,6 +27,10 @@ const findPath = (obj, val) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/find-path.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -70,8 +74,10 @@ console.log(findPath(data, 'targetId')); //[ 'fields', 0, 'fields', 1, 'fields',
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/findPath.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/find-path.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/find-path.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/findPath.html"></iframe>
+<iframe src="codes/javascript/html/find-path.html"></iframe>
