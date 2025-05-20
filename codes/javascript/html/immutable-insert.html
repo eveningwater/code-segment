@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档管理系统 - immutableInsert 示例</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .document-tree {
+            margin: 20px 0;
+        }
+
+        .document-node {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .document-node:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .document-node.selected {
+            background-color: #cfe2ff;
+            border-color: #0d6efd;
+        }
+
+        .document-node .badge {
+            margin-left: 8px;
+        }
+
+        .node-children {
+            margin-left: 25px;
+            padding-left: 15px;
+            border-left: 1px dashed #ced4da;
+        }
+
+        .path-display {
+            font-family: monospace;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .json-display {
+            font-family: monospace;
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* JSON语法高亮样式 */
+        .json-display .string {
+            color: #7ec699;
+        }
+
+        .json-display .number {
+            color: #f08d49;
+        }
+
+        .json-display .boolean {
+            color: #f08d49;
+        }
+
+        .json-display .null {
+            color: #f08d49;
+        }
+
+        .json-display .key {
+            color: #9cdcfe;
+        }
+
+        .history-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .history-item .badge {
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4 mb-5">
+        <h1 class="text-center mb-4">文档管理系统</h1>
+        <p class="text-center text-muted">基于 immutableInsert 方法的文档树管理示例</p>
+
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">文档树结构</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="expandAllBtn">展开全部</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="documentTree" class="document-tree"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">添加新文档</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">当前选择的位置:</label>
+                            <div class="path-display" id="selectedPath">未选择</div>
+                        </div>
+
+                        <form id="addDocumentForm">
+                            <div class="mb-3">
+                                <label for="documentId" class="form-label">文档 ID</label>
+                                <input type="text" class="form-control" id="documentId" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="documentName" class="form-label">文档名称</label>
+                                <input type="text" class="form-control" id="documentName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="documentType" class="form-label">文档类型</label>
+                                <select class="form-select" id="documentType">
+                                    <option value="folder">文件夹</option>
+                                    <option value="document">文档</option>
+                                    <option value="image">图片</option>
+                                    <option value="spreadsheet">表格</option>
+                                    <option value="presentation">演示文稿</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="addDocumentBtn" disabled>添加文档</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">操作历史</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="historyList" class="history-list" style="max-height: 200px; overflow-y: auto;">
+                            <div class="text-center p-3 text-muted">暂无操作记录</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">数据结构 (JSON)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="json-display" id="jsonDisplay"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const immutableInsert = (data, keyPath, insertVal) => {
+            const deepClone = obj => {
+                if (obj === null) {
+                    return null;
+                }
+                let clone = Object.assign({}, obj);
+                Object.keys(clone).forEach(
+                    key =>
+                    (clone[key] =
+                        typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key])
+                );
+                if (Array.isArray(obj)) {
+                    clone.length = obj.length;
+                    return Array.from(clone);
+                }
+                return clone;
+            };
+
+            const clonedData = deepClone(data);
+            const insert = (newData, newKeyPath) => {
+                const key = newKeyPath.shift(),
+                    index = newKeyPath.shift(),
+                    len = newKeyPath.length;
+                if (len > 0) {
+                    insert(newData[key][index], newKeyPath);
+                } else {
+                    newData[key].splice(index, 0, insertVal);
+                }
+            };
+            insert(clonedData, [...keyPath]);
+            return clonedData;
+        };
+        // 初始文档数据结构
+        let documentData = {
+            id: 'root',
+            name: '我的文档',
+            type: 'folder',
+            children: [
+                {
+                    id: 'docs',
+                    name: '文档文件夹',
+                    type: 'folder',
+                    children: [
+                        {
+                            id: 'doc1',
+                            name: '项目计划书',
+                            type: 'document'
+                        },
+                        {
+                            id: 'doc2',
+                            name: '会议记录',
+                            type: 'document',
+                            children: [
+                                {
+                                    id: 'doc2-1',
+                                    name: '周会记录',
+                                    type: 'document'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'images',
+                    name: '图片文件夹',
+                    type: 'folder',
+                    children: [
+                        {
+                            id: 'img1',
+                            name: '产品截图',
+                            type: 'image'
+                        }
+                    ]
+                },
+                {
+                    id: 'sheets',
+                    name: '表格文件夹',
+                    type: 'folder',
+                    children: [
+                        {
+                            id: 'sheet1',
+                            name: '财务报表',
+                            type: 'spreadsheet'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 操作历史记录
+        const operationHistory = [];
+
+        // 当前选中的路径
+        let selectedPath = null;
+
+        // 渲染文档树
+        function renderDocumentTree(data, parentElement = document.getElementById('documentTree'), path = []) {
+            parentElement.innerHTML = '';
+
+            const renderNode = (node, parent, nodePath) => {
+                const nodeElement = document.createElement('div');
+                nodeElement.className = 'document-node';
+                nodeElement.dataset.id = node.id;
+                nodeElement.dataset.path = JSON.stringify(nodePath);
+
+                // 节点图标
+                let icon = '';
+                switch (node.type) {
+                    case 'folder':
+                        icon = '<i class="bi bi-folder me-2"></i>';
+                        break;
+                    case 'document':
+                        icon = '<i class="bi bi-file-text me-2"></i>';
+                        break;
+                    case 'image':
+                        icon = '<i class="bi bi-file-image me-2"></i>';
+                        break;
+                    case 'spreadsheet':
+                        icon = '<i class="bi bi-file-spreadsheet me-2"></i>';
+                        break;
+                    case 'presentation':
+                        icon = '<i class="bi bi-file-slides me-2"></i>';
+                        break;
+                    default:
+                        icon = '<i class="bi bi-file me-2"></i>';
+                }
+
+                // 节点内容
+                nodeElement.innerHTML = `
+                    ${icon}
+                    <span>${node.name}</span>
+                    <span class="badge bg-secondary">${node.type}</span>
+                `;
+
+                // 选择节点事件
+                nodeElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.document-node').forEach(el => el.classList.remove('selected'));
+                    nodeElement.classList.add('selected');
+                    selectedPath = nodePath;
+                    updateSelectedPath();
+                    document.getElementById('addDocumentBtn').disabled = false;
+                });
+
+                parent.appendChild(nodeElement);
+
+                // 渲染子节点
+                if (node.children && node.children.length > 0) {
+                    const childrenContainer = document.createElement('div');
+                    childrenContainer.className = 'node-children';
+                    parent.appendChild(childrenContainer);
+
+                    node.children.forEach((child, index) => {
+                        const childPath = [...nodePath, 'children', index];
+                        renderNode(child, childrenContainer, childPath);
+                    });
+                }
+            };
+
+            renderNode(data, parentElement, path);
+        }
+
+        // 更新选中路径显示
+        function updateSelectedPath() {
+            const pathDisplay = document.getElementById('selectedPath');
+            if (selectedPath) {
+                // 获取选中节点的完整路径
+                let node = documentData;
+                let pathStr = 'documentData';
+                let readablePath = [];
+
+                for (let i = 0; i < selectedPath.length; i++) {
+                    const part = selectedPath[i];
+                    if (part === 'children') {
+                        pathStr += '.children';
+                    } else if (typeof part === 'number') {
+                        pathStr += `[${part}]`;
+                        node = node.children[part];
+                        readablePath.push(node.name);
+                    }
+                }
+
+                pathDisplay.innerHTML = `<div class="text-muted mb-2">技术路径: ${pathStr}</div>
+                                        <div>/ ${readablePath.join(' / ')}</div>`;
+            } else {
+                pathDisplay.textContent = '未选择';
+            }
+        }
+
+        // 更新 JSON 显示
+        function updateJsonDisplay() {
+            const jsonDisplay = document.getElementById('jsonDisplay');
+            jsonDisplay.innerHTML = syntaxHighlight(JSON.stringify(documentData, null, 2));
+        }
+
+        // JSON语法高亮函数
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/(""|"[^"]*"(?:(?=:)|\b))|(\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match, string, number) {
+                let cls = 'number';
+                if (string) {
+                    cls = /:$/.test(string) ? 'key' : 'string';
+                    return '<span class="' + cls + '">' + match + '</span>';
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // 添加新文档
+        function addNewDocument(e) {
+            e.preventDefault();
+
+            if (!selectedPath) {
+                alert('请先选择要添加文档的位置');
+                return;
+            }
+
+            const id = document.getElementById('documentId').value;
+            const name = document.getElementById('documentName').value;
+            const type = document.getElementById('documentType').value;
+
+            if (!id || !name) {
+                alert('请填写完整的文档信息');
+                return;
+            }
+
+            // 创建新文档对象
+            const newDocument = {
+                id,
+                name,
+                type
+            };
+
+            // 如果是文件夹，添加 children 属性
+            if (type === 'folder') {
+                newDocument.children = [];
+            }
+
+            // 构建插入路径
+            const insertPath = [...selectedPath, 'children', 0];
+
+            // 使用 immutableInsert 插入新文档
+            const newData = immutableInsert(documentData, [...insertPath], newDocument);
+
+            // 记录操作
+            const operation = {
+                type: 'add',
+                path: insertPath,
+                document: newDocument,
+                timestamp: new Date().toLocaleString()
+            };
+            operationHistory.unshift(operation);
+
+            // 更新数据和视图
+            documentData = newData;
+            renderDocumentTree(documentData);
+            updateJsonDisplay();
+            updateHistoryList();
+
+            // 重置表单
+            document.getElementById('addDocumentForm').reset();
+
+            // 提示成功
+            alert(`文档 "${name}" 已成功添加！`);
+        }
+
+        // 更新历史记录列表
+        function updateHistoryList() {
+            const historyList = document.getElementById('historyList');
+
+            if (operationHistory.length === 0) {
+                historyList.innerHTML = '<div class="text-center p-3 text-muted">暂无操作记录</div>';
+                return;
+            }
+
+            historyList.innerHTML = '';
+
+            operationHistory.forEach((operation, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+
+                let badgeClass = 'bg-primary';
+                if (operation.type === 'add') badgeClass = 'bg-success';
+                if (operation.type === 'remove') badgeClass = 'bg-danger';
+
+                historyItem.innerHTML = `
+                    <div>
+                        <span class="badge ${badgeClass}">${operation.type}</span>
+                        <strong>${operation.document.name}</strong>
+                        <small class="text-muted">(${operation.document.type})</small>
+                    </div>
+                    <small class="text-muted">${operation.timestamp}</small>
+                `;
+
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 渲染初始文档树
+            renderDocumentTree(documentData);
+
+            // 更新 JSON 显示
+            updateJsonDisplay();
+
+            // 添加文档表单提交事件
+            document.getElementById('addDocumentForm').addEventListener('submit', addNewDocument);
+
+            // 展开全部按钮事件
+            document.getElementById('expandAllBtn').addEventListener('click', () => {
+                renderDocumentTree(documentData);
+            });
+        });
+    </script>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</body>
+
+</html>
