@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品分类浏览系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f1f3f5;
+            border-radius: 6px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-option {
+            padding: 6px 12px;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-option:hover {
+            background-color: #dee2e6;
+        }
+
+        .filter-option.active {
+            background-color: #4dabf7;
+            color: white;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image {
+            height: 200px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            font-size: 14px;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-category {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .product-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .product-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            color: #495057;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .stats {
+            margin-top: 20px;
+            text-align: right;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>商品分类浏览系统</h1>
+
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-title">分类</div>
+                <div class="filter-options" id="category-filters">
+                    <div class="filter-option active" data-category="all">全部</div>
+                    <!-- 分类选项将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-title">价格区间</div>
+                <div class="filter-options" id="price-filters">
+                    <div class="filter-option active" data-price="all">全部</div>
+                    <div class="filter-option" data-price="0-100">¥0-100</div>
+                    <div class="filter-option" data-price="100-300">¥100-300</div>
+                    <div class="filter-option" data-price="300-500">¥300-500</div>
+                    <div class="filter-option" data-price="500+">¥500+</div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-title">标签</div>
+                <div class="filter-options" id="tag-filters">
+                    <div class="filter-option active" data-tag="all">全部</div>
+                    <!-- 标签选项将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="products" id="products-container">
+            <!-- 商品卡片将通过JS动态生成 -->
+        </div>
+
+        <div class="stats" id="stats">
+            显示 <span id="shown-count">0</span> 个商品，共 <span id="total-count">0</span> 个
+        </div>
+    </div>
+
+    <script>
+        // flatIterator 函数实现 - 用于扁平化嵌套的可迭代对象
+        const flatIterator = function* (iter) {
+            for (let item of iter) {
+                if (item && typeof item === 'object' && item[Symbol.iterator]) {
+                    yield* flatIterator(item);
+                } else {
+                    yield item;
+                }
+            }
+        };
+
+        // 商品数据 - 嵌套结构
+        const productData = {
+            electronics: {
+                name: '电子产品',
+                subcategories: {
+                    computers: {
+                        name: '电脑',
+                        products: [
+                            { id: 1, name: '超薄笔记本', price: 4999, tags: ['轻薄', '高性能', '办公'] },
+                            { id: 2, name: '游戏本', price: 7999, tags: ['游戏', '高性能', '散热好'] },
+                            { id: 3, name: '商务本', price: 5499, tags: ['商务', '轻薄', '长续航'] }
+                        ]
+                    },
+                    phones: {
+                        name: '手机',
+                        products: [
+                            { id: 4, name: '旗舰手机', price: 5999, tags: ['5G', '高性能', '拍照'] },
+                            { id: 5, name: '中端手机', price: 2999, tags: ['性价比', '长续航'] },
+                            { id: 6, name: '入门手机', price: 1299, tags: ['实惠', '轻薄'] }
+                        ]
+                    },
+                    accessories: {
+                        name: '配件',
+                        products: [
+                            { id: 7, name: '无线耳机', price: 899, tags: ['蓝牙', '降噪'] },
+                            { id: 8, name: '充电宝', price: 199, tags: ['大容量', '快充'] },
+                            { id: 9, name: '手机壳', price: 49, tags: ['保护', '轻薄'] }
+                        ]
+                    }
+                }
+            },
+            clothing: {
+                name: '服装',
+                subcategories: {
+                    men: {
+                        name: '男装',
+                        products: [
+                            { id: 10, name: '休闲衬衫', price: 199, tags: ['棉质', '舒适'] },
+                            { id: 11, name: '牛仔裤', price: 299, tags: ['耐穿', '百搭'] },
+                            { id: 12, name: '夹克', price: 399, tags: ['保暖', '时尚'] }
+                        ]
+                    },
+                    women: {
+                        name: '女装',
+                        products: [
+                            { id: 13, name: '连衣裙', price: 329, tags: ['优雅', '舒适'] },
+                            { id: 14, name: '针织衫', price: 259, tags: ['保暖', '柔软'] },
+                            { id: 15, name: '阔腿裤', price: 289, tags: ['时尚', '百搭'] }
+                        ]
+                    }
+                }
+            },
+            home: {
+                name: '家居',
+                products: [
+                    { id: 16, name: '床上四件套', price: 399, tags: ['纯棉', '舒适'] },
+                    { id: 17, name: '智能台灯', price: 159, tags: ['护眼', '节能'] },
+                    { id: 18, name: '收纳箱', price: 89, tags: ['实用', '美观'] }
+                ]
+            }
+        };
+
+        // 提取所有商品的函数
+        function* extractAllProducts(data, categoryPath = []) {
+            for (const key in data) {
+                if (key === 'products' && Array.isArray(data[key])) {
+                    for (const product of data[key]) {
+                        // 为每个商品添加分类路径信息
+                        yield { ...product, categoryPath: [...categoryPath] };
+                    }
+                } else if (key === 'subcategories' || (typeof data[key] === 'object' && data[key] !== null)) {
+                    // 如果是子分类或其他对象，递归处理
+                    const newPath = [...categoryPath];
+                    if (data.name) {
+                        newPath.push(data.name);
+                    }
+                    yield* extractAllProducts(data[key], newPath);
+                }
+            }
+        }
+
+        // 使用 flatIterator 扁平化商品数据
+        const allProducts = [...flatIterator(extractAllProducts(productData))];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 更新统计信息
+            document.getElementById('total-count').textContent = allProducts.length;
+            document.getElementById('shown-count').textContent = allProducts.length;
+
+            // 生成分类筛选选项
+            generateCategoryFilters();
+
+            // 生成标签筛选选项
+            generateTagFilters();
+
+            // 渲染所有商品
+            renderProducts(allProducts);
+
+            // 添加筛选事件监听器
+            addFilterEventListeners();
+        });
+
+        // 生成分类筛选选项
+        function generateCategoryFilters() {
+            const categoryFiltersContainer = document.getElementById('category-filters');
+            const categories = new Set();
+
+            // 收集所有分类
+            allProducts.forEach(product => {
+                if (product.categoryPath && product.categoryPath.length > 0) {
+                    // 使用最后一级分类
+                    categories.add(product.categoryPath[product.categoryPath.length - 1]);
+                }
+            });
+
+            // 创建分类筛选选项
+            categories.forEach(category => {
+                const filterOption = document.createElement('div');
+                filterOption.className = 'filter-option';
+                filterOption.setAttribute('data-category', category);
+                filterOption.textContent = category;
+                categoryFiltersContainer.appendChild(filterOption);
+            });
+        }
+
+        // 生成标签筛选选项
+        function generateTagFilters() {
+            const tagFiltersContainer = document.getElementById('tag-filters');
+            const tags = new Set();
+
+            // 收集所有标签
+            allProducts.forEach(product => {
+                if (product.tags && Array.isArray(product.tags)) {
+                    product.tags.forEach(tag => tags.add(tag));
+                }
+            });
+
+            // 创建标签筛选选项
+            tags.forEach(tag => {
+                const filterOption = document.createElement('div');
+                filterOption.className = 'filter-option';
+                filterOption.setAttribute('data-tag', tag);
+                filterOption.textContent = tag;
+                tagFiltersContainer.appendChild(filterOption);
+            });
+        }
+
+        // 渲染商品列表
+        function renderProducts(products) {
+            const productsContainer = document.getElementById('products-container');
+            productsContainer.innerHTML = '';
+
+            if (products.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.textContent = '没有找到符合条件的商品';
+                productsContainer.appendChild(noResults);
+                return;
+            }
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+
+                const categoryPath = product.categoryPath ? product.categoryPath.join(' > ') : '';
+
+                productCard.innerHTML = `
+                    <div class="product-image">商品图片</div>
+                    <div class="product-info">
+                        <div class="product-category">${categoryPath}</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">¥${product.price.toFixed(2)}</div>
+                        <div class="product-tags">
+                            ${product.tags ? product.tags.map(tag => `<span class="product-tag">${tag}</span>`).join('') : ''}
+                        </div>
+                    </div>
+                `;
+
+                productsContainer.appendChild(productCard);
+            });
+
+            // 更新显示的商品数量
+            document.getElementById('shown-count').textContent = products.length;
+        }
+
+        // 添加筛选事件监听器
+        function addFilterEventListeners() {
+            // 分类筛选
+            const categoryFilters = document.querySelectorAll('#category-filters .filter-option');
+            categoryFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    // 移除其他选项的活跃状态
+                    categoryFilters.forEach(f => f.classList.remove('active'));
+                    // 添加当前选项的活跃状态
+                    filter.classList.add('active');
+                    // 应用筛选
+                    applyFilters();
+                });
+            });
+
+            // 价格筛选
+            const priceFilters = document.querySelectorAll('#price-filters .filter-option');
+            priceFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    priceFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    applyFilters();
+                });
+            });
+
+            // 标签筛选
+            const tagFilters = document.querySelectorAll('#tag-filters .filter-option');
+            tagFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    tagFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    applyFilters();
+                });
+            });
+        }
+
+        // 应用所有筛选条件
+        function applyFilters() {
+            // 获取当前选中的筛选条件
+            const selectedCategory = document.querySelector('#category-filters .filter-option.active').getAttribute('data-category');
+            const selectedPrice = document.querySelector('#price-filters .filter-option.active').getAttribute('data-price');
+            const selectedTag = document.querySelector('#tag-filters .filter-option.active').getAttribute('data-tag');
+
+            // 筛选商品
+            let filteredProducts = allProducts;
+
+            // 应用分类筛选
+            if (selectedCategory !== 'all') {
+                filteredProducts = filteredProducts.filter(product => {
+                    return product.categoryPath && product.categoryPath.includes(selectedCategory);
+                });
+            }
+
+            // 应用价格筛选
+            if (selectedPrice !== 'all') {
+                if (selectedPrice === '500+') {
+                    filteredProducts = filteredProducts.filter(product => product.price >= 500);
+                } else {
+                    const [min, max] = selectedPrice.split('-').map(Number);
+                    filteredProducts = filteredProducts.filter(product => {
+                        return product.price >= min && product.price <= max;
+                    });
+                }
+            }
+
+            // 应用标签筛选
+            if (selectedTag !== 'all') {
+                filteredProducts = filteredProducts.filter(product => {
+                    return product.tags && product.tags.includes(selectedTag);
+                });
+            }
+
+            // 渲染筛选后的商品
+            renderProducts(filteredProducts);
+        }
+    </script>
+</body>
+
+</html>

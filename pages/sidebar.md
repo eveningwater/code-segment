@@ -263,7 +263,7 @@
 - [字符串数组转换为对象--2022-06-02](codes/javascript/flags.md)
 - [根据指定值查找对象路径--2022-06-03](codes/javascript/find-path.md)
 - [不可变的数据插入--2022-06-03](codes/javascript/immutable-insert.md)
-- [扁平迭代器--2022-06-05](codes/javascript/flatIterator.md)
+- [扁平迭代器--2022-06-05](codes/javascript/flat-iterator.md)
 - [扁平化数组--2022-06-06](codes/javascript/flatten.md)
 - [扁平化对象--2022-06-07](codes/javascript/flattenObject.md)
 - [翻转函数参数--2022-06-09](codes/javascript/flip.md)
