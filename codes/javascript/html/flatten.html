@@ -4,20 +4,649 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>flatten</title>
+    <title>文件目录浏览器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .depth-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .depth-control label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .depth-control select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 14px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            padding: 8px 16px;
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-box button:hover {
+            background-color: #339af0;
+        }
+
+        .file-system {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .file-icon {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-icon.folder {
+            color: #ffc107;
+        }
+
+        .file-icon.file {
+            color: #6c757d;
+        }
+
+        .file-name {
+            flex-grow: 1;
+        }
+
+        .file-path {
+            color: #6c757d;
+            font-size: 12px;
+            margin-right: 15px;
+        }
+
+        .file-size {
+            color: #6c757d;
+            font-size: 12px;
+            width: 80px;
+            text-align: right;
+        }
+
+        .breadcrumb {
+            display: flex;
+            list-style: none;
+            padding: 10px 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: '/';
+            margin: 0 10px;
+            color: #6c757d;
+        }
+
+        .breadcrumb-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #6c757d;
+        }
+
+        .stats {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0, 123, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div>打开浏览器控制台查看结果</div>
+    <div class="container">
+        <h1>文件目录浏览器</h1>
+
+        <div class="controls">
+            <div class="depth-control">
+                <label for="flatten-depth">扁平化深度:</label>
+                <select id="flatten-depth">
+                    <option value="0">不扁平化</option>
+                    <option value="1" selected>扁平化 1 级</option>
+                    <option value="2">扁平化 2 级</option>
+                    <option value="3">扁平化 3 级</option>
+                    <option value="-1">完全扁平化</option>
+                </select>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="搜索文件或文件夹...">
+                <button id="search-button">搜索</button>
+            </div>
+        </div>
+
+        <ul class="breadcrumb" id="breadcrumb">
+            <li class="breadcrumb-item active">根目录</li>
+        </ul>
+
+        <div class="file-system">
+            <div id="file-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div id="total-stats">总计: <span id="total-count">0</span> 个项目</div>
+            <div id="filtered-stats">显示: <span id="filtered-count">0</span> 个项目</div>
+        </div>
+    </div>
+
     <script>
+        // flatten 函数实现
         const flatten = (arr, depth = 1) =>
             arr.reduce(
                 (a, v) =>
                     a.concat(depth > 1 && Array.isArray(v) ? flatten(v, depth - 1) : v),
                 []
             );
-        console.log(flatten([1, [2], 3, 4])); // [1, 2, 3, 4]
-        console.log(flatten([1, [2, [3, [4, 5], 6], 7], 8], 2)); // [1, 2, 3, [4, 5], 6, 7, 8]
+
+        // 模拟文件系统数据
+        const fileSystemData = {
+            name: '根目录',
+            type: 'folder',
+            path: '/',
+            children: [
+                {
+                    name: '文档',
+                    type: 'folder',
+                    path: '/文档',
+                    children: [
+                        {
+                            name: '工作',
+                            type: 'folder',
+                            path: '/文档/工作',
+                            children: [
+                                { name: '项目计划.docx', type: 'file', path: '/文档/工作/项目计划.docx', size: '245 KB' },
+                                { name: '会议记录.docx', type: 'file', path: '/文档/工作/会议记录.docx', size: '125 KB' },
+                                { name: '预算表.xlsx', type: 'file', path: '/文档/工作/预算表.xlsx', size: '1.2 MB' }
+                            ]
+                        },
+                        {
+                            name: '个人',
+                            type: 'folder',
+                            path: '/文档/个人',
+                            children: [
+                                { name: '简历.pdf', type: 'file', path: '/文档/个人/简历.pdf', size: '380 KB' },
+                                { name: '日记.txt', type: 'file', path: '/文档/个人/日记.txt', size: '45 KB' }
+                            ]
+                        },
+                        { name: '重要笔记.txt', type: 'file', path: '/文档/重要笔记.txt', size: '12 KB' }
+                    ]
+                },
+                {
+                    name: '图片',
+                    type: 'folder',
+                    path: '/图片',
+                    children: [
+                        {
+                            name: '假期照片',
+                            type: 'folder',
+                            path: '/图片/假期照片',
+                            children: [
+                                { name: '海滩.jpg', type: 'file', path: '/图片/假期照片/海滩.jpg', size: '2.4 MB' },
+                                { name: '山景.jpg', type: 'file', path: '/图片/假期照片/山景.jpg', size: '3.1 MB' },
+                                {
+                                    name: '城市游',
+                                    type: 'folder',
+                                    path: '/图片/假期照片/城市游',
+                                    children: [
+                                        { name: '博物馆.jpg', type: 'file', path: '/图片/假期照片/城市游/博物馆.jpg', size: '1.8 MB' },
+                                        { name: '街景.jpg', type: 'file', path: '/图片/假期照片/城市游/街景.jpg', size: '2.2 MB' }
+                                    ]
+                                }
+                            ]
+                        },
+                        { name: '头像.png', type: 'file', path: '/图片/头像.png', size: '450 KB' },
+                        { name: '家庭合影.jpg', type: 'file', path: '/图片/家庭合影.jpg', size: '4.5 MB' }
+                    ]
+                },
+                {
+                    name: '音乐',
+                    type: 'folder',
+                    path: '/音乐',
+                    children: [
+                        { name: '最爱歌曲.mp3', type: 'file', path: '/音乐/最爱歌曲.mp3', size: '8.2 MB' },
+                        { name: '新歌.mp3', type: 'file', path: '/音乐/新歌.mp3', size: '6.7 MB' }
+                    ]
+                },
+                { name: '系统配置.ini', type: 'file', path: '/系统配置.ini', size: '1 KB' },
+                { name: '快捷方式.lnk', type: 'file', path: '/快捷方式.lnk', size: '2 KB' }
+            ]
+        };
+
+        // 当前目录路径
+        let currentPath = '/';
+        // 当前显示的文件列表
+        let currentFiles = [];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载根目录
+            loadDirectory(currentPath);
+
+            // 添加扁平化深度选择事件
+            document.getElementById('flatten-depth').addEventListener('change', (e) => {
+                loadDirectory(currentPath);
+            });
+
+            // 添加搜索事件
+            document.getElementById('search-button').addEventListener('click', () => {
+                const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+                if (searchTerm) {
+                    searchFiles(searchTerm);
+                } else {
+                    loadDirectory(currentPath);
+                }
+            });
+
+            // 回车键搜索
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('search-button').click();
+                }
+            });
+        });
+
+        // 加载指定路径的目录
+        function loadDirectory(path) {
+            currentPath = path;
+            const fileContainer = document.getElementById('file-container');
+            fileContainer.innerHTML = '<div class="loading"><div class="spinner"></div><div>加载中...</div></div>';
+
+            // 模拟网络延迟
+            setTimeout(() => {
+                // 获取当前路径的文件夹
+                const currentFolder = getDirectoryByPath(path);
+                if (!currentFolder) {
+                    fileContainer.innerHTML = '<div class="empty-message">目录不存在</div>';
+                    return;
+                }
+
+                // 更新面包屑导航
+                updateBreadcrumb(path);
+
+                // 获取扁平化深度
+                const depth = parseInt(document.getElementById('flatten-depth').value);
+
+                // 获取文件列表
+                let files = [];
+                if (depth === 0) {
+                    // 不扁平化，只显示当前目录的直接子项
+                    files = currentFolder.children || [];
+                } else {
+                    // 使用 flatten 函数扁平化目录结构
+                    files = flattenDirectory(currentFolder, depth);
+                }
+
+                // 更新当前文件列表
+                currentFiles = files;
+
+                // 渲染文件列表
+                renderFileList(files);
+
+                // 更新统计信息
+                document.getElementById('total-count').textContent = files.length;
+                document.getElementById('filtered-count').textContent = files.length;
+            }, 500); // 模拟加载延迟
+        }
+
+        // 根据路径获取目录
+        function getDirectoryByPath(path) {
+            if (path === '/') {
+                return fileSystemData;
+            }
+
+            const pathParts = path.split('/').filter(part => part);
+            let currentDir = fileSystemData;
+
+            for (const part of pathParts) {
+                if (!currentDir.children) {
+                    return null;
+                }
+
+                const found = currentDir.children.find(item => item.name === part);
+                if (!found || found.type !== 'folder') {
+                    return null;
+                }
+
+                currentDir = found;
+            }
+
+            return currentDir;
+        }
+
+        // 扁平化目录结构
+        function flattenDirectory(directory, depth) {
+            if (!directory.children) {
+                return [];
+            }
+
+            if (depth === 0) {
+                return directory.children;
+            }
+
+            // 递归收集子目录中的文件
+            const collectFiles = (dir) => {
+                if (!dir.children) {
+                    return [];
+                }
+
+                return dir.children.map(item => {
+                    if (item.type === 'folder') {
+                        return [item, ...collectFiles(item)];
+                    }
+                    return item;
+                });
+            };
+
+            // 收集所有文件和文件夹
+            const allFiles = collectFiles(directory);
+
+            // 使用 flatten 函数扁平化数组
+            return depth === -1
+                ? flatten(allFiles, Infinity) // 完全扁平化
+                : flatten(allFiles, depth);   // 按指定深度扁平化
+        }
+
+        // 渲染文件列表
+        function renderFileList(files) {
+            const fileContainer = document.getElementById('file-container');
+
+            if (files.length === 0) {
+                fileContainer.innerHTML = '<div class="empty-message">此目录为空</div>';
+                return;
+            }
+
+            const fileList = document.createElement('ul');
+            fileList.className = 'file-list';
+
+            files.forEach(file => {
+                const fileItem = document.createElement('li');
+                fileItem.className = 'file-item';
+
+                const fileIcon = document.createElement('div');
+                fileIcon.className = `file-icon ${file.type}`;
+                fileIcon.innerHTML = file.type === 'folder' ? '📁' : '📄';
+
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = file.name;
+
+                const filePath = document.createElement('div');
+                filePath.className = 'file-path';
+                filePath.textContent = file.path;
+
+                const fileSize = document.createElement('div');
+                fileSize.className = 'file-size';
+                if (file.size) {
+                    fileSize.textContent = file.size;
+                }
+
+                fileItem.appendChild(fileIcon);
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(filePath);
+                fileItem.appendChild(fileSize);
+
+                // 添加点击事件
+                if (file.type === 'folder') {
+                    fileItem.style.cursor = 'pointer';
+                    fileItem.addEventListener('click', () => {
+                        loadDirectory(file.path);
+                    });
+                }
+
+                fileList.appendChild(fileItem);
+            });
+
+            fileContainer.innerHTML = '';
+            fileContainer.appendChild(fileList);
+        }
+
+        // 更新面包屑导航
+        function updateBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = '';
+
+            const pathParts = path.split('/').filter(part => part);
+            let currentPath = '/';
+
+            // 添加根目录
+            const rootItem = document.createElement('li');
+            rootItem.className = 'breadcrumb-item';
+            const rootLink = document.createElement('a');
+            rootLink.href = '#';
+            rootLink.textContent = '根目录';
+            rootLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadDirectory('/');
+            });
+            rootItem.appendChild(rootLink);
+            breadcrumb.appendChild(rootItem);
+
+            // 添加路径部分
+            pathParts.forEach((part, index) => {
+                currentPath += part + '/';
+                const item = document.createElement('li');
+                item.className = 'breadcrumb-item';
+
+                if (index === pathParts.length - 1) {
+                    // 最后一项（当前目录）
+                    item.classList.add('active');
+                    item.textContent = part;
+                } else {
+                    // 可点击的路径
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.textContent = part;
+                    const pathToNavigate = currentPath;
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        loadDirectory(pathToNavigate);
+                    });
+                    item.appendChild(link);
+                }
+
+                breadcrumb.appendChild(item);
+            });
+        }
+
+        // 搜索文件
+        function searchFiles(term) {
+            const fileContainer = document.getElementById('file-container');
+            fileContainer.innerHTML = '<div class="loading"><div class="spinner"></div><div>搜索中...</div></div>';
+
+            // 模拟搜索延迟
+            setTimeout(() => {
+                // 递归搜索文件系统
+                const searchInDirectory = (directory) => {
+                    let results = [];
+
+                    if (!directory.children) {
+                        return results;
+                    }
+
+                    directory.children.forEach(item => {
+                        // 检查名称是否匹配
+                        if (item.name.toLowerCase().includes(term)) {
+                            results.push(item);
+                        }
+
+                        // 如果是文件夹，递归搜索
+                        if (item.type === 'folder') {
+                            results = results.concat(searchInDirectory(item));
+                        }
+                    });
+
+                    return results;
+                };
+
+                // 执行搜索
+                const searchResults = searchInDirectory(fileSystemData);
+
+                // 更新当前文件列表
+                currentFiles = searchResults;
+
+                // 渲染搜索结果
+                renderFileList(searchResults);
+
+                // 更新统计信息
+                document.getElementById('total-count').textContent = fileSystemData.children.length;
+                document.getElementById('filtered-count').textContent = searchResults.length;
+
+                // 更新面包屑导航，添加搜索指示
+                const breadcrumb = document.getElementById('breadcrumb');
+                breadcrumb.innerHTML = '';
+
+                const rootItem = document.createElement('li');
+                rootItem.className = 'breadcrumb-item';
+                const rootLink = document.createElement('a');
+                rootLink.href = '#';
+                rootLink.textContent = '根目录';
+                rootLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadDirectory('/');
+                });
+                rootItem.appendChild(rootLink);
+                breadcrumb.appendChild(rootItem);
+
+                const searchItem = document.createElement('li');
+                searchItem.className = 'breadcrumb-item active';
+                searchItem.textContent = `搜索: "${term}"`;
+                breadcrumb.appendChild(searchItem);
+            }, 800); // 模拟搜索延迟
+        }
     </script>
 </body>
 

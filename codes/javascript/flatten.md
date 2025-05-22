@@ -20,6 +20,10 @@ const flatten = (arr, depth = 1) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/flatten.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -28,6 +32,8 @@ flatten([1, [2, [3, [4, 5], 6], 7], 8], 2); // [1, 2, 3, [4, 5], 6, 7, 8]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/flatten.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/flatten.html" data-language="html"></div>
 
