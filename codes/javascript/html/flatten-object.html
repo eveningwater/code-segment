@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统配置管理器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #3498db;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .output {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .template-selector {
+            margin-bottom: 20px;
+        }
+
+        .copy-btn {
+            margin-top: 10px;
+            background-color: #27ae60;
+        }
+
+        .copy-btn:hover {
+            background-color: #219653;
+        }
+
+        .success-message {
+            color: #27ae60;
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background-color: white;
+            border-color: #ddd;
+            color: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>系统配置管理器</h1>
+    <div class="container">
+        <div class="card">
+            <h2>配置编辑器</h2>
+            <div class="template-selector">
+                <label for="template">选择配置模板：</label>
+                <select id="template" onchange="loadTemplate()">
+                    <option value="empty">空白配置</option>
+                    <option value="server">服务器配置</option>
+                    <option value="app">应用程序配置</option>
+                    <option value="user">用户偏好设置</option>
+                </select>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="visual">可视化编辑</div>
+                <div class="tab" data-tab="json">JSON编辑</div>
+            </div>
+
+            <div id="visual-editor" class="tab-content active">
+                <div id="form-container">
+                    <!-- 动态生成的表单将在这里显示 -->
+                </div>
+            </div>
+
+            <div id="json-editor" class="tab-content">
+                <div class="form-group">
+                    <label for="json-input">JSON配置：</label>
+                    <textarea id="json-input" rows="15" onchange="updateFromJson()"></textarea>
+                </div>
+                <div id="json-error" style="color: red; margin-top: 5px;"></div>
+            </div>
+
+            <button onclick="updateConfig()">更新配置</button>
+        </div>
+
+        <div class="card">
+            <h2>扁平化结果</h2>
+            <p>使用 flattenObject 方法将嵌套配置转换为扁平结构，便于存储和传输：</p>
+            <div class="tabs">
+                <div class="tab active" data-tab="flat-json">JSON格式</div>
+                <div class="tab" data-tab="flat-table">表格视图</div>
+            </div>
+
+            <div id="flat-json-view" class="tab-content active">
+                <pre id="output" class="output">// 扁平化的配置将在这里显示</pre>
+            </div>
+
+            <div id="flat-table-view" class="tab-content">
+                <table id="flat-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd;">配置路径</th>
+                            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd;">值</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flat-table-body">
+                        <!-- 扁平化的配置表格将在这里显示 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <button class="copy-btn" onclick="copyToClipboard()">复制扁平化结果</button>
+            <div id="copy-success" class="success-message">已复制到剪贴板！</div>
+        </div>
+    </div>
+
+    <script>
+        // flattenObject 函数 - 将嵌套对象扁平化为单层对象，键名使用点号连接
+        const flattenObject = (obj, prefix = '') =>
+            Object.keys(obj).reduce((acc, k) => {
+                const pre = prefix.length ? `${prefix}.` : '';
+                if (
+                    typeof obj[k] === 'object' &&
+                    obj[k] !== null &&
+                    Object.keys(obj[k]).length > 0
+                ) {
+                    Object.assign(acc, flattenObject(obj[k], pre + k));
+                } else {
+                    acc[pre + k] = obj[k];
+                }
+                return acc;
+            }, {});
+
+        // 配置模板
+        const templates = {
+            empty: {},
+            server: {
+                server: {
+                    host: '192.168.1.1',
+                    port: 8080,
+                    ssl: {
+                        enabled: true,
+                        cert: '/path/to/cert.pem',
+                        key: '/path/to/key.pem'
+                    }
+                },
+                database: {
+                    type: 'mysql',
+                    connection: {
+                        host: 'db.example.com',
+                        port: 3306,
+                        user: 'admin',
+                        password: '******',
+                        name: 'production_db'
+                    },
+                    pool: {
+                        min: 5,
+                        max: 20
+                    }
+                },
+                cache: {
+                    enabled: true,
+                    ttl: 3600,
+                    storage: 'redis'
+                }
+            },
+            app: {
+                app: {
+                    name: '示例应用',
+                    version: '1.0.0',
+                    environment: 'production',
+                    features: {
+                        darkMode: true,
+                        notifications: true,
+                        analytics: {
+                            enabled: true,
+                            trackErrors: true,
+                            trackPerformance: false
+                        }
+                    }
+                },
+                ui: {
+                    theme: 'default',
+                    colors: {
+                        primary: '#3498db',
+                        secondary: '#2ecc71',
+                        text: '#333333',
+                        background: '#ffffff'
+                    },
+                    fonts: {
+                        main: 'Roboto',
+                        headings: 'Montserrat'
+                    }
+                },
+                performance: {
+                    caching: true,
+                    compression: true,
+                    lazyLoading: true
+                }
+            },
+            user: {
+                profile: {
+                    displayName: '张三',
+                    email: 'zhangsan@example.com',
+                    avatar: 'https://example.com/avatars/default.png',
+                    preferences: {
+                        language: 'zh-CN',
+                        timezone: 'Asia/Shanghai',
+                        notifications: {
+                            email: true,
+                            push: true,
+                            sms: false
+                        }
+                    }
+                },
+                security: {
+                    twoFactorAuth: true,
+                    passwordExpiry: 90,
+                    loginAttempts: {
+                        max: 5,
+                        lockoutTime: 30
+                    }
+                },
+                subscription: {
+                    plan: 'premium',
+                    billing: {
+                        method: 'credit_card',
+                        interval: 'monthly',
+                        autoRenew: true
+                    },
+                    features: {
+                        storage: '100GB',
+                        bandwidth: 'unlimited',
+                        support: 'priority'
+                    }
+                }
+            }
+        };
+
+        let currentConfig = {};
+
+        // 初始化页面
+        window.onload = function () {
+            loadTemplate();
+            setupTabs();
+        };
+
+        // 设置标签页切换
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.getAttribute('data-tab');
+                    const tabGroup = tab.parentElement;
+
+                    // 移除同组中所有标签的active类
+                    tabGroup.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+
+                    // 移除相关内容区域的active类
+                    const contentGroup = tabGroup.nextElementSibling.tagName === 'DIV' ?
+                        tabGroup.parentElement :
+                        document.querySelector('.card');
+                    contentGroup.querySelectorAll('.tab-content').forEach(c => {
+                        c.classList.remove('active');
+                    });
+
+                    // 添加active类到当前标签和内容
+                    tab.classList.add('active');
+                    const content = document.getElementById(tabName + '-view') ||
+                        document.getElementById(tabName + '-editor');
+                    if (content) {
+                        content.classList.add('active');
+                    }
+
+                    // 如果切换到JSON编辑器，更新JSON
+                    if (tabName === 'json') {
+                        document.getElementById('json-input').value = JSON.stringify(currentConfig, null, 2);
+                    }
+                });
+            });
+        }
+
+        // 加载配置模板
+        function loadTemplate() {
+            const templateName = document.getElementById('template').value;
+            currentConfig = JSON.parse(JSON.stringify(templates[templateName] || {}));
+            updateVisualEditor();
+            updateOutput();
+            document.getElementById('json-input').value = JSON.stringify(currentConfig, null, 2);
+        }
+
+        // 更新可视化编辑器
+        function updateVisualEditor() {
+            const formContainer = document.getElementById('form-container');
+            formContainer.innerHTML = '';
+
+            function createFormFields(obj, path = '') {
+                let html = '';
+
+                for (const key in obj) {
+                    const currentPath = path ? `${path}.${key}` : key;
+                    const value = obj[key];
+
+                    if (typeof value === 'object' && value !== null) {
+                        html += `
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label style="font-weight: bold; color: #3498db;">${key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                                <div style="padding-left: 15px; border-left: 2px solid #ecf0f1;">
+                                    ${createFormFields(value, currentPath)}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const inputType = typeof value === 'boolean' ? 'checkbox' :
+                            typeof value === 'number' ? 'number' : 'text';
+
+                        const inputValue = typeof value === 'boolean' ? '' : value;
+                        const checked = typeof value === 'boolean' && value ? 'checked' : '';
+
+                        html += `
+                            <div class="form-group">
+                                <label for="${currentPath}">${key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                                <input 
+                                    type="${inputType}" 
+                                    id="${currentPath}" 
+                                    data-path="${currentPath}" 
+                                    value="${inputValue}" 
+                                    ${checked}
+                                    onchange="updateConfigValue(this)"
+                                >
+                            </div>
+                        `;
+                    }
+                }
+
+                return html;
+            }
+
+            formContainer.innerHTML = createFormFields(currentConfig);
+        }
+
+        // 从表单更新配置值
+        function updateConfigValue(input) {
+            const path = input.getAttribute('data-path').split('.');
+            let current = currentConfig;
+
+            // 遍历路径直到倒数第二个元素
+            for (let i = 0; i < path.length - 1; i++) {
+                current = current[path[i]];
+            }
+
+            // 设置最后一个属性的值
+            const lastKey = path[path.length - 1];
+            if (input.type === 'checkbox') {
+                current[lastKey] = input.checked;
+            } else if (input.type === 'number') {
+                current[lastKey] = Number(input.value);
+            } else {
+                current[lastKey] = input.value;
+            }
+
+            // 更新JSON编辑器和输出
+            document.getElementById('json-input').value = JSON.stringify(currentConfig, null, 2);
+            updateOutput();
+        }
+
+        // 从JSON更新配置
+        function updateFromJson() {
+            const jsonInput = document.getElementById('json-input');
+            const jsonError = document.getElementById('json-error');
+
+            try {
+                currentConfig = JSON.parse(jsonInput.value);
+                jsonError.textContent = '';
+                updateVisualEditor();
+                updateOutput();
+            } catch (e) {
+                jsonError.textContent = `JSON解析错误: ${e.message}`;
+            }
+        }
+
+        // 更新配置（按钮点击事件）
+        function updateConfig() {
+            // 如果当前在JSON编辑模式，先从JSON更新
+            if (document.getElementById('json-editor').classList.contains('active')) {
+                updateFromJson();
+            }
+
+            updateOutput();
+
+            // 显示成功消息
+            alert('配置已更新！');
+        }
+
+        // 更新输出区域
+        function updateOutput() {
+            const flattenedConfig = flattenObject(currentConfig);
+            document.getElementById('output').textContent = JSON.stringify(flattenedConfig, null, 2);
+
+            // 更新表格视图
+            const tableBody = document.getElementById('flat-table-body');
+            tableBody.innerHTML = '';
+
+            for (const key in flattenedConfig) {
+                const row = document.createElement('tr');
+
+                const keyCell = document.createElement('td');
+                keyCell.style.padding = '8px';
+                keyCell.style.borderBottom = '1px solid #ddd';
+                keyCell.textContent = key;
+
+                const valueCell = document.createElement('td');
+                valueCell.style.padding = '8px';
+                valueCell.style.borderBottom = '1px solid #ddd';
+                valueCell.textContent = flattenedConfig[key];
+
+                row.appendChild(keyCell);
+                row.appendChild(valueCell);
+                tableBody.appendChild(row);
+            }
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard() {
+            const output = document.getElementById('output');
+            const copySuccess = document.getElementById('copy-success');
+
+            // 创建临时文本区域
+            const textarea = document.createElement('textarea');
+            textarea.value = output.textContent;
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                // 执行复制命令
+                document.execCommand('copy');
+
+                // 显示成功消息
+                copySuccess.style.display = 'block';
+                setTimeout(() => {
+                    copySuccess.style.display = 'none';
+                }, 2000);
+            } catch (err) {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制。');
+            }
+
+            // 移除临时文本区域
+            document.body.removeChild(textarea);
+        }
+    </script>
+</body>
+
+</html>

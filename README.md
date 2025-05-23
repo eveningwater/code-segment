@@ -276,7 +276,7 @@
 - [不可变的数据插入--2022-06-03](codes/javascript/immutable-insert.md)
 - [扁平迭代器--2022-06-05](codes/javascript/flat-iterator.md)
 - [扁平化数组--2022-06-06](codes/javascript/flatten.md)
-- [扁平化对象--2022-06-07](codes/javascript/flattenObject.md)
+- [扁平化对象--2022-06-07](codes/javascript/flatten-object.md)
 - [翻转函数参数--2022-06-09](codes/javascript/flip.md)
 - [倒转遍历数组--2022-06-10](codes/javascript/forEachRight.md)
 - [遍历对象每一个属性--2022-06-11](codes/javascript/forOwn.md)

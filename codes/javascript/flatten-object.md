@@ -29,6 +29,10 @@ const flattenObject = (obj, prefix = '') =>
   }, {});
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/flatten-object.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -37,8 +41,10 @@ flattenObject({ a: { b: { c: 1 } }, d: 1 }); // { 'a.b.c': 1, d: 1 }
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/flattenObject.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/flatten-object.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/flatten-object.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/flattenObject.html"></iframe>
+<iframe src="codes/javascript/html/flatten-object.html"></iframe>
