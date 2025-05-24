@@ -14,6 +14,10 @@ const flip =
     handler(...rest, first);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/flip.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -27,6 +31,8 @@ Object.assign(b, a); // == b
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/flip.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/flip.html" data-language="html"></div>
 
