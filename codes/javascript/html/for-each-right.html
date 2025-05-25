@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <title>通知中心 - forEachRight 实战应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #1890ff;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .primary {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .danger {
+            background-color: #ff4d4f;
+            color: white;
+        }
+
+        .notification-list {
+            padding: 0;
+        }
+
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            transition: background-color 0.3s;
+        }
+
+        .notification-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .notification-item.unread {
+            background-color: #e6f7ff;
+        }
+
+        .notification-item.unread:hover {
+            background-color: #d9f2ff;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #1890ff;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.system {
+            background-color: #1890ff;
+        }
+
+        .notification-icon.alert {
+            background-color: #ff4d4f;
+        }
+
+        .notification-icon.success {
+            background-color: #52c41a;
+        }
+
+        .notification-content {
+            flex-grow: 1;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666;
+        }
+
+        .notification-actions {
+            display: flex;
+            margin-top: 8px;
+            gap: 8px;
+        }
+
+        .notification-actions button {
+            padding: 4px 8px;
+            font-size: 12px;
+            background-color: transparent;
+            border: 1px solid #d9d9d9;
+            color: #666;
+        }
+
+        .notification-actions button:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #999;
+        }
+
+        .badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ff4d4f;
+            margin-right: 6px;
+        }
+
+        .code-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+
+        .code-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .highlight {
+            color: #c678dd;
+        }
+
+        .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>通知中心</h1>
+            <div class="controls">
+                <button id="mark-all-read">全部标为已读</button>
+                <button id="refresh" class="primary">刷新</button>
+                <button id="clear-all" class="danger">清空</button>
+            </div>
+        </header>
+
+        <div id="notification-list" class="notification-list">
+            <!-- 通知将通过 JavaScript 动态生成 -->
+        </div>
+    </div>
+
+    <div class="container code-section">
+        <div class="code-title">forEachRight 方法实现与应用</div>
+        <pre><code>// forEachRight 方法定义
+<span class="highlight">const forEachRight = (arr, callback) => arr.slice().reverse().forEach(callback);</span>
+
+// 在通知中心的应用
+function renderNotifications() {
+    const notificationList = document.getElementById('notification-list');
+    notificationList.innerHTML = '';
+    
+    if (notifications.length === 0) {
+        notificationList.innerHTML = '<div class="empty-state">暂无通知</div>';
+        return;
+    }
+    
+    // 使用 forEachRight 从最新的通知开始渲染
+    <span class="highlight">forEachRight(notifications, notification => {
+        const notificationEl = createNotificationElement(notification);
+        notificationList.appendChild(notificationEl);
+    });</span>
+}
+
+// 这样做的好处是最新的通知会显示在顶部
+// 而不需要对原数组进行排序或反转操作</code></pre>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        hljs.highlightAll(document.querySelectorAll("pre code"));
+        // forEachRight 方法定义
+        const forEachRight = (arr, callback) => arr.slice().reverse().forEach(callback);
+
+        // 模拟通知数据（按时间顺序，最早的在前面）
+        let notifications = [
+            {
+                id: 1,
+                type: 'system',
+                title: '系统更新通知',
+                message: '系统将于今晚22:00-23:00进行例行维护，期间部分功能可能无法使用。',
+                time: '2023-05-10 10:30',
+                read: true
+            },
+            {
+                id: 2,
+                type: 'alert',
+                title: '安全提醒',
+                message: '您的账号刚刚在新设备上登录，如非本人操作，请立即修改密码。',
+                time: '2023-05-12 15:45',
+                read: true
+            },
+            {
+                id: 3,
+                type: 'success',
+                title: '订单已发货',
+                message: '您的订单 #20230513001 已发货，预计3-5天送达，请保持手机畅通。',
+                time: '2023-05-13 09:20',
+                read: false
+            },
+            {
+                id: 4,
+                type: 'system',
+                title: '新功能上线',
+                message: '我们的应用新增了黑暗模式，赶快去设置中体验吧！',
+                time: '2023-05-14 14:00',
+                read: false
+            },
+            {
+                id: 5,
+                type: 'alert',
+                title: '异常登录提醒',
+                message: '检测到您的账号在异地有登录尝试，已自动拦截。如有疑问，请联系客服。',
+                time: '2023-05-15 20:30',
+                read: false
+            }
+        ];
+
+        // 创建单个通知元素
+        function createNotificationElement(notification) {
+            const notificationEl = document.createElement('div');
+            notificationEl.className = `notification-item ${notification.read ? '' : 'unread'}`;
+            notificationEl.dataset.id = notification.id;
+
+            let iconText = '';
+            switch (notification.type) {
+                case 'system':
+                    iconText = '系';
+                    break;
+                case 'alert':
+                    iconText = '警';
+                    break;
+                case 'success':
+                    iconText = '成';
+                    break;
+            }
+
+            notificationEl.innerHTML = `
+                <div class="notification-icon ${notification.type}">${iconText}</div>
+                <div class="notification-content">
+                    <div class="notification-title">
+                        <span>${notification.read ? '' : '<span class="badge"></span>'}${notification.title}</span>
+                        <span class="notification-time">${notification.time}</span>
+                    </div>
+                    <div class="notification-message">${notification.message}</div>
+                    <div class="notification-actions">
+                        <button class="mark-read" ${notification.read ? 'style="display:none"' : ''}>标为已读</button>
+                        <button class="delete">删除</button>
+                    </div>
+                </div>
+            `;
+
+            // 添加事件监听器
+            const markReadBtn = notificationEl.querySelector('.mark-read');
+            if (markReadBtn) {
+                markReadBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    markAsRead(notification.id);
+                });
+            }
+
+            const deleteBtn = notificationEl.querySelector('.delete');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteNotification(notification.id);
+            });
+
+            return notificationEl;
+        }
+
+        // 渲染通知列表
+        function renderNotifications() {
+            const notificationList = document.getElementById('notification-list');
+            notificationList.innerHTML = '';
+
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<div class="empty-state">暂无通知</div>';
+                return;
+            }
+
+            // 使用 forEachRight 从最新的通知开始渲染（最新的在顶部）
+            forEachRight(notifications, notification => {
+                const notificationEl = createNotificationElement(notification);
+                notificationList.appendChild(notificationEl);
+            });
+        }
+
+        // 标记通知为已读
+        function markAsRead(id) {
+            const notification = notifications.find(n => n.id === id);
+            if (notification) {
+                notification.read = true;
+                renderNotifications();
+                updateUnreadCount();
+            }
+        }
+
+        // 删除通知
+        function deleteNotification(id) {
+            notifications = notifications.filter(n => n.id !== id);
+            renderNotifications();
+            updateUnreadCount();
+        }
+
+        // 标记所有为已读
+        function markAllAsRead() {
+            notifications.forEach(notification => {
+                notification.read = true;
+            });
+            renderNotifications();
+            updateUnreadCount();
+        }
+
+        // 清空所有通知
+        function clearAll() {
+            if (confirm('确定要清空所有通知吗？')) {
+                notifications = [];
+                renderNotifications();
+                updateUnreadCount();
+            }
+        }
+
+        // 更新未读数量
+        function updateUnreadCount() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            document.title = unreadCount > 0 ? `(${unreadCount}) 通知中心` : '通知中心';
+        }
+
+        // 添加新通知（模拟接收新通知）
+        function addNewNotification() {
+            const types = ['system', 'alert', 'success'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const titles = {
+                system: ['系统维护通知', '功能更新提醒', '账号安全检查'],
+                alert: ['异常登录提醒', '支付安全提醒', '账号风险提醒'],
+                success: ['订单已发货', '支付成功', '注册成功']
+            };
+            const messages = {
+                system: ['系统将进行例行维护，请提前保存您的工作。', '我们上线了新功能，快来体验吧！', '为了保障您的账号安全，请定期修改密码。'],
+                alert: ['检测到异常登录，请确认是否为本人操作。', '您的账户有一笔大额支付，请确认交易安全。', '您的账号存在风险，请立即处理。'],
+                success: ['您的订单已发货，请注意查收。', '支付已成功处理，感谢您的购买。', '恭喜您注册成功，开始探索我们的服务吧！']
+            };
+
+            const title = titles[type][Math.floor(Math.random() * titles[type].length)];
+            const message = messages[type][Math.floor(Math.random() * messages[type].length)];
+
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            const newNotification = {
+                id: Date.now(),
+                type,
+                title,
+                message,
+                time: timeStr,
+                read: false
+            };
+
+            notifications.push(newNotification);
+            renderNotifications();
+            updateUnreadCount();
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNotifications();
+            updateUnreadCount();
+
+            // 绑定按钮事件
+            document.getElementById('mark-all-read').addEventListener('click', markAllAsRead);
+            document.getElementById('clear-all').addEventListener('click', clearAll);
+            document.getElementById('refresh').addEventListener('click', addNewNotification);
+        });
+    </script>
+</body>
+
+</html>
