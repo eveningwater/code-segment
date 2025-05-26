@@ -13,6 +13,10 @@ const forOwn = (obj, handler) =>
   Object.keys(obj).forEach(k => handler(obj[k], k, obj));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/for-own.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,6 +24,8 @@ forOwn({ foo: 'bar', a: 1 }, v => console.log(v)); // 'bar', 1
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/for-own.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/forOwn.html" data-language="html"></div>
 

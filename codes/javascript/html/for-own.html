@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <title>产品配置管理系统 - forOwn 实战应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #1890ff;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f9f9f9;
+            border-right: 1px solid #eee;
+            padding: 20px 0;
+        }
+
+        .product-list {
+            list-style: none;
+        }
+
+        .product-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .product-item:hover {
+            background-color: #e6f7ff;
+        }
+
+        .product-item.active {
+            background-color: #e6f7ff;
+            border-left-color: #1890ff;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .config-card {
+            background-color: #fff;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .config-card:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .config-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .config-type {
+            font-size: 12px;
+            color: #999;
+            background-color: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .config-value {
+            margin-top: 10px;
+        }
+
+        .config-value input[type="text"],
+        .config-value input[type="number"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .config-value input:focus {
+            border-color: #1890ff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .config-value select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: all 0.3s;
+        }
+
+        .config-value select:focus {
+            border-color: #1890ff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .config-value .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .config-value input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .config-description {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .btn-default {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-danger {
+            background-color: #ff4d4f;
+            color: white;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transform: translateX(calc(100% + 20px));
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background-color: #f6ffed;
+            border-color: #b7eb8f;
+        }
+
+        .notification.error {
+            background-color: #fff2f0;
+            border-color: #ffccc7;
+        }
+
+        .code-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+
+        .code-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .highlight {
+            color: #c678dd;
+        }
+
+        .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>产品配置管理系统</h1>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <ul class="product-list" id="product-list">
+                    <!-- 产品列表将通过 JavaScript 动态生成 -->
+                </ul>
+            </div>
+
+            <div class="content-area" id="content-area">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div>请从左侧选择一个产品进行配置</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container code-section">
+        <div class="code-title">forOwn 方法实现与应用</div>
+        <pre><code>// forOwn 方法定义
+<span class="highlight">const forOwn = (obj, handler) =>
+    Object.keys(obj).forEach(k => handler(obj[k], k, obj));</span>
+
+// 在产品配置管理系统中的应用
+function renderProductConfigs(product) {
+    const configGrid = document.createElement('div');
+    configGrid.className = 'config-grid';
+    
+    // 使用 forOwn 遍历产品配置对象的所有属性
+    <span class="highlight">forOwn(product.configs, (configValue, configKey, configObj) => {
+        const configCard = createConfigCard(configKey, configValue, product.id);
+        configGrid.appendChild(configCard);
+    });</span>
+    
+    return configGrid;
+}
+
+// 这样做的好处是可以轻松遍历对象的所有属性
+// 而不需要预先知道对象有哪些键</code></pre>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        hljs.highlightAll(document.querySelectorAll("pre code"));
+        // forOwn 方法定义
+        const forOwn = (obj, handler) =>
+            Object.keys(obj).forEach(k => handler(obj[k], k, obj));
+
+        // 模拟产品数据
+        const products = [
+            {
+                id: 1,
+                name: '智能手机 A1',
+                configs: {
+                    display: {
+                        type: 'select',
+                        value: 'amoled',
+                        options: ['lcd', 'amoled', 'retina'],
+                        label: '显示屏类型',
+                        description: '设备使用的显示屏技术类型'
+                    },
+                    storage: {
+                        type: 'select',
+                        value: '128',
+                        options: ['64', '128', '256', '512'],
+                        label: '存储容量 (GB)',
+                        description: '设备的内部存储容量'
+                    },
+                    camera: {
+                        type: 'number',
+                        value: 12,
+                        min: 8,
+                        max: 108,
+                        label: '主摄像头 (MP)',
+                        description: '主摄像头的像素值'
+                    },
+                    battery: {
+                        type: 'number',
+                        value: 4000,
+                        min: 3000,
+                        max: 6000,
+                        label: '电池容量 (mAh)',
+                        description: '设备的电池容量'
+                    },
+                    waterproof: {
+                        type: 'checkbox',
+                        value: true,
+                        label: '防水功能',
+                        description: '设备是否具有防水功能'
+                    },
+                    faceId: {
+                        type: 'checkbox',
+                        value: true,
+                        label: '面部识别',
+                        description: '设备是否支持面部识别解锁'
+                    }
+                }
+            },
+            {
+                id: 2,
+                name: '平板电脑 P2',
+                configs: {
+                    display: {
+                        type: 'select',
+                        value: 'retina',
+                        options: ['lcd', 'amoled', 'retina'],
+                        label: '显示屏类型',
+                        description: '设备使用的显示屏技术类型'
+                    },
+                    storage: {
+                        type: 'select',
+                        value: '256',
+                        options: ['64', '128', '256', '512', '1024'],
+                        label: '存储容量 (GB)',
+                        description: '设备的内部存储容量'
+                    },
+                    screenSize: {
+                        type: 'number',
+                        value: 10.9,
+                        min: 7,
+                        max: 13,
+                        step: 0.1,
+                        label: '屏幕尺寸 (英寸)',
+                        description: '设备的屏幕对角线尺寸'
+                    },
+                    pencilSupport: {
+                        type: 'checkbox',
+                        value: true,
+                        label: '手写笔支持',
+                        description: '设备是否支持手写笔输入'
+                    },
+                    keyboardSupport: {
+                        type: 'checkbox',
+                        value: true,
+                        label: '键盘支持',
+                        description: '设备是否支持外接键盘'
+                    },
+                    cellular: {
+                        type: 'checkbox',
+                        value: false,
+                        label: '蜂窝网络',
+                        description: '设备是否支持蜂窝网络连接'
+                    }
+                }
+            },
+            {
+                id: 3,
+                name: '智能手表 W3',
+                configs: {
+                    display: {
+                        type: 'select',
+                        value: 'amoled',
+                        options: ['lcd', 'amoled', 'oled'],
+                        label: '显示屏类型',
+                        description: '设备使用的显示屏技术类型'
+                    },
+                    size: {
+                        type: 'select',
+                        value: '44mm',
+                        options: ['38mm', '40mm', '42mm', '44mm', '46mm'],
+                        label: '表盘尺寸',
+                        description: '手表表盘的尺寸'
+                    },
+                    heartRate: {
+                        type: 'checkbox',
+                        value: true,
+                        label: '心率监测',
+                        description: '设备是否具有心率监测功能'
+                    },
+                    ecg: {
+                        type: 'checkbox',
+                        value: false,
+                        label: 'ECG 心电图',
+                        description: '设备是否支持心电图功能'
+                    },
+                    waterproof: {
+                        type: 'checkbox',
+                        value: true,
+                        label: '防水功能',
+                        description: '设备是否具有防水功能'
+                    },
+                    battery: {
+                        type: 'number',
+                        value: 18,
+                        min: 12,
+                        max: 36,
+                        label: '电池续航 (小时)',
+                        description: '设备的电池续航时间'
+                    }
+                }
+            }
+        ];
+
+        // 当前选中的产品
+        let currentProductId = null;
+
+        // 渲染产品列表
+        function renderProductList() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+
+            products.forEach(product => {
+                const li = document.createElement('li');
+                li.className = `product-item ${product.id === currentProductId ? 'active' : ''}`;
+                li.textContent = product.name;
+                li.dataset.id = product.id;
+                li.addEventListener('click', () => selectProduct(product.id));
+                productList.appendChild(li);
+            });
+        }
+
+        // 选择产品
+        function selectProduct(productId) {
+            currentProductId = parseInt(productId);
+            renderProductList();
+            renderProductContent();
+        }
+
+        // 渲染产品内容
+        function renderProductContent() {
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = '';
+
+            if (!currentProductId) {
+                contentArea.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div>请从左侧选择一个产品进行配置</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const product = products.find(p => p.id === currentProductId);
+            if (!product) return;
+
+            const productHeader = document.createElement('div');
+            productHeader.className = 'product-header';
+            productHeader.innerHTML = `
+                <div class="product-title">${product.name} 配置</div>
+            `;
+
+            const configGrid = renderProductConfigs(product);
+
+            const actions = document.createElement('div');
+            actions.className = 'actions';
+            actions.innerHTML = `
+                <button class="btn-default" id="reset-btn">重置</button>
+                <button class="btn-primary" id="save-btn">保存配置</button>
+            `;
+
+            contentArea.appendChild(productHeader);
+            contentArea.appendChild(configGrid);
+            contentArea.appendChild(actions);
+
+            // 绑定按钮事件
+            document.getElementById('reset-btn').addEventListener('click', resetProductConfigs);
+            document.getElementById('save-btn').addEventListener('click', saveProductConfigs);
+        }
+
+        // 渲染产品配置
+        function renderProductConfigs(product) {
+            const configGrid = document.createElement('div');
+            configGrid.className = 'config-grid';
+
+            // 使用 forOwn 遍历产品配置对象的所有属性
+            forOwn(product.configs, (configValue, configKey, configObj) => {
+                const configCard = createConfigCard(configKey, configValue, product.id);
+                configGrid.appendChild(configCard);
+            });
+
+            return configGrid;
+        }
+
+        // 创建配置卡片
+        function createConfigCard(configKey, config, productId) {
+            const card = document.createElement('div');
+            card.className = 'config-card';
+            card.dataset.key = configKey;
+
+            const header = document.createElement('div');
+            header.className = 'config-header';
+            header.innerHTML = `
+                <div class="config-name">${config.label}</div>
+                <div class="config-type">${getConfigTypeName(config.type)}</div>
+            `;
+
+            const valueContainer = document.createElement('div');
+            valueContainer.className = 'config-value';
+
+            // 根据配置类型创建不同的输入控件
+            switch (config.type) {
+                case 'text':
+                    valueContainer.innerHTML = `
+                        <input type="text" id="${configKey}-${productId}" value="${config.value}">
+                    `;
+                    break;
+                case 'number':
+                    valueContainer.innerHTML = `
+                        <input type="number" id="${configKey}-${productId}" value="${config.value}" 
+                            min="${config.min || ''}" max="${config.max || ''}" step="${config.step || 1}">
+                    `;
+                    break;
+                case 'select':
+                    let options = '';
+                    config.options.forEach(option => {
+                        options += `<option value="${option}" ${option === config.value ? 'selected' : ''}>${option}</option>`;
+                    });
+                    valueContainer.innerHTML = `
+                        <select id="${configKey}-${productId}">${options}</select>
+                    `;
+                    break;
+                case 'checkbox':
+                    valueContainer.innerHTML = `
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="${configKey}-${productId}" ${config.value ? 'checked' : ''}>
+                            <label for="${configKey}-${productId}">启用</label>
+                        </div>
+                    `;
+                    break;
+            }
+
+            const description = document.createElement('div');
+            description.className = 'config-description';
+            description.textContent = config.description || '';
+
+            card.appendChild(header);
+            card.appendChild(valueContainer);
+            card.appendChild(description);
+
+            return card;
+        }
+
+        // 获取配置类型名称
+        function getConfigTypeName(type) {
+            const typeNames = {
+                'text': '文本',
+                'number': '数值',
+                'select': '选择',
+                'checkbox': '开关'
+            };
+            return typeNames[type] || type;
+        }
+
+        // 重置产品配置
+        function resetProductConfigs() {
+            if (!currentProductId) return;
+            renderProductContent();
+            showNotification('配置已重置', 'success');
+        }
+
+        // 保存产品配置
+        function saveProductConfigs() {
+            if (!currentProductId) return;
+
+            const product = products.find(p => p.id === currentProductId);
+            if (!product) return;
+
+            // 使用 forOwn 遍历产品配置并保存新值
+            forOwn(product.configs, (config, key) => {
+                const inputEl = document.getElementById(`${key}-${product.id}`);
+                if (!inputEl) return;
+
+                switch (config.type) {
+                    case 'text':
+                    case 'select':
+                        product.configs[key].value = inputEl.value;
+                        break;
+                    case 'number':
+                        product.configs[key].value = parseFloat(inputEl.value);
+                        break;
+                    case 'checkbox':
+                        product.configs[key].value = inputEl.checked;
+                        break;
+                }
+            });
+
+            showNotification('配置已保存', 'success');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 3000);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProductList();
+            // 默认选中第一个产品
+            if (products.length > 0) {
+                selectProduct(products[0].id);
+            }
+        });
+    </script>
+</body>
+
+</html>
