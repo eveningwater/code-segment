@@ -15,6 +15,10 @@ const forOwnRight = (obj, handler) =>
     .forEach(k => handler(obj[k], k, obj));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/for-own-right.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,8 +27,10 @@ forOwnRight({ foo: 'bar', a: 1 }, v => console.log(v)); // 1, 'bar'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/forOwnRight.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/for-own-right.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/for-own-right.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/forOwnRight.html"></iframe>
+<iframe src="codes/javascript/html/for-own-right.html"></iframe>

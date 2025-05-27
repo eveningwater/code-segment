@@ -280,7 +280,7 @@
 - [翻转函数参数--2022-06-09](codes/javascript/flip.md)
 - [倒转遍历数组--2022-06-10](codes/javascript/for-each-right.md)
 - [遍历对象每一个属性--2022-06-11](codes/javascript/for-own.md)
-- [倒转遍历对象每一个属性--2022-06-12](codes/javascript/forOwnRight.md)
+- [倒转遍历对象每一个属性--2022-06-12](codes/javascript/for-own-right.md)
 - [计算一年过去了多少天--2022-06-13](codes/javascript/computedYearDays.md)
 - [表单对象转普通对象--2022-06-14](codes/javascript/formToObject.md)
 - [格式化时间--2022-06-14](codes/javascript/formatDuration.md)

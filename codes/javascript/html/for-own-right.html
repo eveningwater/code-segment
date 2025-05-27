@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>优先级任务管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .task-form {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .task-form input,
+        .task-form select,
+        .task-form button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .task-form input {
+            flex: 1;
+        }
+
+        .task-form button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .task-form button:hover {
+            background-color: #2980b9;
+        }
+
+        .priority-filter {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .priority-filter button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .priority-filter button.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            animation: fadeIn 0.5s;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .priority-high {
+            background-color: #e74c3c;
+        }
+
+        .priority-medium {
+            background-color: #f39c12;
+        }
+
+        .priority-low {
+            background-color: #2ecc71;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .task-actions button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .complete-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .complete-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>优先级任务管理系统</h1>
+
+        <form class="task-form" id="taskForm">
+            <input type="text" id="taskInput" placeholder="输入新任务..." required>
+            <select id="prioritySelect">
+                <option value="high">高优先级</option>
+                <option value="medium" selected>中优先级</option>
+                <option value="low">低优先级</option>
+            </select>
+            <button type="submit">添加任务</button>
+        </form>
+
+        <div class="priority-filter">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="high">高优先级</button>
+            <button class="filter-btn" data-filter="medium">中优先级</button>
+            <button class="filter-btn" data-filter="low">低优先级</button>
+            <button class="filter-btn" data-filter="completed">已完成</button>
+        </div>
+
+        <ul class="task-list" id="taskList">
+            <!-- 任务列表将通过JavaScript动态生成 -->
+        </ul>
+
+        <div id="emptyState" class="empty-state">
+            <p>暂无任务，请添加新任务</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalTasks">0</div>
+                <div class="stat-label">总任务</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="completedTasks">0</div>
+                <div class="stat-label">已完成</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="highPriorityTasks">0</div>
+                <div class="stat-label">高优先级</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // forOwnRight 方法实现 - 从右到左遍历对象属性
+        const forOwnRight = (obj, handler) =>
+            Object.keys(obj)
+                .reverse()
+                .forEach(k => handler(obj[k], k, obj));
+
+        // 任务管理系统
+        class TaskManager {
+            constructor() {
+                this.tasks = {};
+                this.currentFilter = 'all';
+                this.taskIdCounter = 1;
+
+                // DOM元素
+                this.taskForm = document.getElementById('taskForm');
+                this.taskInput = document.getElementById('taskInput');
+                this.prioritySelect = document.getElementById('prioritySelect');
+                this.taskList = document.getElementById('taskList');
+                this.emptyState = document.getElementById('emptyState');
+                this.filterButtons = document.querySelectorAll('.filter-btn');
+                this.statsElements = {
+                    total: document.getElementById('totalTasks'),
+                    completed: document.getElementById('completedTasks'),
+                    highPriority: document.getElementById('highPriorityTasks')
+                };
+
+                // 初始化事件监听
+                this.initEventListeners();
+
+                // 添加示例任务
+                this.addSampleTasks();
+
+                // 初始渲染
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            initEventListeners() {
+                // 添加任务表单提交事件
+                this.taskForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addTask(this.taskInput.value, this.prioritySelect.value);
+                    this.taskInput.value = '';
+                    this.taskInput.focus();
+                });
+
+                // 过滤按钮点击事件
+                this.filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        this.currentFilter = button.dataset.filter;
+                        this.renderTasks();
+                    });
+                });
+            }
+
+            addSampleTasks() {
+                this.addTask('完成产品需求文档', 'high');
+                this.addTask('准备周会演示', 'medium');
+                this.addTask('回复客户邮件', 'high');
+                this.addTask('更新项目进度', 'medium');
+                this.addTask('整理会议记录', 'low');
+            }
+
+            addTask(text, priority) {
+                const id = `task-${this.taskIdCounter++}`;
+                this.tasks[id] = {
+                    id,
+                    text,
+                    priority,
+                    completed: false,
+                    createdAt: Date.now()
+                };
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            toggleTaskCompletion(id) {
+                this.tasks[id].completed = !this.tasks[id].completed;
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            deleteTask(id) {
+                delete this.tasks[id];
+                this.renderTasks();
+                this.updateStats();
+            }
+
+            renderTasks() {
+                // 清空任务列表
+                this.taskList.innerHTML = '';
+
+                // 获取过滤后的任务
+                const filteredTasks = this.getFilteredTasks();
+
+                // 显示空状态或任务列表
+                if (Object.keys(filteredTasks).length === 0) {
+                    this.emptyState.style.display = 'block';
+                    this.emptyState.innerHTML = `<p>没有${this.getFilterName()}任务</p>`;
+                } else {
+                    this.emptyState.style.display = 'none';
+
+                    // 使用 forOwnRight 方法按优先级从高到低渲染任务
+                    // 这里的关键是我们使用 forOwnRight 从右到左遍历任务对象
+                    // 由于我们按创建时间排序，最新的任务在最右边，所以会先显示
+                    forOwnRight(filteredTasks, (task, id) => {
+                        const taskElement = this.createTaskElement(task);
+                        this.taskList.appendChild(taskElement);
+                    });
+                }
+            }
+
+            getFilteredTasks() {
+                const filteredTasks = {};
+
+                // 根据当前过滤条件筛选任务
+                forOwnRight(this.tasks, (task, id) => {
+                    if (
+                        this.currentFilter === 'all' ||
+                        (this.currentFilter === 'completed' && task.completed) ||
+                        (this.currentFilter === task.priority && !task.completed)
+                    ) {
+                        filteredTasks[id] = task;
+                    }
+                });
+
+                return filteredTasks;
+            }
+
+            getFilterName() {
+                const filterNames = {
+                    'all': '',
+                    'high': '高优先级',
+                    'medium': '中优先级',
+                    'low': '低优先级',
+                    'completed': '已完成'
+                };
+                return filterNames[this.currentFilter];
+            }
+
+            createTaskElement(task) {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.dataset.id = task.id;
+
+                const priorityLabel = {
+                    'high': '高',
+                    'medium': '中',
+                    'low': '低'
+                };
+
+                li.innerHTML = `
+                    <div class="task-content">
+                        <span class="priority-badge priority-${task.priority}">${priorityLabel[task.priority]}</span>
+                        <span class="task-text">${task.text}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="complete-btn">${task.completed ? '撤销' : '完成'}</button>
+                        <button class="delete-btn">删除</button>
+                    </div>
+                `;
+
+                // 添加完成按钮事件
+                li.querySelector('.complete-btn').addEventListener('click', () => {
+                    this.toggleTaskCompletion(task.id);
+                });
+
+                // 添加删除按钮事件
+                li.querySelector('.delete-btn').addEventListener('click', () => {
+                    this.deleteTask(task.id);
+                });
+
+                return li;
+            }
+
+            updateStats() {
+                let total = 0;
+                let completed = 0;
+                let highPriority = 0;
+
+                forOwnRight(this.tasks, (task) => {
+                    total++;
+                    if (task.completed) completed++;
+                    if (task.priority === 'high' && !task.completed) highPriority++;
+                });
+
+                this.statsElements.total.textContent = total;
+                this.statsElements.completed.textContent = completed;
+                this.statsElements.highPriority.textContent = highPriority;
+            }
+        }
+
+        // 初始化任务管理系统
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskManager = new TaskManager();
+        });
+    </script>
+</body>
+
+</html>
