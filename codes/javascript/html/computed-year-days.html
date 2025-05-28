@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目进度跟踪系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input[type="date"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        input[type="date"]:focus,
+        input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .result-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: visible;
+            margin-top: 10px;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+            box-shadow: 0 0 6px rgba(46, 204, 113, 0.5);
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 5px;
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        .project-list {
+            margin-top: 30px;
+        }
+
+        .project-card {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .project-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .project-dates {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .project-progress {
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .today-marker {
+            position: relative;
+            z-index: 10;
+        }
+
+        .today-marker::after {
+            content: '今天';
+            position: absolute;
+            top: -30px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                transform: translateX(-50%) scale(1.05);
+            }
+
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        .today-line {
+            position: absolute;
+            height: 24px;
+            width: 3px;
+            background-color: #e74c3c;
+            top: -2px;
+            border-radius: 3px;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>项目进度跟踪系统</h1>
+            <p class="description">基于日期计算的项目进度管理工具</p>
+        </header>
+
+        <div class="form-group">
+            <label for="project-name">项目名称</label>
+            <input type="text" id="project-name" placeholder="请输入项目名称">
+        </div>
+
+        <div class="form-group">
+            <label for="start-date">项目开始日期</label>
+            <input type="date" id="start-date">
+        </div>
+
+        <div class="form-group">
+            <label for="end-date">项目截止日期</label>
+            <input type="date" id="end-date">
+        </div>
+
+        <div class="form-group">
+            <button id="calculate-btn">计算项目进度</button>
+            <button id="save-btn" style="margin-left: 10px; background-color: #27ae60;">保存项目</button>
+        </div>
+
+        <div id="error-message" class="error"></div>
+
+        <div id="result" class="result-container">
+            <div class="result-item">
+                <span class="result-label">项目名称:</span>
+                <span class="result-value" id="result-project-name"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">项目开始日期:</span>
+                <span class="result-value" id="result-start-date"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">项目截止日期:</span>
+                <span class="result-value" id="result-end-date"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">项目总天数:</span>
+                <span class="result-value" id="result-total-days"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">已经过去:</span>
+                <span class="result-value" id="result-days-passed"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">剩余天数:</span>
+                <span class="result-value" id="result-days-left"></span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                    <div class="today-marker" id="today-marker">
+                        <div class="today-line"></div>
+                    </div>
+                </div>
+                <div class="progress-text" id="progress-text"></div>
+            </div>
+        </div>
+
+        <div class="project-list">
+            <h2 style="margin-bottom: 15px;">已保存的项目</h2>
+            <div id="saved-projects"></div>
+        </div>
+    </div>
+
+    <script>
+        // 计算一年中的第几天
+        const computedYearDays = (year, month, day) => {
+            // 非闰年每个月天数
+            const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            const isLeapYear = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+            let days = day;
+            for (let i = 0; i < month - 1; i++) {
+                days += monthDays[i];
+            }
+            // 判断是否是闰年，如果是闰年则天数要多加1
+            if (isLeapYear(year) && month > 2) {
+                days++;
+            }
+            return days;
+        };
+
+        // 计算两个日期之间的天数差
+        const calculateDaysBetween = (startDate, endDate) => {
+            // 将日期转换为毫秒
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            // 计算两个日期之间的毫秒差，并转换为天数
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            return diffDays;
+        };
+
+        // 计算项目进度
+        const calculateProgress = () => {
+            const projectName = document.getElementById('project-name').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const errorMessage = document.getElementById('error-message');
+            const resultContainer = document.getElementById('result');
+
+            // 验证输入
+            if (!projectName) {
+                errorMessage.textContent = '请输入项目名称';
+                return;
+            }
+
+            if (!startDate) {
+                errorMessage.textContent = '请选择项目开始日期';
+                return;
+            }
+
+            if (!endDate) {
+                errorMessage.textContent = '请选择项目截止日期';
+                return;
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const today = new Date();
+
+            if (start > end) {
+                errorMessage.textContent = '项目开始日期不能晚于截止日期';
+                return;
+            }
+
+            errorMessage.textContent = '';
+
+            // 计算项目总天数
+            const totalDays = calculateDaysBetween(startDate, endDate);
+
+            // 计算已过去的天数
+            let daysPassed = 0;
+            if (today < start) {
+                daysPassed = 0;
+            } else if (today > end) {
+                daysPassed = totalDays;
+            } else {
+                daysPassed = calculateDaysBetween(startDate, today.toISOString().split('T')[0]);
+            }
+
+            // 计算剩余天数
+            const daysLeft = totalDays - daysPassed;
+
+            // 计算进度百分比
+            const progressPercentage = Math.min(100, Math.max(0, (daysPassed / totalDays) * 100));
+
+            // 格式化日期显示
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+            };
+
+            // 更新结果显示
+            document.getElementById('result-project-name').textContent = projectName;
+            document.getElementById('result-start-date').textContent = formatDate(startDate);
+            document.getElementById('result-end-date').textContent = formatDate(endDate);
+            document.getElementById('result-total-days').textContent = `${totalDays}天`;
+            document.getElementById('result-days-passed').textContent = `${daysPassed}天`;
+            document.getElementById('result-days-left').textContent = `${daysLeft}天`;
+
+            // 更新进度条
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const todayMarker = document.getElementById('today-marker');
+
+            progressFill.style.width = `${progressPercentage}%`;
+            progressText.textContent = `项目进度: ${progressPercentage.toFixed(1)}%`;
+
+            // 设置今天的标记位置
+            if (today >= start && today <= end) {
+                const todayPercentage = (calculateDaysBetween(startDate, today.toISOString().split('T')[0]) / totalDays) * 100;
+                todayMarker.style.display = 'block';
+                todayMarker.style.left = `${todayPercentage}%`;
+            } else {
+                todayMarker.style.display = 'none';
+            }
+
+            // 显示结果容器
+            resultContainer.style.display = 'block';
+        };
+
+        // 保存项目到本地存储
+        const saveProject = () => {
+            const projectName = document.getElementById('project-name').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const errorMessage = document.getElementById('error-message');
+
+            // 验证输入
+            if (!projectName || !startDate || !endDate) {
+                errorMessage.textContent = '请填写完整的项目信息';
+                return;
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            if (start > end) {
+                errorMessage.textContent = '项目开始日期不能晚于截止日期';
+                return;
+            }
+
+            errorMessage.textContent = '';
+
+            // 获取已保存的项目
+            let savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
+
+            // 添加新项目
+            savedProjects.push({
+                id: Date.now(),
+                name: projectName,
+                startDate: startDate,
+                endDate: endDate
+            });
+
+            // 保存到本地存储
+            localStorage.setItem('projects', JSON.stringify(savedProjects));
+
+            // 更新项目列表显示
+            displaySavedProjects();
+
+            // 清空表单
+            document.getElementById('project-name').value = '';
+            document.getElementById('start-date').value = '';
+            document.getElementById('end-date').value = '';
+        };
+
+        // 显示已保存的项目
+        const displaySavedProjects = () => {
+            const savedProjectsContainer = document.getElementById('saved-projects');
+            const savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
+
+            if (savedProjects.length === 0) {
+                savedProjectsContainer.innerHTML = '<p>暂无保存的项目</p>';
+                return;
+            }
+
+            let projectsHTML = '';
+            const today = new Date();
+
+            savedProjects.forEach(project => {
+                const start = new Date(project.startDate);
+                const end = new Date(project.endDate);
+                const totalDays = calculateDaysBetween(project.startDate, project.endDate);
+
+                let daysPassed = 0;
+                if (today < start) {
+                    daysPassed = 0;
+                } else if (today > end) {
+                    daysPassed = totalDays;
+                } else {
+                    daysPassed = calculateDaysBetween(project.startDate, today.toISOString().split('T')[0]);
+                }
+
+                const progressPercentage = Math.min(100, Math.max(0, (daysPassed / totalDays) * 100));
+
+                // 格式化日期显示
+                const formatDate = (dateString) => {
+                    const date = new Date(dateString);
+                    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+                };
+
+                projectsHTML += `
+                    <div class="project-card" data-id="${project.id}">
+                        <div class="project-header">
+                            <div class="project-title">${project.name}</div>
+                            <div class="project-dates">${formatDate(project.startDate)} - ${formatDate(project.endDate)}</div>
+                        </div>
+                        <div class="project-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                                ${today >= start && today <= end ?
+                        `<div class="today-marker" style="left: ${(calculateDaysBetween(project.startDate, today.toISOString().split('T')[0]) / totalDays) * 100}%">
+                                        <div class="today-line"></div>
+                                    </div>` : ''}
+                            </div>
+                            <div class="progress-text">进度: ${progressPercentage.toFixed(1)}% (总计${totalDays}天，已过${daysPassed}天，剩余${totalDays - daysPassed}天)</div>
+                        </div>
+                        <button class="delete-btn" style="margin-top: 10px; background-color: #e74c3c;" onclick="deleteProject(${project.id})">删除项目</button>
+                    </div>
+                `;
+            });
+
+            savedProjectsContainer.innerHTML = projectsHTML;
+        };
+
+        // 删除项目
+        const deleteProject = (projectId) => {
+            let savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
+            savedProjects = savedProjects.filter(project => project.id !== projectId);
+            localStorage.setItem('projects', JSON.stringify(savedProjects));
+            displaySavedProjects();
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start-date').value = today;
+
+            // 设置默认结束日期为30天后
+            const defaultEndDate = new Date();
+            defaultEndDate.setDate(defaultEndDate.getDate() + 30);
+            document.getElementById('end-date').value = defaultEndDate.toISOString().split('T')[0];
+
+            // 添加事件监听器
+            document.getElementById('calculate-btn').addEventListener('click', calculateProgress);
+            document.getElementById('save-btn').addEventListener('click', saveProject);
+
+            // 显示已保存的项目
+            displaySavedProjects();
+
+            // 显示当前年份已过天数
+            const currentDate = new Date();
+            const yearDays = computedYearDays(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
+            const yearProgress = (yearDays / (isLeapYear(currentDate.getFullYear()) ? 366 : 365) * 100).toFixed(1);
+
+            const yearInfoDiv = document.createElement('div');
+            yearInfoDiv.style.textAlign = 'center';
+            yearInfoDiv.style.marginTop = '30px';
+            yearInfoDiv.style.padding = '10px';
+            yearInfoDiv.style.backgroundColor = '#f0f8ff';
+            yearInfoDiv.style.borderRadius = '4px';
+            yearInfoDiv.innerHTML = `<p>今天是${currentDate.getFullYear()}年第 <strong>${yearDays}</strong> 天，年度进度：<strong>${yearProgress}%</strong></p>`;
+
+            document.querySelector('.container').appendChild(yearInfoDiv);
+        });
+
+        // 判断是否是闰年
+        const isLeapYear = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    </script>
+</body>
+
+</html>
