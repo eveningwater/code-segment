@@ -282,7 +282,7 @@
 - [遍历对象每一个属性--2022-06-11](codes/javascript/for-own.md)
 - [倒转遍历对象每一个属性--2022-06-12](codes/javascript/for-own-right.md)
 - [计算一年过去了多少天--2022-06-13](codes/javascript/computed-year-days.md)
-- [表单对象转普通对象--2022-06-14](codes/javascript/formToObject.md)
+- [表单对象转普通对象--2022-06-14](codes/javascript/form-to-object.md)
 - [格式化时间--2022-06-14](codes/javascript/formatDuration.md)
 - [格式化数字--2022-06-17](codes/javascript/formatNumber.md)
 - [格式化秒--2022-06-18](codes/javascript/formatSeconds.md)
