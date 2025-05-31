@@ -273,7 +273,7 @@
 - [计算一年过去了多少天--2022-06-13](codes/javascript/computed-year-days.md)
 - [表单对象转普通对象--2022-06-14](codes/javascript/form-to-object.md)
 - [格式化时间--2022-06-14](codes/javascript/format-duration.md)
-- [格式化数字--2022-06-17](codes/javascript/formatNumber.md)
+- [格式化数字--2022-06-17](codes/javascript/format-number.md)
 - [格式化秒--2022-06-18](codes/javascript/formatSeconds.md)
 - [计算元素出现的次数--2022-06-19](codes/javascript/frequencies.md)
 - [驼峰式转换成小写--2022-06-20](codes/javascript/from-camel-case.md)
