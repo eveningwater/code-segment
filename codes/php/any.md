@@ -18,6 +18,6 @@ function any($array,$func){
 
 ```php
 any([2, 3, 4, 5], function ($item) {
-  return $item < 2;
+  return $item < 3;
 }); // true
 ```

@@ -21,8 +21,8 @@ function deepFlatten($items){
             // array_push($res,$item);
             $res[] = $item;
         }
-        return $res;
     }
+    return $res;
 }
 ```
 
