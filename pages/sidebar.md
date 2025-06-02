@@ -274,7 +274,7 @@
 - [表单对象转普通对象--2022-06-14](codes/javascript/form-to-object.md)
 - [格式化时间--2022-06-14](codes/javascript/format-duration.md)
 - [格式化数字--2022-06-17](codes/javascript/format-number.md)
-- [格式化秒--2022-06-18](codes/javascript/formatSeconds.md)
+- [格式化秒--2022-06-18](codes/javascript/format-seconds.md)
 - [计算元素出现的次数--2022-06-19](codes/javascript/frequencies.md)
 - [驼峰式转换成小写--2022-06-20](codes/javascript/from-camel-case.md)
 - [时间戳转日期--2022-06-21](codes/javascript/fromTimestamp.md)
