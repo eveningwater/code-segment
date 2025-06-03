@@ -1,18 +1,865 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>frequencies</title>
+    <title>商品销售数据分析系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            padding-top: 20px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .data-badge {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .data-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .product-item {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-count {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .filter-section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .time-period-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .time-btn {
+            flex: 1;
+            text-align: center;
+        }
+
+        .highlight {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            color: white;
+        }
+
+        #topProductsList {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="container">
+        <header class="mb-4">
+            <h1 class="text-center mb-3">商品销售数据分析系统</h1>
+            <p class="text-center text-muted">基于frequencies方法的销售数据统计与可视化</p>
+        </header>
+
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>时间范围</h5>
+                    <div class="time-period-selector">
+                        <button class="btn btn-sm btn-outline-primary time-btn active" data-period="day">今日</button>
+                        <button class="btn btn-sm btn-outline-primary time-btn" data-period="week">本周</button>
+                        <button class="btn btn-sm btn-outline-primary time-btn" data-period="month">本月</button>
+                        <button class="btn btn-sm btn-outline-primary time-btn" data-period="year">全年</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5>商品类别</h5>
+                    <div id="categoryFilters" class="d-flex flex-wrap gap-2">
+                        <!-- 动态生成的类别过滤器 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>销售数据分布</span>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary active" data-chart="category">类别分布</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-chart="trend">销售趋势</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="mainChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <div class="data-badge" id="totalSales">0</div>
+                                <div class="data-label">总销售量</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <div class="data-badge" id="avgPerDay">0</div>
+                                <div class="data-label">日均销量</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <div class="data-badge" id="topCategory">-</div>
+                                <div class="data-label">热门类别</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">热销商品排行</div>
+                    <div class="card-body p-0">
+                        <div id="topProductsList" class="p-3">
+                            <!-- 动态生成的商品列表 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">购买频次分析</div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="frequencyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">数据分析报告</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>销售频次分析</h5>
+                        <p>通过对商品销售频次的分析，我们可以发现：</p>
+                        <ul id="frequencyInsights">
+                            <!-- 动态生成的分析见解 -->
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>库存优化建议</h5>
+                        <p>基于销售频次分析，系统提供以下库存优化建议：</p>
+                        <ul id="stockSuggestions">
+                            <!-- 动态生成的库存建议 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">加载中...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
     <script>
+        // frequencies 函数 - 计算数组中每个元素出现的频率
         const frequencies = arr =>
             arr.reduce((a, v) => ((a[v] = a[v] ? a[v] + 1 : 1), a), {});
-        console.log(frequencies(['a', 'b', 'a', 'c', 'a', 'a', 'b']));
-        console.log(frequencies([...'ball']));
+
+        // 模拟销售数据
+        const generateSalesData = () => {
+            const categories = ['电子产品', '服装', '食品', '家居', '美妆', '图书', '运动'];
+            const categoryColors = {
+                '电子产品': '#3498db',
+                '服装': '#e74c3c',
+                '食品': '#2ecc71',
+                '家居': '#f39c12',
+                '美妆': '#9b59b6',
+                '图书': '#1abc9c',
+                '运动': '#d35400'
+            };
+
+            const products = [
+                { id: 1, name: '智能手机', category: '电子产品', price: 2999 },
+                { id: 2, name: '笔记本电脑', category: '电子产品', price: 5999 },
+                { id: 3, name: '无线耳机', category: '电子产品', price: 899 },
+                { id: 4, name: '平板电脑', category: '电子产品', price: 3499 },
+                { id: 5, name: 'T恤', category: '服装', price: 129 },
+                { id: 6, name: '牛仔裤', category: '服装', price: 199 },
+                { id: 7, name: '连衣裙', category: '服装', price: 259 },
+                { id: 8, name: '夹克', category: '服装', price: 359 },
+                { id: 9, name: '坚果礼盒', category: '食品', price: 99 },
+                { id: 10, name: '巧克力', category: '食品', price: 59 },
+                { id: 11, name: '有机蔬菜', category: '食品', price: 39 },
+                { id: 12, name: '进口牛奶', category: '食品', price: 79 },
+                { id: 13, name: '沙发', category: '家居', price: 2399 },
+                { id: 14, name: '床垫', category: '家居', price: 1599 },
+                { id: 15, name: '餐桌', category: '家居', price: 1299 },
+                { id: 16, name: '衣柜', category: '家居', price: 1899 },
+                { id: 17, name: '口红', category: '美妆', price: 219 },
+                { id: 18, name: '面霜', category: '美妆', price: 329 },
+                { id: 19, name: '洗面奶', category: '美妆', price: 89 },
+                { id: 20, name: '眼影盘', category: '美妆', price: 269 },
+                { id: 21, name: '小说', category: '图书', price: 49 },
+                { id: 22, name: '教材', category: '图书', price: 79 },
+                { id: 23, name: '童书', category: '图书', price: 39 },
+                { id: 24, name: '杂志', category: '图书', price: 19 },
+                { id: 25, name: '跑步鞋', category: '运动', price: 499 },
+                { id: 26, name: '瑜伽垫', category: '运动', price: 129 },
+                { id: 27, name: '哑铃', category: '运动', price: 159 },
+                { id: 28, name: '运动服', category: '运动', price: 229 }
+            ];
+
+            // 生成过去30天的销售数据
+            const sales = [];
+            const now = new Date();
+
+            // 为每个产品设置不同的销售概率
+            const popularityFactors = {};
+            products.forEach(product => {
+                // 随机生成每个产品的受欢迎程度 (0.5-3)
+                popularityFactors[product.id] = 0.5 + Math.random() * 2.5;
+            });
+
+            // 生成销售数据
+            for (let i = 0; i < 1000; i++) {
+                // 随机选择一个日期（过去30天内）
+                const date = new Date(now);
+                date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+
+                // 根据产品受欢迎程度加权随机选择产品
+                let totalWeight = 0;
+                products.forEach(product => {
+                    totalWeight += popularityFactors[product.id];
+                });
+
+                let random = Math.random() * totalWeight;
+                let selectedProduct = null;
+
+                for (const product of products) {
+                    random -= popularityFactors[product.id];
+                    if (random <= 0) {
+                        selectedProduct = product;
+                        break;
+                    }
+                }
+
+                // 如果没有选中产品（理论上不应该发生），选择第一个产品
+                if (!selectedProduct) {
+                    selectedProduct = products[0];
+                }
+
+                // 添加到销售数据
+                sales.push({
+                    id: i + 1,
+                    productId: selectedProduct.id,
+                    productName: selectedProduct.name,
+                    category: selectedProduct.category,
+                    price: selectedProduct.price,
+                    quantity: Math.floor(Math.random() * 3) + 1, // 1-3件
+                    date: date
+                });
+            }
+
+            return { sales, products, categories, categoryColors };
+        };
+
+        // 应用状态
+        const appState = {
+            currentPeriod: 'day',
+            selectedCategories: [],
+            chartType: 'category',
+            data: null
+        };
+
+        // 初始化应用
+        const initApp = () => {
+            // 生成模拟数据
+            appState.data = generateSalesData();
+
+            // 初始化类别过滤器
+            initCategoryFilters();
+
+            // 初始化图表
+            initCharts();
+
+            // 更新数据显示
+            updateDataDisplay();
+
+            // 添加事件监听器
+            addEventListeners();
+
+            // 隐藏加载中遮罩
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 800);
+        };
+
+        // 初始化类别过滤器
+        const initCategoryFilters = () => {
+            const categoryFiltersContainer = document.getElementById('categoryFilters');
+            categoryFiltersContainer.innerHTML = '';
+
+            // 添加"全部"选项
+            const allBtn = document.createElement('button');
+            allBtn.className = 'btn btn-sm btn-outline-primary active';
+            allBtn.textContent = '全部';
+            allBtn.dataset.category = 'all';
+            categoryFiltersContainer.appendChild(allBtn);
+
+            // 添加每个类别
+            appState.data.categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-sm btn-outline-primary';
+                btn.textContent = category;
+                btn.dataset.category = category;
+                categoryFiltersContainer.appendChild(btn);
+            });
+        };
+
+        // 初始化图表
+        let mainChart, frequencyChart;
+        const initCharts = () => {
+            // 主图表
+            const mainChartCtx = document.getElementById('mainChart').getContext('2d');
+            mainChart = new Chart(mainChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '销售数量',
+                        data: [],
+                        backgroundColor: [],
+                        borderColor: [],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `销售数量: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 频次图表
+            const frequencyChartCtx = document.getElementById('frequencyChart').getContext('2d');
+            frequencyChart = new Chart(frequencyChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1次', '2次', '3次', '4次', '5次以上'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#3498db',
+                            '#2ecc71',
+                            '#f39c12',
+                            '#e74c3c',
+                            '#9b59b6'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 更新图表数据
+            updateCharts();
+        };
+
+        // 更新图表数据
+        const updateCharts = () => {
+            const filteredSales = getFilteredSales();
+
+            if (appState.chartType === 'category') {
+                updateCategoryChart(filteredSales);
+            } else {
+                updateTrendChart(filteredSales);
+            }
+
+            updateFrequencyChart(filteredSales);
+        };
+
+        // 更新类别图表
+        const updateCategoryChart = (sales) => {
+            // 使用frequencies函数计算每个类别的销售数量
+            const categorySales = frequencies(sales.map(sale => sale.category));
+
+            // 准备图表数据
+            const labels = Object.keys(categorySales);
+            const data = Object.values(categorySales);
+            const backgroundColor = labels.map(category => appState.data.categoryColors[category]);
+
+            // 更新图表
+            mainChart.data.labels = labels;
+            mainChart.data.datasets[0].data = data;
+            mainChart.data.datasets[0].backgroundColor = backgroundColor;
+            mainChart.data.datasets[0].borderColor = backgroundColor;
+            mainChart.options.scales.x.title = { display: true, text: '商品类别' };
+            mainChart.options.scales.y.title = { display: true, text: '销售数量' };
+            mainChart.update();
+        };
+
+        // 更新趋势图表
+        const updateTrendChart = (sales) => {
+            // 按日期分组
+            const salesByDate = {};
+            const now = new Date();
+            const dateFormat = { year: 'numeric', month: '2-digit', day: '2-digit' };
+
+            // 初始化日期（过去7天）
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toLocaleDateString('zh-CN', dateFormat);
+                salesByDate[dateStr] = 0;
+            }
+
+            // 统计每天的销售量
+            sales.forEach(sale => {
+                const dateStr = sale.date.toLocaleDateString('zh-CN', dateFormat);
+                if (salesByDate[dateStr] !== undefined) {
+                    salesByDate[dateStr] += 1;
+                }
+            });
+
+            // 准备图表数据
+            const labels = Object.keys(salesByDate);
+            const data = Object.values(salesByDate);
+
+            // 更新图表
+            mainChart.data.labels = labels;
+            mainChart.data.datasets[0].data = data;
+            mainChart.data.datasets[0].backgroundColor = Array(labels.length).fill('#3498db');
+            mainChart.data.datasets[0].borderColor = Array(labels.length).fill('#3498db');
+            mainChart.options.scales.x.title = { display: true, text: '日期' };
+            mainChart.options.scales.y.title = { display: true, text: '销售数量' };
+            mainChart.update();
+        };
+
+        // 更新频次图表
+        const updateFrequencyChart = (sales) => {
+            // 使用frequencies函数计算每个客户购买的频次
+            const customerIds = Array.from(new Set(sales.map(sale => sale.id % 100))); // 模拟客户ID
+            const purchaseCounts = [];
+
+            customerIds.forEach(customerId => {
+                const customerPurchases = sales.filter(sale => sale.id % 100 === customerId);
+                purchaseCounts.push(customerPurchases.length);
+            });
+
+            // 计算购买频次分布
+            const frequencyDistribution = [0, 0, 0, 0, 0]; // 1次, 2次, 3次, 4次, 5次以上
+
+            purchaseCounts.forEach(count => {
+                if (count >= 5) {
+                    frequencyDistribution[4]++;
+                } else if (count > 0) {
+                    frequencyDistribution[count - 1]++;
+                }
+            });
+
+            // 更新图表
+            frequencyChart.data.datasets[0].data = frequencyDistribution;
+            frequencyChart.update();
+        };
+
+        // 获取过滤后的销售数据
+        const getFilteredSales = () => {
+            let filteredSales = [...appState.data.sales];
+            const now = new Date();
+
+            // 按时间段过滤
+            if (appState.currentPeriod === 'day') {
+                // 今天
+                filteredSales = filteredSales.filter(sale => {
+                    return sale.date.toDateString() === now.toDateString();
+                });
+            } else if (appState.currentPeriod === 'week') {
+                // 本周（过去7天）
+                const weekAgo = new Date(now);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                filteredSales = filteredSales.filter(sale => sale.date >= weekAgo);
+            } else if (appState.currentPeriod === 'month') {
+                // 本月（过去30天）
+                const monthAgo = new Date(now);
+                monthAgo.setDate(monthAgo.getDate() - 30);
+                filteredSales = filteredSales.filter(sale => sale.date >= monthAgo);
+            }
+            // 'year' 显示所有数据，不需要过滤
+
+            // 按类别过滤
+            if (appState.selectedCategories.length > 0) {
+                filteredSales = filteredSales.filter(sale =>
+                    appState.selectedCategories.includes(sale.category)
+                );
+            }
+
+            return filteredSales;
+        };
+
+        // 更新数据显示
+        const updateDataDisplay = () => {
+            const filteredSales = getFilteredSales();
+
+            // 更新总销售量
+            document.getElementById('totalSales').textContent = filteredSales.length;
+
+            // 更新日均销量
+            let daysCount = 1;
+            if (appState.currentPeriod === 'week') {
+                daysCount = 7;
+            } else if (appState.currentPeriod === 'month') {
+                daysCount = 30;
+            } else if (appState.currentPeriod === 'year') {
+                daysCount = 365;
+            }
+
+            const avgPerDay = Math.round(filteredSales.length / daysCount);
+            document.getElementById('avgPerDay').textContent = avgPerDay;
+
+            // 更新热门类别
+            if (filteredSales.length > 0) {
+                const categoryCounts = frequencies(filteredSales.map(sale => sale.category));
+                const topCategory = Object.entries(categoryCounts)
+                    .sort((a, b) => b[1] - a[1])[0][0];
+                document.getElementById('topCategory').textContent = topCategory;
+            } else {
+                document.getElementById('topCategory').textContent = '-';
+            }
+
+            // 更新热销商品列表
+            updateTopProductsList(filteredSales);
+
+            // 更新分析见解
+            updateAnalyticsInsights(filteredSales);
+        };
+
+        // 更新热销商品列表
+        const updateTopProductsList = (sales) => {
+            const topProductsContainer = document.getElementById('topProductsList');
+            topProductsContainer.innerHTML = '';
+
+            if (sales.length === 0) {
+                topProductsContainer.innerHTML = '<p class="text-center text-muted my-3">暂无数据</p>';
+                return;
+            }
+
+            // 使用frequencies函数计算每个商品的销售数量
+            const productSales = frequencies(sales.map(sale => sale.productName));
+
+            // 排序并获取前10个热销商品
+            const topProducts = Object.entries(productSales)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            // 创建商品列表
+            topProducts.forEach((product, index) => {
+                const [productName, count] = product;
+                const productInfo = sales.find(sale => sale.productName === productName);
+
+                const productItem = document.createElement('div');
+                productItem.className = 'product-item d-flex justify-content-between align-items-center';
+                if (index === 0) productItem.classList.add('highlight');
+
+                const productDetails = document.createElement('div');
+
+                const nameElement = document.createElement('div');
+                nameElement.className = 'fw-bold';
+                nameElement.textContent = productName;
+
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'small text-muted d-flex align-items-center';
+
+                const categoryTag = document.createElement('span');
+                categoryTag.className = 'category-tag me-1';
+                categoryTag.style.backgroundColor = appState.data.categoryColors[productInfo.category];
+                categoryTag.textContent = productInfo.category;
+
+                categoryElement.appendChild(categoryTag);
+                categoryElement.appendChild(document.createTextNode(`¥${productInfo.price}`));
+
+                productDetails.appendChild(nameElement);
+                productDetails.appendChild(categoryElement);
+
+                const countElement = document.createElement('div');
+                countElement.className = 'product-count';
+                countElement.textContent = count;
+
+                productItem.appendChild(productDetails);
+                productItem.appendChild(countElement);
+
+                topProductsContainer.appendChild(productItem);
+            });
+        };
+
+        // 更新分析见解
+        const updateAnalyticsInsights = (sales) => {
+            const frequencyInsightsContainer = document.getElementById('frequencyInsights');
+            const stockSuggestionsContainer = document.getElementById('stockSuggestions');
+
+            frequencyInsightsContainer.innerHTML = '';
+            stockSuggestionsContainer.innerHTML = '';
+
+            if (sales.length === 0) {
+                frequencyInsightsContainer.innerHTML = '<li>暂无足够数据进行分析</li>';
+                stockSuggestionsContainer.innerHTML = '<li>暂无足够数据提供建议</li>';
+                return;
+            }
+
+            // 使用frequencies函数分析数据
+            const categorySales = frequencies(sales.map(sale => sale.category));
+            const productSales = frequencies(sales.map(sale => sale.productName));
+
+            // 排序获取最热门和最不热门的类别
+            const sortedCategories = Object.entries(categorySales).sort((a, b) => b[1] - a[1]);
+            const topCategory = sortedCategories[0];
+            const bottomCategory = sortedCategories[sortedCategories.length - 1];
+
+            // 排序获取最热门和最不热门的商品
+            const sortedProducts = Object.entries(productSales).sort((a, b) => b[1] - a[1]);
+            const topProduct = sortedProducts[0];
+            const bottomProducts = sortedProducts.slice(-3);
+
+            // 添加频次分析见解
+            const insights = [
+                `<strong>${topCategory[0]}</strong> 是最受欢迎的类别，销售量为 ${topCategory[1]} 件，占总销售量的 ${Math.round(topCategory[1] / sales.length * 100)}%。`,
+                `<strong>${topProduct[0]}</strong> 是最畅销的单品，销售量为 ${topProduct[1]} 件。`,
+                `<strong>${bottomCategory[0]}</strong> 类别的销售量最低，仅售出 ${bottomCategory[1]} 件。`,
+                `客户平均购买频次为 ${(sales.length / (sales.length * 0.7)).toFixed(1)} 次。`
+            ];
+
+            insights.forEach(insight => {
+                const li = document.createElement('li');
+                li.innerHTML = insight;
+                frequencyInsightsContainer.appendChild(li);
+            });
+
+            // 添加库存建议
+            const suggestions = [
+                `增加 <strong>${topCategory[0]}</strong> 类别的库存，特别是 <strong>${topProduct[0]}</strong>。`,
+                `考虑对 <strong>${bottomCategory[0]}</strong> 类别进行促销活动，提高销售量。`,
+                `以下商品销售缓慢，建议减少库存：${bottomProducts.map(p => `<strong>${p[0]}</strong>`).join('、')}。`,
+                `根据购买频次分析，建议针对多次购买的客户提供会员优惠，提高客户忠诚度。`
+            ];
+
+            suggestions.forEach(suggestion => {
+                const li = document.createElement('li');
+                li.innerHTML = suggestion;
+                stockSuggestionsContainer.appendChild(li);
+            });
+        };
+
+        // 添加事件监听器
+        const addEventListeners = () => {
+            // 时间范围选择
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    appState.currentPeriod = btn.dataset.period;
+                    updateCharts();
+                    updateDataDisplay();
+                });
+            });
+
+            // 类别过滤器
+            document.getElementById('categoryFilters').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const category = e.target.dataset.category;
+
+                    if (category === 'all') {
+                        // 点击"全部"按钮
+                        document.querySelectorAll('#categoryFilters button').forEach(btn => {
+                            if (btn.dataset.category === 'all') {
+                                btn.classList.add('active');
+                            } else {
+                                btn.classList.remove('active');
+                            }
+                        });
+                        appState.selectedCategories = [];
+                    } else {
+                        // 点击具体类别按钮
+                        document.querySelector('#categoryFilters button[data-category="all"]').classList.remove('active');
+                        e.target.classList.toggle('active');
+
+                        if (e.target.classList.contains('active')) {
+                            // 添加到选中类别
+                            appState.selectedCategories.push(category);
+                        } else {
+                            // 从选中类别中移除
+                            appState.selectedCategories = appState.selectedCategories.filter(c => c !== category);
+                        }
+
+                        // 如果没有选中任何类别，自动选中"全部"
+                        if (appState.selectedCategories.length === 0) {
+                            document.querySelector('#categoryFilters button[data-category="all"]').classList.add('active');
+                        }
+                    }
+
+                    updateCharts();
+                    updateDataDisplay();
+                }
+            });
+
+            // 图表类型切换
+            document.querySelectorAll('[data-chart]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-chart]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    appState.chartType = btn.dataset.chart;
+                    updateCharts();
+                });
+            });
+        };
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 

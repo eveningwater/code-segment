@@ -11,6 +11,10 @@ const frequencies = arr =>
   arr.reduce((a, v) => ((a[v] = a[v] ? a[v] + 1 : 1), a), {});
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/frequencies.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,6 +23,8 @@ frequencies([...'ball']); // { b: 1, a: 1, l: 2 }
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/frequencies.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/frequencies.html" data-language="html"></div>
 
