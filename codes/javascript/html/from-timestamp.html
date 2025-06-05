@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社交媒体时间轴 - 时间戳转换应用</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --primary-color: #1da1f2;
+            --secondary-color: #657786;
+            --light-color: #f5f8fa;
+            --border-color: #e1e8ed;
+            --hover-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--light-color);
+            color: #14171a;
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        .header {
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .post-card {
+            background-color: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .post-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 12px;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .user-name {
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+
+        .user-handle {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        .post-time {
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .post-time i {
+            margin-right: 4px;
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .action-btn {
+            color: var(--secondary-color);
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background-color: var(--hover-color);
+            color: var(--primary-color);
+        }
+
+        .action-btn i {
+            margin-right: 5px;
+        }
+
+        .time-format-controls {
+            background-color: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .time-format-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .timestamp-input {
+            margin-bottom: 15px;
+        }
+
+        .timestamp-display {
+            font-family: monospace;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .format-option {
+            margin-right: 10px;
+        }
+
+        .relative-time {
+            font-style: italic;
+            color: var(--primary-color);
+        }
+
+        .tooltip-inner {
+            max-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">社交媒体时间轴</h1>
+                <div class="d-flex align-items-center">
+                    <span class="me-2">时间戳转换演示</span>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                        data-bs-target="#timestampModal">
+                        <i class="bi bi-clock"></i> 时间戳转换器
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="timeline-container">
+            <div class="time-format-controls">
+                <div class="time-format-title">时间显示格式</div>
+                <div class="form-check form-check-inline format-option">
+                    <input class="form-check-input" type="radio" name="timeFormat" id="formatRelative" value="relative"
+                        checked>
+                    <label class="form-check-label" for="formatRelative">相对时间</label>
+                </div>
+                <div class="form-check form-check-inline format-option">
+                    <input class="form-check-input" type="radio" name="timeFormat" id="formatAbsolute" value="absolute">
+                    <label class="form-check-label" for="formatAbsolute">绝对时间</label>
+                </div>
+                <div class="form-check form-check-inline format-option">
+                    <input class="form-check-input" type="radio" name="timeFormat" id="formatDetailed" value="detailed">
+                    <label class="form-check-label" for="formatDetailed">详细时间</label>
+                </div>
+            </div>
+
+            <div id="posts-container">
+                <!-- 帖子将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 时间戳转换器模态框 -->
+    <div class="modal fade" id="timestampModal" tabindex="-1" aria-labelledby="timestampModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="timestampModalLabel">时间戳转换器</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="customTimestamp" class="form-label">输入Unix时间戳（秒）</label>
+                        <input type="number" class="form-control" id="customTimestamp" placeholder="例如：1602162242">
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-primary" id="convertTimestamp">转换</button>
+                        <button class="btn btn-outline-secondary ms-2" id="useCurrentTime">使用当前时间</button>
+                    </div>
+                    <div class="timestamp-display" id="timestampResult">
+                        转换结果将显示在这里
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // fromTimestamp 函数 - 将Unix时间戳转换为Date对象
+        const fromTimestamp = timestamp => new Date(timestamp * 1000);
+
+        // 格式化日期的辅助函数
+        const formatDate = (date, format = 'relative') => {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000); // 差异（秒）
+
+            if (format === 'relative') {
+                // 相对时间格式
+                if (diff < 60) return `${diff}秒前`;
+                if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`;
+                if (diff < 86400) return `${Math.floor(diff / 3600)}小时前`;
+                if (diff < 2592000) return `${Math.floor(diff / 86400)}天前`;
+                if (diff < 31536000) return `${Math.floor(diff / 2592000)}个月前`;
+                return `${Math.floor(diff / 31536000)}年前`;
+            } else if (format === 'absolute') {
+                // 绝对时间格式 (年-月-日)
+                return date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } else if (format === 'detailed') {
+                // 详细时间格式 (年-月-日 时:分)
+                return date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        };
+
+        // 模拟社交媒体帖子数据
+        const posts = [
+            {
+                id: 1,
+                user: {
+                    name: '张小明',
+                    handle: '@xiaoming',
+                    avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
+                },
+                content: '今天参加了一个很棒的技术分享会，学到了很多关于前端开发的新知识！#前端开发 #技术分享',
+                image: 'https://picsum.photos/600/400?random=1',
+                timestamp: Math.floor(Date.now() / 1000) - 3600, // 1小时前
+                likes: 42,
+                comments: 7,
+                shares: 3
+            },
+            {
+                id: 2,
+                user: {
+                    name: '李小红',
+                    handle: '@xiaohong',
+                    avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
+                },
+                content: '刚刚完成了新项目的部署，终于可以好好休息一下了！感谢团队的每一位成员的付出和努力。 #项目上线 #团队合作',
+                image: 'https://picsum.photos/600/400?random=2',
+                timestamp: Math.floor(Date.now() / 1000) - 86400, // 1天前
+                likes: 128,
+                comments: 24,
+                shares: 12
+            },
+            {
+                id: 3,
+                user: {
+                    name: '王大力',
+                    handle: '@dali',
+                    avatar: 'https://randomuser.me/api/portraits/men/67.jpg'
+                },
+                content: '分享一个我最近发现的JavaScript时间戳转换技巧：const fromTimestamp = timestamp => new Date(timestamp * 1000); 简单实用！',
+                timestamp: Math.floor(Date.now() / 1000) - 259200, // 3天前
+                likes: 89,
+                comments: 15,
+                shares: 7
+            },
+            {
+                id: 4,
+                user: {
+                    name: '赵小雨',
+                    handle: '@xiaoyu',
+                    avatar: 'https://randomuser.me/api/portraits/women/17.jpg'
+                },
+                content: '周末去了趟杭州西湖，风景真美！推荐大家有时间也去看看～',
+                image: 'https://picsum.photos/600/400?random=3',
+                timestamp: Math.floor(Date.now() / 1000) - 432000, // 5天前
+                likes: 215,
+                comments: 31,
+                shares: 18
+            },
+            {
+                id: 5,
+                user: {
+                    name: '技术日报',
+                    handle: '@techDaily',
+                    avatar: 'https://randomuser.me/api/portraits/lego/5.jpg'
+                },
+                content: '【今日科技要闻】\n1. 谷歌发布最新AI模型\n2. 苹果计划明年推出折叠屏iPhone\n3. 特斯拉自动驾驶技术获重大突破\n4. 国内芯片制造取得新进展',
+                timestamp: Math.floor(Date.now() / 1000) - 604800, // 7天前
+                likes: 367,
+                comments: 42,
+                shares: 95
+            },
+            {
+                id: 6,
+                user: {
+                    name: '程序员小张',
+                    handle: '@coder_zhang',
+                    avatar: 'https://randomuser.me/api/portraits/men/22.jpg'
+                },
+                content: '回顾2023年的编程语言排行榜，JavaScript依然保持强劲！Python紧随其后，Rust增长最快。大家都在用什么语言开发呢？ #编程语言 #技术趋势',
+                image: 'https://picsum.photos/600/400?random=4',
+                timestamp: 1672502400, // 2023-01-01 00:00:00
+                likes: 492,
+                comments: 87,
+                shares: 56
+            }
+        ];
+
+        // 渲染帖子列表
+        const renderPosts = (format = 'relative') => {
+            const postsContainer = document.getElementById('posts-container');
+            postsContainer.innerHTML = '';
+
+            posts.forEach(post => {
+                // 使用fromTimestamp函数将时间戳转换为Date对象
+                const postDate = fromTimestamp(post.timestamp);
+                // 格式化日期显示
+                const formattedDate = formatDate(postDate, format);
+                // 详细时间用于工具提示
+                const detailedDate = postDate.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                const postElement = document.createElement('div');
+                postElement.className = 'post-card';
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <img src="${post.user.avatar}" alt="${post.user.name}" class="avatar">
+                        <div class="user-info">
+                            <h5 class="user-name">${post.user.name}</h5>
+                            <div class="user-handle">${post.user.handle}</div>
+                        </div>
+                        <div class="post-time" data-bs-toggle="tooltip" title="${detailedDate}">
+                            <i class="bi bi-clock"></i>
+                            <span class="time-text">${formattedDate}</span>
+                        </div>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.image ? `<img src="${post.image}" alt="Post image" class="post-image">` : ''}
+                    <div class="post-actions">
+                        <button class="action-btn">
+                            <i class="bi bi-heart"></i> ${post.likes}
+                        </button>
+                        <button class="action-btn">
+                            <i class="bi bi-chat"></i> ${post.comments}
+                        </button>
+                        <button class="action-btn">
+                            <i class="bi bi-share"></i> ${post.shares}
+                        </button>
+                    </div>
+                `;
+
+                postsContainer.appendChild(postElement);
+            });
+
+            // 初始化工具提示
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        };
+
+        // 初始化时间戳转换器
+        const initTimestampConverter = () => {
+            const convertBtn = document.getElementById('convertTimestamp');
+            const useCurrentTimeBtn = document.getElementById('useCurrentTime');
+            const timestampInput = document.getElementById('customTimestamp');
+            const resultDisplay = document.getElementById('timestampResult');
+
+            convertBtn.addEventListener('click', () => {
+                const timestamp = parseInt(timestampInput.value.trim());
+                if (isNaN(timestamp)) {
+                    resultDisplay.innerHTML = '<span class="text-danger">请输入有效的时间戳</span>';
+                    return;
+                }
+
+                // 使用fromTimestamp函数转换时间戳
+                const date = fromTimestamp(timestamp);
+                displayTimestampResult(date, timestamp);
+            });
+
+            useCurrentTimeBtn.addEventListener('click', () => {
+                const now = new Date();
+                const timestamp = Math.floor(now.getTime() / 1000);
+                timestampInput.value = timestamp;
+                displayTimestampResult(now, timestamp);
+            });
+
+            function displayTimestampResult(date, timestamp) {
+                const formattedDate = date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    weekday: 'long'
+                });
+
+                const relativeTime = formatDate(date, 'relative');
+
+                resultDisplay.innerHTML = `
+                    <div><strong>Unix时间戳:</strong> ${timestamp}</div>
+                    <div><strong>日期时间:</strong> ${formattedDate}</div>
+                    <div><strong>相对时间:</strong> <span class="relative-time">${relativeTime}</span></div>
+                    <div><strong>ISO格式:</strong> ${date.toISOString()}</div>
+                `;
+            }
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 渲染帖子列表
+            renderPosts();
+
+            // 监听时间格式切换
+            document.querySelectorAll('input[name="timeFormat"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    renderPosts(e.target.value);
+                });
+            });
+
+            // 初始化时间戳转换器
+            initTimestampConverter();
+        });
+    </script>
+</body>
+
+</html>

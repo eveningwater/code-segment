@@ -288,7 +288,7 @@
 - [格式化秒--2022-06-18](codes/javascript/format-seconds.md)
 - [计算元素出现的次数--2022-06-19](codes/javascript/frequencies.md)
 - [驼峰式转换成小写--2022-06-20](codes/javascript/from-camel-case.md)
-- [时间戳转日期--2022-06-21](codes/javascript/fromTimestamp.md)
+- [时间戳转日期--2022-06-21](codes/javascript/from-timestamp.md)
 - [冻结 Set 对象--2022-06-22](codes/javascript/frozenSet.md)
 - [全屏--2022-06-23](codes/javascript/fullscreen.md)
 - [获取函数名--2022-06-24](codes/javascript/functionName.md)
