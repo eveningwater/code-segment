@@ -11,15 +11,15 @@
 const fromTimestamp = timestamp => new Date(timestamp * 1000);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/from-timestamp.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
 fromTimestamp(1602162242); // 2020-10-08T13:04:02.000Z
 ```
-
-ts 代码如下:
-
-<div class="code-editor" data-url="codes/javascript/ts/from-timestamp.ts" data-language="typescript"></div>
 
 > 应用场景
 
