@@ -1,5 +1,5 @@
-|  标题   | 标签  |
-|  ----  | ----  |
+| 标题             | 标签            |
+| ---------------- | --------------- |
 | fullscreen(全屏) | browser(浏览器) |
 
 在全屏模式下打开或关闭元素。
@@ -13,6 +13,10 @@
 const fullscreen = (mode = true,el = 'body') => mode ? document.querySelector(el).requestFullscreen() : document.exitFullscreen();
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/fullscreen.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,6 +25,8 @@ fullscreen(false); // Exits fullscreen mode
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/fullscreen.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/fullscreen.html" data-language="html"></div>
 

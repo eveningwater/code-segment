@@ -1,38 +1,636 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fullscreen</title>
+    <title>智慧课堂 - 视频播放器</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        body:fullscreen {
-            background-color: #2396ef;
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #34495e;
+            --light-color: #ecf0f1;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
         }
-        body,html {
-            height: 100%;
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-        body {
+
+        body,
+        html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            padding: 15px 0;
+            background-color: var(--dark-color);
+            color: white;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .video-container {
+            position: relative;
+            margin: 20px 0;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-player {
+            width: 100%;
+            display: block;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            padding: 15px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-container:hover .controls,
+        .controls.active {
+            opacity: 1;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            width: 0;
+        }
+
+        .progress-hover {
+            position: absolute;
+            top: -25px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .buttons-container {
+            display: flex;
             align-items: center;
-            font-size: 5em;
-            color:#2396ef;
+            justify-content: space-between;
+        }
+
+        .left-controls,
+        .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .control-btn:hover {
+            opacity: 1;
+        }
+
+        .control-btn.active {
+            color: var(--primary-color);
+        }
+
+        .time-display {
+            color: white;
+            font-size: 0.9rem;
+            margin: 0 10px;
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .volume-slider {
+            width: 80px;
+            height: 5px;
+            -webkit-appearance: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+            margin-left: 10px;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background-color: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .playback-rate {
+            position: relative;
+        }
+
+        .rate-options {
+            position: absolute;
+            bottom: 40px;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 100px;
+        }
+
+        .rate-options.active {
+            display: flex;
+        }
+
+        .rate-option {
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .rate-option:hover,
+        .rate-option.active {
+            background-color: var(--primary-color);
+        }
+
+        .video-info {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .video-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+
+        .video-description {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #777;
+        }
+
+        .stat-item i {
+            color: var(--primary-color);
+        }
+
+        /* 全屏样式 */
+        .video-container:fullscreen {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .video-container:fullscreen .video-player {
+            height: 100%;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .buttons-container {
+                flex-wrap: wrap;
+            }
+
+            .time-display {
+                font-size: 0.8rem;
+            }
+
+            .control-btn {
+                font-size: 1rem;
+            }
+
+            .volume-slider {
+                width: 60px;
+            }
         }
     </style>
 </head>
+
 <body>
-    随意点击页面即可进入/退出全屏
+    <header>
+        <div class="container">
+            <h1>智慧课堂 - 视频播放器</h1>
+            <p>基于HTML5和JavaScript的高级视频播放器，支持全屏播放和多种控制功能</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="video-container" id="videoContainer">
+            <video class="video-player" id="videoPlayer">
+                <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+                您的浏览器不支持HTML5视频播放。
+            </video>
+
+            <div class="controls" id="controls">
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-hover" id="progressHover"></div>
+                </div>
+
+                <div class="buttons-container">
+                    <div class="left-controls">
+                        <button class="control-btn" id="playPauseBtn">
+                            <i class="bi bi-play-fill" id="playIcon"></i>
+                        </button>
+
+                        <div class="volume-container">
+                            <button class="control-btn" id="muteBtn">
+                                <i class="bi bi-volume-up-fill" id="volumeIcon"></i>
+                            </button>
+                            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1"
+                                value="1">
+                        </div>
+
+                        <div class="time-display">
+                            <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="right-controls">
+                        <div class="time-display">
+                            剩余: <span id="remainingTime">0:00</span>
+                        </div>
+
+                        <div class="playback-rate">
+                            <button class="control-btn" id="playbackRateBtn">
+                                <i class="bi bi-speedometer2"></i> <span id="rateDisplay">1.0x</span>
+                            </button>
+
+                            <div class="rate-options" id="rateOptions">
+                                <div class="rate-option" data-rate="0.5">0.5x</div>
+                                <div class="rate-option" data-rate="0.75">0.75x</div>
+                                <div class="rate-option active" data-rate="1">1.0x</div>
+                                <div class="rate-option" data-rate="1.25">1.25x</div>
+                                <div class="rate-option" data-rate="1.5">1.5x</div>
+                                <div class="rate-option" data-rate="2">2.0x</div>
+                            </div>
+                        </div>
+
+                        <button class="control-btn" id="fullscreenBtn">
+                            <i class="bi bi-fullscreen" id="fullscreenIcon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="video-info">
+            <h2 class="video-title">花朵绽放 - 自然之美</h2>
+            <p class="video-description">
+                这段视频展示了花朵在阳光下绽放的美丽过程。通过高清摄影技术，捕捉到了花朵从含苞待放到完全绽放的每一个细微变化。
+                这是一个展示自然之美的绝佳例子，也是我们了解植物生长过程的重要教学资源。
+            </p>
+
+            <div class="video-stats">
+                <div class="stat-item">
+                    <i class="bi bi-eye"></i> <span id="viewCount">1,234</span> 次观看
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-hand-thumbs-up"></i> <span id="likeCount">256</span> 点赞
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-chat-dots"></i> <span id="commentCount">42</span> 评论
+                </div>
+                <div class="stat-item">
+                    <i class="bi bi-share"></i> <span id="shareCount">18</span> 分享
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const fullscreen = (mode = true,el = 'body') => mode ? document.querySelector(el).requestFullscreen() : document.exitFullscreen();
-        const el = document.querySelector('body');
-        let mode = false;
-        el.addEventListener("click",() => {
-            mode = !mode;
-            fullscreen(mode)
-        })
+        // 全屏切换函数
+        const fullscreen = (mode = true, el = 'body') => mode ? document.querySelector(el).requestFullscreen() : document.exitFullscreen();
+
+        // 格式化秒数为时间字符串 (mm:ss 或 hh:mm:ss)
+        const formatSeconds = (seconds) => {
+            if (isNaN(seconds) || seconds < 0) return "0:00";
+
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${secs.toString().padStart(2, '0')}`;
+            }
+        };
+
+        // 获取DOM元素
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const controls = document.getElementById('controls');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+        const muteBtn = document.getElementById('muteBtn');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressHover = document.getElementById('progressHover');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const remainingTimeEl = document.getElementById('remainingTime');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const fullscreenIcon = document.getElementById('fullscreenIcon');
+        const playbackRateBtn = document.getElementById('playbackRateBtn');
+        const rateDisplay = document.getElementById('rateDisplay');
+        const rateOptions = document.getElementById('rateOptions');
+
+        playbackRateBtn.addEventListener('click', () => {
+            rateOptions.classList.toggle('active');
+        });
+        // 视频播放/暂停切换
+        playPauseBtn.addEventListener('click', () => {
+            if (videoPlayer.paused) {
+                videoPlayer.play();
+                playIcon.classList.remove('bi-play-fill');
+                playIcon.classList.add('bi-pause-fill');
+            } else {
+                videoPlayer.pause();
+                playIcon.classList.remove('bi-pause-fill');
+                playIcon.classList.add('bi-play-fill');
+            }
+        });
+
+        // 视频点击播放/暂停
+        videoPlayer.addEventListener('click', () => {
+            playPauseBtn.click();
+        });
+
+        // 音量控制
+        muteBtn.addEventListener('click', () => {
+            videoPlayer.muted = !videoPlayer.muted;
+            updateVolumeIcon();
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            videoPlayer.volume = volumeSlider.value;
+            videoPlayer.muted = videoPlayer.volume === 0;
+            updateVolumeIcon();
+        });
+
+        function updateVolumeIcon() {
+            volumeIcon.className = '';
+            if (videoPlayer.muted || videoPlayer.volume === 0) {
+                volumeIcon.classList.add('bi', 'bi-volume-mute-fill');
+                volumeSlider.value = 0;
+            } else if (videoPlayer.volume < 0.5) {
+                volumeIcon.classList.add('bi', 'bi-volume-down-fill');
+            } else {
+                volumeIcon.classList.add('bi', 'bi-volume-up-fill');
+            }
+        }
+
+        // 进度条控制
+        videoPlayer.addEventListener('timeupdate', () => {
+            const percentage = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+            progressBar.style.width = `${percentage}%`;
+
+            currentTimeEl.textContent = formatSeconds(videoPlayer.currentTime);
+            remainingTimeEl.textContent = formatSeconds(videoPlayer.duration - videoPlayer.currentTime);
+        });
+
+        progressContainer.addEventListener('click', (e) => {
+            const progressWidth = progressContainer.clientWidth;
+            const clickPosition = e.offsetX;
+            const jumpToTime = (clickPosition / progressWidth) * videoPlayer.duration;
+            videoPlayer.currentTime = jumpToTime;
+        });
+
+        progressContainer.addEventListener('mousemove', (e) => {
+            const progressWidth = progressContainer.clientWidth;
+            const hoverPosition = e.offsetX;
+            const hoverTime = (hoverPosition / progressWidth) * videoPlayer.duration;
+
+            progressHover.style.display = 'block';
+            progressHover.style.left = `${hoverPosition}px`;
+            progressHover.textContent = formatSeconds(hoverTime);
+        });
+
+        progressContainer.addEventListener('mouseout', () => {
+            progressHover.style.display = 'none';
+        });
+
+        // 全屏控制
+        let isFullscreen = false;
+
+        fullscreenBtn.addEventListener('click', () => {
+            isFullscreen = !isFullscreen;
+            fullscreen(isFullscreen, '#videoContainer');
+            updateFullscreenIcon();
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            isFullscreen = !!document.fullscreenElement;
+            updateFullscreenIcon();
+        });
+
+        function updateFullscreenIcon() {
+            if (isFullscreen) {
+                fullscreenIcon.classList.remove('bi-fullscreen');
+                fullscreenIcon.classList.add('bi-fullscreen-exit');
+            } else {
+                fullscreenIcon.classList.remove('bi-fullscreen-exit');
+                fullscreenIcon.classList.add('bi-fullscreen');
+            }
+        }
+
+        // 播放速率控制
+        const rateOptionElements = document.querySelectorAll('.rate-option');
+
+        rateOptionElements.forEach(option => {
+            option.addEventListener('click', () => {
+                const rate = parseFloat(option.getAttribute('data-rate'));
+                videoPlayer.playbackRate = rate;
+                rateDisplay.textContent = `${rate}x`;
+
+                // 更新活动状态
+                rateOptionElements.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+
+        // 视频加载完成后更新时长显示
+        videoPlayer.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatSeconds(videoPlayer.duration);
+            remainingTimeEl.textContent = formatSeconds(videoPlayer.duration);
+        });
+
+        // 视频结束后重置播放按钮
+        videoPlayer.addEventListener('ended', () => {
+            playIcon.classList.remove('bi-pause-fill');
+            playIcon.classList.add('bi-play-fill');
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                // 空格键播放/暂停
+                e.preventDefault();
+                playPauseBtn.click();
+            } else if (e.code === 'ArrowRight') {
+                // 右箭头前进10秒
+                videoPlayer.currentTime += 10;
+            } else if (e.code === 'ArrowLeft') {
+                // 左箭头后退10秒
+                videoPlayer.currentTime -= 10;
+            } else if (e.code === 'ArrowUp') {
+                // 上箭头增加音量
+                e.preventDefault();
+                videoPlayer.volume = Math.min(videoPlayer.volume + 0.1, 1);
+                volumeSlider.value = videoPlayer.volume;
+                updateVolumeIcon();
+            } else if (e.code === 'ArrowDown') {
+                // 下箭头减小音量
+                e.preventDefault();
+                videoPlayer.volume = Math.max(videoPlayer.volume - 0.1, 0);
+                volumeSlider.value = videoPlayer.volume;
+                updateVolumeIcon();
+            } else if (e.code === 'KeyF') {
+                // F键切换全屏
+                fullscreenBtn.click();
+            } else if (e.code === 'KeyM') {
+                // M键静音/取消静音
+                muteBtn.click();
+            }
+        });
+
+        // 自动隐藏控制栏
+        let controlsTimeout;
+
+        videoContainer.addEventListener('mousemove', () => {
+            clearTimeout(controlsTimeout);
+            controls.classList.add('active');
+
+            controlsTimeout = setTimeout(() => {
+                if (!videoPlayer.paused) {
+                    controls.classList.remove('active');
+                }
+            }, 3000);
+        });
+
+        videoContainer.addEventListener('mouseleave', () => {
+            if (!videoPlayer.paused) {
+                controlsTimeout = setTimeout(() => {
+                    controls.classList.remove('active');
+                }, 1000);
+            }
+        });
+
+        // 更新视频统计数据（模拟）
+        function updateStats() {
+            const viewCount = document.getElementById('viewCount');
+            const likeCount = document.getElementById('likeCount');
+            const commentCount = document.getElementById('commentCount');
+            const shareCount = document.getElementById('shareCount');
+
+            // 模拟视图增加
+            let views = parseInt(viewCount.textContent.replace(/,/g, ''));
+            views++;
+            viewCount.textContent = views.toLocaleString();
+
+            // 随机增加其他统计数据
+            if (Math.random() > 0.9) {
+                let likes = parseInt(likeCount.textContent.replace(/,/g, ''));
+                likes++;
+                likeCount.textContent = likes.toLocaleString();
+            }
+
+            if (Math.random() > 0.95) {
+                let comments = parseInt(commentCount.textContent.replace(/,/g, ''));
+                comments++;
+                commentCount.textContent = comments.toLocaleString();
+            }
+
+            if (Math.random() > 0.97) {
+                let shares = parseInt(shareCount.textContent.replace(/,/g, ''));
+                shares++;
+                shareCount.textContent = shares.toLocaleString();
+            }
+        }
+
+        // 每30秒更新一次统计数据
+        setInterval(updateStats, 30000);
+
+        // 初始化
+        updateVolumeIcon();
     </script>
 </body>
+
 </html>
