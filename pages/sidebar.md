@@ -280,7 +280,7 @@
 - [时间戳转日期--2022-06-21](codes/javascript/from-timestamp.md)
 - [冻结 Set 对象--2022-06-22](codes/javascript/frozen-set.md)
 - [全屏--2022-06-23](codes/javascript/fullscreen.md)
-- [获取函数名--2022-06-24](codes/javascript/functionName.md)
+- [获取函数名--2022-06-24](codes/javascript/function-name.md)
 - [函数属性名数组--2022-06-25](codes/javascript/functions.md)
 - [最大公约数--2022-06-26](codes/javascript/gcd.md)
 - [使用给定函数生成给定数量元素的数组--2022-06-27](codes/javascript/generateItems.md)

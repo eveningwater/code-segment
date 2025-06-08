@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级函数调用追踪器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e0f7fa; /* 淡蓝色背景 */
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #80deea 0%, transparent 70%);
+            opacity: 0.3;
+            border-radius: 50%;
+            animation: floatEffect 10s infinite ease-in-out;
+        }
+
+        .container::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);
+            opacity: 0.3;
+            border-radius: 50%;
+            animation: floatEffect 12s infinite reverse ease-in-out;
+        }
+
+        @keyframes floatEffect {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        h1 {
+            color: #00796b; /* 深青色 */
+            margin-bottom: 25px;
+            font-size: 2.8em;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .info-text {
+            font-size: 1.1em;
+            color: #546e7a;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        button {
+            background-color: #26a69a; /* 翠绿色 */
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.15em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(38, 166, 154, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background-color: #00897b; /* 更深的翠绿色 */
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(38, 166, 154, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0) scale(1);
+            box-shadow: 0 3px 10px rgba(38, 166, 154, 0.2);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 0;
+        }
+
+        button:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+        }
+
+        .log-area-wrapper {
+            margin-top: 40px;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .log-area {
+            background-color: #f0f4c3; /* 淡黄色 */
+            border: 1px solid #cddc39; /* 亮绿色边框 */
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            max-height: 350px;
+            overflow-y: auto;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            color: #33691e; /* 深绿色文字 */
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .log-area p {
+            margin: 8px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #dce775; /* 浅绿色虚线 */
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .log-area p:last-child {
+            border-bottom: none;
+        }
+
+        .log-area p strong {
+            color: #827717; /* 橄榄绿 */
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .log-area p span {
+            flex-grow: 1;
+            word-break: break-all;
+        }
+
+        .code-snippet {
+            margin-top: 30px;
+            background-color: #263238; /* 深灰色背景 */
+            color: #eceff1; /* 浅色文字 */
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-snippet pre {
+            margin: 0;
+        }
+
+        .code-snippet code {
+            display: block;
+            white-space: pre-wrap;
+        }
+
+        .code-snippet .comment {
+            color: #90a4ae; /* 灰色注释 */
+        }
+
+        .code-snippet .keyword {
+            color: #80cbc4; /* 浅青色关键字 */
+        }
+
+        .code-snippet .string {
+            color: #c5e1a5; /* 浅绿色字符串 */
+        }
+
+        .code-snippet .function-name {
+            color: #ffcc80; /* 橙色函数名 */
+        }
+
+        .code-snippet .variable {
+            color: #e6ee9c; /* 浅黄色变量 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>高级函数调用追踪器</h1>
+        <p class="info-text">
+            本工具演示了如何使用 <code>functionName</code> 辅助函数来透明地追踪JavaScript函数的调用。
+            每次点击按钮，相关业务逻辑函数被执行时，其名称和执行信息都会被记录到下方日志区域，
+            同时控制台也会输出详细的调试信息。这对于理解程序流程、调试和性能分析非常有帮助。
+        </p>
+
+        <div class="button-group">
+            <button id="userLoginBtn">用户登录</button>
+            <button id="productViewBtn">查看商品详情</button>
+            <button id="addToCartBtn">添加商品到购物车</button>
+            <button id="checkoutBtn">完成订单结算</button>
+            <button id="adminReportBtn">生成系统报告</button>
+            <button id="dataExportBtn">导出用户数据</button>
+        </div>
+
+        <div class="log-area-wrapper">
+            <div class="log-area" id="logArea">
+                <p><strong>系统日志:</strong> <span>应用已启动，等待操作...</span></p>
+            </div>
+        </div>
+
+        <div class="code-snippet">
+            <p><code>functionName</code> 核心代码片段:</p>
+            <pre><code>
+<span class="keyword">const</span> <span class="function-name">functionName</span> = <span class="variable">handler</span> => {
+    <span class="keyword">const</span> <span class="variable">name</span> = <span class="variable">handler</span>.<span class="variable">name</span> || <span class="string">'anonymousFunction'</span>;
+    <span class="comment">// 在控制台输出调试信息</span>
+    <span class="variable">console</span>.<span class="function-name">debug</span>(<span class="string">`[DEBUG] 调用函数: ${name}`</span>);
+    <span class="comment">// 记录到页面日志区域</span>
+    <span class="function-name">logToArea</span>(<span class="string">`[LOG] 函数 '${name}' 被调用。`</span>);
+    <span class="keyword">return</span> <span class="variable">handler</span>;
+};
+            </code></pre>
+        </div>
+    </div>
+
+    <script>
+        // 核心函数：用于获取函数名称并执行函数
+        const functionName = handler => {
+            const name = handler.name || 'anonymousFunction';
+            console.debug(`[DEBUG] 调用函数: ${name}`);
+            logToArea(`函数 '${name}' 被调用。`);
+            return handler;
+        };
+
+        // 日志输出到页面
+        const logArea = document.getElementById('logArea');
+        function logToArea(message) {
+            const p = document.createElement('p');
+            const timeSpan = document.createElement('strong');
+            timeSpan.textContent = `${new Date().toLocaleTimeString()}:`;
+            const msgSpan = document.createElement('span');
+            msgSpan.textContent = message;
+            p.appendChild(timeSpan);
+            p.appendChild(msgSpan);
+            logArea.appendChild(p);
+            logArea.scrollTop = logArea.scrollHeight; // 滚动到底部
+        }
+
+        // 业务逻辑函数
+        const handleUserLogin = () => {
+            // 模拟登录操作，可能涉及异步请求
+            logToArea('用户登录流程启动...');
+            return new Promise(resolve => setTimeout(() => {
+                console.log('用户登录成功！');
+                logToArea('用户登录成功！');
+                resolve();
+            }, 800));
+        };
+
+        const handleProductView = (productId) => {
+            // 模拟查看商品操作，带参数
+            logToArea(`正在查看商品 ID: ${productId}...`);
+            return new Promise(resolve => setTimeout(() => {
+                console.log(`商品 ID ${productId} 详情已加载。`);
+                logToArea(`商品 ID ${productId} 详情已加载。`);
+                resolve();
+            }, 500));
+        };
+
+        const handleAddToCart = (item, quantity) => {
+            // 模拟加入购物车操作，带多个参数
+            logToArea(`尝试添加 ${quantity} 个 ${item} 到购物车...`);
+            return new Promise(resolve => setTimeout(() => {
+                if (Math.random() > 0.2) { // 80% 成功率
+                    console.log(`成功添加 ${quantity} 个 ${item} 到购物车。`);
+                    logToArea(`成功添加 ${quantity} 个 ${item} 到购物车。`);
+                } else {
+                    console.error(`添加 ${item} 到购物车失败！`);
+                    logToArea(`添加 ${item} 到购物车失败！`);
+                }
+                resolve();
+            }, 700));
+        };
+
+        const handleCheckout = () => {
+            // 模拟结算操作，可能涉及复杂流程
+            logToArea('结算流程启动...');
+            return new Promise(resolve => setTimeout(() => {
+                console.log('订单已提交，等待支付。');
+                logToArea('订单已提交，等待支付。');
+                resolve();
+            }, 1200));
+        };
+
+        const generateAdminReport = () => {
+            // 模拟生成报告操作，耗时较长
+            logToArea('正在生成管理报告，请稍候...');
+            return new Promise(resolve => setTimeout(() => {
+                console.log('管理报告生成完毕。');
+                logToArea('管理报告生成完毕。');
+                resolve();
+            }, 2000));
+        };
+
+        const handleDataExport = (format = 'CSV') => {
+            // 模拟数据导出，带默认参数
+            logToArea(`正在导出用户数据为 ${format} 格式...`);
+            return new Promise(resolve => setTimeout(() => {
+                console.log(`用户数据已成功导出为 ${format} 格式。`);
+                logToArea(`用户数据已成功导出为 ${format} 格式。`);
+                resolve();
+            }, 1500));
+        };
+
+        // 绑定事件监听器，使用 functionName 包装业务逻辑函数
+        document.getElementById('userLoginBtn').addEventListener('click', () => functionName(handleUserLogin)());
+        document.getElementById('productViewBtn').addEventListener('click', () => functionName(handleProductView)(101));
+        document.getElementById('addToCartBtn').addEventListener('click', () => functionName(handleAddToCart)('Wireless Mouse', 2));
+        document.getElementById('checkoutBtn').addEventListener('click', () => functionName(handleCheckout)());
+        document.getElementById('adminReportBtn').addEventListener('click', () => functionName(generateAdminReport)());
+        document.getElementById('dataExportBtn').addEventListener('click', () => functionName(handleDataExport)('JSON'));
+
+        // 初始提示
+        logToArea('应用已加载，请点击按钮进行操作。');
+    </script>
+</body>
+
+</html>
