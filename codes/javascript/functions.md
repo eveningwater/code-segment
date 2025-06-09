@@ -17,6 +17,10 @@ const functions = (obj, inherited = false) =>
   ).filter(k => typeof obj[k] === 'function');
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/functions.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -30,6 +34,8 @@ functions(new Foo(), true); // ['a', 'b', 'c']
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/functions.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/functions.html" data-language="html"></div>
 
