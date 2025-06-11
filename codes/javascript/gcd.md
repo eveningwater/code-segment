@@ -124,6 +124,8 @@ gcd(...[12, 8, 32]); // 4
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/gcd.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
 <div class="code-editor" data-url="codes/javascript/html/gcd.html" data-language="html"></div>
 
 结果如下:

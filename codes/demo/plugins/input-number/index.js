@@ -1,14 +1,18 @@
 class InputNumber {
   constructor(options = {}) {
+    const { container, ...restoptions } = options;
     this.options = {
       min: options.min || 0,
       max: options.max || Infinity,
       step: options.step || 1,
       value: options.value || 0,
-      ...options,
+      ...restoptions,
     };
     this.onChange = options.onChange || (() => {});
     this.element = this.createInputElement();
+    if (container) {
+      this.mount(container);
+    }
     this.value = this.options.value;
     this.setupEventListeners();
   }

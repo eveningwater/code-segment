@@ -12,6 +12,10 @@ const generateItems = (n, handler) =>
   Array.from({ length: n }, (_, i) => handler(i));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/gcd.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,8 +25,10 @@ generateItems(10, Math.random);
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/generateItems.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/generate-items.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/generate-items.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/generateItems.html"></iframe>
+<iframe src="codes/javascript/html/generate-items.html"></iframe>
