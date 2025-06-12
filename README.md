@@ -295,7 +295,7 @@
 - [函数属性名数组--2022-06-25](codes/javascript/functions.md)
 - [最大公约数--2022-06-26](codes/javascript/gcd.md)
 - [使用给定函数生成给定数量元素的数组--2022-06-27](codes/javascript/generate-items.md)
-- [生成满足条件新值的生成器--2022-06-28](codes/javascript/generateUntil.md)
+- [生成满足条件新值的生成器--2022-06-28](codes/javascript/generate-until.md)
 - [生成满足条件新值的生成器--2022-06-29](codes/javascript/generateWhile.md)
 - [生成红绿灯--2022-06-30](codes/javascript/generateRGYLight.md)
 - [生成器转数组--2022-07-01](codes/javascript/generatorToArray.md)

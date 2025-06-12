@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>序列生成器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            box-sizing: border-box;
+            border: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2em;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background-color: #3498db;
+            border-radius: 2px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-group input[type="text"],
+        .input-group textarea {
+            width: calc(100% - 20px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input[type="text"]:focus,
+        .input-group textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .button-group button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .button-group button.generate {
+            background-color: #28a745;
+        }
+
+        .button-group button.generate:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .button-group button.reset {
+            background-color: #dc3545;
+        }
+
+        .button-group button.reset:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .result-section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        #result {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 50px;
+            word-break: break-all;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            color: #0056b3;
+            font-size: 1.1em;
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .code-snippet {
+            margin-top: 30px;
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-snippet pre {
+            margin: 0;
+        }
+
+        .code-snippet .comment {
+            color: #75715e;
+        }
+
+        .code-snippet .keyword {
+            color: #66d9ef;
+        }
+
+        .code-snippet .function {
+            color: #a6e22e;
+        }
+
+        .code-snippet .string {
+            color: #e6db74;
+        }
+
+        .code-snippet .number {
+            color: #ae81ff;
+        }
+
+        .code-snippet .operator {
+            color: #f92672;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>序列生成器</h1>
+
+        <div class="input-group">
+            <label for="seedInput">起始值 (seed):</label>
+            <input type="text" id="seedInput" value="1" placeholder="输入起始值">
+        </div>
+
+        <div class="input-group">
+            <label for="conditionInput">终止条件函数 (condition):</label>
+            <textarea id="conditionInput" placeholder="例如: v => v > 10">v => v > 10</textarea>
+        </div>
+
+        <div class="input-group">
+            <label for="nextInput">下一步函数 (next):</label>
+            <textarea id="nextInput" placeholder="例如: v => v + 1">v => v + 1</textarea>
+        </div>
+
+        <div class="button-group">
+            <button class="generate" onclick="generateSequence()">生成序列</button>
+            <button class="reset" onclick="resetForm()">重置</button>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="result-section">
+            <h2>生成结果</h2>
+            <div id="result"></div>
+        </div>
+
+        <div class="code-snippet">
+            <h2>核心代码片段: generateUntil 函数</h2>
+            <pre><code class="language-javascript">
+<span class="keyword">const</span> <span class="function">generateUntil</span> = <span class="keyword">function</span>* (seed, condition, next) {
+    <span class="keyword">let</span> val = seed;
+    <span class="keyword">let</span> nextSeed = <span class="keyword">null</span>;
+    <span class="keyword">while</span> (!<span class="function">condition</span>(val)) {
+        nextSeed = <span class="keyword">yield</span> val;
+        val = <span class="function">next</span>(val, nextSeed);
+    }
+    <span class="keyword">return</span> val;
+};
+            </code></pre>
+        </div>
+    </div>
+
+    <script>
+        // 核心 generateUntil 函数
+        const generateUntil = function* (seed, condition, next) {
+            let val = seed;
+            let nextSeed = null;
+            while (!condition(val)) {
+                nextSeed = yield val;
+                val = next(val, nextSeed);
+            }
+            return val;
+        };
+
+        function generateSequence() {
+            const seedInput = document.getElementById('seedInput').value;
+            const conditionInput = document.getElementById('conditionInput').value;
+            const nextInput = document.getElementById('nextInput').value;
+            const resultDiv = document.getElementById('result');
+            const errorMessageDiv = document.getElementById('errorMessage');
+
+            resultDiv.textContent = '';
+            errorMessageDiv.textContent = '';
+
+            let seedValue;
+            try {
+                seedValue = JSON.parse(seedInput); // 尝试解析为JSON，支持数字、字符串、布尔、数组、对象
+            } catch (e) {
+                seedValue = seedInput; // 如果不是有效JSON，则作为字符串处理
+            }
+
+            let conditionFunc;
+            let nextFunc;
+
+            try {
+                // 动态创建函数
+                conditionFunc = new Function('v', conditionInput);
+                nextFunc = new Function('v', 'nextSeed', nextInput);
+            } catch (e) {
+                errorMessageDiv.textContent = '函数表达式错误: ' + e.message;
+                return;
+            }
+
+            try {
+                const sequence = [...generateUntil(seedValue, conditionFunc, nextFunc)];
+                resultDiv.textContent = JSON.stringify(sequence, null, 2);
+            } catch (e) {
+                errorMessageDiv.textContent = '生成序列时发生错误: ' + e.message;
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('seedInput').value = '1';
+            document.getElementById('conditionInput').value = 'v => v > 10';
+            document.getElementById('nextInput').value = 'v => v + 1';
+            document.getElementById('result').textContent = '';
+            document.getElementById('errorMessage').textContent = '';
+        }
+
+        // 初始生成一次
+        document.addEventListener('DOMContentLoaded', generateSequence);
+    </script>
+</body>
+
+</html>
