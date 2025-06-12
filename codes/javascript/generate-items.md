@@ -14,7 +14,7 @@ const generateItems = (n, handler) =>
 
 ts 代码如下:
 
-<div class="code-editor" data-url="codes/javascript/ts/gcd.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/generate-items.ts" data-language="typescript"></div>
 
 > 调用方式:
 
