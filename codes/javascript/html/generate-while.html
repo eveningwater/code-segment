@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>序列生成器</title>
+    <title>条件序列生成器</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -198,7 +199,7 @@
 
 <body>
     <div class="container">
-        <h1>序列生成器</h1>
+        <h1>条件序列生成器</h1>
 
         <div class="input-group">
             <label for="seedInput">起始值 (seed):</label>
@@ -206,8 +207,8 @@
         </div>
 
         <div class="input-group">
-            <label for="conditionInput">终止条件函数 (condition):</label>
-            <textarea id="conditionInput" placeholder="例如: v => v > 10">v => v > 10</textarea>
+            <label for="conditionInput">条件函数 (condition):</label>
+            <textarea id="conditionInput" placeholder="例如: v => v <= 10">v => v <= 10</textarea>
         </div>
 
         <div class="input-group">
@@ -228,12 +229,12 @@
         </div>
 
         <div class="code-snippet">
-            <h2>核心代码片段: generateUntil 函数</h2>
+            <h2>核心代码片段: generateWhile 函数</h2>
             <pre><code class="language-javascript">
-<span class="keyword">const</span> <span class="function">generateUntil</span> = <span class="keyword">function</span>* (seed, condition, next) {
+<span class="keyword">const</span> <span class="function">generateWhile</span> = <span class="keyword">function</span>* (seed, condition, next) {
     <span class="keyword">let</span> val = seed;
     <span class="keyword">let</span> nextSeed = <span class="keyword">null</span>;
-    <span class="keyword">while</span> (!<span class="function">condition</span>(val)) {
+    <span class="keyword">while</span> (<span class="function">condition</span>(val)) {
         nextSeed = <span class="keyword">yield</span> val;
         val = <span class="function">next</span>(val, nextSeed);
     }
@@ -244,16 +245,19 @@
     </div>
 
     <script>
-        // 核心 generateUntil 函数
-        const generateUntil = function* (seed, condition, next) {
+        // 核心 generateWhile 函数
+        const generateWhile = function* (seed, condition, next) {
             let val = seed;
             let nextSeed = null;
-            while (!condition(val)) {
+            console.log(111, val, condition(val));
+
+            while (condition(val)) {
                 nextSeed = yield val;
                 val = next(val, nextSeed);
             }
             return val;
         };
+
 
         const evalLike = v => new Function(`return ${v}`)();
 
@@ -287,7 +291,9 @@
             }
 
             try {
-                const sequence = [...generateUntil(seedValue, conditionFunc, nextFunc)];
+                const sequence = [...generateWhile(seedValue, conditionFunc, nextFunc)];
+
+
                 resultDiv.textContent = JSON.stringify(sequence, null, 2);
             } catch (e) {
                 errorMessageDiv.textContent = '生成序列时发生错误: ' + e.message;
@@ -296,7 +302,7 @@
 
         function resetForm() {
             document.getElementById('seedInput').value = '1';
-            document.getElementById('conditionInput').value = 'v => v > 10';
+            document.getElementById('conditionInput').value = 'v => v <= 10';
             document.getElementById('nextInput').value = 'v => v + 1';
             document.getElementById('result').textContent = '';
             document.getElementById('errorMessage').textContent = '';
