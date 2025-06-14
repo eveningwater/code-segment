@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <title>智能交通信号灯模拟器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            gap: 30px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 50px;
+            align-items: flex-start;
+        }
+
+        .traffic-light-container {
+            width: 150px;
+            height: 400px;
+            background-color: #333;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 5px solid #222;
+        }
+
+        .light {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #555;
+            opacity: 0.3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
+            border: 3px solid #444;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .light.red {
+            background-color: #ff0000;
+        }
+
+        .light.yellow {
+            background-color: #ffff00;
+            color: #333;
+        }
+
+        .light.green {
+            background-color: #00ff00;
+        }
+
+        .light.active {
+            opacity: 1;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .control-panel {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            border: 1px solid #e0e0e0;
+        }
+
+        .control-panel h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .ew-input-number {
+            width: 100%;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .button-group button.add {
+            background-color: #28a745;
+        }
+
+        .button-group button.add:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .button-group button.start {
+            background-color: #007bff;
+        }
+
+        .button-group button.start:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .button-group button.stop {
+            background-color: #dc3545;
+        }
+
+        .button-group button.stop:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .ew-select {
+            width: 100%;
+        }
+
+        #lightSequence {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        #lightSequence li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #lightSequence li:last-child {
+            border-bottom: none;
+        }
+
+        #lightSequence li span {
+            font-weight: 500;
+        }
+
+        #lightSequence li button {
+            background-color: #ffc107;
+            color: #333;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #lightSequence li button:hover {
+            background-color: #e0a800;
+        }
+
+        .code-snippet {
+            margin-top: 30px;
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .code-snippet pre {
+            margin: 0;
+        }
+
+        .code-snippet .comment {
+            color: #75715e;
+        }
+
+        .code-snippet .keyword {
+            color: #66d9ef;
+        }
+
+        .code-snippet .function {
+            color: #a6e22e;
+        }
+
+        .code-snippet .string {
+            color: #e6db74;
+        }
+
+        .code-snippet .number {
+            color: #ae81ff;
+        }
+
+        .code-snippet .operator {
+            color: #f92672;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>智能交通信号灯模拟器</h1>
+    <div class="main-container">
+        <div class="traffic-light-container">
+            <div class="light red" id="redLight"></div>
+            <div class="light yellow" id="yellowLight"></div>
+            <div class="light green" id="greenLight"></div>
+        </div>
+
+        <div class="control-panel">
+            <h2>控制面板</h2>
+            <div class="input-group">
+                <label for="lightColor">灯光颜色:</label>
+                <div id="lightColor"></div>
+            </div>
+            <div class="input-group">
+                <label for="lightDuration">持续时间 (秒):</label>
+                <div id="lightDuration" name="lightDuration"></div>
+            </div>
+            <div class="button-group">
+                <button class="add" onclick="addLight()">添加灯光</button>
+                <button class="start" onclick="startSimulation()">开始模拟</button>
+                <button class="stop" onclick="stopSimulation()">停止模拟</button>
+            </div>
+
+            <h3>当前序列:</h3>
+            <ul id="lightSequence"></ul>
+        </div>
+    </div>
+
+    <div class="code-snippet">
+        <h2>核心代码片段: generateRGYLight 函数</h2>
+        <pre><code class="language-javascript">
+<span class="keyword">const</span> <span class="function">generateRGYLight</span> = (lights, handler) => {
+    <span class="keyword">let</span> timerId = <span class="keyword">null</span>;
+    <span class="keyword">let</span> countdownInterval = <span class="keyword">null</span>;
+    <span class="keyword">let</span> currentLightIndex = <span class="number">0</span>;
+    <span class="keyword">let</span> remainingTime = <span class="number">0</span>;
+
+    <span class="keyword">const</span> <span class="function">run</span> = () => {
+        <span class="keyword">if</span> (lights.<span class="function">length</span> === <span class="number">0</span>) {
+            <span class="function">console</span>.<span class="function">warn</span>(<span class="string">"灯光序列为空，请添加灯光。"</span>);
+            <span class="function">stopSimulation</span>();
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">const</span> currentActiveLight = lights[currentLightIndex];
+        remainingTime = currentActiveLight.<span class="function">duration</span>;
+
+        <span class="comment">// 执行显示当前信号灯的函数</span>
+        <span class="function">handler</span>(currentActiveLight.<span class="function">color</span>, remainingTime);
+
+        <span class="comment">// 清除之前的倒计时</span>
+        <span class="function">clearInterval</span>(countdownInterval);
+
+        <span class="comment">// 开始新的倒计时</span>
+        countdownInterval = <span class="function">setInterval</span>(() => {
+            remainingTime -= <span class="number">1000</span>;
+            <span class="keyword">if</span> (remainingTime < <span class="number">0</span>) {
+                remainingTime = <span class="number">0</span>;
+            }
+            <span class="function">handler</span>(currentActiveLight.<span class="function">color</span>, remainingTime);
+        }, <span class="number">1000</span>);
+
+        timerId = <span class="function">setTimeout</span>(() => {
+            <span class="function">clearInterval</span>(countdownInterval);
+            currentLightIndex = (currentLightIndex + <span class="number">1</span>) % lights.<span class="function">length</span>;
+            <span class="function">run</span>();
+        }, currentActiveLight.<span class="function">duration</span>);
+    };
+
+    <span class="keyword">const</span> <span class="function">start</span> = () => {
+        <span class="function">stop</span>(); <span class="comment">// 确保之前没有运行的定时器</span>
+        <span class="function">run</span>();
+    };
+
+    <span class="keyword">const</span> <span class="function">stop</span> = () => {
+        <span class="function">clearTimeout</span>(timerId);
+        <span class="function">clearInterval</span>(countdownInterval);
+        timerId = <span class="keyword">null</span>;
+        countdownInterval = <span class="keyword">null</span>;
+        currentLightIndex = <span class="number">0</span>;
+        <span class="comment">// 重置所有灯光状态</span>
+        <span class="function">document</span>.<span class="function">querySelectorAll</span>(<span class="string">'.light'</span>).<span class="function">forEach</span>(light => {
+            light.<span class="function">classList</span>.<span class="function">remove</span>(<span class="string">'active'</span>);
+            light.<span class="function">textContent</span> = <span class="string">''</span>;
+        });
+    };
+
+    <span class="keyword">return</span> { start, stop };
+};
+        </code></pre>
+    </div>
+
+
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script>
+        const generateRGYLight = (lights, handler) => {
+            let timerId = null;
+            let countdownInterval = null;
+            let currentLightIndex = 0;
+            let remainingTime = 0;
+
+            const run = () => {
+                if (lights.length === 0) {
+                    console.warn("灯光序列为空，请添加灯光。");
+                    stopSimulation();
+                    return;
+                }
+
+                const currentActiveLight = lights[currentLightIndex];
+                remainingTime = currentActiveLight.duration;
+
+                // 执行显示当前信号灯的函数
+                handler(currentActiveLight.color, remainingTime);
+
+                // 清除之前的倒计时
+                clearInterval(countdownInterval);
+
+                // 开始新的倒计时
+                countdownInterval = setInterval(() => {
+                    remainingTime -= 1000;
+                    if (remainingTime < 0) {
+                        remainingTime = 0;
+                    }
+                    handler(currentActiveLight.color, remainingTime);
+                }, 1000);
+
+                timerId = setTimeout(() => {
+                    clearInterval(countdownInterval);
+                    currentLightIndex = (currentLightIndex + 1) % lights.length;
+                    run();
+                }, currentActiveLight.duration);
+            };
+
+            const start = () => {
+                stop(); // 确保之前没有运行的定时器
+                run();
+            };
+
+            const stop = () => {
+                clearTimeout(timerId);
+                clearInterval(countdownInterval);
+                timerId = null;
+                countdownInterval = null;
+                currentLightIndex = 0;
+                // 重置所有灯光状态
+                document.querySelectorAll('.light').forEach(light => {
+                    light.classList.remove('active');
+                    light.textContent = '';
+                });
+            };
+
+            return { start, stop };
+        };
+
+
+        const redLight = document.getElementById('redLight');
+        const yellowLight = document.getElementById('yellowLight');
+        const greenLight = document.getElementById('greenLight');
+        const lightElements = {
+            red: redLight,
+            yellow: yellowLight,
+            green: greenLight
+        };
+
+        const lightColorSelect = new Select({
+            placeholder: "选择灯光类型",
+            container: '#lightColor'
+        });
+        lightColorSelect.setOptions([
+            { label: '红灯', value: 'red' },
+            { label: '黄灯', value: 'yellow' },
+            { label: '绿灯', value: 'green' }
+        ]);
+
+        lightColorSelect.setValue('red');
+
+        const lightDuration = new InputNumber({
+            value: 5,
+            min: 1,
+            container: "#lightDuration"
+        });
+
+        let lights = []; // 存储灯光序列
+        let trafficLightSimulator = null; // generateRGYLight 的实例
+
+        // 初始灯光序列
+        lights.push({ color: 'red', duration: 5000 });
+        lights.push({ color: 'yellow', duration: 3000 });
+        lights.push({ color: 'green', duration: 5000 });
+
+
+        function updateLightSequenceDisplay() {
+            const ul = document.getElementById('lightSequence');
+            ul.innerHTML = '';
+            lights.forEach((light, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${light.color} (${light.duration / 1000}s)</span>
+                                <button onclick="removeLight(${index})">移除</button>`;
+                ul.appendChild(li);
+            });
+        }
+
+        function addLight() {
+            const color = document.getElementById('lightColor').value;
+            const duration = parseInt(document.getElementById('lightDuration').value) * 1000;
+            if (isNaN(duration) || duration <= 0) {
+                alert('持续时间必须是大于0的数字！');
+                return;
+            }
+            lights.push({ color, duration });
+            updateLightSequenceDisplay();
+            // 如果模拟器正在运行，停止并重新开始以应用新序列
+            if (trafficLightSimulator) {
+                trafficLightSimulator.stop();
+                trafficLightSimulator.start();
+            }
+        }
+
+        function removeLight(index) {
+            lights.splice(index, 1);
+            updateLightSequenceDisplay();
+            // 如果模拟器正在运行，停止并重新开始以应用新序列
+            if (trafficLightSimulator) {
+                trafficLightSimulator.stop();
+                trafficLightSimulator.start();
+            }
+        }
+
+        function runLightHandler(color, remainingTime) {
+            Object.keys(lightElements).forEach(key => {
+                if (key === color) {
+                    lightElements[key].classList.add('active');
+                    lightElements[key].textContent = `${Math.ceil(remainingTime / 1000)}s`;
+                } else {
+                    lightElements[key].classList.remove('active');
+                    lightElements[key].textContent = '';
+                }
+            });
+        }
+
+        function startSimulation() {
+            if (lights.length === 0) {
+                alert('请先添加灯光序列！');
+                return;
+            }
+            if (trafficLightSimulator) {
+                trafficLightSimulator.stop(); // 停止之前的模拟
+            }
+            trafficLightSimulator = generateRGYLight(lights, runLightHandler);
+            trafficLightSimulator.start();
+        }
+
+        function stopSimulation() {
+            if (trafficLightSimulator) {
+                trafficLightSimulator.stop();
+                trafficLightSimulator = null;
+            }
+            // 清除所有灯光显示
+            Object.keys(lightElements).forEach(key => {
+                lightElements[key].classList.remove('active');
+                lightElements[key].textContent = '';
+            });
+        }
+
+        // 页面加载时初始化显示
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLightSequenceDisplay();
+            startSimulation(); // 页面加载后自动开始模拟
+        });
+    </script>
+</body>
+
+</html>

@@ -286,7 +286,7 @@
 - [使用给定函数生成给定数量元素的数组--2022-06-27](codes/javascript/generate-items.md)
 - [生成满足条件新值的生成器--2022-06-28](codes/javascript/generate-until.md)
 - [生成满足条件新值的生成器--2022-06-29](codes/javascript/generate-while.md)
-- [生成红绿灯--2022-06-30](codes/javascript/generateRGYLight.md)
+- [生成红绿灯--2022-06-30](codes/javascript/generate-rgy-light.md)
 - [生成器转数组--2022-07-01](codes/javascript/generatorToArray.md)
 - [几何级数--2022-07-02](codes/javascript/geometricProgression.md)
 - [路径字符串中获取对象属性--2022-07-03](codes/javascript/get.md)

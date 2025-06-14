@@ -27,6 +27,10 @@ const generateRGYLight = (lights, handler) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/generate-rgy-light.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -47,8 +51,10 @@ generateRGYLight(lights, runLight); //log red,5s -> log yellow,3s -> green,5s ->
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/generateRGYLight.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/generate-rgy-light.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/generate-rgy-light.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/generateRGYLight.html"></iframe>
+<iframe src="codes/javascript/html/generate-rgy-light.html"></iframe>

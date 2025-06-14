@@ -10,6 +10,7 @@ class InputNumber {
     };
     this.onChange = options.onChange || (() => {});
     this.element = this.createInputElement();
+    this.container = null;
     if (container) {
       this.mount(container);
     }
@@ -85,6 +86,13 @@ class InputNumber {
     if (typeof container === "string") {
       container = document.querySelector(container);
     }
+    this.container = container;
     container.appendChild(this.element);
+    const forName = this.options?.name || this.container?.getAttribute("name");
+    if (forName) {
+      this.element
+        ?.querySelector(".input-number-input")
+        ?.setAttribute("name", forName);
+    }
   }
 }
