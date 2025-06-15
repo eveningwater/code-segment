@@ -10,6 +10,10 @@
 const generatorToArray = gen => [...gen];
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/generator-to-array.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,8 +23,10 @@ generatorToArray(s.entries()); // [[ 1, 1 ], [ 2, 2 ], [ 3, 3 ], [ 4, 4 ]]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/generatorToArray.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/generator-to-array.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/generator-to-array.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/generatorToArray.html"></iframe>
+<iframe src="codes/javascript/html/generator-to-array.html"></iframe>
