@@ -16,6 +16,10 @@ const geometricProgression = (end, start = 1, step = 2) =>
   }).map((_, i) => start * step ** i);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/geometric-progression.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,8 +30,10 @@ geometricProgression(256, 1, 4); // [1, 4, 16, 64, 256]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/geometricProgression.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/geometric-progression.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/geometric-progression.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/geometricProgression.html"></iframe>
+<iframe src="codes/javascript/html/geometric-progression.html"></iframe>
