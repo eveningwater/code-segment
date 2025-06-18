@@ -301,7 +301,7 @@
 - [生成器转数组--2022-07-01](codes/javascript/generator-to-array.md)
 - [几何级数--2022-07-02](codes/javascript/geometric-progression.md)
 - [路径字符串中获取对象属性--2022-07-03](codes/javascript/get.md)
-- [获取元素的祖先元素--2022-07-04](codes/javascript/getAncestors.md)
+- [获取元素的祖先元素--2022-07-04](codes/javascript/get-ancestors.md)
 - [获取过滤参数的路径--2022-07-05](codes/javascript/getBaseURL.md)
 - [获取小时分钟秒--2022-07-07](codes/javascript/getColonTimeFromDate.md)
 - [获取日期之间的天数差--2022-07-08](codes/javascript/getDaysDiffBetweenDates.md)
