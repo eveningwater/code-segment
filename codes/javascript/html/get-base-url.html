@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL 基础路径提取器</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        input[type="text"] {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            width: calc(100% - 30px);
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            color: #fff;
+        }
+
+        button.generate {
+            background-color: #28a745;
+        }
+
+        button.generate:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        button.reset {
+            background-color: #dc3545;
+        }
+
+        button.reset:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+        }
+
+        .result-section {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .result-section h2 {
+            color: #0056b3;
+            margin-top: 0;
+            font-size: 1.4em;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        #resultOutput {
+            white-space: pre-wrap;
+            word-break: break-all;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            padding: 15px;
+            border-radius: 6px;
+            min-height: 80px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            color: #333;
+            overflow-x: auto;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            display: none;
+            font-size: 0.9em;
+        }
+
+        .code-display {
+            background-color: #272b33;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin-top: 25px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-display h2 {
+            color: #61dafb;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #61dafb;
+            padding-bottom: 10px;
+        }
+
+        .code-display pre {
+            margin: 0;
+        }
+
+        .code-display code {
+            display: block;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>URL 基础路径提取器</h1>
+
+        <div class="input-group">
+            <label for="urlInput">输入 URL:</label>
+            <input type="text" id="urlInput" placeholder="例如: https://example.com/path/to/page?query=string#hash">
+        </div>
+
+        <div class="button-group">
+            <button class="generate" id="extractBtn">提取基础路径</button>
+            <button class="reset" id="resetBtn">重置</button>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="result-section">
+            <h2>提取结果</h2>
+            <pre id="resultOutput"></pre>
+        </div>
+
+        <div class="code-display">
+            <h2>`getBaseURL` 函数核心代码</h2>
+            <pre>
+                <code id="codeSnippet">
+const getBaseURL = url => url.replace(/[?#].*$/, '');
+                </code>
+            </pre>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        // 核心 getBaseURL 函数
+        const getBaseURL = url => url.replace(/[?#].*$/, '');
+
+        // DOM 元素获取
+        const urlInput = document.getElementById('urlInput');
+        const extractBtn = document.getElementById('extractBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultOutput = document.getElementById('resultOutput');
+        const errorMessage = document.getElementById('errorMessage');
+
+
+        // 事件监听器：提取基础路径
+        extractBtn.addEventListener('click', () => {
+            errorMessage.style.display = 'none';
+            resultOutput.textContent = '';
+
+            const url = urlInput.value.trim();
+            if (!url) {
+                errorMessage.textContent = '错误: 请输入一个 URL。';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            try {
+                const baseURL = getBaseURL(url);
+                resultOutput.textContent = baseURL;
+            } catch (e) {
+                errorMessage.textContent = `提取过程中发生错误: ${e.message}`;
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // 事件监听器：重置
+        resetBtn.addEventListener('click', () => {
+            urlInput.value = '';
+            resultOutput.textContent = '';
+            errorMessage.style.display = 'none';
+        });
+
+        // 页面加载时自动填充当前 URL
+        urlInput.value = window.location.href + "?html=1&css=2&js=3;";
+        extractBtn.click(); // 自动提取一次
+        hljs.highlightAll();
+    </script>
+</body>
+
+</html>
