@@ -303,7 +303,7 @@
 - [路径字符串中获取对象属性--2022-07-03](codes/javascript/get.md)
 - [获取元素的祖先元素--2022-07-04](codes/javascript/get-ancestors.md)
 - [获取过滤参数的路径--2022-07-05](codes/javascript/get-base-url.md)
-- [获取小时分钟秒--2022-07-07](codes/javascript/getColonTimeFromDate.md)
+- [获取小时分钟秒--2022-07-07](codes/javascript/get-colon-time-from-date.md)
 - [获取日期之间的天数差--2022-07-08](codes/javascript/getDaysDiffBetweenDates.md)
 - [获取日期之间的小时差--2022-07-09](codes/javascript/getHoursDiffBetweenDates.md)
 - [获取元素宽度超过视图的元素--2022-07-10](codes/javascript/getElementsBiggerThanViewport.md)
