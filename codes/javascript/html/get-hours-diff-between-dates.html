@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能小时差计算器 - 多场景应用</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #f8fafc;
+            --accent-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .time-display-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .clock-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3em;
+            font-weight: 700;
+            color: #2ecc71;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px 35px;
+            border-radius: 15px;
+            border: 3px solid #2ecc71;
+            box-shadow: 
+                inset 0 2px 5px rgba(0, 0, 0, 0.1),
+                0 10px 30px rgba(46, 204, 113, 0.3);
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.8);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .clock-display:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                inset 0 2px 5px rgba(0, 0, 0, 0.1),
+                0 15px 40px rgba(46, 204, 113, 0.4);
+        }
+
+        .date-display {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .timezone-info {
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .scenarios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .scenario-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scenario-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .datetime-inputs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .datetime-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .datetime-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .datetime-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .datetime-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #2c5530;
+            border: 1px solid #a8edea;
+        }
+
+        .result.warning {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #8b4513;
+            border: 1px solid #ffecd2;
+        }
+
+        .result.danger {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: #8b0000;
+            border: 1px solid #ff9a9e;
+        }
+
+        .result.info {
+            background: linear-gradient(135deg, #a8caba, #5d4e75);
+            color: white;
+            border: 1px solid #a8caba;
+        }
+
+        .timezone-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .timezone-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .timezone-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .timezone-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .world-clock {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .world-clock-item {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .world-clock-city {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .world-clock-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1em;
+            color: #2ecc71;
+        }
+
+        .dashboard {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .dashboard h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .scenarios {
+                grid-template-columns: 1fr;
+            }
+            
+            .datetime-inputs {
+                flex-direction: column;
+            }
+            
+            .clock-display {
+                font-size: 2.5em;
+                padding: 20px 25px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ 智能小时差计算器</h1>
+            <p>多场景时间应用 - 精确计算小时差异</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 主时钟显示 -->
+            <div class="time-display-section">
+                <div class="date-display" id="current-date"></div>
+                <div id="clock" class="clock-display"></div>
+                <div class="timezone-info" id="timezone-info"></div>
+            </div>
+
+            <!-- 功能模块 -->
+            <div class="scenarios">
+                <!-- 工作时间计算 -->
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">💼</div>
+                        工作时间计算
+                    </div>
+                    <div class="datetime-inputs">
+                        <div class="datetime-group">
+                            <label>上班时间</label>
+                            <input type="datetime-local" id="work-start" value="">
+                        </div>
+                        <div class="datetime-group">
+                            <label>下班时间</label>
+                            <input type="datetime-local" id="work-end" value="">
+                        </div>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateWorkHours()">计算工作时长</button>
+                    <div id="work-result" class="result"></div>
+                </div>
+
+                <!-- 会议时长管理 -->
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">📅</div>
+                        会议时长管理
+                    </div>
+                    <div class="datetime-inputs">
+                        <div class="datetime-group">
+                            <label>会议开始时间</label>
+                            <input type="datetime-local" id="meeting-start" value="">
+                        </div>
+                        <div class="datetime-group">
+                            <label>会议结束时间</label>
+                            <input type="datetime-local" id="meeting-end" value="">
+                        </div>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateMeetingDuration()">计算会议时长</button>
+                    <div id="meeting-result" class="result"></div>
+                </div>
+
+                <!-- 项目进度跟踪 -->
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">📊</div>
+                        项目进度跟踪
+                    </div>
+                    <div class="datetime-inputs">
+                        <div class="datetime-group">
+                            <label>项目开始时间</label>
+                            <input type="datetime-local" id="project-start" value="">
+                        </div>
+                        <div class="datetime-group">
+                            <label>当前时间</label>
+                            <input type="datetime-local" id="project-current" value="">
+                        </div>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateProjectProgress()">计算项目进度</button>
+                    <div id="project-result" class="result"></div>
+                </div>
+
+                <!-- 倒计时计算 -->
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">⏳</div>
+                        倒计时计算
+                    </div>
+                    <div class="datetime-inputs">
+                        <div class="datetime-group">
+                            <label>当前时间</label>
+                            <input type="datetime-local" id="countdown-current" value="">
+                        </div>
+                        <div class="datetime-group">
+                            <label>目标时间</label>
+                            <input type="datetime-local" id="countdown-target" value="">
+                        </div>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateCountdown()">计算倒计时</button>
+                    <div id="countdown-result" class="result"></div>
+                </div>
+
+                <!-- 时区转换 -->
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">🌍</div>
+                        时区转换
+                    </div>
+                    <div class="timezone-selector">
+                        <div class="timezone-group">
+                            <label>源时区</label>
+                            <select id="source-timezone">
+                                <option value="Asia/Shanghai">中国标准时间 (UTC+8)</option>
+                                <option value="America/New_York">美国东部时间 (UTC-5)</option>
+                                <option value="Europe/London">英国时间 (UTC+0)</option>
+                                <option value="Asia/Tokyo">日本时间 (UTC+9)</option>
+                                <option value="Australia/Sydney">澳大利亚时间 (UTC+10)</option>
+                            </select>
+                        </div>
+                        <div class="timezone-group">
+                            <label>目标时区</label>
+                            <select id="target-timezone">
+                                <option value="America/New_York">美国东部时间 (UTC-5)</option>
+                                <option value="Asia/Shanghai">中国标准时间 (UTC+8)</option>
+                                <option value="Europe/London">英国时间 (UTC+0)</option>
+                                <option value="Asia/Tokyo">日本时间 (UTC+9)</option>
+                                <option value="Australia/Sydney">澳大利亚时间 (UTC+10)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="calculate-btn" onclick="convertTimezone()">转换时区</button>
+                    <div id="timezone-result" class="result"></div>
+                </div>
+
+                <!-- 加班时间计算 -->
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">🌙</div>
+                        加班时间计算
+                    </div>
+                    <div class="datetime-inputs">
+                        <div class="datetime-group">
+                            <label>正常下班时间</label>
+                            <input type="datetime-local" id="overtime-normal" value="">
+                        </div>
+                        <div class="datetime-group">
+                            <label>实际下班时间</label>
+                            <input type="datetime-local" id="overtime-actual" value="">
+                        </div>
+                    </div>
+                    <button class="calculate-btn" onclick="calculateOvertime()">计算加班时间</button>
+                    <div id="overtime-result" class="result"></div>
+                </div>
+            </div>
+
+            <!-- 世界时钟 -->
+            <div class="scenario-card">
+                <div class="scenario-title">
+                    <div class="scenario-icon">🌐</div>
+                    世界时钟
+                </div>
+                <div class="world-clock" id="world-clock">
+                    <!-- 动态生成世界时钟 -->
+                </div>
+            </div>
+
+            <!-- 数据统计面板 -->
+            <div class="dashboard">
+                <h2>📈 时间计算统计</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-calculations">0</div>
+                        <div class="stat-label">总计算次数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="avg-hours">0</div>
+                        <div class="stat-label">平均小时数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="max-hours">0</div>
+                        <div class="stat-label">最长时长</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="min-hours">0</div>
+                        <div class="stat-label">最短时长</div>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="setCurrentTime()">设置当前时间</button>
+                    <button class="quick-btn" onclick="clearAllResults()">清空所有结果</button>
+                    <button class="quick-btn" onclick="exportData()">导出数据</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 智能小时差计算器 | 专业的时间管理工具</p>
+        </div>
+    </div>
+
+    <script>
+        // 核心小时差计算函数
+        const getHoursDiffBetweenDates = (dateInitial, dateFinal) =>
+            Math.round((dateFinal - dateInitial) / (1000 * 3600) * 100) / 100;
+
+        // 全局变量
+        let calculations = [];
+        let totalCalculations = 0;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const nowString = now.toISOString().slice(0, 16);
+            
+            // 设置默认时间
+            document.getElementById('work-start').value = nowString;
+            document.getElementById('work-end').value = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 16);
+            document.getElementById('meeting-start').value = nowString;
+            document.getElementById('meeting-end').value = new Date(now.getTime() + 1 * 60 * 60 * 1000).toISOString().slice(0, 16);
+            document.getElementById('project-start').value = nowString;
+            document.getElementById('project-current').value = nowString;
+            document.getElementById('countdown-current').value = nowString;
+            document.getElementById('countdown-target').value = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
+            document.getElementById('overtime-normal').value = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 16);
+            document.getElementById('overtime-actual').value = new Date(now.getTime() + 10 * 60 * 60 * 1000).toISOString().slice(0, 16);
+            
+            // 初始化世界时钟
+            initWorldClock();
+        });
+
+        // 更新主时钟显示
+        function updateClock() {
+            const now = new Date();
+            const currentTime = now.toLocaleTimeString('zh-CN', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const currentDate = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            document.getElementById('clock').textContent = currentTime;
+            document.getElementById('current-date').textContent = currentDate;
+            document.getElementById('timezone-info').textContent = `时区: ${timezone}`;
+        }
+
+        // 工作时间计算
+        function calculateWorkHours() {
+            const startTime = new Date(document.getElementById('work-start').value);
+            const endTime = new Date(document.getElementById('work-end').value);
+            
+            if (!document.getElementById('work-start').value || !document.getElementById('work-end').value) {
+                showResult('work-result', '❌ 请填写完整的上班和下班时间', 'danger');
+                return;
+            }
+            
+            const workHours = getHoursDiffBetweenDates(startTime, endTime);
+            
+            let resultClass = 'success';
+            let message = '';
+            
+            if (workHours < 0) {
+                resultClass = 'danger';
+                message = '❌ 下班时间不能早于上班时间！';
+            } else if (workHours > 12) {
+                resultClass = 'warning';
+                message = `⚠️ 工作时长较长：${workHours} 小时，请注意休息`;
+            } else if (workHours < 4) {
+                resultClass = 'warning';
+                message = `⚠️ 工作时长较短：${workHours} 小时`;
+            } else {
+                message = `✅ 标准工作时长：${workHours} 小时`;
+            }
+            
+            showResult('work-result', message, resultClass);
+            updateStats(workHours);
+        }
+
+        // 会议时长计算
+        function calculateMeetingDuration() {
+            const startTime = new Date(document.getElementById('meeting-start').value);
+            const endTime = new Date(document.getElementById('meeting-end').value);
+            
+            if (!document.getElementById('meeting-start').value || !document.getElementById('meeting-end').value) {
+                showResult('meeting-result', '❌ 请填写完整的会议时间', 'danger');
+                return;
+            }
+            
+            const meetingHours = getHoursDiffBetweenDates(startTime, endTime);
+            
+            let resultClass = 'info';
+            let message = '';
+            
+            if (meetingHours < 0) {
+                resultClass = 'danger';
+                message = '❌ 结束时间不能早于开始时间！';
+            } else if (meetingHours > 4) {
+                resultClass = 'warning';
+                message = `⚠️ 会议时长较长：${meetingHours} 小时，建议适当休息`;
+            } else {
+                message = `📅 会议时长：${meetingHours} 小时`;
+            }
+            
+            showResult('meeting-result', message, resultClass);
+            updateStats(meetingHours);
+        }
+
+        // 项目进度计算
+        function calculateProjectProgress() {
+            const startTime = new Date(document.getElementById('project-start').value);
+            const currentTime = new Date(document.getElementById('project-current').value);
+            
+            if (!document.getElementById('project-start').value || !document.getElementById('project-current').value) {
+                showResult('project-result', '❌ 请填写完整的项目时间', 'danger');
+                return;
+            }
+            
+            const elapsedHours = getHoursDiffBetweenDates(startTime, currentTime);
+            
+            let resultClass = 'info';
+            let message = '';
+            
+            if (elapsedHours < 0) {
+                resultClass = 'danger';
+                message = '❌ 当前时间不能早于开始时间！';
+            } else {
+                const days = Math.floor(elapsedHours / 24);
+                const hours = elapsedHours % 24;
+                message = `📊 项目已进行：${days} 天 ${hours} 小时`;
+            }
+            
+            showResult('project-result', message, resultClass);
+            updateStats(elapsedHours);
+        }
+
+        // 倒计时计算
+        function calculateCountdown() {
+            const currentTime = new Date(document.getElementById('countdown-current').value);
+            const targetTime = new Date(document.getElementById('countdown-target').value);
+            
+            if (!document.getElementById('countdown-current').value || !document.getElementById('countdown-target').value) {
+                showResult('countdown-result', '❌ 请填写完整的时间', 'danger');
+                return;
+            }
+            
+            const countdownHours = getHoursDiffBetweenDates(currentTime, targetTime);
+            
+            let resultClass = 'info';
+            let message = '';
+            
+            if (countdownHours < 0) {
+                resultClass = 'danger';
+                message = `🎉 目标时间已过去 ${Math.abs(countdownHours)} 小时`;
+            } else if (countdownHours === 0) {
+                resultClass = 'warning';
+                message = '🎊 目标时间就在现在！';
+            } else if (countdownHours <= 24) {
+                resultClass = 'warning';
+                message = `⏰ 倒计时：${countdownHours} 小时`;
+            } else {
+                const days = Math.floor(countdownHours / 24);
+                const hours = countdownHours % 24;
+                message = `📅 距离目标还有：${days} 天 ${hours} 小时`;
+            }
+            
+            showResult('countdown-result', message, resultClass);
+            updateStats(Math.abs(countdownHours));
+        }
+
+        // 时区转换
+        function convertTimezone() {
+            const sourceTimezone = document.getElementById('source-timezone').value;
+            const targetTimezone = document.getElementById('target-timezone').value;
+            
+            const now = new Date();
+            const sourceTime = new Date(now.toLocaleString('en-US', { timeZone: sourceTimezone }));
+            const targetTime = new Date(now.toLocaleString('en-US', { timeZone: targetTimezone }));
+            
+            const timeDiff = getHoursDiffBetweenDates(sourceTime, targetTime);
+            
+            const message = `🌍 ${sourceTimezone.split('/')[1]}: ${sourceTime.toLocaleTimeString()} → ${targetTimezone.split('/')[1]}: ${targetTime.toLocaleTimeString()} (时差: ${Math.abs(timeDiff)} 小时)`;
+            
+            showResult('timezone-result', message, 'info');
+            updateStats(Math.abs(timeDiff));
+        }
+
+        // 加班时间计算
+        function calculateOvertime() {
+            const normalEnd = new Date(document.getElementById('overtime-normal').value);
+            const actualEnd = new Date(document.getElementById('overtime-actual').value);
+            
+            if (!document.getElementById('overtime-normal').value || !document.getElementById('overtime-actual').value) {
+                showResult('overtime-result', '❌ 请填写完整的下班时间', 'danger');
+                return;
+            }
+            
+            const overtimeHours = getHoursDiffBetweenDates(normalEnd, actualEnd);
+            
+            let resultClass = 'info';
+            let message = '';
+            
+            if (overtimeHours < 0) {
+                resultClass = 'success';
+                message = `✅ 提前下班：${Math.abs(overtimeHours)} 小时`;
+            } else if (overtimeHours === 0) {
+                resultClass = 'success';
+                message = '✅ 准时下班';
+            } else if (overtimeHours > 4) {
+                resultClass = 'danger';
+                message = `🌙 加班时间较长：${overtimeHours} 小时，请注意休息`;
+            } else {
+                resultClass = 'warning';
+                message = `🌙 加班时间：${overtimeHours} 小时`;
+            }
+            
+            showResult('overtime-result', message, resultClass);
+            updateStats(overtimeHours);
+        }
+
+        // 初始化世界时钟
+        function initWorldClock() {
+            const cities = [
+                { name: '北京', timezone: 'Asia/Shanghai' },
+                { name: '纽约', timezone: 'America/New_York' },
+                { name: '伦敦', timezone: 'Europe/London' },
+                { name: '东京', timezone: 'Asia/Tokyo' },
+                { name: '悉尼', timezone: 'Australia/Sydney' },
+                { name: '巴黎', timezone: 'Europe/Paris' }
+            ];
+            
+            const worldClockContainer = document.getElementById('world-clock');
+            worldClockContainer.innerHTML = '';
+            
+            cities.forEach(city => {
+                const cityElement = document.createElement('div');
+                cityElement.className = 'world-clock-item';
+                cityElement.innerHTML = `
+                    <div class="world-clock-city">${city.name}</div>
+                    <div class="world-clock-time" id="world-clock-${city.name}"></div>
+                `;
+                worldClockContainer.appendChild(cityElement);
+            });
+            
+            // 更新世界时钟
+            updateWorldClock();
+            setInterval(updateWorldClock, 1000);
+        }
+
+        // 更新世界时钟
+        function updateWorldClock() {
+            const cities = ['北京', '纽约', '伦敦', '东京', '悉尼', '巴黎'];
+            const timezones = ['Asia/Shanghai', 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Australia/Sydney', 'Europe/Paris'];
+            
+            cities.forEach((city, index) => {
+                const now = new Date();
+                const cityTime = new Date(now.toLocaleString('en-US', { timeZone: timezones[index] }));
+                const timeElement = document.getElementById(`world-clock-${city}`);
+                if (timeElement) {
+                    timeElement.textContent = cityTime.toLocaleTimeString('zh-CN', { 
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+            });
+        }
+
+        // 显示结果
+        function showResult(elementId, message, className) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${className}`;
+            element.style.display = 'block';
+        }
+
+        // 更新统计数据
+        function updateStats(hours) {
+            calculations.push(hours);
+            totalCalculations++;
+            
+            const avgHours = Math.round(calculations.reduce((a, b) => a + b, 0) / calculations.length * 100) / 100;
+            const maxHours = Math.max(...calculations);
+            const minHours = Math.min(...calculations);
+            
+            document.getElementById('total-calculations').textContent = totalCalculations;
+            document.getElementById('avg-hours').textContent = avgHours;
+            document.getElementById('max-hours').textContent = maxHours;
+            document.getElementById('min-hours').textContent = minHours;
+        }
+
+        // 设置当前时间
+        function setCurrentTime() {
+            const now = new Date();
+            const nowString = now.toISOString().slice(0, 16);
+            
+            const datetimeInputs = document.querySelectorAll('input[type="datetime-local"]');
+            datetimeInputs.forEach(input => {
+                if (input.id.includes('current') || input.id.includes('now')) {
+                    input.value = nowString;
+                }
+            });
+        }
+
+        // 清空所有结果
+        function clearAllResults() {
+            const results = document.querySelectorAll('.result');
+            results.forEach(result => {
+                result.style.display = 'none';
+            });
+            
+            calculations = [];
+            totalCalculations = 0;
+            document.getElementById('total-calculations').textContent = '0';
+            document.getElementById('avg-hours').textContent = '0';
+            document.getElementById('max-hours').textContent = '0';
+            document.getElementById('min-hours').textContent = '0';
+        }
+
+        // 导出数据
+        function exportData() {
+            const data = {
+                totalCalculations: totalCalculions,
+                averageHours: calculations.length > 0 ? Math.round(calculations.reduce((a, b) => a + b, 0) / calculations.length * 100) / 100 : 0,
+                maxHours: calculations.length > 0 ? Math.max(...calculations) : 0,
+                minHours: calculations.length > 0 ? Math.min(...calculations) : 0,
+                calculations: calculations,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hours-calculations-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 每秒更新主时钟
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+
+</html>

@@ -11,6 +11,11 @@ const getHoursDiffBetweenDates = (dateInitial, dateFinal) =>
   (dateFinal - dateInitial) / (1000 * 3600);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/get-hours-diff-between-dates.ts" data-language="typescript"></div>
+
+
 > 调用方式:
 
 ```js
@@ -22,8 +27,10 @@ getHoursDiffBetweenDates(
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/getHoursDiffBetweenDates.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/get-hours-diff-between-dates.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/get-hours-diff-between-dates.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/getHoursDiffBetweenDates.html"></iframe>
+<iframe src="codes/javascript/html/get-hours-diff-between-dates.html"></iframe>
