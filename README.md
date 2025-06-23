@@ -306,7 +306,7 @@
 - [获取小时分钟秒--2022-07-07](codes/javascript/get-colon-time-from-date.md)
 - [获取日期之间的天数差--2022-07-08](codes/javascript/get-days-diff-between-dates.md)
 - [获取日期之间的小时差--2022-07-09](codes/javascript/get-hours-diff-between-dates.md)
-- [获取元素宽度超过视图的元素--2022-07-10](codes/javascript/getElementsBiggerThanViewport.md)
+- [获取元素宽度超过视图的元素--2022-07-10](codes/javascript/get-elements-bigger-than-viewport.md)
 - [获取图片--2022-07-11](codes/javascript/getImages.md)
 - [获取整数的上午下午后缀--2022-07-12](codes/javascript/getMeridiemSuffixOfInteger.md)
 - [获取日期之间的分钟差-2022-07-13](codes/javascript/getMinutesDiffBetweenDates.md)

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能页面布局检测与优化工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #f8fafc;
+            --accent-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .viewport-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #2ecc71;
+        }
+
+        .viewport-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5em;
+            color: #2ecc71;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .viewport-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #2c5530;
+            border: 1px solid #a8edea;
+        }
+
+        .result.warning {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #8b4513;
+            border: 1px solid #ffecd2;
+        }
+
+        .result.danger {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: #8b0000;
+            border: 1px solid #ff9a9e;
+        }
+
+        .result.info {
+            background: linear-gradient(135deg, #a8caba, #5d4e75);
+            color: white;
+            border: 1px solid #a8caba;
+        }
+
+        .elements-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-top: 15px;
+        }
+
+        .element-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .element-info {
+            flex: 1;
+        }
+
+        .element-tag {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .element-width {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .element-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .element-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .element-btn:hover {
+            background: #5a67d8;
+        }
+
+        .highlight-overflow {
+            outline: 3px solid #ef4444 !important;
+            outline-offset: 2px !important;
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .highlight-fixed {
+            outline: 3px solid #10b981 !important;
+            outline-offset: 2px !important;
+            background-color: rgba(16, 185, 129, 0.1) !important;
+        }
+
+        .dashboard {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .dashboard h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* 测试元素样式 */
+        .test-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .test-element {
+            background: #e2e8f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .overflow-test {
+            width: 2500px;
+            background: #fecaca;
+            border: 2px solid #ef4444;
+        }
+
+        .responsive-test {
+            width: 100%;
+            max-width: 100%;
+            background: #d1fae5;
+            border: 2px solid #10b981;
+        }
+
+        .fixed-width-test {
+            width: 1200px;
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+        }
+
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 智能页面布局检测与优化工具</h1>
+            <p>多维度布局分析 - 专业的页面优化解决方案</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 视口信息显示 -->
+            <div class="viewport-info">
+                <div class="viewport-display" id="viewport-size">1920 x 1080</div>
+                <div class="viewport-label">当前视口尺寸</div>
+            </div>
+
+            <!-- 测试元素区域 -->
+            <div class="test-container">
+                <h3>🧪 测试元素区域</h3>
+                <div class="test-element overflow-test">
+                    <strong>溢出元素</strong> - 宽度: 2500px (会超出视口)
+                </div>
+                <div class="test-element responsive-test">
+                    <strong>响应式元素</strong> - 宽度: 100% (适配视口)
+                </div>
+                <div class="test-element fixed-width-test">
+                    <strong>固定宽度元素</strong> - 宽度: 1200px (可能超出小屏幕)
+                </div>
+            </div>
+
+            <!-- 功能工具 -->
+            <div class="tools-grid">
+                <!-- 溢出元素检测 -->
+                <div class="tool-card">
+                    <div class="tool-title">
+                        <div class="tool-icon">🔍</div>
+                        溢出元素检测
+                    </div>
+                    <button class="action-btn" onclick="detectOverflowElements()">
+                        <i class="fas fa-search"></i> 检测溢出元素
+                    </button>
+                    <div id="overflow-result" class="result"></div>
+                    <div id="overflow-list" class="elements-list" style="display: none;"></div>
+                </div>
+
+                <!-- 布局优化建议 -->
+                <div class="tool-card">
+                    <div class="tool-title">
+                        <div class="tool-icon">💡</div>
+                        布局优化建议
+                    </div>
+                    <button class="action-btn" onclick="generateOptimizationSuggestions()">
+                        <i class="fas fa-lightbulb"></i> 生成优化建议
+                    </button>
+                    <div id="optimization-result" class="result"></div>
+                </div>
+
+                <!-- 响应式测试 -->
+                <div class="tool-card">
+                    <div class="tool-title">
+                        <div class="tool-icon">📱</div>
+                        响应式测试
+                    </div>
+                    <button class="action-btn" onclick="testResponsiveLayout()">
+                        <i class="fas fa-mobile-alt"></i> 测试响应式布局
+                    </button>
+                    <div id="responsive-result" class="result"></div>
+                </div>
+
+                <!-- 元素高亮 -->
+                <div class="tool-card">
+                    <div class="tool-title">
+                        <div class="tool-icon">🎯</div>
+                        元素高亮显示
+                    </div>
+                    <button class="action-btn" onclick="highlightOverflowElements()">
+                        <i class="fas fa-highlighter"></i> 高亮溢出元素
+                    </button>
+                    <button class="action-btn" onclick="clearHighlights()" style="background: #6b7280;">
+                        <i class="fas fa-eraser"></i> 清除高亮
+                    </button>
+                    <div id="highlight-result" class="result"></div>
+                </div>
+
+                <!-- 性能分析 -->
+                <div class="tool-card">
+                    <div class="tool-title">
+                        <div class="tool-icon">⚡</div>
+                        性能分析
+                    </div>
+                    <button class="action-btn" onclick="analyzePerformance()">
+                        <i class="fas fa-tachometer-alt"></i> 分析页面性能
+                    </button>
+                    <div id="performance-result" class="result"></div>
+                </div>
+
+                <!-- 自动修复 -->
+                <div class="tool-card">
+                    <div class="tool-title">
+                        <div class="tool-icon">🔧</div>
+                        自动修复建议
+                    </div>
+                    <button class="action-btn" onclick="suggestAutoFixes()">
+                        <i class="fas fa-wrench"></i> 生成修复建议
+                    </button>
+                    <div id="fix-result" class="result"></div>
+                </div>
+            </div>
+
+            <!-- 数据统计面板 -->
+            <div class="dashboard">
+                <h2>📊 布局检测统计</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-elements">0</div>
+                        <div class="stat-label">总元素数量</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="overflow-elements">0</div>
+                        <div class="stat-label">溢出元素数量</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="responsive-elements">0</div>
+                        <div class="stat-label">响应式元素</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="issues-found">0</div>
+                        <div class="stat-label">发现问题</div>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="refreshViewport()">刷新视口信息</button>
+                    <button class="quick-btn" onclick="clearAllResults()">清空所有结果</button>
+                    <button class="quick-btn" onclick="exportReport()">导出检测报告</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 智能页面布局检测与优化工具 | 专业的页面优化解决方案</p>
+        </div>
+    </div>
+
+    <script>
+        // 核心检测函数
+        const getElementsBiggerThanViewport = () => {
+            const viewWidth = document.documentElement.offsetWidth;
+            return [...document.querySelectorAll('*')].filter(el => el.offsetWidth > viewWidth);
+        };
+
+        // 全局变量
+        let totalElements = 0;
+        let overflowElements = 0;
+        let responsiveElements = 0;
+        let issuesFound = 0;
+        let highlightedElements = [];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            updateViewportInfo();
+            updateStats();
+        });
+
+        // 更新视口信息
+        function updateViewportInfo() {
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            document.getElementById('viewport-size').textContent = `${viewportWidth} x ${viewportHeight}`;
+        }
+
+        // 检测溢出元素
+        function detectOverflowElements() {
+            const elements = getElementsBiggerThanViewport();
+            const viewWidth = document.documentElement.offsetWidth;
+            
+            if (elements.length === 0) {
+                showResult('overflow-result', '✅ 未发现超出视口的元素', 'success');
+                document.getElementById('overflow-list').style.display = 'none';
+            } else {
+                showResult('overflow-result', `⚠️ 发现 ${elements.length} 个超出视口的元素`, 'warning');
+                
+                const listContainer = document.getElementById('overflow-list');
+                listContainer.innerHTML = '';
+                
+                elements.forEach((el, index) => {
+                    const elementItem = document.createElement('div');
+                    elementItem.className = 'element-item';
+                    elementItem.innerHTML = `
+                        <div class="element-info">
+                            <span class="element-tag">${el.tagName.toLowerCase()}</span>
+                            <span class="element-width">宽度: ${el.offsetWidth}px (超出 ${el.offsetWidth - viewWidth}px)</span>
+                        </div>
+                        <div class="element-actions">
+                            <button class="element-btn" onclick="scrollToElement(${index})">定位</button>
+                            <button class="element-btn" onclick="inspectElement(${index})">检查</button>
+                        </div>
+                    `;
+                    listContainer.appendChild(elementItem);
+                });
+                
+                listContainer.style.display = 'block';
+            }
+            
+            overflowElements = elements.length;
+            updateStats();
+        }
+
+        // 生成优化建议
+        function generateOptimizationSuggestions() {
+            const elements = getElementsBiggerThanViewport();
+            const suggestions = [];
+            
+            if (elements.length === 0) {
+                showResult('optimization-result', '✅ 页面布局良好，无需优化', 'success');
+                return;
+            }
+            
+            elements.forEach(el => {
+                const tagName = el.tagName.toLowerCase();
+                const width = el.offsetWidth;
+                const viewWidth = document.documentElement.offsetWidth;
+                const overflow = width - viewWidth;
+                
+                if (tagName === 'img') {
+                    suggestions.push(`图片元素过宽，建议添加 max-width: 100%`);
+                } else if (tagName === 'table') {
+                    suggestions.push(`表格过宽，建议使用响应式表格或横向滚动`);
+                } else if (width > viewWidth * 2) {
+                    suggestions.push(`元素宽度过大 (${width}px)，建议使用相对单位或媒体查询`);
+                } else {
+                    suggestions.push(`元素 ${tagName} 超出视口 ${overflow}px，建议调整宽度`);
+                }
+            });
+            
+            const message = `💡 优化建议：\n${suggestions.slice(0, 5).join('\n')}`;
+            showResult('optimization-result', message, 'info');
+            
+            issuesFound = suggestions.length;
+            updateStats();
+        }
+
+        // 响应式测试
+        function testResponsiveLayout() {
+            const viewWidth = document.documentElement.offsetWidth;
+            const allElements = document.querySelectorAll('*');
+            let responsiveCount = 0;
+            let fixedWidthCount = 0;
+            
+            allElements.forEach(el => {
+                const computedStyle = window.getComputedStyle(el);
+                const width = computedStyle.width;
+                
+                if (width === '100%' || width.includes('vw') || width.includes('em') || width.includes('rem')) {
+                    responsiveCount++;
+                } else if (width.includes('px') && !width.includes('calc')) {
+                    fixedWidthCount++;
+                }
+            });
+            
+            const message = `📱 响应式分析：\n响应式元素: ${responsiveCount} 个\n固定宽度元素: ${fixedWidthCount} 个\n建议增加响应式元素比例`;
+            showResult('responsive-result', message, 'info');
+            
+            responsiveElements = responsiveCount;
+            updateStats();
+        }
+
+        // 高亮溢出元素
+        function highlightOverflowElements() {
+            clearHighlights();
+            const elements = getElementsBiggerThanViewport();
+            
+            elements.forEach(el => {
+                el.classList.add('highlight-overflow');
+                highlightedElements.push(el);
+            });
+            
+            if (elements.length > 0) {
+                showResult('highlight-result', `🎯 已高亮 ${elements.length} 个溢出元素`, 'warning');
+            } else {
+                showResult('highlight-result', '✅ 没有发现溢出元素', 'success');
+            }
+        }
+
+        // 清除高亮
+        function clearHighlights() {
+            highlightedElements.forEach(el => {
+                el.classList.remove('highlight-overflow', 'highlight-fixed');
+            });
+            highlightedElements = [];
+            showResult('highlight-result', '🧹 已清除所有高亮', 'info');
+        }
+
+        // 性能分析
+        function analyzePerformance() {
+            const startTime = performance.now();
+            const elements = getElementsBiggerThanViewport();
+            const endTime = performance.now();
+            
+            const analysisTime = endTime - startTime;
+            const totalElements = document.querySelectorAll('*').length;
+            const overflowPercentage = (elements.length / totalElements * 100).toFixed(2);
+            
+            let performanceLevel = '优秀';
+            if (analysisTime > 10) performanceLevel = '较差';
+            else if (analysisTime > 5) performanceLevel = '一般';
+            
+            const message = `⚡ 性能分析：\n检测时间: ${analysisTime.toFixed(2)}ms\n总元素: ${totalElements} 个\n溢出比例: ${overflowPercentage}%\n性能等级: ${performanceLevel}`;
+            showResult('performance-result', message, 'info');
+        }
+
+        // 自动修复建议
+        function suggestAutoFixes() {
+            const elements = getElementsBiggerThanViewport();
+            const fixes = [];
+            
+            elements.forEach(el => {
+                const tagName = el.tagName.toLowerCase();
+                const computedStyle = window.getComputedStyle(el);
+                
+                if (tagName === 'img' && !computedStyle.maxWidth.includes('100%')) {
+                    fixes.push(`为图片添加: max-width: 100%; height: auto;`);
+                } else if (tagName === 'table') {
+                    fixes.push(`为表格添加: overflow-x: auto;`);
+                } else if (computedStyle.width.includes('px')) {
+                    const currentWidth = parseInt(computedStyle.width);
+                    fixes.push(`将固定宽度 ${currentWidth}px 改为: max-width: 100%;`);
+                }
+            });
+            
+            if (fixes.length === 0) {
+                showResult('fix-result', '✅ 无需自动修复', 'success');
+            } else {
+                const message = `🔧 自动修复建议：\n${fixes.slice(0, 3).join('\n')}`;
+                showResult('fix-result', message, 'warning');
+            }
+        }
+
+        // 滚动到元素
+        function scrollToElement(index) {
+            const elements = getElementsBiggerThanViewport();
+            if (elements[index]) {
+                elements[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                elements[index].classList.add('highlight-fixed');
+                setTimeout(() => {
+                    elements[index].classList.remove('highlight-fixed');
+                }, 2000);
+            }
+        }
+
+        // 检查元素
+        function inspectElement(index) {
+            const elements = getElementsBiggerThanViewport();
+            if (elements[index]) {
+                const el = elements[index];
+                const computedStyle = window.getComputedStyle(el);
+                const info = `元素: ${el.tagName.toLowerCase()}\n宽度: ${el.offsetWidth}px\n样式宽度: ${computedStyle.width}\n类名: ${el.className}`;
+                alert(info);
+            }
+        }
+
+        // 刷新视口信息
+        function refreshViewport() {
+            updateViewportInfo();
+            showResult('overflow-result', '🔄 视口信息已刷新', 'info');
+        }
+
+        // 清空所有结果
+        function clearAllResults() {
+            const results = document.querySelectorAll('.result');
+            results.forEach(result => {
+                result.style.display = 'none';
+            });
+            
+            document.getElementById('overflow-list').style.display = 'none';
+            clearHighlights();
+            
+            totalElements = 0;
+            overflowElements = 0;
+            responsiveElements = 0;
+            issuesFound = 0;
+            updateStats();
+        }
+
+        // 导出检测报告
+        function exportReport() {
+            const elements = getElementsBiggerThanViewport();
+            const viewWidth = document.documentElement.offsetWidth;
+            const viewHeight = window.innerHeight;
+            
+            const report = {
+                timestamp: new Date().toISOString(),
+                viewport: {
+                    width: viewWidth,
+                    height: viewHeight
+                },
+                analysis: {
+                    totalElements: document.querySelectorAll('*').length,
+                    overflowElements: elements.length,
+                    responsiveElements: responsiveElements,
+                    issuesFound: issuesFound
+                },
+                overflowElements: elements.map(el => ({
+                    tagName: el.tagName.toLowerCase(),
+                    width: el.offsetWidth,
+                    className: el.className,
+                    overflow: el.offsetWidth - viewWidth
+                })),
+                suggestions: generateSuggestions(elements)
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `layout-analysis-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 生成建议
+        function generateSuggestions(elements) {
+            const suggestions = [];
+            elements.forEach(el => {
+                const tagName = el.tagName.toLowerCase();
+                if (tagName === 'img') {
+                    suggestions.push('为图片添加 max-width: 100%');
+                } else if (tagName === 'table') {
+                    suggestions.push('为表格添加 overflow-x: auto');
+                } else {
+                    suggestions.push(`调整 ${tagName} 元素的宽度`);
+                }
+            });
+            return suggestions;
+        }
+
+        // 显示结果
+        function showResult(elementId, message, className) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${className}`;
+            element.style.display = 'block';
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            totalElements = document.querySelectorAll('*').length;
+            
+            document.getElementById('total-elements').textContent = totalElements;
+            document.getElementById('overflow-elements').textContent = overflowElements;
+            document.getElementById('responsive-elements').textContent = responsiveElements;
+            document.getElementById('issues-found').textContent = issuesFound;
+        }
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', () => {
+            updateViewportInfo();
+        });
+
+        // 初始化
+        updateViewportInfo();
+        updateStats();
+    </script>
+</body>
+
+</html>
