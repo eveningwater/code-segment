@@ -27,8 +27,8 @@ getImages(document, false); // ['image1.jpg', 'image2.png', '...']
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/getImages.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/get-images.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/getImages.html"></iframe>
+<iframe src="codes/javascript/html/get-images.html"></iframe>

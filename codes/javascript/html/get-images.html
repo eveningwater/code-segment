@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能图片管理器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            height: fit-content;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .upload-section {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #f8f9ff, #fff);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(118, 75, 162, 0.2);
+        }
+
+        .upload-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64b3f4, #c2e59c);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .filter-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .filter-tag.active {
+            background: #1976d2;
+            color: white;
+        }
+
+        .filter-tag:hover {
+            background: #bbdefb;
+            transform: scale(1.05);
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .image-card.duplicate {
+            border: 2px solid #ff6b6b;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .card-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .card-info {
+            padding: 5px 0;
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .card-meta {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+        }
+
+        .duplicate-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .gallery-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>🎨 智能图片管理器</h1>
+            <p>专业的图片管理解决方案 - 支持去重、分类、搜索等功能</p>
+        </header>
+
+        <div class="dashboard">
+            <aside class="sidebar">
+                <div class="stats-section">
+                    <h3 style="color: white; margin-bottom: 15px; text-align: center;">📊 统计信息</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalImages">0</div>
+                            <div class="stat-label">总图片</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="uniqueImages">0</div>
+                            <div class="stat-label">唯一图片</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="duplicateImages">0</div>
+                            <div class="stat-label">重复图片</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="categories">0</div>
+                            <div class="stat-label">分类数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">🔍 搜索图片</div>
+                    <input type="text" class="search-box" id="searchBox" placeholder="搜索图片名称或标签...">
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">📁 图片分类</div>
+                    <div class="filter-options" id="categoryFilters">
+                        <div class="filter-tag active" data-category="all">全部</div>
+                        <div class="filter-tag" data-category="nature">自然</div>
+                        <div class="filter-tag" data-category="tech">科技</div>
+                        <div class="filter-tag" data-category="people">人物</div>
+                        <div class="filter-tag" data-category="art">艺术</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">🎯 显示选项</div>
+                    <div class="filter-options">
+                        <div class="filter-tag" id="showDuplicatesToggle" data-show="false">仅显示重复</div>
+                        <div class="filter-tag" id="showUniqueToggle" data-show="false">仅显示唯一</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <button class="btn btn-danger" id="clearAllBtn">🗑️ 清空所有</button>
+                    <button class="btn btn-secondary" id="exportBtn">📤 导出列表</button>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <div class="upload-section" id="uploadSection">
+                    <div class="upload-icon">📷</div>
+                    <h3>添加图片到管理器</h3>
+                    <p style="margin: 10px 0; color: #666;">点击选择预设图片集或拖拽自定义图片</p>
+                    <button class="btn" id="addNatureBtn">🌿 添加自然风光 (10张)</button>
+                    <button class="btn" id="addTechBtn">💻 添加科技产品 (8张)</button>
+                    <button class="btn" id="addPeopleBtn">👥 添加人物照片 (6张)</button>
+                    <button class="btn" id="addDuplicatesBtn">🔄 添加重复图片 (测试去重)</button>
+                </div>
+
+                <div class="loading" id="loadingSection" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>正在处理图片...</p>
+                </div>
+
+                <div class="gallery-container" id="galleryContainer">
+                    <div class="empty-state">
+                        <div class="empty-icon">🖼️</div>
+                        <h3>暂无图片</h3>
+                        <p>点击上方按钮添加一些图片开始管理吧！</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 图片预览模态框 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">图片详情</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <img class="preview-image" id="previewImage" src="" alt="">
+            <div id="modalInfo"></div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-small" id="editTagsBtn">🏷️ 编辑标签</button>
+                <button class="btn btn-small btn-secondary" id="setCategoryBtn">📁 设置分类</button>
+                <button class="btn btn-small btn-danger" id="deleteImageBtn">🗑️ 删除图片</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 图片管理器类
+        class ImageManager {
+            constructor() {
+                this.images = new Map(); // 存储所有图片信息
+                this.currentFilter = 'all';
+                this.showDuplicatesOnly = false;
+                this.showUniqueOnly = false;
+                this.searchTerm = '';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.updateStats();
+            }
+
+            // 核心方法：获取指定元素中的所有图片
+            getImages(el, includeDuplicates = false) {
+                const images = [...el.getElementsByTagName('img')].map(img => img.getAttribute('src'));
+                return includeDuplicates ? images : [...new Set(images)];
+            }
+
+            // 绑定事件
+            bindEvents() {
+                // 添加图片按钮事件
+                document.getElementById('addNatureBtn').addEventListener('click', () => {
+                    this.addImageSet('nature', '自然风光', 10, 'https://picsum.photos/300/200?random=');
+                });
+
+                document.getElementById('addTechBtn').addEventListener('click', () => {
+                    this.addImageSet('tech', '科技产品', 8, 'https://picsum.photos/300/200?tech&random=');
+                });
+
+                document.getElementById('addPeopleBtn').addEventListener('click', () => {
+                    this.addImageSet('people', '人物照片', 6, 'https://picsum.photos/300/200?people&random=');
+                });
+
+                document.getElementById('addDuplicatesBtn').addEventListener('click', () => {
+                    this.addDuplicateImages();
+                });
+
+                // 搜索框事件
+                document.getElementById('searchBox').addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value.toLowerCase();
+                    this.renderGallery();
+                });
+
+                // 分类过滤事件
+                document.querySelectorAll('[data-category]').forEach(filter => {
+                    filter.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-category]').forEach(f => f.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentFilter = e.target.dataset.category;
+                        this.renderGallery();
+                    });
+                });
+
+                // 显示选项事件
+                document.getElementById('showDuplicatesToggle').addEventListener('click', (e) => {
+                    this.showDuplicatesOnly = !this.showDuplicatesOnly;
+                    this.showUniqueOnly = false;
+                    e.target.classList.toggle('active');
+                    document.getElementById('showUniqueToggle').classList.remove('active');
+                    this.renderGallery();
+                });
+
+                document.getElementById('showUniqueToggle').addEventListener('click', (e) => {
+                    this.showUniqueOnly = !this.showUniqueOnly;
+                    this.showDuplicatesOnly = false;
+                    e.target.classList.toggle('active');
+                    document.getElementById('showDuplicatesToggle').classList.remove('active');
+                    this.renderGallery();
+                });
+
+                // 清空和导出按钮
+                document.getElementById('clearAllBtn').addEventListener('click', () => {
+                    if (confirm('确定要清空所有图片吗？')) {
+                        this.clearAll();
+                    }
+                });
+
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportImageList();
+                });
+
+                // 模态框事件
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    document.getElementById('imageModal').classList.remove('show');
+                });
+            }
+
+            // 添加图片集
+            async addImageSet(category, categoryName, count, baseUrl) {
+                this.showLoading(true);
+                
+                for (let i = 1; i <= count; i++) {
+                    const imageId = `${category}_${Date.now()}_${i}`;
+                    const imageUrl = `${baseUrl}${Date.now() + i}`;
+                    
+                    const imageData = {
+                        id: imageId,
+                        src: imageUrl,
+                        name: `${categoryName}_${i}`,
+                        category: category,
+                        tags: this.generateTags(category),
+                        uploadTime: new Date().toLocaleString(),
+                        size: Math.floor(Math.random() * 500 + 100) + 'KB'
+                    };
+                    
+                    this.images.set(imageId, imageData);
+                }
+
+                this.showLoading(false);
+                this.renderGallery();
+                this.updateStats();
+            }
+
+            // 添加重复图片进行测试
+            async addDuplicateImages() {
+                this.showLoading(true);
+                
+                // 添加一些重复的图片
+                const duplicateUrls = [
+                    'https://picsum.photos/300/200?random=1001',
+                    'https://picsum.photos/300/200?random=1002',
+                    'https://picsum.photos/300/200?random=1001', // 重复
+                    'https://picsum.photos/300/200?random=1003',
+                    'https://picsum.photos/300/200?random=1002', // 重复
+                ];
+
+                duplicateUrls.forEach((url, index) => {
+                    const imageId = `duplicate_${Date.now()}_${index}`;
+                    const imageData = {
+                        id: imageId,
+                        src: url,
+                        name: `测试图片_${index + 1}`,
+                        category: 'art',
+                        tags: ['测试', '重复检测'],
+                        uploadTime: new Date().toLocaleString(),
+                        size: Math.floor(Math.random() * 300 + 50) + 'KB'
+                    };
+                    
+                    this.images.set(imageId, imageData);
+                });
+
+                this.showLoading(false);
+                this.renderGallery();
+                this.updateStats();
+            }
+
+            // 生成标签
+            generateTags(category) {
+                const tagSets = {
+                    nature: ['风景', '自然', '户外', '美丽'],
+                    tech: ['科技', '现代', '创新', '数码'],
+                    people: ['人物', '肖像', '生活', '情感'],
+                    art: ['艺术', '创意', '设计', '美学']
+                };
+                
+                return tagSets[category] || ['通用'];
+            }
+
+            // 渲染图片画廊
+            renderGallery() {
+                const container = document.getElementById('galleryContainer');
+                const allImages = Array.from(this.images.values());
+                
+                // 应用过滤器
+                let filteredImages = allImages.filter(image => {
+                    // 分类过滤
+                    if (this.currentFilter !== 'all' && image.category !== this.currentFilter) {
+                        return false;
+                    }
+                    
+                    // 搜索过滤
+                    if (this.searchTerm && 
+                        !image.name.toLowerCase().includes(this.searchTerm) &&
+                        !image.tags.some(tag => tag.toLowerCase().includes(this.searchTerm))) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+
+                // 检测重复图片
+                const srcCounts = {};
+                allImages.forEach(image => {
+                    srcCounts[image.src] = (srcCounts[image.src] || 0) + 1;
+                });
+
+                // 应用重复/唯一过滤
+                if (this.showDuplicatesOnly) {
+                    filteredImages = filteredImages.filter(image => srcCounts[image.src] > 1);
+                } else if (this.showUniqueOnly) {
+                    filteredImages = filteredImages.filter(image => srcCounts[image.src] === 1);
+                }
+
+                if (filteredImages.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🔍</div>
+                            <h3>没有找到图片</h3>
+                            <p>尝试调整搜索条件或添加更多图片</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 渲染图片卡片
+                container.innerHTML = filteredImages.map(image => {
+                    const isDuplicate = srcCounts[image.src] > 1;
+                    
+                    return `
+                        <div class="image-card ${isDuplicate ? 'duplicate' : ''}" data-id="${image.id}">
+                            ${isDuplicate ? '<div class="duplicate-badge">重复</div>' : ''}
+                            <img class="card-image" src="${image.src}" alt="${image.name}" loading="lazy">
+                            <div class="card-info">
+                                <div class="card-title">${image.name}</div>
+                                <div class="card-meta">
+                                    📅 ${image.uploadTime}<br>
+                                    📊 ${image.size}
+                                </div>
+                                <div class="card-tags">
+                                    ${image.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn btn-small" onclick="imageManager.previewImage('${image.id}')">👁️ 预览</button>
+                                    <button class="btn btn-small btn-danger" onclick="imageManager.deleteImage('${image.id}')">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const allImages = Array.from(this.images.values());
+                const allSrcs = allImages.map(img => img.src);
+                const uniqueImages = this.getImages(document.createElement('div'), false);
+                
+                // 使用临时容器来计算重复图片
+                const tempContainer = document.createElement('div');
+                allImages.forEach(image => {
+                    const img = document.createElement('img');
+                    img.src = image.src;
+                    tempContainer.appendChild(img);
+                });
+
+                const totalImages = this.getImages(tempContainer, true).length;
+                const uniqueCount = this.getImages(tempContainer, false).length;
+                const duplicateCount = totalImages - uniqueCount;
+                const categories = new Set(allImages.map(img => img.category)).size;
+
+                document.getElementById('totalImages').textContent = totalImages;
+                document.getElementById('uniqueImages').textContent = uniqueCount;
+                document.getElementById('duplicateImages').textContent = duplicateCount;
+                document.getElementById('categories').textContent = categories;
+            }
+
+            // 预览图片
+            previewImage(imageId) {
+                const image = this.images.get(imageId);
+                if (!image) return;
+
+                document.getElementById('modalTitle').textContent = image.name;
+                document.getElementById('previewImage').src = image.src;
+                document.getElementById('modalInfo').innerHTML = `
+                    <p><strong>分类：</strong> ${image.category}</p>
+                    <p><strong>上传时间：</strong> ${image.uploadTime}</p>
+                    <p><strong>文件大小：</strong> ${image.size}</p>
+                    <p><strong>标签：</strong> ${image.tags.join(', ')}</p>
+                `;
+                
+                document.getElementById('imageModal').classList.add('show');
+            }
+
+            // 删除图片
+            deleteImage(imageId) {
+                if (confirm('确定要删除这张图片吗？')) {
+                    this.images.delete(imageId);
+                    this.renderGallery();
+                    this.updateStats();
+                }
+            }
+
+            // 显示加载状态
+            showLoading(show) {
+                document.getElementById('loadingSection').style.display = show ? 'block' : 'none';
+            }
+
+            // 清空所有图片
+            clearAll() {
+                this.images.clear();
+                this.renderGallery();
+                this.updateStats();
+            }
+
+            // 导出图片列表
+            exportImageList() {
+                const allImages = Array.from(this.images.values());
+                const exportData = {
+                    totalImages: allImages.length,
+                    exportTime: new Date().toLocaleString(),
+                    images: allImages.map(img => ({
+                        name: img.name,
+                        category: img.category,
+                        tags: img.tags,
+                        uploadTime: img.uploadTime,
+                        src: img.src
+                    }))
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `图片管理器导出_${new Date().getTime()}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // 初始化图片管理器
+        const imageManager = new ImageManager();
+
+        // 演示getImages方法的使用
+        console.log('🎯 图片管理器已启动！');
+        console.log('💡 核心功能演示：');
+        console.log('1. 添加图片后，系统会自动调用 getImages() 方法分析重复图片');
+        console.log('2. 可以切换"仅显示重复"来查看 getImages(el, true) 和 getImages(el, false) 的差异');
+        console.log('3. 统计信息实时展示唯一图片和重复图片的数量');
+    </script>
+</body>
+
+</html>
