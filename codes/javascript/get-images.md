@@ -18,6 +18,10 @@ const getImages = (el, includeDuplicates = false) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/get-images.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,6 +30,8 @@ getImages(document, false); // ['image1.jpg', 'image2.png', '...']
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/get-images.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/get-images.html" data-language="html"></div>
 

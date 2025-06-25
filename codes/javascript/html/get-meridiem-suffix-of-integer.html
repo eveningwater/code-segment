@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>获取整数的上午下午后缀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .container {
+            background: #fff;
+            margin-top: 40px;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(60,60,60,0.18);
+            padding: 32px 28px 24px 28px;
+            max-width: 420px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 18px;
+            color: #f76b1c;
+            letter-spacing: 1px;
+        }
+        .lang-switch {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 18px;
+        }
+        .lang-switch button {
+            background: #f76b1c;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 18px;
+            font-size: 1rem;
+            margin-left: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .lang-switch button.active {
+            background: #333;
+        }
+        .add-time-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .add-time-form input[type="text"] {
+            width: 180px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .add-time-form button {
+            background: #43cea2;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .add-time-form button:hover {
+            background: #2fa97c;
+        }
+        .time-list {
+            margin-top: 10px;
+        }
+        .time-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            transition: box-shadow 0.2s;
+        }
+        .time-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
+        .time-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .time-hour {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+        }
+        .time-suffix {
+            font-size: 1rem;
+            color: #f76b1c;
+            margin-top: 2px;
+        }
+        .delete-btn {
+            background: #ff4e50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+        @media (max-width: 500px) {
+            .container { padding: 18px 6px; }
+            h1 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>排班/会议时间录入示例</h1>
+        <div class="lang-switch">
+            <span>语言:</span>
+            <button id="lang-en" class="active">English</button>
+            <button id="lang-zh">中文</button>
+        </div>
+        <form class="add-time-form" id="addTimeForm" autocomplete="off">
+            <input type="text" id="hourInput" placeholder="如 9,12,15,18 或 8" required />
+            <button type="submit">批量添加时间点</button>
+        </form>
+        <div class="time-list" id="timeList"></div>
+    </div>
+    <script>
+        const getMeridiemSuffixOfInteger = (num, lang = "en") => {
+            const suffix = {
+                "en": ["am", "pm"],
+                "zh": ["上午", "下午"]
+            }
+            const [ams, pms] = suffix[lang];
+            return num === 0 || num === 24 ? 12 + ams : num === 12 ? 12 + pms : num < 12 ? (num % 12) + ams : (num %
+                12) + pms;
+        }
+
+        let lang = "en";
+        let times = [9, 12, 15, 18]; // 默认时间点
+
+        const timeList = document.getElementById('timeList');
+        const addTimeForm = document.getElementById('addTimeForm');
+        const hourInput = document.getElementById('hourInput');
+        const langEnBtn = document.getElementById('lang-en');
+        const langZhBtn = document.getElementById('lang-zh');
+
+        function renderTimes() {
+            timeList.innerHTML = '';
+            if (times.length === 0) {
+                timeList.innerHTML = '<div style="text-align:center;color:#aaa;">暂无时间点，请添加</div>';
+                return;
+            }
+            times.forEach((hour, idx) => {
+                const suffix = getMeridiemSuffixOfInteger(hour, lang);
+                const card = document.createElement('div');
+                card.className = 'time-card';
+                card.innerHTML = `
+                    <div class="time-info">
+                        <span class="time-hour">${hour}:00</span>
+                        <span class="time-suffix">${suffix}</span>
+                    </div>
+                    <button class="delete-btn" data-idx="${idx}">删除</button>
+                `;
+                card.querySelector('.delete-btn').onclick = function() {
+                    times.splice(idx, 1);
+                    renderTimes();
+                };
+                timeList.appendChild(card);
+            });
+        }
+
+        addTimeForm.onsubmit = function(e) {
+            e.preventDefault();
+            const val = hourInput.value.trim();
+            if (!val) return;
+            const arr = val.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n >= 0 && n <= 24);
+            if (arr.length === 0) {
+                hourInput.value = '';
+                hourInput.placeholder = lang === 'zh' ? '请输入0-24之间的数字' : 'Enter numbers 0-24';
+                hourInput.classList.add('error');
+                setTimeout(() => hourInput.classList.remove('error'), 1000);
+                return;
+            }
+            times = times.concat(arr);
+            hourInput.value = '';
+            renderTimes();
+        };
+
+        langEnBtn.onclick = function() {
+            lang = 'en';
+            langEnBtn.classList.add('active');
+            langZhBtn.classList.remove('active');
+            hourInput.placeholder = 'e.g. 9,12,15,18 or 8';
+            renderTimes();
+        };
+        langZhBtn.onclick = function() {
+            lang = 'zh';
+            langZhBtn.classList.add('active');
+            langEnBtn.classList.remove('active');
+            hourInput.placeholder = '如 9,12,15,18 或 8';
+            renderTimes();
+        };
+
+        renderTimes();
+    </script>
+</body>
+
+</html>
