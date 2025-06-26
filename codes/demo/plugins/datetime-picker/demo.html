@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义日期时间选择器演示</title>
+    <link rel="stylesheet" href="../input-number/style.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .demo-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .demo-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: #4caf50;
+            font-weight: bold;
+            width: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 自定义日期时间选择器</h1>
+            <p>完全替代原生 datetime-local 的美观组件</p>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <div class="demo-icon">1</div>
+                基础功能演示
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="basic-picker">选择日期时间</label>
+                    <div id="basic-picker"></div>
+                </div>
+                <div class="form-group">
+                    <label for="with-value-picker">带初始值</label>
+                    <div id="with-value-picker"></div>
+                </div>
+            </div>
+            <button class="btn" onclick="getBasicValue()">获取值</button>
+            <button class="btn" onclick="setBasicValue()">设置值</button>
+            <button class="btn" onclick="clearBasicValue()">清空值</button>
+            <div id="basic-result" class="result" style="display: none;">
+                <div class="result-label">当前值:</div>
+                <div class="result-value" id="basic-value"></div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <div class="demo-icon">2</div>
+                限制范围演示
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="min-max-picker">限制日期范围</label>
+                    <div id="min-max-picker"></div>
+                    <small style="color: #666; font-size: 12px;">
+                        只能选择今天之后到下个月的日期
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="working-hours-picker">工作时间选择</label>
+                    <div id="working-hours-picker"></div>
+                    <small style="color: #666; font-size: 12px;">
+                        适合选择工作时间
+                    </small>
+                </div>
+            </div>
+            <button class="btn" onclick="getConstrainedValue()">获取受限值</button>
+            <div id="constrained-result" class="result" style="display: none;">
+                <div class="result-label">受限选择器的值:</div>
+                <div class="result-value" id="constrained-value"></div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <div class="demo-icon">3</div>
+                事件回调演示
+            </div>
+            <div class="form-group">
+                <label for="callback-picker">实时回调</label>
+                <div id="callback-picker"></div>
+            </div>
+            <div id="callback-log" class="result">
+                <div class="result-label">回调日志:</div>
+                <div class="result-value" id="callback-messages">选择日期时间查看实时回调...</div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <div class="demo-icon">✨</div>
+                功能特性
+            </div>
+            <ul class="feature-list">
+                <li>完全替代原生 input[type="datetime-local"]</li>
+                <li>美观的现代化设计，支持暗色主题</li>
+                <li>移动端响应式适配</li>
+                <li>支持最小/最大日期限制</li>
+                <li>实时值变化回调</li>
+                <li>集成自定义 InputNumber 组件进行时间输入</li>
+                <li>时间精确到分钟，支持按钮调节</li>
+                <li>今天高亮显示</li>
+                <li>平滑动画效果</li>
+                <li>易于集成和自定义</li>
+            </ul>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <div class="demo-icon">💻</div>
+                代码示例
+            </div>
+            <pre style="background: #f8f9fa; padding: 20px; border-radius: 8px; overflow-x: auto; font-size: 14px;"><code>// 基础用法
+const picker = new DateTimePicker({
+    container: '#my-picker',
+    value: '2024-01-15T14:30',
+    placeholder: '请选择日期时间',
+    onChange: (value) => {
+        console.log('选择的值:', value);
+    }
+});
+
+// 设置范围限制
+const restrictedPicker = new DateTimePicker({
+    container: '#restricted-picker',
+    min: '2024-01-01T00:00',
+    max: '2024-12-31T23:59',
+    onChange: (value) => {
+        console.log('新值:', value);
+    }
+});
+
+// 获取和设置值
+const currentValue = picker.getValue();
+picker.setValue('2024-02-20T16:45');</code></pre>
+        </div>
+    </div>
+
+    <script src="../input-number/index.js"></script>
+    <script src="index.js"></script>
+    <script>
+        let basicPicker, withValuePicker, minMaxPicker, workingHoursPicker, callbackPicker;
+        let callbackMessages = [];
+
+        // 初始化所有演示
+        window.onload = function() {
+            // 基础功能演示
+            basicPicker = new DateTimePicker({
+                container: '#basic-picker',
+                placeholder: '点击选择日期时间'
+            });
+
+            const now = new Date();
+            withValuePicker = new DateTimePicker({
+                container: '#with-value-picker',
+                value: formatDateTimeLocal(now),
+                placeholder: '带初始值的选择器'
+            });
+
+            // 限制范围演示
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+            minMaxPicker = new DateTimePicker({
+                container: '#min-max-picker',
+                min: formatDateTimeLocal(tomorrow),
+                max: formatDateTimeLocal(nextMonth),
+                placeholder: '受限日期选择'
+            });
+
+            // 工作时间选择器
+            const workStart = new Date();
+            workStart.setHours(9, 0, 0, 0);
+            workingHoursPicker = new DateTimePicker({
+                container: '#working-hours-picker',
+                value: formatDateTimeLocal(workStart),
+                placeholder: '工作时间选择'
+            });
+
+            // 事件回调演示
+            callbackPicker = new DateTimePicker({
+                container: '#callback-picker',
+                placeholder: '选择查看回调',
+                onChange: (value) => {
+                    const timestamp = new Date().toLocaleTimeString();
+                    callbackMessages.unshift(`[${timestamp}] 值变更为: ${value || '(空值)'}`);
+                    if (callbackMessages.length > 5) {
+                        callbackMessages = callbackMessages.slice(0, 5);
+                    }
+                    document.getElementById('callback-messages').textContent = callbackMessages.join('\n');
+                }
+            });
+        };
+
+        // 工具函数
+        function formatDateTimeLocal(date) {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+            return localDate.toISOString().slice(0, 16);
+        }
+
+        // 基础功能按钮
+        function getBasicValue() {
+            const value1 = basicPicker.getValue();
+            const value2 = withValuePicker.getValue();
+            document.getElementById('basic-value').textContent = 
+                `基础选择器: ${value1 || '(未选择)'}\n带值选择器: ${value2 || '(未选择)'}`;
+            document.getElementById('basic-result').style.display = 'block';
+        }
+
+        function setBasicValue() {
+            const now = new Date();
+            now.setHours(now.getHours() + 2); // 2小时后
+            const value = formatDateTimeLocal(now);
+            basicPicker.setValue(value);
+            withValuePicker.setValue(value);
+            alert(`已设置为2小时后的时间: ${value}`);
+        }
+
+        function clearBasicValue() {
+            basicPicker.setValue('');
+            withValuePicker.setValue('');
+            document.getElementById('basic-result').style.display = 'none';
+            alert('已清空所有值');
+        }
+
+        // 限制范围按钮
+        function getConstrainedValue() {
+            const value1 = minMaxPicker.getValue();
+            const value2 = workingHoursPicker.getValue();
+            document.getElementById('constrained-value').textContent = 
+                `限制范围: ${value1 || '(未选择)'}\n工作时间: ${value2 || '(未选择)'}`;
+            document.getElementById('constrained-result').style.display = 'block';
+        }
+
+        // 控制台演示
+        console.log('🎉 自定义日期时间选择器演示已加载');
+        console.log('📦 已集成自定义 InputNumber 组件进行时间输入');
+        console.log('💡 你可以在控制台中使用以下命令测试:');
+        console.log('1. basicPicker.getValue() - 获取基础选择器的值');
+        console.log('2. basicPicker.setValue("2024-12-25T15:30") - 设置值');
+        console.log('3. basicPicker.hourInput.getValue() - 获取小时值');
+        console.log('4. basicPicker.minuteInput.setValue(30) - 设置分钟值');
+        console.log('5. 查看 callbackMessages 数组了解回调历史');
+    </script>
+</body>
+</html> 
