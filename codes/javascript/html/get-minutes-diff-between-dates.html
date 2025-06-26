@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间差计算器 - 实战应用示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #ff6b6b;
+            border-bottom-color: #ff6b6b;
+        }
+
+        .tab:hover {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .result-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-detail {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .quick-action {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .quick-action:hover {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .scenario-card {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            border-color: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .scenario-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scenario-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .history-item {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .history-time {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .history-result {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* 自定义组件样式覆盖 */
+        .ew-input-number {
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .ew-input-number:focus-within {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .input-number-button {
+            background: #f8f9fa;
+            color: #666;
+            border-radius: 0;
+            height: 51px;
+            width: 40px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .input-number-button:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .input-number-button.decrease {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .input-number-button.increase {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .input-number-input {
+            height: 51px;
+            font-size: 16px;
+            padding: 15px;
+            background: white;
+        }
+
+        /* Modal 样式覆盖 */
+        .modal {
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .modal-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            border: none;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .modal-btn-default {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            color: #666;
+        }
+
+        .modal-btn-default:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .ew-input-number {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ 时间差计算器</h1>
+            <p>专业的时间差计算工具，支持多种实际业务场景应用</p>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(0)">基础计算</button>
+                <button class="tab" onclick="switchTab(1)">工作时间</button>
+                <button class="tab" onclick="switchTab(2)">活动倒计时</button>
+                <button class="tab" onclick="switchTab(3)">历史记录</button>
+            </div>
+
+            <!-- 基础计算 -->
+            <div class="tab-content active">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">1</div>
+                        基础时间差计算
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start-date">开始时间</label>
+                            <input type="datetime-local" id="start-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="end-date">结束时间</label>
+                            <input type="datetime-local" id="end-date">
+                        </div>
+                    </div>
+                    <button class="btn" onclick="calculateBasic()">计算时间差</button>
+                    
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="setQuickTime('hour')">1小时后</div>
+                        <div class="quick-action" onclick="setQuickTime('day')">1天后</div>
+                        <div class="quick-action" onclick="setQuickTime('week')">1周后</div>
+                        <div class="quick-action" onclick="setQuickTime('month')">1个月后</div>
+                    </div>
+                </div>
+
+                <div id="basic-result"></div>
+            </div>
+
+            <!-- 工作时间计算 -->
+            <div class="tab-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">💼</div>
+                        工作时间计算器
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="work-start">上班时间</label>
+                            <input type="datetime-local" id="work-start">
+                        </div>
+                        <div class="form-group">
+                            <label for="work-end">下班时间</label>
+                            <input type="datetime-local" id="work-end">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="break-duration">午休时长(分钟)</label>
+                            <div id="break-duration-container" name="break-duration"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hourly-rate">时薪(元)</label>
+                            <div id="hourly-rate-container" name="hourly-rate"></div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="calculateWork()">计算工作收入</button>
+                    
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="setWorkTimePreset('standard')">标准工作时间</div>
+                        <div class="quick-action" onclick="setWorkTimePreset('overtime')">加班模式</div>
+                        <div class="quick-action" onclick="setWorkTimePreset('parttime')">兼职模式</div>
+                        <div class="quick-action" onclick="adjustSalarySettings()">调整薪资设置</div>
+                    </div>
+                </div>
+
+                <div id="work-result"></div>
+            </div>
+
+            <!-- 活动倒计时 -->
+            <div class="tab-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">🎉</div>
+                        活动倒计时
+                    </div>
+                    <div class="form-group">
+                        <label for="event-name">活动名称</label>
+                        <input type="text" id="event-name" placeholder="例如：产品发布会">
+                    </div>
+                    <div class="form-group">
+                        <label for="event-date">活动时间</label>
+                        <input type="datetime-local" id="event-date">
+                    </div>
+                    <button class="btn" onclick="startCountdown()">开始倒计时</button>
+                    
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="setEventTime('today')">今天晚上8点</div>
+                        <div class="quick-action" onclick="setEventTime('tomorrow')">明天上午10点</div>
+                        <div class="quick-action" onclick="setEventTime('weekend')">本周六下午2点</div>
+                    </div>
+                </div>
+
+                <div id="countdown-result"></div>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="tab-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">📝</div>
+                        计算历史记录
+                    </div>
+                    <button class="btn" onclick="clearHistory()" style="background: #dc3545;">清空记录</button>
+                </div>
+
+                <div id="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script>
+        // 核心函数
+        const getMinutesDiffBetweenDates = (dateInitial, dateFinal) =>
+            (dateFinal - dateInitial) / (1000 * 60);
+
+        // 全局变量
+        let countdownInterval;
+        let history = JSON.parse(localStorage.getItem('timeCalculatorHistory') || '[]');
+        let modal = new Modal();
+        let breakDurationInput;
+        let hourlyRateInput;
+
+        // 初始化
+        window.onload = function() {
+            const now = new Date();
+            const later = new Date(now.getTime() + 60 * 60 * 1000); // 1小时后
+            
+            document.getElementById('start-date').value = formatDateTimeLocal(now);
+            document.getElementById('end-date').value = formatDateTimeLocal(later);
+            document.getElementById('work-start').value = formatDateTimeLocal(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0));
+            document.getElementById('work-end').value = formatDateTimeLocal(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0));
+            
+            // 初始化自定义组件
+            initCustomComponents();
+            
+            loadHistory();
+        };
+
+        // 初始化自定义组件
+        function initCustomComponents() {
+            // 初始化午休时长输入组件
+            breakDurationInput = new InputNumber({
+                container: '#break-duration-container',
+                min: 0,
+                max: 480, // 最多8小时
+                step: 15, // 15分钟步长
+                value: 60,
+                onChange: (value) => {
+                    console.log('午休时长变更:', value);
+                }
+            });
+
+            // 初始化时薪输入组件
+            hourlyRateInput = new InputNumber({
+                container: '#hourly-rate-container',
+                min: 0,
+                max: 10000,
+                step: 0.5,
+                value: 50,
+                onChange: (value) => {
+                    console.log('时薪变更:', value);
+                }
+            });
+        }
+
+        // 工具函数
+        function formatDateTimeLocal(date) {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+            return localDate.toISOString().slice(0, 16);
+        }
+
+        function formatDuration(minutes) {
+            const days = Math.floor(minutes / (24 * 60));
+            const hours = Math.floor((minutes % (24 * 60)) / 60);
+            const mins = Math.floor(minutes % 60);
+            
+            let result = [];
+            if (days > 0) result.push(`${days}天`);
+            if (hours > 0) result.push(`${hours}小时`);
+            if (mins > 0) result.push(`${mins}分钟`);
+            
+            return result.join(' ') || '0分钟';
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function addToHistory(type, description, result) {
+            const historyItem = {
+                id: Date.now(),
+                type,
+                description,
+                result,
+                timestamp: new Date().toLocaleString('zh-CN')
+            };
+            history.unshift(historyItem);
+            if (history.length > 50) history.pop(); // 最多保存50条记录
+            localStorage.setItem('timeCalculatorHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        // 切换标签页
+        function switchTab(index) {
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+
+        // 基础计算
+        function calculateBasic() {
+            const startDate = new Date(document.getElementById('start-date').value);
+            const endDate = new Date(document.getElementById('end-date').value);
+            
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                modal.alert('请选择有效的日期时间');
+                return;
+            }
+
+            const minutes = getMinutesDiffBetweenDates(startDate, endDate);
+            const absoluteMinutes = Math.abs(minutes);
+            
+            const resultHTML = `
+                <div class="result-card">
+                    <h3>${minutes >= 0 ? '时间差计算结果' : '倒推时间差结果'}</h3>
+                    <div class="result-value">${absoluteMinutes.toLocaleString()} 分钟</div>
+                    <div class="result-detail">
+                        等于 ${formatDuration(absoluteMinutes)}<br>
+                        开始时间：${startDate.toLocaleString('zh-CN')}<br>
+                        结束时间：${endDate.toLocaleString('zh-CN')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('basic-result').innerHTML = resultHTML;
+            addToHistory('基础计算', `${startDate.toLocaleString('zh-CN')} 到 ${endDate.toLocaleString('zh-CN')}`, `${absoluteMinutes.toLocaleString()}分钟`);
+            showToast('计算完成！');
+        }
+
+        // 快速设置时间
+        function setQuickTime(type) {
+            const now = new Date();
+            let endDate = new Date(now);
+            
+            switch(type) {
+                case 'hour':
+                    endDate.setHours(endDate.getHours() + 1);
+                    break;
+                case 'day':
+                    endDate.setDate(endDate.getDate() + 1);
+                    break;
+                case 'week':
+                    endDate.setDate(endDate.getDate() + 7);
+                    break;
+                case 'month':
+                    endDate.setMonth(endDate.getMonth() + 1);
+                    break;
+            }
+            
+            document.getElementById('start-date').value = formatDateTimeLocal(now);
+            document.getElementById('end-date').value = formatDateTimeLocal(endDate);
+            calculateBasic();
+        }
+
+        // 工作时间计算
+        function calculateWork() {
+            const workStart = new Date(document.getElementById('work-start').value);
+            const workEnd = new Date(document.getElementById('work-end').value);
+            const breakDuration = breakDurationInput.getValue();
+            const hourlyRate = hourlyRateInput.getValue();
+            
+            if (isNaN(workStart.getTime()) || isNaN(workEnd.getTime())) {
+                modal.alert('请选择有效的工作时间');
+                return;
+            }
+
+            const totalMinutes = getMinutesDiffBetweenDates(workStart, workEnd);
+            const workMinutes = Math.max(0, totalMinutes - breakDuration);
+            const workHours = workMinutes / 60;
+            const totalEarnings = workHours * hourlyRate;
+            
+            const resultHTML = `
+                <div class="result-card">
+                    <h3>💰 工作收入计算结果</h3>
+                    <div class="result-value">¥${totalEarnings.toFixed(2)}</div>
+                    <div class="result-detail">
+                        总工作时间：${formatDuration(totalMinutes)}<br>
+                        减去午休：${breakDuration}分钟<br>
+                        实际工作：${formatDuration(workMinutes)} (${workHours.toFixed(2)}小时)<br>
+                        时薪：¥${hourlyRate}/小时<br>
+                        每分钟收入：¥${(hourlyRate/60).toFixed(2)}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('work-result').innerHTML = resultHTML;
+            addToHistory('工作计算', `工作${formatDuration(workMinutes)}`, `收入¥${totalEarnings.toFixed(2)}`);
+            showToast(`今日收入：¥${totalEarnings.toFixed(2)}`);
+        }
+
+        // 活动倒计时
+        function startCountdown() {
+            const eventName = document.getElementById('event-name').value || '活动';
+            const eventDate = new Date(document.getElementById('event-date').value);
+            
+            if (isNaN(eventDate.getTime())) {
+                modal.alert('请选择有效的活动时间');
+                return;
+            }
+
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            function updateCountdown() {
+                const now = new Date();
+                const minutes = getMinutesDiffBetweenDates(now, eventDate);
+                
+                if (minutes <= 0) {
+                    document.getElementById('countdown-result').innerHTML = `
+                        <div class="result-card" style="background: linear-gradient(135deg, #ff6b6b, #ff8e53);">
+                            <h3>🎉 ${eventName}</h3>
+                            <div class="result-value">已开始！</div>
+                            <div class="result-detail">活动时间已到，快去参加吧！</div>
+                        </div>
+                    `;
+                    clearInterval(countdownInterval);
+                    showToast(`${eventName}开始了！`);
+                    return;
+                }
+
+                const resultHTML = `
+                    <div class="result-card">
+                        <h3>⏳ ${eventName} 倒计时</h3>
+                        <div class="result-value">${formatDuration(minutes)}</div>
+                        <div class="result-detail">
+                            还有 ${minutes.toLocaleString()} 分钟<br>
+                            活动时间：${eventDate.toLocaleString('zh-CN')}<br>
+                            当前时间：${now.toLocaleString('zh-CN')}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('countdown-result').innerHTML = resultHTML;
+            }
+
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+            addToHistory('活动倒计时', eventName, `${eventDate.toLocaleString('zh-CN')}`);
+        }
+
+        // 设置活动时间
+        function setEventTime(type) {
+            const now = new Date();
+            let eventDate = new Date(now);
+            
+            switch(type) {
+                case 'today':
+                    eventDate.setHours(20, 0, 0, 0);
+                    break;
+                case 'tomorrow':
+                    eventDate.setDate(eventDate.getDate() + 1);
+                    eventDate.setHours(10, 0, 0, 0);
+                    break;
+                case 'weekend':
+                    const daysUntilSaturday = (6 - eventDate.getDay()) % 7;
+                    eventDate.setDate(eventDate.getDate() + daysUntilSaturday);
+                    eventDate.setHours(14, 0, 0, 0);
+                    break;
+            }
+            
+            document.getElementById('event-date').value = formatDateTimeLocal(eventDate);
+        }
+
+        // 工作时间预设
+        function setWorkTimePreset(type) {
+            const now = new Date();
+            let startTime, endTime, breakTime, rate;
+            
+            switch(type) {
+                case 'standard':
+                    startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0);
+                    endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0);
+                    breakTime = 60;
+                    rate = 50;
+                    break;
+                case 'overtime':
+                    startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0);
+                    endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 0);
+                    breakTime = 90;
+                    rate = 75;
+                    break;
+                case 'parttime':
+                    startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0);
+                    endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0);
+                    breakTime = 0;
+                    rate = 35;
+                    break;
+            }
+            
+            document.getElementById('work-start').value = formatDateTimeLocal(startTime);
+            document.getElementById('work-end').value = formatDateTimeLocal(endTime);
+            breakDurationInput.setValue(breakTime);
+            hourlyRateInput.setValue(rate);
+            
+            calculateWork();
+        }
+
+        // 调整薪资设置
+        async function adjustSalarySettings() {
+            const currentRate = hourlyRateInput.getValue();
+            const newRate = await modal.prompt('请输入新的时薪（元/小时）:', currentRate.toString());
+            
+            if (newRate !== null && !isNaN(parseFloat(newRate))) {
+                hourlyRateInput.setValue(parseFloat(newRate));
+                showToast(`时薪已更新为 ¥${newRate}/小时`);
+            }
+        }
+
+        // 历史记录
+        function loadHistory() {
+            const historyList = document.getElementById('history-list');
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">暂无计算记录</p>';
+                return;
+            }
+
+            const historyHTML = history.map(item => `
+                <div class="history-item">
+                    <div class="history-time">${item.timestamp} - ${item.type}</div>
+                    <div class="history-result">${item.description} → ${item.result}</div>
+                </div>
+            `).join('');
+            
+            historyList.innerHTML = historyHTML;
+        }
+
+        async function clearHistory() {
+            const confirmed = await modal.confirm('确定要清空所有历史记录吗？');
+            if (confirmed) {
+                history = [];
+                localStorage.removeItem('timeCalculatorHistory');
+                loadHistory();
+                showToast('历史记录已清空');
+            }
+        }
+
+        // 演示初始计算
+        console.log('🎉 时间差计算器已加载');
+        console.log('💡 演示：计算当前时间到1小时后的分钟差');
+        const demoNow = new Date();
+        const oneHourLater = new Date(demoNow.getTime() + 60 * 60 * 1000);
+        console.log(`📊 结果：${getMinutesDiffBetweenDates(demoNow, oneHourLater)} 分钟`);
+        console.log('');
+        console.log('🔧 自定义组件功能演示：');
+        console.log('1. 使用 breakDurationInput.setValue(90) 设置午休时长为90分钟');
+        console.log('2. 使用 hourlyRateInput.setValue(100) 设置时薪为100元');
+        console.log('3. 使用 modal.alert("测试提示") 显示自定义提示框');
+        console.log('4. 使用 modal.confirm("确认操作吗？") 显示确认对话框');
+        console.log('5. 使用 modal.prompt("请输入内容:") 显示输入对话框');
+        console.log('');
+        console.log('💼 快速体验工作时间计算：点击"标准工作时间"按钮');
+    </script>
+</body>
+
+</html>
