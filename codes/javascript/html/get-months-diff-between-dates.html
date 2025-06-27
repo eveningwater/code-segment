@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工考勤薪资管理系统 - getMonthsDiffBetweenDates 实战应用</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #718096, #4a5568);
+            box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+            box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .employee-list {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .employee-item {
+            display: grid;
+            grid-template-columns: 1fr 100px 120px 100px 120px;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .employee-item:hover {
+            background: #f7fafc;
+            transform: translateX(5px);
+        }
+
+        .employee-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .employee-info {
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .salary-info {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-color: #38a169;
+            color: #2f855a;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            border-color: #e53e3e;
+            color: #c53030;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .employee-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+
+        /* 引入插件样式 */
+        .ew-datetime-picker {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .datetime-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: #fff;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .datetime-input-wrapper:hover {
+            border-color: #667eea;
+        }
+
+        .datetime-input-wrapper:focus-within,
+        .ew-datetime-picker.open .datetime-input-wrapper {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .datetime-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .ew-input-number {
+            display: inline-flex;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .ew-input-number:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-number-button {
+            width: 36px;
+            height: 44px;
+            border: none;
+            background: #f7fafc;
+            color: #4a5568;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .input-number-button:hover {
+            background: #edf2f7;
+            color: #667eea;
+        }
+
+        .input-number-input {
+            flex: 1;
+            border: none;
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 员工考勤薪资管理系统</h1>
+            <p>基于 getMonthsDiffBetweenDates 方法的实战应用示例</p>
+        </div>
+
+        <div class="dashboard">
+            <!-- 员工信息录入 -->
+            <div class="card">
+                <h2>
+                    <span class="icon">👥</span>
+                    员工信息管理
+                </h2>
+
+                <div class="form-group">
+                    <label>员工姓名</label>
+                    <input type="text" id="employeeName" placeholder="请输入员工姓名"
+                        style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>入职日期</label>
+                        <div id="hireDatePicker"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>离职日期（可选）</label>
+                        <div id="leaveDatePicker"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>月薪基数（元）</label>
+                        <div id="baseSalaryInput"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>职位级别</label>
+                        <select id="positionLevel"
+                            style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
+                            <option value="1">初级（1级）</option>
+                            <option value="2">中级（2级）</option>
+                            <option value="3">高级（3级）</option>
+                            <option value="4">专家（4级）</option>
+                            <option value="5">总监（5级）</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="addEmployee()">
+                    ➕ 添加员工
+                </button>
+            </div>
+
+            <!-- 薪资计算器 -->
+            <div class="card">
+                <h2>
+                    <span class="icon">💰</span>
+                    薪资计算器
+                </h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>计算起始日期</label>
+                        <div id="calcStartDatePicker"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>计算结束日期</label>
+                        <div id="calcEndDatePicker"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>加班月数</label>
+                        <div id="overtimeMonthsInput"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>奖金倍数</label>
+                        <div id="bonusMultiplierInput"></div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="calculateSalaryForAll()">
+                    🧮 批量计算薪资
+                </button>
+                <button class="btn btn-secondary" onclick="showSalaryReport()">
+                    📊 查看薪资报表
+                </button>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="results-section">
+            <h2 style="margin-bottom: 20px; color: #2d3748;">
+                <span class="icon">📈</span>
+                数据统计概览
+            </h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalEmployees">0</div>
+                    <div class="stat-label">总员工数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeEmployees">0</div>
+                    <div class="stat-label">在职员工</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSalary">¥0</div>
+                    <div class="stat-label">总薪资支出</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgTenure">0</div>
+                    <div class="stat-label">平均工龄（月）</div>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+        </div>
+
+        <!-- 员工列表 -->
+        <div class="employee-list">
+            <h2 style="margin-bottom: 20px; color: #2d3748;">
+                <span class="icon">📋</span>
+                员工列表
+            </h2>
+
+            <div class="employee-item"
+                style="font-weight: bold; background: #f7fafc; border-bottom: 2px solid #e2e8f0;">
+                <div>员工姓名</div>
+                <div>工龄</div>
+                <div>职位级别</div>
+                <div>状态</div>
+                <div>操作</div>
+            </div>
+
+            <div id="employeeListContainer">
+                <div class="no-data">暂无员工数据，请先添加员工信息</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+
+    <script>
+        // 核心函数：计算两个日期之间的月份差
+        const getMonthsDiffBetweenDates = (dateInitial, dateFinal) =>
+            Math.max(
+                (dateFinal.getFullYear() - dateInitial.getFullYear()) * 12 +
+                dateFinal.getMonth() -
+                dateInitial.getMonth(),
+                0
+            );
+
+        // 全局数据
+        let employees = JSON.parse(localStorage.getItem('employees') || '[]');
+        let salaryCalculations = JSON.parse(localStorage.getItem('salaryCalculations') || '[]');
+
+        // 插件实例
+        let hireDatePicker, leaveDatePicker, calcStartDatePicker, calcEndDatePicker;
+        let baseSalaryInput, overtimeMonthsInput, bonusMultiplierInput;
+        let modal;
+
+        // 初始化插件
+        function initPlugins() {
+            // 日期选择器
+            hireDatePicker = new DateTimePicker({
+                container: document.getElementById('hireDatePicker'),
+                placeholder: '选择入职日期',
+                format: 'YYYY-MM-DD'
+            });
+
+            leaveDatePicker = new DateTimePicker({
+                container: document.getElementById('leaveDatePicker'),
+                placeholder: '选择离职日期（可选）',
+                format: 'YYYY-MM-DD'
+            });
+
+            calcStartDatePicker = new DateTimePicker({
+                container: document.getElementById('calcStartDatePicker'),
+                placeholder: '选择计算起始日期',
+                format: 'YYYY-MM-DD',
+                value: '2024-01-01'
+            });
+
+            calcEndDatePicker = new DateTimePicker({
+                container: document.getElementById('calcEndDatePicker'),
+                placeholder: '选择计算结束日期',
+                format: 'YYYY-MM-DD',
+                value: new Date().toISOString().split('T')[0]
+            });
+
+            // 数字输入框
+            baseSalaryInput = new InputNumber({
+                container: document.getElementById('baseSalaryInput'),
+                min: 3000,
+                max: 100000,
+                step: 500,
+                value: 8000
+            });
+
+            overtimeMonthsInput = new InputNumber({
+                container: document.getElementById('overtimeMonthsInput'),
+                min: 0,
+                max: 24,
+                step: 1,
+                value: 0
+            });
+
+            bonusMultiplierInput = new InputNumber({
+                container: document.getElementById('bonusMultiplierInput'),
+                min: 1,
+                max: 5,
+                step: 0.1,
+                value: 1.0
+            });
+
+            // 模态框
+            modal = new Modal();
+        }
+
+        // 添加员工
+        function addEmployee() {
+            const name = document.getElementById('employeeName').value.trim();
+            const hireDate = hireDatePicker.getValue();
+            const leaveDate = leaveDatePicker.getValue();
+            const baseSalary = baseSalaryInput.getValue();
+            const positionLevel = document.getElementById('positionLevel').value;
+
+            if (!name) {
+                showAlert('请输入员工姓名', 'error');
+                return;
+            }
+
+            if (!hireDate) {
+                showAlert('请选择入职日期', 'error');
+                return;
+            }
+
+            // 验证日期逻辑
+            if (leaveDate && new Date(leaveDate) <= new Date(hireDate)) {
+                showAlert('离职日期必须晚于入职日期', 'error');
+                return;
+            }
+
+            const employee = {
+                id: Date.now(),
+                name,
+                hireDate,
+                leaveDate: leaveDate || null,
+                baseSalary,
+                positionLevel: parseInt(positionLevel),
+                isActive: !leaveDate,
+                createdAt: new Date().toISOString()
+            };
+
+            employees.push(employee);
+            saveData();
+
+            // 清空表单
+            document.getElementById('employeeName').value = '';
+            hireDatePicker.clear();
+            leaveDatePicker.clear();
+            baseSalaryInput.setValue(8000);
+            document.getElementById('positionLevel').value = '1';
+
+            showAlert(`员工 ${name} 添加成功！`, 'success');
+            renderEmployeeList();
+            updateStats();
+        }
+
+        // 计算所有员工薪资
+        function calculateSalaryForAll() {
+            const startDate = calcStartDatePicker.getValue();
+            const endDate = calcEndDatePicker.getValue();
+            const overtimeMonths = overtimeMonthsInput.getValue();
+            const bonusMultiplier = bonusMultiplierInput.getValue();
+
+            if (!startDate || !endDate) {
+                showAlert('请选择计算起始和结束日期', 'error');
+                return;
+            }
+
+            if (new Date(endDate) <= new Date(startDate)) {
+                showAlert('结束日期必须晚于起始日期', 'error');
+                return;
+            }
+
+            const calculations = employees.map(employee => {
+                const empHireDate = new Date(employee.hireDate);
+                const empLeaveDate = employee.leaveDate ? new Date(employee.leaveDate) : null;
+                const calcStart = new Date(startDate);
+                const calcEnd = new Date(endDate);
+
+                // 计算实际工作期间
+                const actualStartDate = new Date(Math.max(empHireDate.getTime(), calcStart.getTime()));
+                const actualEndDate = empLeaveDate ?
+                    new Date(Math.min(empLeaveDate.getTime(), calcEnd.getTime())) :
+                    calcEnd;
+
+                // 使用核心函数计算工作月数
+                const workedMonths = actualStartDate <= actualEndDate ?
+                    getMonthsDiffBetweenDates(actualStartDate, actualEndDate) + 1 : 0;
+
+                // 计算总工龄（从入职到现在）
+                const totalTenure = getMonthsDiffBetweenDates(empHireDate, new Date());
+
+                // 薪资计算逻辑
+                const levelMultiplier = 1 + (employee.positionLevel - 1) * 0.3; // 级别系数
+                const tenureBonus = Math.floor(totalTenure / 12) * 0.1; // 工龄奖金
+                const overtimeBonus = overtimeMonths * 0.5; // 加班补贴
+
+                const monthlySalary = employee.baseSalary * levelMultiplier * (1 + tenureBonus + overtimeBonus);
+                const totalSalary = monthlySalary * workedMonths * bonusMultiplier;
+
+                return {
+                    employeeId: employee.id,
+                    employeeName: employee.name,
+                    workedMonths,
+                    totalTenure,
+                    monthlySalary: Math.round(monthlySalary),
+                    totalSalary: Math.round(totalSalary),
+                    calculationDate: new Date().toISOString(),
+                    startDate,
+                    endDate
+                };
+            });
+
+            salaryCalculations = calculations;
+            saveData();
+
+            showAlert(`薪资计算完成！共计算 ${employees.length} 名员工`, 'success');
+            renderEmployeeList();
+            updateStats();
+        }
+
+        // 显示薪资报表
+        function showSalaryReport() {
+            if (salaryCalculations.length === 0) {
+                showAlert('请先计算员工薪资', 'error');
+                return;
+            }
+
+            const totalPayout = salaryCalculations.reduce((sum, calc) => sum + calc.totalSalary, 0);
+            const avgSalary = Math.round(totalPayout / salaryCalculations.length);
+
+            let reportHtml = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">📊 薪资统计报表</h3>
+                    <p><strong>总薪资支出:</strong> <span class="highlight">¥${totalPayout.toLocaleString()}</span></p>
+                    <p><strong>平均薪资:</strong> <span class="highlight">¥${avgSalary.toLocaleString()}</span></p>
+                    <p><strong>计算时间:</strong> ${new Date().toLocaleString()}</p>
+                </div>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f7fafc;">
+                                <th style="padding: 8px; border: 1px solid #e2e8f0;">员工</th>
+                                <th style="padding: 8px; border: 1px solid #e2e8f0;">工作月数</th>
+                                <th style="padding: 8px; border: 1px solid #e2e8f0;">月薪</th>
+                                <th style="padding: 8px; border: 1px solid #e2e8f0;">总薪资</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            salaryCalculations.forEach(calc => {
+                reportHtml += `
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;">${calc.employeeName}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">${calc.workedMonths}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right;">¥${calc.monthlySalary.toLocaleString()}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0; text-align: right; font-weight: bold; color: #667eea;">¥${calc.totalSalary.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            reportHtml += '</tbody></table></div>';
+
+            modal.show({
+                title: '薪资报表详情',
+                content: reportHtml,
+                onConfirm: () => { }
+            });
+        }
+
+        // 删除员工
+        function deleteEmployee(id) {
+            modal.confirm('确定要删除这名员工吗？此操作不可撤销。').then(confirmed => {
+                if (confirmed) {
+                    employees = employees.filter(emp => emp.id !== id);
+                    salaryCalculations = salaryCalculations.filter(calc => calc.employeeId !== id);
+                    saveData();
+                    renderEmployeeList();
+                    updateStats();
+                    showAlert('员工删除成功', 'success');
+                }
+            });
+        }
+
+        // 查看员工详情
+        function viewEmployee(id) {
+            const employee = employees.find(emp => emp.id === id);
+            if (!employee) return;
+
+            const currentDate = new Date();
+            const hireDate = new Date(employee.hireDate);
+            const leaveDate = employee.leaveDate ? new Date(employee.leaveDate) : null;
+
+            // 使用核心函数计算工龄
+            const totalTenure = getMonthsDiffBetweenDates(hireDate, currentDate);
+            const years = Math.floor(totalTenure / 12);
+            const months = totalTenure % 12;
+
+            const calculation = salaryCalculations.find(calc => calc.employeeId === id);
+
+            let detailHtml = `
+                <div style="line-height: 1.6;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">👤 ${employee.name} 的详细信息</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h4>基本信息</h4>
+                        <p><strong>入职日期:</strong> ${employee.hireDate}</p>
+                        ${employee.leaveDate ? `<p><strong>离职日期:</strong> ${employee.leaveDate}</p>` : ''}
+                        <p><strong>职位级别:</strong> ${employee.positionLevel}级</p>
+                        <p><strong>基础月薪:</strong> ¥${employee.baseSalary.toLocaleString()}</p>
+                        <p><strong>工作状态:</strong> <span style="color: ${employee.isActive ? '#38a169' : '#e53e3e'}">${employee.isActive ? '在职' : '离职'}</span></p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h4>工龄统计</h4>
+                        <p><strong>总工龄:</strong> <span class="highlight">${years}年${months}个月 (${totalTenure}个月)</span></p>
+                        <p><strong>工龄计算:</strong> 使用 getMonthsDiffBetweenDates 函数精确计算</p>
+                    </div>
+            `;
+
+            if (calculation) {
+                detailHtml += `
+                    <div>
+                        <h4>最近薪资计算</h4>
+                        <p><strong>计算期间工作月数:</strong> ${calculation.workedMonths}个月</p>
+                        <p><strong>当期月薪:</strong> ¥${calculation.monthlySalary.toLocaleString()}</p>
+                        <p><strong>当期总薪资:</strong> <span class="highlight">¥${calculation.totalSalary.toLocaleString()}</span></p>
+                        <p><strong>计算时间:</strong> ${new Date(calculation.calculationDate).toLocaleString()}</p>
+                    </div>
+                `;
+            }
+
+            detailHtml += '</div>';
+
+            modal.show({
+                title: '员工详情',
+                content: detailHtml,
+                onConfirm: () => { }
+            });
+        }
+
+        // 渲染员工列表
+        function renderEmployeeList() {
+            const container = document.getElementById('employeeListContainer');
+
+            if (employees.length === 0) {
+                container.innerHTML = '<div class="no-data">暂无员工数据，请先添加员工信息</div>';
+                return;
+            }
+
+            let html = '';
+            employees.forEach(employee => {
+                const currentDate = new Date();
+                const hireDate = new Date(employee.hireDate);
+
+                // 使用核心函数计算工龄
+                const totalTenure = getMonthsDiffBetweenDates(hireDate, currentDate);
+                const years = Math.floor(totalTenure / 12);
+                const months = totalTenure % 12;
+                const tenureDisplay = years > 0 ? `${years}年${months}月` : `${months}月`;
+
+                const calculation = salaryCalculations.find(calc => calc.employeeId === employee.id);
+                const salaryDisplay = calculation ?
+                    `¥${calculation.totalSalary.toLocaleString()}` :
+                    '未计算';
+
+                html += `
+                    <div class="employee-item">
+                        <div class="employee-name">${employee.name}</div>
+                        <div class="employee-info">${tenureDisplay}</div>
+                        <div class="employee-info">${employee.positionLevel}级</div>
+                        <div class="employee-info">
+                            <span style="color: ${employee.isActive ? '#38a169' : '#e53e3e'};">
+                                ${employee.isActive ? '在职' : '离职'}
+                            </span>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-small" onclick="viewEmployee(${employee.id})">详情</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteEmployee(${employee.id})">删除</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const total = employees.length;
+            const active = employees.filter(emp => emp.isActive).length;
+            const totalSalary = salaryCalculations.reduce((sum, calc) => sum + calc.totalSalary, 0);
+
+            // 计算平均工龄
+            const currentDate = new Date();
+            const avgTenure = total > 0 ?
+                Math.round(employees.reduce((sum, emp) => {
+                    const hireDate = new Date(emp.hireDate);
+                    return sum + getMonthsDiffBetweenDates(hireDate, currentDate);
+                }, 0) / total) : 0;
+
+            document.getElementById('totalEmployees').textContent = total;
+            document.getElementById('activeEmployees').textContent = active;
+            document.getElementById('totalSalary').textContent = `¥${totalSalary.toLocaleString()}`;
+            document.getElementById('avgTenure').textContent = avgTenure;
+        }
+
+        // 显示提示信息
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+
+            container.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+
+        // 保存数据到本地存储
+        function saveData() {
+            localStorage.setItem('employees', JSON.stringify(employees));
+            localStorage.setItem('salaryCalculations', JSON.stringify(salaryCalculations));
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            initPlugins();
+            renderEmployeeList();
+            updateStats();
+
+            // 显示欢迎信息
+            setTimeout(() => {
+                showAlert('🎉 欢迎使用员工考勤薪资管理系统！这是一个基于 getMonthsDiffBetweenDates 方法的实战应用示例。', 'success');
+            }, 1000);
+        });
+    </script>
+
+
+</body>
+
+</html>

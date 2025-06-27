@@ -16,6 +16,10 @@ const getMonthsDiffBetweenDates = (dateInitial, dateFinal) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/get-months-diff-between-dates.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,8 +28,11 @@ getMonthsDiffBetweenDates(new Date('2017-12-13'), new Date('2018-04-29')); // 4
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/getMonthsDiffBetweenDates.html" data-language="html"></div>
+
+以下是一个实战<a href="codes/javascript/html/get-months-diff-between-dates.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/get-months-diff-between-dates.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/getMonthsDiffBetweenDates.html"></iframe>
+<iframe src="codes/javascript/html/get-months-diff-between-dates.html"></iframe>

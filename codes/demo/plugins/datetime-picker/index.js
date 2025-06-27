@@ -237,13 +237,20 @@ class DateTimePicker {
       this.toggle();
     });
 
+    // 防止面板内部点击关闭
+    panel.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
     // 导航按钮
-    prevBtn.addEventListener("click", () => {
+    prevBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       this.currentDate.setMonth(this.currentDate.getMonth() - 1);
       this.renderCalendar();
     });
 
-    nextBtn.addEventListener("click", () => {
+    nextBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       this.currentDate.setMonth(this.currentDate.getMonth() + 1);
       this.renderCalendar();
     });
@@ -251,6 +258,7 @@ class DateTimePicker {
     // 日期选择
     daysGrid.addEventListener("click", (e) => {
       if (e.target.classList.contains("datetime-day") && !e.target.classList.contains("disabled")) {
+        e.stopPropagation(); // 防止事件冒泡
         const day = parseInt(e.target.textContent);
         this.selectDate(day);
       }
@@ -273,15 +281,18 @@ class DateTimePicker {
     }
 
     // 底部按钮
-    clearBtn.addEventListener("click", () => {
+    clearBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       this.clear();
     });
 
-    todayBtn.addEventListener("click", () => {
+    todayBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       this.setToday();
     });
 
-    confirmBtn.addEventListener("click", () => {
+    confirmBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       this.confirm();
     });
 
@@ -408,8 +419,12 @@ class DateTimePicker {
     this.selectedDate.setMonth(month);
     this.selectedDate.setDate(day);
     
+    // 只更新日历显示和时间输入，不关闭面板
     this.renderCalendar();
     this.updateTimeInputs();
+    
+    // 更新输入框显示但不触发onChange
+    this.updateDisplay();
   }
 
   updateTime() {
@@ -473,13 +488,16 @@ class DateTimePicker {
     this.currentDate = new Date(this.selectedDate);
     this.renderCalendar();
     this.updateTimeInputs();
+    this.updateDisplay();
   }
 
   confirm() {
-    this.updateDisplay();
-    this.close();
-    const value = this.formatValue(this.selectedDate);
-    this.onChange(value);
+    if (this.selectedDate) {
+      this.updateDisplay();
+      this.close();
+      const value = this.formatValue(this.selectedDate);
+      this.onChange(value);
+    }
   }
 
   open() {
