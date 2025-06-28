@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM 结构分析器和样式调试工具 - getParentsUntil 实战应用</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .demo-area {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 600px;
+        }
+
+        .demo-area h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* 演示网站结构 */
+        .demo-website {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .demo-header {
+            background: linear-gradient(45deg, #4299e1, #3182ce);
+            color: white;
+            padding: 15px 20px;
+            position: relative;
+        }
+
+        .demo-nav {
+            background: #2d3748;
+            padding: 10px 20px;
+        }
+
+        .demo-nav ul {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .demo-nav a {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-nav a:hover {
+            background: #4a5568;
+            color: white;
+        }
+
+        .demo-content {
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            min-height: 400px;
+        }
+
+        .demo-sidebar {
+            background: #f7fafc;
+            padding: 20px;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .demo-main {
+            padding: 20px;
+            background: white;
+        }
+
+        .demo-aside {
+            background: #f7fafc;
+            padding: 20px;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .demo-article {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .demo-section {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .demo-widget {
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-footer {
+            background: #2d3748;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #718096, #4a5568);
+            box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+            box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+        }
+
+        /* 分析结果 */
+        .analysis-results {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .path-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .path-item:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .path-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .element-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .element-info {
+            flex: 1;
+        }
+
+        .element-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .element-details {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .element-styles {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .style-property {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .style-property:last-child {
+            border-bottom: none;
+        }
+
+        .property-name {
+            color: #d73a49;
+            font-weight: 600;
+        }
+
+        .property-value {
+            color: #032f62;
+        }
+
+        /* 高亮效果 */
+        .highlight-element {
+            position: relative;
+            animation: highlightPulse 2s infinite;
+        }
+
+        .highlight-element::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 8px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        @keyframes highlightPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: absolute;
+            background: #2d3748;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .demo-content {
+                grid-template-columns: 1fr;
+            }
+
+            .demo-sidebar,
+            .demo-aside {
+                display: none;
+            }
+        }
+
+        /* 选择器输入框 */
+        .selector-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s ease;
+        }
+
+        .selector-input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 元素选择模式 */
+        .selecting-mode .demo-website * {
+            cursor: crosshair !important;
+            transition: all 0.2s ease;
+        }
+
+        .selecting-mode .demo-website *:hover {
+            background-color: rgba(102, 126, 234, 0.2) !important;
+            outline: 2px solid #667eea;
+        }
+
+        .mode-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* 插件样式覆盖 */
+        .ew-input-number {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .ew-input-number:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 DOM 结构分析器和样式调试工具</h1>
+            <p>基于 getParentsUntil 方法的实战应用示例 - 前端开发者的得力助手</p>
+        </div>
+
+        <div class="main-layout">
+            <!-- 演示区域 -->
+            <div class="demo-area">
+                <h2>
+                    <span class="icon">🌐</span>
+                    演示网站结构
+                </h2>
+
+                <div class="demo-website" id="demoWebsite">
+                    <header class="demo-header" data-element="header">
+                        <h1>演示网站标题</h1>
+                        <p>这是一个用于演示 DOM 结构分析的示例网站</p>
+                    </header>
+
+                    <nav class="demo-nav" data-element="nav">
+                        <ul>
+                            <li><a href="#" data-element="nav-link">首页</a></li>
+                            <li><a href="#" data-element="nav-link">产品</a></li>
+                            <li><a href="#" data-element="nav-link">服务</a></li>
+                            <li><a href="#" data-element="nav-link">关于我们</a></li>
+                        </ul>
+                    </nav>
+
+                    <div class="demo-content">
+                        <aside class="demo-sidebar" data-element="sidebar">
+                            <h3>侧边栏</h3>
+                            <div class="demo-widget" data-element="widget">
+                                <h4>用户信息</h4>
+                                <p>当前用户状态</p>
+                            </div>
+                            <div class="demo-widget" data-element="widget">
+                                <h4>快速链接</h4>
+                                <p>常用功能入口</p>
+                            </div>
+                        </aside>
+
+                        <main class="demo-main" data-element="main">
+                            <article class="demo-article" data-element="article">
+                                <h2>主要文章标题</h2>
+                                <p>这是文章的主要内容区域，包含了丰富的文本信息。</p>
+                                <section class="demo-section" data-element="section">
+                                    <h3>文章章节</h3>
+                                    <p>这是文章的一个子章节，用于演示嵌套的DOM结构。</p>
+                                    <div class="demo-widget" data-element="inner-widget">
+                                        <span data-element="target-span">🎯 点击我分析DOM路径</span>
+                                    </div>
+                                </section>
+                            </article>
+                        </main>
+
+                        <aside class="demo-aside" data-element="aside">
+                            <h3>右侧栏</h3>
+                            <div class="demo-widget" data-element="widget">
+                                <h4>相关推荐</h4>
+                                <p>推荐内容列表</p>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <footer class="demo-footer" data-element="footer">
+                        <p>&copy; 2024 演示网站. 基于 getParentsUntil 的DOM分析工具</p>
+                    </footer>
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <h2>
+                    <span class="icon">⚙️</span>
+                    分析控制台
+                </h2>
+
+                <div class="form-group">
+                    <label>目标选择器</label>
+                    <input type="text" class="selector-input" id="targetSelector"
+                        placeholder="例如: [data-element='target-span']" value="[data-element='target-span']">
+                </div>
+
+                <div class="form-group">
+                    <label>终止选择器</label>
+                    <input type="text" class="selector-input" id="stopSelector" placeholder="例如: .demo-website"
+                        value=".demo-website">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>分析深度限制</label>
+                        <div id="depthLimitInput"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>高亮持续时间(秒)</label>
+                        <div id="highlightDurationInput"></div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="analyzeDOM()">
+                    🔍 分析 DOM 路径
+                </button>
+
+                <button class="btn btn-secondary" onclick="toggleSelectMode()">
+                    🎯 切换选择模式
+                </button>
+
+                <button class="btn btn-secondary" onclick="exportAnalysis()">
+                    📄 导出分析报告
+                </button>
+
+                <button class="btn btn-danger" onclick="clearAnalysis()">
+                    🗑️ 清除分析结果
+                </button>
+
+                <!-- 统计信息 -->
+                <div class="stats-grid" style="margin-top: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-value" id="pathLength">0</div>
+                        <div class="stat-label">路径长度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalElements">0</div>
+                        <div class="stat-label">总元素数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分析结果 -->
+        <div class="analysis-results" id="analysisResults" style="display: none;">
+            <h2>
+                <span class="icon">📊</span>
+                DOM 路径分析结果
+            </h2>
+            <div id="pathContainer"></div>
+        </div>
+    </div>
+
+    <!-- 模式指示器 -->
+    <div class="mode-indicator" id="modeIndicator" style="display: none;">
+        🎯 元素选择模式已激活 - 点击任意元素进行分析
+    </div>
+
+    <!-- 工具提示 -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+
+    <script>
+        // 核心函数：获取父元素直到指定选择器
+        const getParentsUntil = (el, selector) => {
+            const parents = [];
+            let _el = el.parentNode;
+            while (_el && typeof _el.matches === 'function') {
+                parents.unshift(_el);
+                if (_el.matches(selector)) {
+                    return parents;
+                } else {
+                    _el = _el.parentNode;
+                }
+            }
+            return parents;
+        };
+
+        // 全局变量
+        let isSelectMode = false;
+        let currentAnalysis = null;
+        let highlightTimeout = null;
+        let depthLimitInput, highlightDurationInput, modal;
+
+        // 初始化插件
+        function initPlugins() {
+            depthLimitInput = new InputNumber({
+                container: document.getElementById('depthLimitInput'),
+                min: 1,
+                max: 20,
+                step: 1,
+                value: 10
+            });
+
+            highlightDurationInput = new InputNumber({
+                container: document.getElementById('highlightDurationInput'),
+                min: 1,
+                max: 10,
+                step: 1,
+                value: 3
+            });
+
+            modal = new Modal();
+        }
+
+        // 分析DOM路径
+        function analyzeDOM() {
+            const targetSelector = document.getElementById('targetSelector').value.trim();
+            const stopSelector = document.getElementById('stopSelector').value.trim();
+            const depthLimit = depthLimitInput.getValue();
+
+            if (!targetSelector) {
+                showAlert('请输入目标选择器', 'error');
+                return;
+            }
+
+            try {
+                const targetElement = document.querySelector(targetSelector);
+                if (!targetElement) {
+                    showAlert('未找到目标元素，请检查选择器', 'error');
+                    return;
+                }
+
+                // 使用核心函数获取父元素路径
+                let parents = getParentsUntil(targetElement, stopSelector || 'body');
+
+                // 应用深度限制
+                if (parents.length > depthLimit) {
+                    parents = parents.slice(-depthLimit);
+                }
+
+                // 添加目标元素本身
+                parents.push(targetElement);
+
+                currentAnalysis = {
+                    target: targetElement,
+                    parents: parents,
+                    selector: targetSelector,
+                    stopSelector: stopSelector,
+                    timestamp: new Date()
+                };
+
+                renderAnalysisResults(currentAnalysis);
+                updateStats(currentAnalysis);
+                highlightElements(parents);
+
+                showAlert(`DOM路径分析完成！找到 ${parents.length} 个元素`, 'success');
+
+            } catch (error) {
+                showAlert(`分析出错: ${error.message}`, 'error');
+                console.error('DOM分析错误:', error);
+            }
+        }
+
+        // 渲染分析结果
+        function renderAnalysisResults(analysis) {
+            const container = document.getElementById('pathContainer');
+            const resultsSection = document.getElementById('analysisResults');
+
+            let html = `
+                <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">📋 分析概览</h3>
+                    <p><strong>目标选择器:</strong> <code>${analysis.selector}</code></p>
+                    <p><strong>终止选择器:</strong> <code>${analysis.stopSelector || '无'}</code></p>
+                    <p><strong>分析时间:</strong> ${analysis.timestamp.toLocaleString()}</p>
+                    <p><strong>路径深度:</strong> ${analysis.parents.length} 层</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #2d3748; margin-bottom: 15px;">🔗 DOM 路径链</h3>
+            `;
+
+            analysis.parents.forEach((element, index) => {
+                const isTarget = index === analysis.parents.length - 1;
+                const tagName = element.tagName.toLowerCase();
+                const className = element.className || '';
+                const id = element.id || '';
+                const dataElement = element.getAttribute('data-element') || '';
+
+                // 获取元素的一些关键样式
+                const computedStyle = window.getComputedStyle(element);
+                const keyStyles = {
+                    'display': computedStyle.display,
+                    'position': computedStyle.position,
+                    'width': computedStyle.width,
+                    'height': computedStyle.height,
+                    'background-color': computedStyle.backgroundColor,
+                    'color': computedStyle.color,
+                    'padding': computedStyle.padding,
+                    'margin': computedStyle.margin
+                };
+
+                html += `
+                    <div class="path-item ${isTarget ? 'active' : ''}" 
+                         onclick="highlightSingleElement(this, ${index})"
+                         onmouseenter="showElementTooltip(event, ${index})"
+                         onmouseleave="hideElementTooltip()">
+                        
+                        <div class="element-tag">${tagName}</div>
+                        
+                        <div class="element-info">
+                            <div class="element-name">
+                                ${tagName}${id ? `#${id}` : ''}${className ? `.${className.split(' ').join('.')}` : ''}
+                                ${isTarget ? ' 🎯' : ''}
+                            </div>
+                            <div class="element-details">
+                                ${dataElement ? `data-element="${dataElement}" | ` : ''}
+                                ${element.children.length} 个子元素 | 
+                                深度: ${index + 1}
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 12px; color: #666;">
+                            层级 ${index + 1}
+                        </div>
+                    </div>
+                    
+                    <div class="element-styles" id="styles-${index}" style="display: none;">
+                        <h4 style="margin-bottom: 10px; color: #2d3748;">计算样式 (关键属性)</h4>
+                `;
+
+                Object.entries(keyStyles).forEach(([property, value]) => {
+                    if (value && value !== 'rgba(0, 0, 0, 0)' && value !== 'auto' && value !== 'none') {
+                        html += `
+                            <div class="style-property">
+                                <span class="property-name">${property}:</span>
+                                <span class="property-value">${value}</span>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+            resultsSection.style.display = 'block';
+
+            // 滚动到结果区域
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 高亮元素
+        function highlightElements(elements) {
+            // 清除之前的高亮
+            document.querySelectorAll('.highlight-element').forEach(el => {
+                el.classList.remove('highlight-element');
+            });
+
+            // 添加新的高亮
+            elements.forEach(el => {
+                el.classList.add('highlight-element');
+            });
+
+            // 设置自动清除高亮
+            const duration = highlightDurationInput.getValue() * 1000;
+            clearTimeout(highlightTimeout);
+            highlightTimeout = setTimeout(() => {
+                document.querySelectorAll('.highlight-element').forEach(el => {
+                    el.classList.remove('highlight-element');
+                });
+            }, duration);
+        }
+
+        // 高亮单个元素
+        function highlightSingleElement(pathItem, index) {
+            // 切换样式显示
+            const stylesDiv = document.getElementById(`styles-${index}`);
+            const isVisible = stylesDiv.style.display !== 'none';
+
+            // 隐藏所有样式面板
+            document.querySelectorAll('[id^="styles-"]').forEach(div => {
+                div.style.display = 'none';
+            });
+
+            // 移除所有active状态
+            document.querySelectorAll('.path-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            if (!isVisible) {
+                stylesDiv.style.display = 'block';
+                pathItem.classList.add('active');
+
+                // 高亮对应的DOM元素
+                if (currentAnalysis) {
+                    const element = currentAnalysis.parents[index];
+                    document.querySelectorAll('.highlight-element').forEach(el => {
+                        el.classList.remove('highlight-element');
+                    });
+                    element.classList.add('highlight-element');
+                }
+            }
+        }
+
+        // 切换选择模式
+        function toggleSelectMode() {
+            isSelectMode = !isSelectMode;
+            const body = document.body;
+            const indicator = document.getElementById('modeIndicator');
+
+            if (isSelectMode) {
+                body.classList.add('selecting-mode');
+                indicator.style.display = 'block';
+                addElementClickListeners();
+                showAlert('元素选择模式已激活，点击任意元素进行分析', 'success');
+            } else {
+                body.classList.remove('selecting-mode');
+                indicator.style.display = 'none';
+                removeElementClickListeners();
+                showAlert('元素选择模式已关闭', 'success');
+            }
+        }
+
+        // 添加元素点击监听器
+        function addElementClickListeners() {
+            const demoWebsite = document.getElementById('demoWebsite');
+            demoWebsite.addEventListener('click', handleElementClick, true);
+        }
+
+        // 移除元素点击监听器
+        function removeElementClickListeners() {
+            const demoWebsite = document.getElementById('demoWebsite');
+            demoWebsite.removeEventListener('click', handleElementClick, true);
+        }
+
+        // 处理元素点击
+        function handleElementClick(event) {
+            if (!isSelectMode) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const element = event.target;
+            const selector = generateSelector(element);
+
+            // 更新选择器输入框
+            document.getElementById('targetSelector').value = selector;
+
+            // 关闭选择模式
+            toggleSelectMode();
+
+            // 自动分析
+            setTimeout(() => {
+                analyzeDOM();
+            }, 100);
+        }
+
+        // 生成元素选择器
+        function generateSelector(element) {
+            if (element.id) {
+                return `#${element.id}`;
+            }
+
+            if (element.getAttribute('data-element')) {
+                return `[data-element='${element.getAttribute('data-element')}']`;
+            }
+
+            if (element.className) {
+                const classes = element.className.split(' ').filter(c => c.trim());
+                if (classes.length > 0) {
+                    return `.${classes.join('.')}`;
+                }
+            }
+
+            return element.tagName.toLowerCase();
+        }
+
+        // 显示元素提示
+        function showElementTooltip(event, index) {
+            if (!currentAnalysis) return;
+
+            const tooltip = document.getElementById('tooltip');
+            const element = currentAnalysis.parents[index];
+            const rect = element.getBoundingClientRect();
+
+            tooltip.innerHTML = `
+                <strong>${element.tagName.toLowerCase()}</strong><br>
+                位置: ${Math.round(rect.left)}, ${Math.round(rect.top)}<br>
+                尺寸: ${Math.round(rect.width)} × ${Math.round(rect.height)}
+            `;
+
+            tooltip.style.left = event.pageX + 10 + 'px';
+            tooltip.style.top = event.pageY - 10 + 'px';
+            tooltip.classList.add('show');
+        }
+
+        // 隐藏元素提示
+        function hideElementTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.classList.remove('show');
+        }
+
+        // 导出分析报告
+        function exportAnalysis() {
+            if (!currentAnalysis) {
+                showAlert('请先进行DOM分析', 'error');
+                return;
+            }
+
+            const report = generateAnalysisReport(currentAnalysis);
+
+            modal.show({
+                title: '📄 DOM分析报告',
+                content: `
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 12px; line-height: 1.4;">${report}</pre>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn" onclick="downloadReport()">💾 下载报告</button>
+                    </div>
+                `,
+                onConfirm: () => { }
+            });
+        }
+
+        // 生成分析报告
+        function generateAnalysisReport(analysis) {
+            let report = `DOM 结构分析报告
+${'='.repeat(50)}
+
+分析时间: ${analysis.timestamp.toLocaleString()}
+目标选择器: ${analysis.selector}
+终止选择器: ${analysis.stopSelector || '无'}
+路径深度: ${analysis.parents.length} 层
+
+DOM 路径详情:
+${'-'.repeat(30)}
+`;
+
+            analysis.parents.forEach((element, index) => {
+                const tagName = element.tagName.toLowerCase();
+                const className = element.className || '';
+                const id = element.id || '';
+                const dataElement = element.getAttribute('data-element') || '';
+
+                report += `
+${index + 1}. ${tagName}${id ? `#${id}` : ''}${className ? `.${className.split(' ').join('.')}` : ''}
+   ${dataElement ? `data-element="${dataElement}"` : ''}
+   子元素数量: ${element.children.length}
+   ${index === analysis.parents.length - 1 ? '🎯 [目标元素]' : ''}
+`;
+            });
+
+            report += `
+${'='.repeat(50)}
+报告生成工具: DOM 结构分析器
+基于方法: getParentsUntil()
+`;
+
+            return report;
+        }
+
+        // 下载报告
+        function downloadReport() {
+            const report = generateAnalysisReport(currentAnalysis);
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DOM分析报告_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showAlert('报告下载成功！', 'success');
+        }
+
+        // 清除分析结果
+        function clearAnalysis() {
+            currentAnalysis = null;
+            document.getElementById('analysisResults').style.display = 'none';
+            document.getElementById('pathContainer').innerHTML = '';
+
+            // 清除高亮
+            document.querySelectorAll('.highlight-element').forEach(el => {
+                el.classList.remove('highlight-element');
+            });
+
+            // 重置统计
+            updateStats(null);
+
+            showAlert('分析结果已清除', 'success');
+        }
+
+        // 更新统计信息
+        function updateStats(analysis) {
+            const pathLength = analysis ? analysis.parents.length : 0;
+            const totalElements = analysis ?
+                analysis.parents.reduce((sum, el) => sum + el.querySelectorAll('*').length + 1, 0) : 0;
+
+            document.getElementById('pathLength').textContent = pathLength;
+            document.getElementById('totalElements').textContent = totalElements;
+        }
+
+        // 显示提示信息
+        function showAlert(message, type = 'success') {
+            const alertClass = type === 'success' ? '✅' : '❌';
+
+            // 创建临时提示元素
+            const alert = document.createElement('div');
+            alert.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'success' ? '#48bb78' : '#f56565'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                animation: slideDown 0.3s ease;
+            `;
+            alert.textContent = `${alertClass} ${message}`;
+
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.animation = 'slideUp 0.3s ease forwards';
+                setTimeout(() => {
+                    document.body.removeChild(alert);
+                }, 300);
+            }, 3000);
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            initPlugins();
+
+            // 添加CSS动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+                }
+                @keyframes slideUp {
+                    from { opacity: 1; transform: translateX(-50%) translateY(0); }
+                    to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 显示欢迎信息
+            setTimeout(() => {
+                showAlert('🎉 欢迎使用DOM结构分析器！点击目标元素或使用选择器开始分析', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
