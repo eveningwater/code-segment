@@ -75,10 +75,22 @@ class Checkbox {
     container.className = "checkbox-group";
 
     const checkboxes = [];
+    let isUpdatingFromAll = false; // 防止递归调用的标志
+
     const allCheckbox = new Checkbox({
       label: "全选",
       onChange: (checked) => {
-        checkboxes.forEach((cb) => cb.setChecked(checked));
+        if (isUpdatingFromAll) return; // 防止递归
+        
+        isUpdatingFromAll = true;
+        checkboxes.forEach((cb) => {
+          cb.checked = checked;
+          const checkbox = cb.element.querySelector(".checkbox-input");
+          checkbox.checked = checked;
+          // 不调用onChange，避免递归
+        });
+        isUpdatingFromAll = false;
+        
         if (options.onChange) {
           options.onChange(checkboxes.map((cb) => cb.isChecked()));
         }
@@ -92,12 +104,20 @@ class Checkbox {
         const checkbox = new Checkbox({
           ...item,
           onChange: (checked) => {
+            if (isUpdatingFromAll) return; // 防止递归
+            
             if (options.onChange) {
               options.onChange(checkboxes.map((cb) => cb.isChecked()));
             }
             // 检查是否所有子复选框都被选中
             const allChecked = checkboxes.every((cb) => cb.isChecked());
-            allCheckbox.setChecked(allChecked);
+            const noneChecked = checkboxes.every((cb) => !cb.isChecked());
+            
+            // 直接更新全选checkbox的状态，不触发onChange
+            allCheckbox.checked = allChecked;
+            const allCheckboxInput = allCheckbox.element.querySelector(".checkbox-input");
+            allCheckboxInput.checked = allChecked;
+            allCheckboxInput.indeterminate = !allChecked && !noneChecked;
           },
         });
         checkbox.mount(container);
