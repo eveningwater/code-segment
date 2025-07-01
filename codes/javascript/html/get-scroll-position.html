@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能滚动监控管理器 - getScrollPosition 实战示例</title>
+    
+    <!-- 引入自定义插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-item .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .status-item .value {
+            font-size: 1.4rem;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-panel h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn.btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .btn.btn-success {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+        }
+
+        .scroll-demo-content {
+            line-height: 1.8;
+            color: #444;
+        }
+
+        .scroll-demo-content h2 {
+            color: #333;
+            margin: 30px 0 15px 0;
+            font-size: 1.5rem;
+        }
+
+        .scroll-demo-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .scroll-trigger {
+            background: linear-gradient(45deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-trigger.triggered {
+            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .log-panel {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            opacity: 0;
+            animation: fadeInLog 0.3s ease forwards;
+        }
+
+        @keyframes fadeInLog {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .metric-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: #e1e5e9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 8px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .floating-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-btn.scroll-to-top {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .floating-btn.settings {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .status-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 头部状态栏 -->
+        <div class="header">
+            <h1>🚀 智能滚动监控管理器</h1>
+            <p>基于 getScrollPosition 的高级滚动分析与监控系统</p>
+            
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="label">当前X坐标</div>
+                    <div class="value" id="currentX">0</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">当前Y坐标</div>
+                    <div class="value" id="currentY">0</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">滚动距离</div>
+                    <div class="value" id="totalDistance">0</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">滚动次数</div>
+                    <div class="value" id="scrollCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 左侧内容区 -->
+            <div class="content-area">
+                <div class="scroll-demo-content">
+                    <h2>📋 项目概述</h2>
+                    <p>这是一个基于 getScrollPosition 方法的高级实战示例，展示了在现代Web应用中如何有效地监控和分析用户滚动行为。该系统不仅能够实时追踪滚动位置，还提供了丰富的数据分析和可视化功能。</p>
+                    
+                    <div class="scroll-trigger" data-trigger="section1">
+                        🎯 滚动触发器 #1 - 项目介绍区域
+                    </div>
+
+                    <h2>🔧 核心功能特性</h2>
+                    <p>系统集成了多种先进的滚动监控技术，包括实时位置追踪、滚动距离计算、速度分析、触发区域检测等。通过自定义的UI组件（InputNumber、DateTimePicker、Modal等），用户可以灵活配置监控参数。</p>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="number" id="avgSpeed">0</div>
+                            <div class="label">平均速度 px/s</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="number" id="maxSpeed">0</div>
+                            <div class="label">最大速度 px/s</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="number" id="sessionsToday">1</div>
+                            <div class="label">今日会话</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="number" id="triggerHits">0</div>
+                            <div class="label">触发次数</div>
+                        </div>
+                    </div>
+
+                    <h2>📊 数据分析与报告</h2>
+                    <p>系统提供详细的滚动行为分析报告，包括用户停留时间、滚动模式识别、热点区域分析等。这些数据对于优化用户体验和提升页面设计具有重要价值。</p>
+                    
+                    <div class="scroll-trigger" data-trigger="section2">
+                        📈 滚动触发器 #2 - 数据分析区域
+                    </div>
+
+                    <h2>🎨 用户界面设计</h2>
+                    <p>采用现代化的渐变设计和毛玻璃效果，确保界面美观且易于使用。响应式布局适配各种设备尺寸，提供一致的用户体验。所有交互元素都经过精心设计，符合现代Web设计标准。</p>
+
+                    <h2>⚙️ 技术实现细节</h2>
+                    <p>核心基于 getScrollPosition 函数，该函数能够准确获取任意元素的滚动位置。系统还集成了防抖和节流技术，确保高频滚动事件的性能优化。数据持久化采用 localStorage，支持跨会话的数据保存。</p>
+                    
+                    <div class="scroll-trigger" data-trigger="section3">
+                        ⚡ 滚动触发器 #3 - 技术实现区域
+                    </div>
+
+                    <h2>📱 移动端适配</h2>
+                    <p>完整支持移动设备的触摸滚动，包括惯性滚动、橡皮筋效果等。通过 CSS Grid 和 Flexbox 实现的响应式布局确保在不同屏幕尺寸下都能提供最佳的用户体验。</p>
+
+                    <h2>🔮 未来发展规划</h2>
+                    <p>计划集成机器学习算法进行用户行为预测，添加更多的数据可视化图表，支持多种数据导出格式，以及提供 RESTful API 供第三方系统集成使用。</p>
+                    
+                    <div class="scroll-trigger" data-trigger="section4">
+                        🚀 滚动触发器 #4 - 未来规划区域
+                    </div>
+
+                    <h2>📖 使用指南</h2>
+                    <p>右侧控制面板提供了丰富的配置选项，包括监控间隔设置、触发阈值配置、数据记录管理等。用户可以根据具体需求调整这些参数，以获得最佳的监控效果。</p>
+
+                    <p>系统还支持数据导出功能，可以将收集到的滚动数据导出为 JSON 或 CSV 格式，便于进一步的数据分析和处理。通过日期时间选择器，用户可以查看特定时间段的滚动统计数据。</p>
+
+                    <p>感谢使用智能滚动监控管理器！这个示例展示了 getScrollPosition 函数在实际业务场景中的强大应用潜力。</p>
+                </div>
+            </div>
+
+            <!-- 右侧控制面板 -->
+            <div class="sidebar">
+                <!-- 监控设置 -->
+                <div class="control-panel">
+                    <h3>⚙️ 监控设置</h3>
+                    
+                    <div class="form-group">
+                        <label>监控间隔 (毫秒)</label>
+                        <div id="intervalInput"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>触发阈值 (像素)</label>
+                        <div id="thresholdInput"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>启用实时监控</label>
+                        <div id="enableMonitoring"></div>
+                    </div>
+                    
+                    <button class="btn" onclick="applySettings()">应用设置</button>
+                    <button class="btn btn-danger" onclick="resetSettings()">重置设置</button>
+                </div>
+
+                <!-- 数据管理 -->
+                <div class="control-panel">
+                    <h3>📊 数据管理</h3>
+                    
+                    <div class="form-group">
+                        <label>选择日期范围</label>
+                        <div id="dateRangePicker"></div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="exportData()">导出数据</button>
+                    <button class="btn" onclick="showStatistics()">查看统计</button>
+                    <button class="btn btn-danger" onclick="clearData()">清空数据</button>
+                </div>
+
+                <!-- 实时日志 -->
+                <div class="control-panel">
+                    <h3>📝 实时日志</h3>
+                    <div class="log-panel" id="logPanel">
+                        <div class="log-entry">系统初始化完成...</div>
+                    </div>
+                    <button class="btn" onclick="clearLog()">清空日志</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面底部进度条 -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="scrollProgress"></div>
+        </div>
+    </div>
+
+    <!-- 浮动控制按钮 -->
+    <div class="floating-controls">
+        <button class="floating-btn scroll-to-top" onclick="scrollToTop()" title="回到顶部">
+            ↑
+        </button>
+        <button class="floating-btn settings" onclick="openSettings()" title="设置">
+            ⚙
+        </button>
+    </div>
+
+    <!-- 引入自定义插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
+    <script>
+        // 核心 getScrollPosition 函数
+        const getScrollPosition = (el = window) => ({
+            x: el.pageXOffset !== undefined ? el.pageXOffset : el.scrollLeft,
+            y: el.pageYOffset !== undefined ? el.pageYOffset : el.scrollTop
+        });
+
+        // 全局变量
+        let scrollMonitor = {
+            isActive: false,
+            interval: 100,
+            threshold: 50,
+            lastPosition: { x: 0, y: 0 },
+            totalDistance: 0,
+            scrollCount: 0,
+            speeds: [],
+            maxSpeed: 0,
+            triggerHits: 0,
+            sessionData: [],
+            startTime: Date.now()
+        };
+
+        // UI 组件实例
+        let modal, intervalInput, thresholdInput, enableCheckbox, dateTimePicker;
+
+        // 初始化系统
+        function initializeSystem() {
+            log('正在初始化智能滚动监控系统...');
+            
+            // 初始化Modal
+            modal = new Modal({ closeOnOverlayClick: true });
+            
+            // 初始化InputNumber组件
+            intervalInput = new InputNumber({
+                container: '#intervalInput',
+                min: 50,
+                max: 5000,
+                step: 50,
+                value: 100,
+                onChange: (value) => {
+                    scrollMonitor.interval = value;
+                    log(`监控间隔已更新: ${value}ms`);
+                }
+            });
+
+            thresholdInput = new InputNumber({
+                container: '#thresholdInput',
+                min: 10,
+                max: 500,
+                step: 10,
+                value: 50,
+                onChange: (value) => {
+                    scrollMonitor.threshold = value;
+                    log(`触发阈值已更新: ${value}px`);
+                }
+            });
+
+            // 初始化DateTimePicker
+            dateTimePicker = new DateTimePicker({
+                container: '#dateRangePicker',
+                placeholder: '选择查询日期',
+                onChange: (value) => {
+                    log(`日期范围已选择: ${value}`);
+                }
+            });
+
+            // 初始化Checkbox（简化实现）
+            const checkboxContainer = document.getElementById('enableMonitoring');
+            checkboxContainer.innerHTML = `
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" id="monitoringCheckbox" checked style="margin-right: 8px;">
+                    <span>启用实时监控</span>
+                </label>
+            `;
+
+            // 启动监控
+            startMonitoring();
+            
+            // 设置滚动事件监听
+            setupScrollListeners();
+            
+            log('系统初始化完成，开始监控滚动行为');
+        }
+
+        // 启动监控
+        function startMonitoring() {
+            if (scrollMonitor.isActive) return;
+            
+            scrollMonitor.isActive = true;
+            scrollMonitor.startTime = Date.now();
+            
+            const monitorLoop = () => {
+                if (!scrollMonitor.isActive) return;
+                
+                const currentPos = getScrollPosition();
+                const checkbox = document.getElementById('monitoringCheckbox');
+                
+                if (checkbox && checkbox.checked) {
+                    updateScrollMetrics(currentPos);
+                    updateUI(currentPos);
+                }
+                
+                setTimeout(monitorLoop, scrollMonitor.interval);
+            };
+            
+            monitorLoop();
+        }
+
+        // 设置滚动事件监听
+        function setupScrollListeners() {
+            let lastScrollTime = Date.now();
+            let isScrolling = false;
+
+            window.addEventListener('scroll', throttle(() => {
+                const currentTime = Date.now();
+                const currentPos = getScrollPosition();
+                
+                // 计算滚动速度
+                const timeDiff = currentTime - lastScrollTime;
+                const distanceDiff = Math.abs(currentPos.y - scrollMonitor.lastPosition.y);
+                const speed = timeDiff > 0 ? (distanceDiff / timeDiff) * 1000 : 0;
+                
+                if (speed > 0) {
+                    scrollMonitor.speeds.push(speed);
+                    if (speed > scrollMonitor.maxSpeed) {
+                        scrollMonitor.maxSpeed = speed;
+                    }
+                }
+                
+                // 检查触发器
+                checkScrollTriggers(currentPos.y);
+                
+                // 更新进度条
+                updateScrollProgress();
+                
+                lastScrollTime = currentTime;
+                scrollMonitor.lastPosition = currentPos;
+                
+                // 标记正在滚动
+                if (!isScrolling) {
+                    isScrolling = true;
+                    document.body.classList.add('scrolling');
+                }
+                
+                // 滚动结束检测
+                clearTimeout(window.scrollEndTimer);
+                window.scrollEndTimer = setTimeout(() => {
+                    isScrolling = false;
+                    document.body.classList.remove('scrolling');
+                    log(`滚动结束于位置: (${currentPos.x}, ${currentPos.y})`);
+                }, 150);
+                
+            }, 16)); // 约60fps
+        }
+
+        // 更新滚动指标
+        function updateScrollMetrics(currentPos) {
+            const distance = Math.sqrt(
+                Math.pow(currentPos.x - scrollMonitor.lastPosition.x, 2) +
+                Math.pow(currentPos.y - scrollMonitor.lastPosition.y, 2)
+            );
+            
+            if (distance > scrollMonitor.threshold) {
+                scrollMonitor.totalDistance += distance;
+                scrollMonitor.scrollCount++;
+                
+                // 记录会话数据
+                scrollMonitor.sessionData.push({
+                    timestamp: Date.now(),
+                    position: { ...currentPos },
+                    distance: distance
+                });
+                
+                // 限制会话数据大小
+                if (scrollMonitor.sessionData.length > 1000) {
+                    scrollMonitor.sessionData = scrollMonitor.sessionData.slice(-500);
+                }
+            }
+            
+            scrollMonitor.lastPosition = currentPos;
+        }
+
+        // 更新UI显示
+        function updateUI(currentPos) {
+            document.getElementById('currentX').textContent = Math.round(currentPos.x);
+            document.getElementById('currentY').textContent = Math.round(currentPos.y);
+            document.getElementById('totalDistance').textContent = Math.round(scrollMonitor.totalDistance);
+            document.getElementById('scrollCount').textContent = scrollMonitor.scrollCount;
+            
+            // 计算平均速度
+            const avgSpeed = scrollMonitor.speeds.length > 0 
+                ? scrollMonitor.speeds.reduce((a, b) => a + b) / scrollMonitor.speeds.length 
+                : 0;
+            
+            document.getElementById('avgSpeed').textContent = Math.round(avgSpeed);
+            document.getElementById('maxSpeed').textContent = Math.round(scrollMonitor.maxSpeed);
+            document.getElementById('triggerHits').textContent = scrollMonitor.triggerHits;
+        }
+
+        // 检查滚动触发器
+        function checkScrollTriggers(scrollY) {
+            const triggers = document.querySelectorAll('.scroll-trigger');
+            triggers.forEach(trigger => {
+                const rect = trigger.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                
+                if (isVisible && !trigger.classList.contains('triggered')) {
+                    trigger.classList.add('triggered');
+                    scrollMonitor.triggerHits++;
+                    
+                    const triggerName = trigger.getAttribute('data-trigger');
+                    log(`触发器激活: ${triggerName} (位置: ${Math.round(scrollY)}px)`);
+                    
+                    // 触发动画效果
+                    trigger.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        trigger.style.transform = '';
+                    }, 300);
+                }
+            });
+        }
+
+        // 更新滚动进度条
+        function updateScrollProgress() {
+            const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = window.pageYOffset;
+            const progress = (scrolled / documentHeight) * 100;
+            
+            document.getElementById('scrollProgress').style.width = `${Math.min(progress, 100)}%`;
+        }
+
+        // 节流函数
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // 日志记录
+        function log(message) {
+            const logPanel = document.getElementById('logPanel');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            
+            logPanel.appendChild(logEntry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+            
+            // 限制日志条目数量
+            const entries = logPanel.querySelectorAll('.log-entry');
+            if (entries.length > 50) {
+                entries[0].remove();
+            }
+        }
+
+        // 应用设置
+        function applySettings() {
+            const checkbox = document.getElementById('monitoringCheckbox');
+            scrollMonitor.isActive = checkbox.checked;
+            
+            modal.alert('设置已应用！监控系统已根据新配置更新。');
+            log('用户应用了新的监控设置');
+        }
+
+        // 重置设置
+        function resetSettings() {
+            modal.confirm('确定要重置所有设置吗？这将清除当前的配置和数据。').then(confirmed => {
+                if (confirmed) {
+                    // 重置组件值
+                    intervalInput.setValue(100);
+                    thresholdInput.setValue(50);
+                    document.getElementById('monitoringCheckbox').checked = true;
+                    
+                    // 重置监控数据
+                    scrollMonitor = {
+                        isActive: true,
+                        interval: 100,
+                        threshold: 50,
+                        lastPosition: { x: 0, y: 0 },
+                        totalDistance: 0,
+                        scrollCount: 0,
+                        speeds: [],
+                        maxSpeed: 0,
+                        triggerHits: 0,
+                        sessionData: [],
+                        startTime: Date.now()
+                    };
+                    
+                    log('所有设置已重置为默认值');
+                    modal.alert('设置重置完成！');
+                }
+            });
+        }
+
+        // 导出数据
+        function exportData() {
+            const exportData = {
+                summary: {
+                    totalDistance: scrollMonitor.totalDistance,
+                    scrollCount: scrollMonitor.scrollCount,
+                    maxSpeed: scrollMonitor.maxSpeed,
+                    avgSpeed: scrollMonitor.speeds.length > 0 
+                        ? scrollMonitor.speeds.reduce((a, b) => a + b) / scrollMonitor.speeds.length 
+                        : 0,
+                    triggerHits: scrollMonitor.triggerHits,
+                    sessionDuration: Date.now() - scrollMonitor.startTime
+                },
+                sessionData: scrollMonitor.sessionData,
+                exportTime: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `scroll-data-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            log('滚动数据已导出为JSON文件');
+            modal.alert('数据导出成功！文件已开始下载。');
+        }
+
+        // 显示统计信息
+        function showStatistics() {
+            const avgSpeed = scrollMonitor.speeds.length > 0 
+                ? (scrollMonitor.speeds.reduce((a, b) => a + b) / scrollMonitor.speeds.length).toFixed(2)
+                : 0;
+            
+            const sessionDuration = ((Date.now() - scrollMonitor.startTime) / 1000 / 60).toFixed(1);
+            
+            const statsHTML = `
+                <h4>📊 详细统计报告</h4>
+                <p><strong>会话时长:</strong> ${sessionDuration} 分钟</p>
+                <p><strong>总滚动距离:</strong> ${Math.round(scrollMonitor.totalDistance)} 像素</p>
+                <p><strong>滚动次数:</strong> ${scrollMonitor.scrollCount} 次</p>
+                <p><strong>平均速度:</strong> ${avgSpeed} px/s</p>
+                <p><strong>最大速度:</strong> ${Math.round(scrollMonitor.maxSpeed)} px/s</p>
+                <p><strong>触发器命中:</strong> ${scrollMonitor.triggerHits} 次</p>
+                <p><strong>数据点数量:</strong> ${scrollMonitor.sessionData.length} 个</p>
+                <hr>
+                <p style="font-size: 0.9em; color: #666;">数据基于当前会话，仅供参考分析使用。</p>
+            `;
+            
+            modal.show({
+                title: '统计报告',
+                content: statsHTML,
+                onConfirm: () => log('用户查看了统计报告')
+            });
+        }
+
+        // 清空数据
+        function clearData() {
+            modal.confirm('确定要清空所有监控数据吗？此操作不可撤销。').then(confirmed => {
+                if (confirmed) {
+                    scrollMonitor.totalDistance = 0;
+                    scrollMonitor.scrollCount = 0;
+                    scrollMonitor.speeds = [];
+                    scrollMonitor.maxSpeed = 0;
+                    scrollMonitor.triggerHits = 0;
+                    scrollMonitor.sessionData = [];
+                    scrollMonitor.startTime = Date.now();
+                    
+                    // 重置触发器状态
+                    document.querySelectorAll('.scroll-trigger').forEach(trigger => {
+                        trigger.classList.remove('triggered');
+                    });
+                    
+                    log('所有监控数据已清空');
+                    modal.alert('数据清空完成！');
+                }
+            });
+        }
+
+        // 清空日志
+        function clearLog() {
+            document.getElementById('logPanel').innerHTML = '<div class="log-entry">日志已清空...</div>';
+        }
+
+        // 滚动到顶部
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            log('用户请求滚动到页面顶部');
+        }
+
+        // 打开设置
+        function openSettings() {
+            modal.prompt('请输入自定义监控间隔 (50-5000ms):', scrollMonitor.interval.toString()).then(result => {
+                if (result !== null) {
+                    const interval = parseInt(result);
+                    if (interval >= 50 && interval <= 5000) {
+                        intervalInput.setValue(interval);
+                        scrollMonitor.interval = interval;
+                        log(`监控间隔已通过快速设置更新为: ${interval}ms`);
+                        modal.alert('设置更新成功！');
+                    } else {
+                        modal.alert('请输入有效的间隔值 (50-5000ms)');
+                    }
+                }
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟初始化以确保所有插件加载完成
+            setTimeout(initializeSystem, 500);
+        });
+
+        // 页面卸载前保存数据
+        window.addEventListener('beforeunload', function() {
+            if (scrollMonitor.sessionData.length > 0) {
+                localStorage.setItem('scrollMonitorData', JSON.stringify({
+                    data: scrollMonitor,
+                    timestamp: Date.now()
+                }));
+            }
+        });
+
+        // 尝试恢复之前的数据
+        window.addEventListener('load', function() {
+            const savedData = localStorage.getItem('scrollMonitorData');
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+                    
+                    if (parsed.timestamp > dayAgo) {
+                        log('发现之前的会话数据，正在恢复...');
+                        // 这里可以选择性恢复一些数据
+                    }
+                } catch (e) {
+                    console.warn('无法恢复之前的会话数据:', e);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
