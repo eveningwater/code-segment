@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>响应式布局调试器 - 滚动条宽度检测工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .debug-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .preview-area {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+            border-radius: 2px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(45deg, #3498db, #9b59b6);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        .metric-unit {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-left: 0.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 2rem;
+        }
+
+        .control-label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-content {
+            height: 400px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            position: relative;
+            background: repeating-linear-gradient(
+                45deg,
+                #f8f9fa,
+                #f8f9fa 10px,
+                #ffffff 10px,
+                #ffffff 20px
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .preview-content.has-scroll {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .scroll-content {
+            width: 100%;
+            padding: 2rem;
+        }
+
+        .content-block {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .status-active {
+            background: #27ae60;
+        }
+
+        .status-warning {
+            background: #f39c12;
+        }
+
+        .status-error {
+            background: #e74c3c;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #3498db;
+            margin-left: 0.5rem;
+        }
+
+        .info-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .realtime-monitor {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .monitor-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .monitor-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        .monitor-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+        }
+
+        /* 插件样式覆盖和自定义 */
+        .datetime-wrapper {
+            margin-bottom: 1rem;
+        }
+
+        .ew-datetime-picker {
+            width: 100%;
+        }
+
+        /* 为了与主题配色保持一致的样式覆盖 */
+        .ew-input-number:focus-within {
+            border-color: #3498db !important;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+        }
+
+        .input-number-button:hover {
+            background: #3498db !important;
+            color: white !important;
+        }
+
+        .datetime-input-wrapper:focus-within {
+            border-color: #3498db !important;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+        }
+
+        /* Modal内容滚动优化 */
+        .modal-content {
+            overflow-y: auto !important;
+            max-height: 350px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>🔧 响应式布局调试器</h1>
+            <p>专业的滚动条宽度检测与布局优化工具 - 实时监控页面布局变化</p>
+        </header>
+
+        <main class="main-content">
+            <div class="preview-area">
+                <h2 class="section-title">
+                    📱 预览区域
+                    <span class="info-tooltip" data-tooltip="在这里测试不同的布局场景">ℹ️</span>
+                </h2>
+                
+                <div class="preview-content" id="previewContent">
+                    <div style="color: #7f8c8d; font-size: 1.1rem;">
+                        <p>📏 点击控制面板中的按钮来测试不同场景</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem;">滚动条宽度检测将在右侧实时显示</p>
+                    </div>
+                </div>
+
+                <div class="realtime-monitor">
+                    <h3 style="margin-bottom: 1rem;">⚡ 实时监控数据</h3>
+                    <div class="monitor-grid">
+                        <div class="monitor-item">
+                            <div class="monitor-value" id="currentScrollbarWidth">0</div>
+                            <div class="monitor-label">当前滚动条宽度 (px)</div>
+                        </div>
+                        <div class="monitor-item">
+                            <div class="monitor-value" id="viewportWidth">0</div>
+                            <div class="monitor-label">视口宽度 (px)</div>
+                        </div>
+                        <div class="monitor-item">
+                            <div class="monitor-value" id="documentWidth">0</div>
+                            <div class="monitor-label">文档宽度 (px)</div>
+                        </div>
+                        <div class="monitor-item">
+                            <div class="monitor-value" id="scrollRatio">0</div>
+                            <div class="monitor-label">滚动条占比 (%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="debug-panel">
+                <h2 class="section-title">⚙️ 控制面板</h2>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <span class="status-indicator status-active"></span>
+                        滚动条宽度检测
+                    </label>
+                    <div class="metric-card">
+                        <div class="metric-label">当前检测到的滚动条宽度</div>
+                        <div class="metric-value" id="scrollbarWidthDisplay">
+                            <span id="scrollbarWidthValue">0</span>
+                            <span class="metric-unit">px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">🎛️ 测试场景</label>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="testScenario('normal')">
+                            正常布局
+                        </button>
+                        <button class="btn btn-secondary" onclick="testScenario('scroll')">
+                            滚动内容
+                        </button>
+                        <button class="btn btn-warning" onclick="testScenario('wide')">
+                            超宽内容
+                        </button>
+                        <button class="btn btn-success" onclick="clearContent()">
+                            清空内容
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">📏 自定义内容高度</label>
+                    <div id="heightController"></div>
+                    <p style="font-size: 0.8rem; color: #6c757d; margin-top: 0.5rem;">
+                        调整内容高度来观察滚动条变化
+                    </p>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">📊 历史记录</label>
+                    <button class="btn btn-primary" onclick="showHistory()" style="width: 100%;">
+                        查看检测历史
+                    </button>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">📅 设置监控时间</label>
+                    <div class="datetime-wrapper">
+                        <div id="datetimeController"></div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #6c757d; margin-top: 0.5rem;">
+                        设置自动检测的时间间隔
+                    </p>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <span class="status-indicator status-warning"></span>
+                        兼容性状态
+                    </label>
+                    <div class="metric-card">
+                        <div class="metric-label">浏览器支持等级</div>
+                        <div class="metric-value" style="color: #27ae60;">
+                            <span id="compatibilityStatus">优秀</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <button class="btn btn-warning" onclick="exportReport()" style="width: 100%;">
+                        📋 导出检测报告
+                    </button>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        // 核心的 getScrollbarWidth 方法
+        const getScrollbarWidth = () => window.innerWidth - document.documentElement.clientWidth;
+
+        // 应用状态管理
+        class ScrollbarMonitor {
+            constructor() {
+                this.history = [];
+                this.isMonitoring = false;
+                this.monitorInterval = null;
+                this.heightController = null;
+                this.datetimeController = null;
+                this.modal = new Modal();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.startRealTimeMonitoring();
+                this.updateCompatibilityStatus();
+                this.updateDisplay();
+            }
+
+            setupControls() {
+                // 初始化高度控制器
+                this.heightController = new InputNumber({
+                    container: document.getElementById('heightController'),
+                    min: 100,
+                    max: 2000,
+                    step: 50,
+                    value: 400,
+                    onChange: (value) => {
+                        this.adjustContentHeight(value);
+                    }
+                });
+
+                // 初始化日期时间选择器
+                this.datetimeController = new DateTimePicker({
+                    container: document.getElementById('datetimeController'),
+                    placeholder: '选择监控开始时间',
+                    format: 'YYYY-MM-DD HH:mm',
+                    onChange: (value) => {
+                        if (value) {
+                            this.scheduleMonitoring(value);
+                        }
+                    }
+                });
+            }
+
+            // 获取滚动条宽度并记录历史
+            measureScrollbarWidth() {
+                const width = getScrollbarWidth();
+                const timestamp = new Date();
+                
+                const measurement = {
+                    width: width,
+                    timestamp: timestamp,
+                    viewportWidth: window.innerWidth,
+                    documentWidth: document.documentElement.clientWidth,
+                    ratio: ((width / window.innerWidth) * 100).toFixed(2)
+                };
+
+                this.history.push(measurement);
+                
+                // 保持历史记录在合理范围内
+                if (this.history.length > 100) {
+                    this.history = this.history.slice(-50);
+                }
+
+                return measurement;
+            }
+
+            // 实时监控
+            startRealTimeMonitoring() {
+                this.isMonitoring = true;
+                
+                const updateMonitor = () => {
+                    if (this.isMonitoring) {
+                        const measurement = this.measureScrollbarWidth();
+                        this.updateRealTimeDisplay(measurement);
+                        requestAnimationFrame(updateMonitor);
+                    }
+                };
+                
+                updateMonitor();
+
+                // 监听窗口大小变化
+                window.addEventListener('resize', () => {
+                    setTimeout(() => {
+                        this.updateDisplay();
+                    }, 100);
+                });
+            }
+
+            // 更新实时显示
+            updateRealTimeDisplay(measurement) {
+                document.getElementById('currentScrollbarWidth').textContent = measurement.width;
+                document.getElementById('viewportWidth').textContent = measurement.viewportWidth;
+                document.getElementById('documentWidth').textContent = measurement.documentWidth;
+                document.getElementById('scrollRatio').textContent = measurement.ratio;
+                
+                document.getElementById('scrollbarWidthValue').textContent = measurement.width;
+            }
+
+            // 更新显示
+            updateDisplay() {
+                const measurement = this.measureScrollbarWidth();
+                this.updateRealTimeDisplay(measurement);
+            }
+
+            // 调整内容高度
+            adjustContentHeight(height) {
+                const previewContent = document.getElementById('previewContent');
+                previewContent.style.height = height + 'px';
+                
+                // 如果高度足够大，添加滚动内容
+                if (height > 500) {
+                    this.addScrollContent();
+                }
+                
+                setTimeout(() => {
+                    this.updateDisplay();
+                }, 100);
+            }
+
+            // 添加滚动内容
+            addScrollContent() {
+                const previewContent = document.getElementById('previewContent');
+                previewContent.classList.add('has-scroll');
+                
+                const scrollDiv = document.createElement('div');
+                scrollDiv.className = 'scroll-content';
+                scrollDiv.innerHTML = `
+                    <div class="content-block">
+                        <h3>🎯 滚动内容区域 #1</h3>
+                        <p>这是一个可滚动的内容区域，用于测试滚动条宽度检测功能。</p>
+                    </div>
+                    <div class="content-block">
+                        <h3>📈 滚动内容区域 #2</h3>
+                        <p>当内容超出容器高度时，浏览器会自动显示滚动条。</p>
+                    </div>
+                    <div class="content-block">
+                        <h3>🔍 滚动内容区域 #3</h3>
+                        <p>我们的工具可以准确检测到滚动条的宽度变化。</p>
+                    </div>
+                    <div class="content-block">
+                        <h3>⚡ 滚动内容区域 #4</h3>
+                        <p>实时监控功能确保数据的准确性和及时性。</p>
+                    </div>
+                    <div class="content-block">
+                        <h3>🎉 滚动内容区域 #5</h3>
+                        <p>这是最后一个内容块，感谢您使用我们的调试工具！</p>
+                    </div>
+                `;
+                
+                previewContent.innerHTML = '';
+                previewContent.appendChild(scrollDiv);
+            }
+
+            // 更新兼容性状态
+            updateCompatibilityStatus() {
+                const hasInnerWidth = 'innerWidth' in window;
+                const hasClientWidth = 'clientWidth' in document.documentElement;
+                
+                let status = '未知';
+                if (hasInnerWidth && hasClientWidth) {
+                    status = '优秀';
+                } else if (hasInnerWidth || hasClientWidth) {
+                    status = '良好';
+                } else {
+                    status = '较差';
+                }
+                
+                document.getElementById('compatibilityStatus').textContent = status;
+            }
+
+            // 计划监控
+            scheduleMonitoring(dateTimeStr) {
+                const targetTime = new Date(dateTimeStr);
+                const now = new Date();
+                
+                if (targetTime > now) {
+                    const delay = targetTime.getTime() - now.getTime();
+                    
+                    this.modal.alert(`✅ 监控已计划在 ${dateTimeStr} 开始`);
+                    
+                    setTimeout(() => {
+                        this.modal.alert('🚀 自动监控已开始！');
+                        this.intensiveMonitoring();
+                    }, delay);
+                } else {
+                    this.modal.alert('⚠️ 请选择一个未来的时间');
+                }
+            }
+
+            // 强化监控
+            intensiveMonitoring() {
+                let count = 0;
+                const interval = setInterval(() => {
+                    this.measureScrollbarWidth();
+                    count++;
+                    
+                    if (count >= 10) {
+                        clearInterval(interval);
+                        this.modal.alert('📊 强化监控完成，已记录10次测量数据');
+                    }
+                }, 1000);
+            }
+        }
+
+        // 全局实例
+        let scrollbarMonitor;
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            scrollbarMonitor = new ScrollbarMonitor();
+        });
+
+        // 测试场景函数
+        function testScenario(type) {
+            const previewContent = document.getElementById('previewContent');
+            
+            switch(type) {
+                case 'normal':
+                    previewContent.className = 'preview-content';
+                    previewContent.style.height = '400px';
+                    previewContent.innerHTML = `
+                        <div style="color: #7f8c8d; font-size: 1.1rem;">
+                            <h3 style="color: #2c3e50; margin-bottom: 1rem;">📱 正常布局模式</h3>
+                            <p>这是一个正常的布局，内容没有超出容器范围</p>
+                            <p style="margin-top: 1rem; font-size: 0.9rem;">滚动条宽度: <strong>${getScrollbarWidth()}px</strong></p>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'scroll':
+                    scrollbarMonitor.addScrollContent();
+                    break;
+                    
+                case 'wide':
+                    previewContent.className = 'preview-content';
+                    previewContent.style.height = '400px';
+                    previewContent.style.overflowX = 'auto';
+                    previewContent.innerHTML = `
+                        <div style="width: 800px; padding: 2rem; background: linear-gradient(45deg, #ff6b6b, #ffd93d); border-radius: 12px; color: white; text-align: center;">
+                            <h3>🚀 超宽内容测试</h3>
+                            <p>这个内容故意设置得很宽，用来测试水平滚动条的影响</p>
+                            <p style="margin-top: 1rem;">当前滚动条宽度: <strong>${getScrollbarWidth()}px</strong></p>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            setTimeout(() => {
+                scrollbarMonitor.updateDisplay();
+            }, 100);
+        }
+
+        function clearContent() {
+            const previewContent = document.getElementById('previewContent');
+            previewContent.className = 'preview-content';
+            previewContent.style.height = '400px';
+            previewContent.style.overflowX = 'visible';
+            previewContent.innerHTML = `
+                <div style="color: #7f8c8d; font-size: 1.1rem;">
+                    <p>✨ 内容已清空</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">滚动条宽度: <strong>${getScrollbarWidth()}px</strong></p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                scrollbarMonitor.updateDisplay();
+            }, 100);
+        }
+
+        function showHistory() {
+            if (scrollbarMonitor.history.length === 0) {
+                scrollbarMonitor.modal.alert('📝 暂无历史记录');
+                return;
+            }
+            
+            const latest = scrollbarMonitor.history.slice(-5);
+            let historyHtml = '<div style="font-family: monospace; font-size: 0.9rem;">';
+            historyHtml += '<h4 style="margin-bottom: 1rem; color: #2c3e50;">📊 最近5次检测记录:</h4>';
+            
+            latest.forEach((record, index) => {
+                historyHtml += `
+                    <div style="margin-bottom: 0.8rem; padding: 0.8rem; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db;">
+                        <strong>#${scrollbarMonitor.history.length - latest.length + index + 1}</strong><br>
+                        🕒 时间: ${record.timestamp.toLocaleString()}<br>
+                        📏 滚动条宽度: ${record.width}px<br>
+                        📱 视口宽度: ${record.viewportWidth}px<br>
+                        📊 占比: ${record.ratio}%
+                    </div>
+                `;
+            });
+            
+            historyHtml += '</div>';
+            
+            scrollbarMonitor.modal.show({
+                title: '📈 检测历史记录',
+                content: historyHtml,
+                onConfirm: () => {}
+            });
+        }
+
+        function exportReport() {
+            const currentMeasurement = scrollbarMonitor.measureScrollbarWidth();
+            const report = {
+                reportTime: new Date().toLocaleString(),
+                currentScrollbarWidth: currentMeasurement.width,
+                browserInfo: {
+                    userAgent: navigator.userAgent,
+                    viewport: `${window.innerWidth}x${window.innerHeight}`,
+                    documentSize: `${document.documentElement.clientWidth}x${document.documentElement.clientHeight}`
+                },
+                measurements: scrollbarMonitor.history.slice(-10),
+                summary: {
+                    averageWidth: (scrollbarMonitor.history.reduce((sum, h) => sum + h.width, 0) / scrollbarMonitor.history.length).toFixed(2),
+                    maxWidth: Math.max(...scrollbarMonitor.history.map(h => h.width)),
+                    minWidth: Math.min(...scrollbarMonitor.history.map(h => h.width))
+                }
+            };
+            
+            const reportText = `
+滚动条宽度检测报告
+=====================
+报告时间: ${report.reportTime}
+当前滚动条宽度: ${report.currentScrollbarWidth}px
+
+浏览器信息:
+- User Agent: ${report.browserInfo.userAgent}
+- 视口大小: ${report.browserInfo.viewport}
+- 文档大小: ${report.browserInfo.documentSize}
+
+统计摘要:
+- 平均宽度: ${report.summary.averageWidth}px
+- 最大宽度: ${report.summary.maxWidth}px
+- 最小宽度: ${report.summary.minWidth}px
+- 测量次数: ${scrollbarMonitor.history.length}
+
+最近测量记录:
+${report.measurements.map((m, i) => 
+    `${i+1}. ${m.timestamp.toLocaleString()} - ${m.width}px (${m.ratio}%)`
+).join('\n')}
+            `.trim();
+            
+            // 创建下载链接
+            const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `scrollbar-width-report-${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            scrollbarMonitor.modal.alert('📋 报告已导出到下载文件夹');
+        }
+    </script>
+</body>
+</html>

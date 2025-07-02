@@ -303,7 +303,7 @@
 - [获取父元素-2022-07-15](codes/javascript/get-parents-until.md)
 - [获取协议-2022-07-16](codes/javascript/get-protocol.md)
 - [获取滚动坐标-2022-07-17](codes/javascript/get-scroll-position.md)
-- [计算窗口垂直滚动条的宽度-2022-07-18](codes/javascript/getScrollbarWidth.md)
+- [计算窗口垂直滚动条的宽度-2022-07-18](codes/javascript/get-scrollbar-width.md)
 - [获取日期之间的秒数差-2022-07-19](codes/javascript/getSecondsDiffBetweenDates.md)
 - [获取选中的文本-2022-07-20](codes/javascript/getSelectedText.md)
 - [获取兄弟节点-2022-07-21](codes/javascript/getSiblings.md)
