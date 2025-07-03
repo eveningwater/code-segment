@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目时间管理器 - 精确时间差计算工具</title>
+    
+    <!-- 导入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 3px solid transparent;
+            background: linear-gradient(90deg, #3498db, #9b59b6) padding-box,
+                        linear-gradient(90deg, #3498db, #9b59b6) border-box;
+            border-image: linear-gradient(90deg, #3498db, #9b59b6) 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .datetime-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1.5rem;
+        }
+
+        .vs-indicator {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .calculation-panel {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 5px solid #3498db;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
+        }
+
+        .result-value {
+            font-size: 3rem;
+            font-weight: 700;
+            font-family: 'Monaco', 'Consolas', monospace;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-unit {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .result-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .breakdown-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .breakdown-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .breakdown-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+
+        .task-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .task-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f2f6;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .task-duration {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .task-details {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-active { background: #27ae60; animation: pulse 2s infinite; }
+        .status-pending { background: #f39c12; }
+        .status-completed { background: #3498db; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .progress-section {
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #9b59b6);
+            border-radius: 10px;
+            transition: width 1s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .time-unit-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .unit-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .unit-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .unit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+
+            .datetime-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .vs-indicator {
+                text-align: center;
+            }
+
+            .result-breakdown {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 插件样式覆盖 */
+        .ew-datetime-picker {
+            width: 100%;
+        }
+
+        .ew-input-number {
+            width: 120px;
+        }
+
+        .ew-select {
+            width: 180px;
+        }
+
+        /* 确保主题色彩一致性 */
+        .datetime-input-wrapper:focus-within,
+        .ew-input-number:focus-within,
+        .ew-select.open .select-header {
+            border-color: #3498db !important;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+        }
+
+        .input-number-button:hover {
+            background: #3498db !important;
+            color: white !important;
+        }
+
+        .select-header {
+            border: 2px solid #e1e5e9 !important;
+            border-radius: 8px !important;
+            padding: 0.8rem !important;
+            font-size: 1rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .select-header:hover {
+            border-color: #c6d2e1 !important;
+        }
+
+        .select-options {
+            border: 2px solid #3498db !important;
+            border-radius: 8px !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .select-option:hover {
+            background: #e8f0fe !important;
+            color: #3498db !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>⏱️ 项目时间管理器</h1>
+            <p>精确计算项目任务时间差，提升工作效率和时间管理能力</p>
+        </header>
+
+        <main class="main-content">
+            <div class="panel">
+                <h2 class="section-title">
+                    📅 时间计算器
+                </h2>
+
+                <div class="form-group">
+                    <label class="form-label">选择起始时间和结束时间</label>
+                    <div class="datetime-row">
+                        <div>
+                            <label style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 0.5rem; display: block;">开始时间</label>
+                            <div id="startDatetime"></div>
+                        </div>
+                        <div class="vs-indicator">VS</div>
+                        <div>
+                            <label style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 0.5rem; display: block;">结束时间</label>
+                            <div id="endDatetime"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calculation-panel">
+                    <h3 style="margin-bottom: 1rem; color: #2c3e50;">⚙️ 计算选项</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">显示单位</label>
+                        <div class="time-unit-selector">
+                            <span class="unit-btn active" data-unit="seconds">秒</span>
+                            <span class="unit-btn" data-unit="minutes">分钟</span>
+                            <span class="unit-btn" data-unit="hours">小时</span>
+                            <span class="unit-btn" data-unit="days">天</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">精度设置</label>
+                        <div id="precisionController"></div>
+                        <small style="color: #7f8c8d;">设置小数点后保留位数</small>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="calculateTimeDiff()">
+                        🧮 计算时间差
+                    </button>
+                    <button class="btn btn-success" onclick="addToTaskList()">
+                        ➕ 添加到任务
+                    </button>
+                    <button class="btn btn-warning" onclick="exportReport()">
+                        📊 导出报告
+                    </button>
+                    <button class="btn btn-danger" onclick="clearAll()">
+                        🗑️ 清空数据
+                    </button>
+                </div>
+
+                <div class="result-display" id="resultDisplay">
+                    <div class="result-value" id="resultValue">0</div>
+                    <div class="result-unit" id="resultUnit">秒</div>
+                    
+                    <div class="result-breakdown" id="resultBreakdown">
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="breakdownDays">0</div>
+                            <div class="breakdown-label">天</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="breakdownHours">0</div>
+                            <div class="breakdown-label">小时</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="breakdownMinutes">0</div>
+                            <div class="breakdown-label">分钟</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="breakdownSeconds">0</div>
+                            <div class="breakdown-label">秒</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2 class="section-title">
+                    📋 任务管理
+                </h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTasks">0</div>
+                        <div class="stat-label">总任务数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTime">0</div>
+                        <div class="stat-label">总时长(小时)</div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <h3 style="margin-bottom: 1rem; color: #2c3e50;">📈 项目进度</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 0.5rem; color: #7f8c8d;" id="progressText">
+                        0% 完成
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">快速添加任务</label>
+                    <div style="display: flex; gap: 1rem; align-items: end;">
+                        <div style="flex: 1;">
+                            <input type="text" id="taskNameInput" placeholder="输入任务名称..." 
+                                   style="width: 100%; padding: 0.8rem; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem;">
+                        </div>
+                        <div>
+                            <div id="taskTypeSelector"></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="quickAddTask()">添加</button>
+                    </div>
+                </div>
+
+                <div class="task-list" id="taskList">
+                    <div style="padding: 2rem; text-align: center; color: #7f8c8d;">
+                        暂无任务数据<br>
+                        <small>计算时间差后点击"添加到任务"开始管理</small>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 导入插件脚本 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 核心的 getSecondsDiffBetweenDates 方法
+        const getSecondsDiffBetweenDates = (dateInitial, dateFinal) =>
+            (dateFinal - dateInitial) / 1000;
+
+        // 应用状态管理
+        class TimeManager {
+            constructor() {
+                this.tasks = [];
+                this.currentUnit = 'seconds';
+                this.precision = 2;
+                this.startDatetime = null;
+                this.endDatetime = null;
+                this.precisionController = null;
+                this.taskTypeSelector = null;
+                this.modal = new Modal();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.loadSavedData();
+            }
+
+            setupControls() {
+                // 初始化开始时间选择器
+                this.startDatetime = new DateTimePicker({
+                    container: document.getElementById('startDatetime'),
+                    placeholder: '选择开始时间',
+                    format: 'YYYY-MM-DD HH:mm:ss',
+                    onChange: (value) => {
+                        this.startTime = value;
+                        this.autoCalculate();
+                    }
+                });
+
+                // 初始化结束时间选择器
+                this.endDatetime = new DateTimePicker({
+                    container: document.getElementById('endDatetime'),
+                    placeholder: '选择结束时间',
+                    format: 'YYYY-MM-DD HH:mm:ss',
+                    onChange: (value) => {
+                        this.endTime = value;
+                        this.autoCalculate();
+                    }
+                });
+
+                // 初始化精度控制器
+                this.precisionController = new InputNumber({
+                    container: document.getElementById('precisionController'),
+                    min: 0,
+                    max: 6,
+                    step: 1,
+                    value: 2,
+                    onChange: (value) => {
+                        this.precision = value;
+                        this.autoCalculate();
+                    }
+                });
+
+                // 初始化任务类型选择器
+                this.taskTypeSelector = new Select({
+                    container: document.getElementById('taskTypeSelector'),
+                    placeholder: '选择任务类型',
+                    onChange: (value) => {
+                        console.log('选择的任务类型:', value);
+                    }
+                });
+                
+                // 设置选项
+                this.taskTypeSelector.setOptions([
+                    { value: 'development', label: '🔧 开发任务' },
+                    { value: 'meeting', label: '💼 会议' },
+                    { value: 'testing', label: '🧪 测试' },
+                    { value: 'review', label: '👀 代码审查' },
+                    { value: 'planning', label: '📋 项目规划' },
+                    { value: 'other', label: '📝 其他' }
+                ]);
+                
+                // 设置默认值
+                this.taskTypeSelector.setValue('development');
+            }
+
+            setupEventListeners() {
+                // 时间单位选择器
+                document.querySelectorAll('.unit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentUnit = e.target.dataset.unit;
+                        this.autoCalculate();
+                    });
+                });
+
+                // 键盘快捷键
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.calculateTimeDiff();
+                    }
+                });
+
+                // 任务名称输入框回车事件
+                document.getElementById('taskNameInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.quickAddTask();
+                    }
+                });
+            }
+
+            // 自动计算（当有两个时间时）
+            autoCalculate() {
+                if (this.startTime && this.endTime) {
+                    this.calculateTimeDiff();
+                }
+            }
+
+            // 计算时间差
+            calculateTimeDiff() {
+                if (!this.startTime || !this.endTime) {
+                    this.modal.alert('⚠️ 请先选择开始时间和结束时间');
+                    return;
+                }
+
+                const startDate = new Date(this.startTime);
+                const endDate = new Date(this.endTime);
+
+                if (startDate >= endDate) {
+                    this.modal.alert('⚠️ 结束时间必须晚于开始时间');
+                    return;
+                }
+
+                // 使用核心方法计算秒数差
+                const secondsDiff = getSecondsDiffBetweenDates(startDate, endDate);
+                
+                // 根据选择的单位转换
+                let result = secondsDiff;
+                let unit = '秒';
+
+                switch (this.currentUnit) {
+                    case 'minutes':
+                        result = secondsDiff / 60;
+                        unit = '分钟';
+                        break;
+                    case 'hours':
+                        result = secondsDiff / 3600;
+                        unit = '小时';
+                        break;
+                    case 'days':
+                        result = secondsDiff / 86400;
+                        unit = '天';
+                        break;
+                }
+
+                // 应用精度
+                result = parseFloat(result.toFixed(this.precision));
+
+                // 更新显示
+                this.updateResultDisplay(result, unit, secondsDiff);
+                
+                // 记录计算历史
+                this.addCalculationHistory(startDate, endDate, secondsDiff);
+            }
+
+            // 更新结果显示
+            updateResultDisplay(result, unit, totalSeconds) {
+                document.getElementById('resultValue').textContent = result.toLocaleString();
+                document.getElementById('resultUnit').textContent = unit;
+
+                // 分解显示
+                const days = Math.floor(totalSeconds / 86400);
+                const hours = Math.floor((totalSeconds % 86400) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = Math.floor(totalSeconds % 60);
+
+                document.getElementById('breakdownDays').textContent = days;
+                document.getElementById('breakdownHours').textContent = hours;
+                document.getElementById('breakdownMinutes').textContent = minutes;
+                document.getElementById('breakdownSeconds').textContent = seconds;
+
+                // 添加动画效果
+                const resultDisplay = document.getElementById('resultDisplay');
+                resultDisplay.style.animation = 'none';
+                setTimeout(() => {
+                    resultDisplay.style.animation = 'pulse 0.5s ease';
+                }, 10);
+            }
+
+            // 添加到任务列表
+            addToTaskList() {
+                const resultValue = document.getElementById('resultValue').textContent;
+                const resultUnit = document.getElementById('resultUnit').textContent;
+                
+                if (resultValue === '0') {
+                    this.modal.alert('⚠️ 请先计算时间差');
+                    return;
+                }
+
+                this.modal.prompt('📝 请输入任务名称', '').then(taskName => {
+                    if (taskName) {
+                        const task = {
+                            id: Date.now(),
+                            name: taskName,
+                            startTime: this.startTime,
+                            endTime: this.endTime,
+                            duration: `${resultValue} ${resultUnit}`,
+                            durationSeconds: parseFloat(document.getElementById('breakdownSeconds').textContent) +
+                                           parseFloat(document.getElementById('breakdownMinutes').textContent) * 60 +
+                                           parseFloat(document.getElementById('breakdownHours').textContent) * 3600 +
+                                           parseFloat(document.getElementById('breakdownDays').textContent) * 86400,
+                            type: this.taskTypeSelector.getValue(),
+                            status: 'completed',
+                            createdAt: new Date()
+                        };
+
+                        this.tasks.push(task);
+                        this.updateTaskList();
+                        this.updateStats();
+                        this.saveData();
+                        
+                        this.modal.alert('✅ 任务添加成功！');
+                    }
+                });
+            }
+
+            // 快速添加任务
+            quickAddTask() {
+                const taskName = document.getElementById('taskNameInput').value.trim();
+                
+                if (!taskName) {
+                    this.modal.alert('⚠️ 请输入任务名称');
+                    return;
+                }
+
+                // 设置默认的1小时任务
+                const now = new Date();
+                const oneHourLater = new Date(now.getTime() + 3600000);
+
+                const task = {
+                    id: Date.now(),
+                    name: taskName,
+                    startTime: now.toISOString().slice(0, 19),
+                    endTime: oneHourLater.toISOString().slice(0, 19),
+                    duration: '1 小时',
+                    durationSeconds: 3600,
+                    type: this.taskTypeSelector.getValue(),
+                    status: 'pending',
+                    createdAt: new Date()
+                };
+
+                this.tasks.push(task);
+                this.updateTaskList();
+                this.updateStats();
+                this.saveData();
+                
+                document.getElementById('taskNameInput').value = '';
+                this.modal.alert('✅ 快速任务添加成功！');
+            }
+
+            // 更新任务列表
+            updateTaskList() {
+                const taskList = document.getElementById('taskList');
+                
+                if (this.tasks.length === 0) {
+                    taskList.innerHTML = `
+                        <div style="padding: 2rem; text-align: center; color: #7f8c8d;">
+                            暂无任务数据<br>
+                            <small>计算时间差后点击"添加到任务"开始管理</small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const taskHtml = this.tasks.map(task => {
+                    const statusClass = task.status === 'completed' ? 'status-completed' : 
+                                       task.status === 'active' ? 'status-active' : 'status-pending';
+                    
+                    const typeEmoji = {
+                        'development': '🔧',
+                        'meeting': '💼',
+                        'testing': '🧪',
+                        'review': '👀',
+                        'planning': '📋',
+                        'other': '📝'
+                    };
+
+                    return `
+                        <div class="task-item" onclick="editTask(${task.id})">
+                            <div class="task-header">
+                                <span class="task-name">
+                                    <span class="status-indicator ${statusClass}"></span>
+                                    ${typeEmoji[task.type] || '📝'} ${task.name}
+                                </span>
+                                <span class="task-duration">${task.duration}</span>
+                            </div>
+                            <div class="task-details">
+                                ${new Date(task.startTime).toLocaleString()} → ${new Date(task.endTime).toLocaleString()}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                taskList.innerHTML = taskHtml;
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const totalTasks = this.tasks.length;
+                const totalTimeSeconds = this.tasks.reduce((sum, task) => sum + task.durationSeconds, 0);
+                const totalTimeHours = (totalTimeSeconds / 3600).toFixed(1);
+                
+                document.getElementById('totalTasks').textContent = totalTasks;
+                document.getElementById('totalTime').textContent = totalTimeHours;
+
+                // 更新进度条（假设目标是100小时）
+                const targetHours = 100;
+                const progress = Math.min((totalTimeSeconds / 3600 / targetHours) * 100, 100);
+                
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                document.getElementById('progressText').textContent = `${progress.toFixed(1)}% 完成`;
+            }
+
+            // 导出报告
+            exportReport() {
+                if (this.tasks.length === 0) {
+                    this.modal.alert('⚠️ 没有数据可以导出');
+                    return;
+                }
+
+                const report = {
+                    exportTime: new Date().toLocaleString(),
+                    totalTasks: this.tasks.length,
+                    totalTimeHours: (this.tasks.reduce((sum, task) => sum + task.durationSeconds, 0) / 3600).toFixed(2),
+                    tasks: this.tasks
+                };
+
+                const reportText = `
+项目时间管理报告
+===================
+导出时间: ${report.exportTime}
+总任务数: ${report.totalTasks}
+总工时: ${report.totalTimeHours} 小时
+
+任务详情:
+${report.tasks.map((task, index) => `
+${index + 1}. ${task.name}
+   类型: ${task.type}
+   时长: ${task.duration}
+   状态: ${task.status}
+   开始: ${new Date(task.startTime).toLocaleString()}
+   结束: ${new Date(task.endTime).toLocaleString()}
+`).join('\n')}
+
+工时统计:
+- 开发任务: ${this.getTimeByType('development')} 小时
+- 会议: ${this.getTimeByType('meeting')} 小时
+- 测试: ${this.getTimeByType('testing')} 小时
+- 代码审查: ${this.getTimeByType('review')} 小时
+- 项目规划: ${this.getTimeByType('planning')} 小时
+- 其他: ${this.getTimeByType('other')} 小时
+                `.trim();
+
+                const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `time-management-report-${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.modal.alert('📊 报告已导出到下载文件夹');
+            }
+
+            // 按类型统计时间
+            getTimeByType(type) {
+                const totalSeconds = this.tasks
+                    .filter(task => task.type === type)
+                    .reduce((sum, task) => sum + task.durationSeconds, 0);
+                return (totalSeconds / 3600).toFixed(1);
+            }
+
+            // 清空所有数据
+            clearAll() {
+                this.modal.confirm('⚠️ 确定要清空所有数据吗？此操作不可撤销。').then(confirmed => {
+                    if (confirmed) {
+                        this.tasks = [];
+                        this.updateTaskList();
+                        this.updateStats();
+                        this.saveData();
+                        
+                        // 重置结果显示
+                        document.getElementById('resultValue').textContent = '0';
+                        document.getElementById('resultUnit').textContent = '秒';
+                        document.getElementById('breakdownDays').textContent = '0';
+                        document.getElementById('breakdownHours').textContent = '0';
+                        document.getElementById('breakdownMinutes').textContent = '0';
+                        document.getElementById('breakdownSeconds').textContent = '0';
+                        
+                        this.modal.alert('✅ 数据已清空');
+                    }
+                });
+            }
+
+            // 保存数据到本地存储
+            saveData() {
+                localStorage.setItem('timeManagerData', JSON.stringify({
+                    tasks: this.tasks,
+                    settings: {
+                        currentUnit: this.currentUnit,
+                        precision: this.precision
+                    }
+                }));
+            }
+
+            // 加载保存的数据
+            loadSavedData() {
+                const saved = localStorage.getItem('timeManagerData');
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        this.tasks = data.tasks || [];
+                        this.currentUnit = data.settings?.currentUnit || 'seconds';
+                        this.precision = data.settings?.precision || 2;
+                        
+                        this.updateTaskList();
+                        this.updateStats();
+                        this.updateDisplay();
+                    } catch (e) {
+                        console.warn('Failed to load saved data:', e);
+                    }
+                }
+            }
+
+            // 更新显示
+            updateDisplay() {
+                // 更新时间单位选择器
+                document.querySelectorAll('.unit-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.unit === this.currentUnit);
+                });
+                
+                // 更新精度控制器
+                if (this.precisionController) {
+                    this.precisionController.setValue(this.precision);
+                }
+            }
+
+            // 添加计算历史记录
+            addCalculationHistory(startDate, endDate, seconds) {
+                // 可以在这里添加历史记录逻辑
+                console.log('计算记录:', {
+                    start: startDate,
+                    end: endDate,
+                    duration: seconds
+                });
+            }
+        }
+
+        // 全局实例
+        let timeManager;
+
+        // 全局函数
+        function calculateTimeDiff() {
+            timeManager.calculateTimeDiff();
+        }
+
+        function addToTaskList() {
+            timeManager.addToTaskList();
+        }
+
+        function quickAddTask() {
+            timeManager.quickAddTask();
+        }
+
+        function exportReport() {
+            timeManager.exportReport();
+        }
+
+        function clearAll() {
+            timeManager.clearAll();
+        }
+
+        function editTask(taskId) {
+            const task = timeManager.tasks.find(t => t.id === taskId);
+            if (task) {
+                timeManager.modal.confirm(`📝 任务: ${task.name}\n⏱️ 时长: ${task.duration}\n\n是否要删除此任务？`).then(confirmed => {
+                    if (confirmed) {
+                        timeManager.tasks = timeManager.tasks.filter(t => t.id !== taskId);
+                        timeManager.updateTaskList();
+                        timeManager.updateStats();
+                        timeManager.saveData();
+                        timeManager.modal.alert('🗑️ 任务已删除');
+                    }
+                });
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            timeManager = new TimeManager();
+        });
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>

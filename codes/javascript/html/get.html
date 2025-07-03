@@ -1,241 +1,538 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>对象属性提取器</title>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <title>企业数据查询分析器 - 智能数据提取工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+        * {
             margin: 0;
-            background-color: #f0f2f5;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             color: #333;
-            padding: 20px;
-            box-sizing: border-box;
+            line-height: 1.6;
         }
 
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
             width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
         }
 
-        h1 {
-            color: #0056b3;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 2em;
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
             font-weight: 600;
-        }
-
-        .input-group {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 3px solid transparent;
+            background: linear-gradient(90deg, #3498db, #9b59b6) padding-box,
+                        linear-gradient(90deg, #3498db, #9b59b6) border-box;
+            border-image: linear-gradient(90deg, #3498db, #9b59b6) 1;
             display: flex;
-            flex-direction: column;
-            margin-bottom: 15px;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        label {
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 0.95em;
+        .form-group {
+            margin-bottom: 2rem;
         }
 
-        textarea,
-        input[type="text"] {
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1em;
-            width: calc(100% - 30px);
-            box-sizing: border-box;
-            transition: border-color 0.3s, box-shadow 0.3s;
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
         }
 
-        textarea:focus,
-        input[type="text"]:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        .data-source-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .data-source-btn {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .data-source-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .data-source-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .query-builder {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 5px solid #3498db;
+        }
+
+        .preset-queries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .preset-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .preset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            font-family: 'Monaco', 'Consolas', monospace;
+            resize: vertical;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
             outline: none;
         }
 
         textarea {
-            min-height: 120px;
-            resize: vertical;
-            font-family: 'Consolas', 'Monaco', monospace;
+            min-height: 200px;
+            background: #2c3e50;
+            color: #ecf0f1;
         }
 
-        .button-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 12px 25px;
+        .btn {
+            padding: 0.8rem 1.5rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 1.05em;
             font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
-            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        button.generate {
-            background-color: #28a745;
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
-        button.generate:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        .btn:hover::before {
+            left: 100%;
         }
 
-        button.reset {
-            background-color: #dc3545;
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
 
-        button.reset:hover {
-            background-color: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
         }
 
-        .result-section {
-            background-color: #e9ecef;
-            padding: 20px;
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-count {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            margin: 0.8rem 0;
             border-radius: 8px;
-            border: 1px solid #dee2e6;
+            border-left: 4px solid #3498db;
         }
 
-        .result-section h2 {
-            color: #0056b3;
-            margin-top: 0;
-            font-size: 1.4em;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+        .result-path {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+            font-family: 'Monaco', 'Consolas', monospace;
         }
 
-        #resultOutput {
-            white-space: pre-wrap;
+        .result-value {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 1rem;
             word-break: break-all;
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-            padding: 15px;
-            border-radius: 6px;
-            min-height: 80px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.95em;
-            color: #333;
-            overflow-x: auto;
         }
 
         .error-message {
-            color: #dc3545;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
             display: none;
-            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
         }
 
         .code-display {
-            background-color: #272b33;
-            color: #f8f8f2;
-            padding: 20px;
-            border-radius: 8px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9em;
-            overflow-x: auto;
-            margin-top: 25px;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
         }
 
-        .code-display h2 {
-            color: #61dafb;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.4em;
-            border-bottom: 2px solid #61dafb;
-            padding-bottom: 10px;
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .code-display pre {
-            margin: 0;
+        .copy-btn {
+            padding: 0.3rem 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
         }
 
-        .code-display code {
-            display: block;
-            white-space: pre-wrap;
-            word-break: break-all;
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
+        .query-history {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .history-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f2f6;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-query {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: #2c3e50;
+            margin-bottom: 0.3rem;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
             }
 
-            .button-group {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .preset-queries {
                 flex-direction: column;
-            }
-
-            button {
-                width: 100%;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>对象属性提取器</h1>
+    <div class="app-container">
+        <header class="header">
+            <h1>📊 企业数据查询分析器</h1>
+            <p>智能数据提取工具 - 快速查询复杂业务数据结构</p>
+        </header>
 
-        <div class="input-group">
-            <label for="jsonInput">输入 JSON 对象:</label>
-            <textarea id="jsonInput"
-                placeholder='例如: { "user": { "profile": { "name": "Alice" } }, "data": [1, 2, { "id": 10 }] }'></textarea>
-        </div>
+        <main class="main-content">
+            <div class="panel">
+                <h2 class="section-title">
+                    🎯 数据源选择
+                </h2>
 
-        <div class="input-group">
-            <label for="selectorInput">输入选择器路径 (多个路径用逗号分隔):</label>
-            <input type="text" id="selectorInput" placeholder='例如: user.profile.name, data[2].id, data[0]'>
-        </div>
+                <div class="form-group">
+                    <label class="form-label">选择业务数据模板</label>
+                    <div class="data-source-selector">
+                        <button class="data-source-btn active" data-source="ecommerce">🛒 电商平台</button>
+                        <button class="data-source-btn" data-source="crm">👥 CRM系统</button>
+                        <button class="data-source-btn" data-source="finance">💰 财务数据</button>
+                        <button class="data-source-btn" data-source="analytics">📈 分析报告</button>
+                        <button class="data-source-btn" data-source="custom">⚙️ 自定义</button>
+                    </div>
+                </div>
 
-        <div class="button-group">
-            <button class="generate" id="generateBtn">提取属性</button>
-            <button class="reset" id="resetBtn">重置</button>
-        </div>
+                <div class="form-group">
+                    <label class="form-label">数据源 (JSON格式)</label>
+                    <textarea id="jsonInput" placeholder="选择上方模板自动填充数据，或输入自定义JSON..."></textarea>
+                </div>
 
-        <div class="error-message" id="errorMessage"></div>
+                <div class="query-builder">
+                    <h3 style="margin-bottom: 1rem; color: #2c3e50;">🔍 智能查询构建器</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">常用查询模板</label>
+                        <div class="preset-queries">
+                            <button class="preset-btn" data-query="user.profile.name">用户姓名</button>
+                            <button class="preset-btn" data-query="orders[0].items[0].price">首个订单价格</button>
+                            <button class="preset-btn" data-query="analytics.revenue.total">总收入</button>
+                            <button class="preset-btn" data-query="user.preferences.theme">主题设置</button>
+                            <button class="preset-btn" data-query="products[0].name">产品名称</button>
+                        </div>
+                    </div>
 
-        <div class="result-section">
-            <h2>提取结果</h2>
-            <pre id="resultOutput"></pre>
-        </div>
+                    <div class="form-group">
+                        <label class="form-label">查询路径 (多个路径用逗号分隔)</label>
+                        <input type="text" id="selectorInput" placeholder="例如: user.profile.name, orders[0].total, products[0].price">
+                    </div>
+                </div>
 
-        <div class="code-display">
-            <h2>`get` 函数核心代码</h2>
-            <pre><code id="codeSnippet"  class="language-javascript"></code></pre>
-        </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="executeBtn">🚀 执行查询</button>
+                    <button class="btn btn-success" id="saveQueryBtn">💾 保存查询</button>
+                    <button class="btn btn-warning" id="clearBtn">🗑️ 清空</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="queryCount">0</div>
+                        <div class="stat-label">查询次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="successCount">0</div>
+                        <div class="stat-label">成功提取</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="dataSize">0</div>
+                        <div class="stat-label">数据大小(KB)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2 class="section-title">
+                    📋 查询结果
+                </h2>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <div class="result-display" id="resultDisplay">
+                    <div class="result-header">
+                        <span>查询结果</span>
+                        <span class="result-count" id="resultCount">0 项结果</span>
+                    </div>
+                    <div id="resultContent">
+                        <div style="text-align: center; color: rgba(255, 255, 255, 0.7); padding: 2rem;">
+                            🔍 选择数据源并执行查询以查看结果
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-display">
+                    <div class="code-header">
+                        <span>💡 核心 get 函数</span>
+                        <button class="copy-btn" onclick="copyCode()">📋 复制代码</button>
+                    </div>
+                    <pre id="codeSnippet"><code class="language-javascript">const get = (from, ...selectors) =>
+    [...selectors]
+        .filter(s => typeof s === 'string')
+        .map(s =>
+            s
+                .replace(/\[([^\[\]]*)\]/g, '.$1.')
+                .split('.')
+                .filter(t => t !== '')
+                .reduce((prev, cur) => prev && prev[cur], from)
+        );</code></pre>
+                </div>
+
+                <div class="form-group" style="margin-top: 2rem;">
+                    <label class="form-label">🕒 查询历史</label>
+                    <div class="query-history" id="queryHistory">
+                        <div style="padding: 2rem; text-align: center; color: #7f8c8d;">
+                            暂无查询历史
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
@@ -252,87 +549,557 @@
                         .reduce((prev, cur) => prev && prev[cur], from)
                 );
 
-        // DOM 元素获取
-        const jsonInput = document.getElementById('jsonInput');
-        const selectorInput = document.getElementById('selectorInput');
-        const generateBtn = document.getElementById('generateBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const resultOutput = document.getElementById('resultOutput');
-        const errorMessage = document.getElementById('errorMessage');
-        const codeSnippet = document.getElementById('codeSnippet');
-
-        // 显示核心代码
-        codeSnippet.textContent = `const get = (from, ...selectors) =>
-    [...selectors]
-        .filter(s => typeof s === 'string')
-        .map(s =>
-            s
-                .replace(/\\[([^\\[\\]]*)\\]/g, '.$1.')
-                .split('.')
-                .filter(t => t !== '')
-                .reduce((prev, cur) => prev && prev[cur], from)
-        );`;
-
-        hljs.highlightAll();
-
-        // 事件监听器：提取属性
-        generateBtn.addEventListener('click', () => {
-            errorMessage.style.display = 'none';
-            resultOutput.textContent = '';
-
-            let jsonObj;
-            try {
-                jsonObj = JSON.parse(jsonInput.value);
-            } catch (e) {
-                errorMessage.textContent = '错误: 无效的 JSON 输入。请检查语法。';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            const selectors = selectorInput.value.split(',').map(s => s.trim()).filter(s => s !== '');
-
-            if (selectors.length === 0) {
-                errorMessage.textContent = '错误: 请输入至少一个选择器路径。';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            try {
-                const results = get(jsonObj, ...selectors);
-                if (results.length > 0) {
-                    resultOutput.innerHTML = `<pre><code>${JSON.stringify(results, null, 2)}</code></pre>`;
-
-                    hljs.highlightElement(resultOutput.querySelector('code'));
-                } else {
-                    resultOutput.textContent = '未找到匹配的属性。';
+        // 业务数据模板
+        const dataTemplates = {
+            ecommerce: {
+                user: {
+                    id: 12345,
+                    profile: {
+                        name: "张小明",
+                        email: "zhangxm@example.com",
+                        avatar: "https://example.com/avatars/zhang.jpg",
+                        level: "VIP",
+                        joinDate: "2023-01-15"
+                    },
+                    preferences: {
+                        theme: "dark",
+                        language: "zh-CN",
+                        notifications: {
+                            email: true,
+                            sms: false,
+                            push: true
+                        }
+                    },
+                    address: {
+                        shipping: {
+                            province: "北京市",
+                            city: "朝阳区",
+                            street: "建国路88号",
+                            zipCode: "100020"
+                        }
+                    }
+                },
+                orders: [
+                    {
+                        id: "ORD-2024-001",
+                        date: "2024-01-15T10:30:00Z",
+                        status: "delivered",
+                        total: 1299.99,
+                        items: [
+                            {
+                                productId: "P001",
+                                name: "iPhone 15 Pro",
+                                price: 999.99,
+                                quantity: 1,
+                                category: "electronics"
+                            },
+                            {
+                                productId: "P002",
+                                name: "MagSafe充电器",
+                                price: 300.00,
+                                quantity: 1,
+                                category: "accessories"
+                            }
+                        ],
+                        shipping: {
+                            method: "express",
+                            cost: 0,
+                            trackingNumber: "SF1234567890"
+                        }
+                    },
+                    {
+                        id: "ORD-2024-002",
+                        date: "2024-01-20T14:15:00Z",
+                        status: "processing",
+                        total: 599.99,
+                        items: [
+                            {
+                                productId: "P003",
+                                name: "AirPods Pro",
+                                price: 599.99,
+                                quantity: 1,
+                                category: "electronics"
+                            }
+                        ]
+                    }
+                ],
+                products: [
+                    {
+                        id: "P001",
+                        name: "iPhone 15 Pro",
+                        price: 999.99,
+                        stock: 50,
+                        category: "electronics",
+                        rating: 4.8,
+                        reviews: 1250
+                    },
+                    {
+                        id: "P002",
+                        name: "MagSafe充电器",
+                        price: 300.00,
+                        stock: 200,
+                        category: "accessories",
+                        rating: 4.5,
+                        reviews: 890
+                    }
+                ],
+                analytics: {
+                    revenue: {
+                        total: 125000.50,
+                        monthly: 15600.75,
+                        daily: 520.25
+                    },
+                    orders: {
+                        total: 1250,
+                        pending: 15,
+                        completed: 1200,
+                        cancelled: 35
+                    }
                 }
-            } catch (e) {
-                errorMessage.textContent = `提取过程中发生错误: ${e.message}`;
+            },
+            crm: {
+                company: {
+                    name: "科技创新有限公司",
+                    industry: "软件开发",
+                    employees: 150,
+                    founded: "2018-03-01"
+                },
+                customers: [
+                    {
+                        id: "C001",
+                        name: "阿里巴巴集团",
+                        contact: {
+                            person: "李经理",
+                            email: "li.manager@alibaba.com",
+                            phone: "+86-138-0013-8000"
+                        },
+                        status: "active",
+                        value: 500000,
+                        lastContact: "2024-01-15"
+                    },
+                    {
+                        id: "C002",
+                        name: "腾讯科技",
+                        contact: {
+                            person: "王总监",
+                            email: "wang.director@tencent.com",
+                            phone: "+86-139-0013-9000"
+                        },
+                        status: "prospect",
+                        value: 800000,
+                        lastContact: "2024-01-18"
+                    }
+                ],
+                deals: [
+                    {
+                        id: "D001",
+                        customerId: "C001",
+                        title: "企业级数据分析平台",
+                        value: 500000,
+                        stage: "negotiation",
+                        probability: 75,
+                        expectedClose: "2024-02-15"
+                    }
+                ],
+                team: {
+                    sales: [
+                        {
+                            id: "S001",
+                            name: "张销售",
+                            targets: {
+                                monthly: 100000,
+                                achieved: 75000
+                            },
+                            customers: ["C001", "C003"]
+                        }
+                    ]
+                }
+            },
+            finance: {
+                company: {
+                    name: "金融科技股份有限公司",
+                    fiscalYear: 2024,
+                    currency: "CNY"
+                },
+                financials: {
+                    revenue: {
+                        q1: 2500000,
+                        q2: 2800000,
+                        q3: 3200000,
+                        q4: 3500000,
+                        total: 12000000
+                    },
+                    expenses: {
+                        operational: 7200000,
+                        marketing: 1500000,
+                        research: 1800000,
+                        administration: 800000
+                    },
+                    profit: {
+                        gross: 4800000,
+                        net: 3000000,
+                        margin: 0.25
+                    }
+                },
+                investments: [
+                    {
+                        type: "股票",
+                        symbol: "AAPL",
+                        shares: 1000,
+                        price: 150.25,
+                        value: 150250,
+                        gain: 0.125
+                    },
+                    {
+                        type: "债券",
+                        symbol: "US10Y",
+                        amount: 500000,
+                        yield: 0.045,
+                        maturity: "2025-12-31"
+                    }
+                ],
+                budget: {
+                    departments: {
+                        engineering: {
+                            allocated: 5000000,
+                            spent: 3750000,
+                            remaining: 1250000
+                        },
+                        sales: {
+                            allocated: 2000000,
+                            spent: 1800000,
+                            remaining: 200000
+                        }
+                    }
+                }
+            },
+            analytics: {
+                website: {
+                    domain: "example.com",
+                    traffic: {
+                        daily: 50000,
+                        monthly: 1500000,
+                        sources: {
+                            organic: 0.45,
+                            direct: 0.25,
+                            social: 0.15,
+                            paid: 0.15
+                        }
+                    },
+                    performance: {
+                        loadTime: 2.1,
+                        bounceRate: 0.35,
+                        conversionRate: 0.025
+                    }
+                },
+                users: {
+                    total: 125000,
+                    active: 85000,
+                    demographics: {
+                        age: {
+                            "18-25": 0.25,
+                            "26-35": 0.35,
+                            "36-45": 0.25,
+                            "46+": 0.15
+                        },
+                        location: {
+                            "北京": 0.20,
+                            "上海": 0.18,
+                            "深圳": 0.15,
+                            "其他": 0.47
+                        }
+                    }
+                },
+                reports: [
+                    {
+                        id: "RPT-001",
+                        title: "月度用户增长报告",
+                        date: "2024-01-31",
+                        metrics: {
+                            newUsers: 5200,
+                            retention: 0.68,
+                            churn: 0.05
+                        }
+                    }
+                ]
+            }
+        };
+
+        // 应用状态管理
+        class DataAnalyzer {
+            constructor() {
+                this.currentTemplate = 'ecommerce';
+                this.queryHistory = [];
+                this.stats = {
+                    queryCount: 0,
+                    successCount: 0,
+                    dataSize: 0
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadTemplate('ecommerce');
+                this.updateStats();
+                this.loadQueryHistory();
+                hljs.highlightAll();
+            }
+
+            setupEventListeners() {
+                // 数据源选择器
+                document.querySelectorAll('.data-source-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.data-source-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentTemplate = e.target.dataset.source;
+                        
+                        if (this.currentTemplate !== 'custom') {
+                            this.loadTemplate(this.currentTemplate);
+                        } else {
+                            document.getElementById('jsonInput').value = '';
+                        }
+                    });
+                });
+
+                // 预设查询按钮
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const query = e.target.dataset.query;
+                        const selectorInput = document.getElementById('selectorInput');
+                        const currentValue = selectorInput.value.trim();
+                        
+                        if (currentValue && !currentValue.endsWith(',')) {
+                            selectorInput.value = currentValue + ', ' + query;
+                        } else {
+                            selectorInput.value = currentValue + query;
+                        }
+                    });
+                });
+
+                // 主要按钮
+                document.getElementById('executeBtn').addEventListener('click', () => this.executeQuery());
+                document.getElementById('saveQueryBtn').addEventListener('click', () => this.saveQuery());
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearAll());
+            }
+
+            loadTemplate(templateName) {
+                if (dataTemplates[templateName]) {
+                    document.getElementById('jsonInput').value = JSON.stringify(dataTemplates[templateName], null, 2);
+                    this.updateDataSize();
+                }
+            }
+
+            executeQuery() {
+                const errorMessage = document.getElementById('errorMessage');
+                const resultDisplay = document.getElementById('resultDisplay');
+                
+                errorMessage.style.display = 'none';
+
+                let jsonObj;
+                try {
+                    jsonObj = JSON.parse(document.getElementById('jsonInput').value);
+                } catch (e) {
+                    this.showError('JSON数据格式错误，请检查语法');
+                    return;
+                }
+
+                const selectorInput = document.getElementById('selectorInput').value;
+                const selectors = selectorInput.split(',').map(s => s.trim()).filter(s => s !== '');
+
+                if (selectors.length === 0) {
+                    this.showError('请输入至少一个查询路径');
+                    return;
+                }
+
+                try {
+                    const results = get(jsonObj, ...selectors);
+                    this.displayResults(selectors, results);
+                    this.addToHistory(selectorInput, results.length);
+                    this.stats.queryCount++;
+                    this.stats.successCount++;
+                    this.updateStats();
+                } catch (e) {
+                    this.showError(`查询执行失败: ${e.message}`);
+                    this.stats.queryCount++;
+                    this.updateStats();
+                }
+            }
+
+            displayResults(selectors, results) {
+                const resultContent = document.getElementById('resultContent');
+                const resultCount = document.getElementById('resultCount');
+                
+                resultCount.textContent = `${results.length} 项结果`;
+
+                if (results.length === 0) {
+                    resultContent.innerHTML = `
+                        <div style="text-align: center; color: rgba(255, 255, 255, 0.7); padding: 2rem;">
+                            🔍 未找到匹配的数据
+                        </div>
+                    `;
+                    return;
+                }
+
+                const resultHtml = results.map((result, index) => {
+                    const path = selectors[index] || `路径 ${index + 1}`;
+                    const value = result === undefined ? 'undefined' : 
+                                 result === null ? 'null' : 
+                                 typeof result === 'object' ? JSON.stringify(result, null, 2) : 
+                                 String(result);
+                    
+                    return `
+                        <div class="result-item">
+                            <div class="result-path">${path}</div>
+                            <div class="result-value">${value}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                resultContent.innerHTML = resultHtml;
+            }
+
+            showError(message) {
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
                 errorMessage.style.display = 'block';
             }
+
+            addToHistory(query, resultCount) {
+                const historyItem = {
+                    query: query,
+                    timestamp: new Date(),
+                    resultCount: resultCount
+                };
+
+                this.queryHistory.unshift(historyItem);
+                
+                // 保持历史记录在合理范围内
+                if (this.queryHistory.length > 20) {
+                    this.queryHistory = this.queryHistory.slice(0, 20);
+                }
+
+                this.updateQueryHistory();
+                this.saveQueryHistory();
+            }
+
+            updateQueryHistory() {
+                const historyContainer = document.getElementById('queryHistory');
+                
+                if (this.queryHistory.length === 0) {
+                    historyContainer.innerHTML = `
+                        <div style="padding: 2rem; text-align: center; color: #7f8c8d;">
+                            暂无查询历史
+                        </div>
+                    `;
+                    return;
+                }
+
+                const historyHtml = this.queryHistory.map(item => `
+                    <div class="history-item" onclick="dataAnalyzer.loadHistoryQuery('${item.query.replace(/'/g, "\\'")}')">
+                        <div class="history-query">${item.query}</div>
+                        <div class="history-time">
+                            ${item.timestamp.toLocaleString()} - ${item.resultCount} 项结果
+                        </div>
+                    </div>
+                `).join('');
+
+                historyContainer.innerHTML = historyHtml;
+            }
+
+            loadHistoryQuery(query) {
+                document.getElementById('selectorInput').value = query;
+            }
+
+            saveQuery() {
+                const query = document.getElementById('selectorInput').value.trim();
+                if (!query) {
+                    this.showError('请先输入查询路径');
+                    return;
+                }
+
+                // 模拟保存到云端
+                const savedQueries = JSON.parse(localStorage.getItem('savedQueries') || '[]');
+                const newQuery = {
+                    id: Date.now(),
+                    name: `查询_${new Date().toLocaleDateString()}`,
+                    query: query,
+                    template: this.currentTemplate,
+                    createdAt: new Date()
+                };
+
+                savedQueries.push(newQuery);
+                localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+
+                alert('✅ 查询已保存到本地');
+            }
+
+            clearAll() {
+                document.getElementById('selectorInput').value = '';
+                document.getElementById('resultContent').innerHTML = `
+                    <div style="text-align: center; color: rgba(255, 255, 255, 0.7); padding: 2rem;">
+                        🔍 选择数据源并执行查询以查看结果
+                    </div>
+                `;
+                document.getElementById('resultCount').textContent = '0 项结果';
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+
+            updateStats() {
+                document.getElementById('queryCount').textContent = this.stats.queryCount;
+                document.getElementById('successCount').textContent = this.stats.successCount;
+                document.getElementById('dataSize').textContent = this.stats.dataSize;
+            }
+
+            updateDataSize() {
+                const jsonText = document.getElementById('jsonInput').value;
+                const sizeInBytes = new Blob([jsonText]).size;
+                const sizeInKB = (sizeInBytes / 1024).toFixed(1);
+                this.stats.dataSize = sizeInKB;
+                this.updateStats();
+            }
+
+            saveQueryHistory() {
+                localStorage.setItem('queryHistory', JSON.stringify(this.queryHistory));
+            }
+
+            loadQueryHistory() {
+                const saved = localStorage.getItem('queryHistory');
+                if (saved) {
+                    try {
+                        this.queryHistory = JSON.parse(saved).map(item => ({
+                            ...item,
+                            timestamp: new Date(item.timestamp)
+                        }));
+                        this.updateQueryHistory();
+                    } catch (e) {
+                        console.warn('Failed to load query history:', e);
+                    }
+                }
+            }
+        }
+
+        // 复制代码函数
+        function copyCode() {
+            const code = document.getElementById('codeSnippet').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ 已复制';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // 全局实例
+        let dataAnalyzer;
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            dataAnalyzer = new DataAnalyzer();
         });
-
-        // 事件监听器：重置
-        resetBtn.addEventListener('click', () => {
-            jsonInput.value = '';
-            selectorInput.value = '';
-            resultOutput.textContent = '';
-            errorMessage.style.display = 'none';
-        });
-
-        // 初始示例数据
-        jsonInput.value = JSON.stringify({
-            user: { profile: { name: 'Alice', age: 30 } },
-            products: [
-                { id: 1, name: 'Laptop', price: 1200 },
-                { id: 2, name: 'Mouse', price: 25 }
-            ],
-            settings: { theme: 'dark' }
-        }, null, 2);
-        selectorInput.value = 'user.profile.name, products[0].name, settings.theme, products[1].price, user.profile.age';
-
-        // 页面加载时自动执行一次提取
-        generateBtn.click();
     </script>
 </body>
 
