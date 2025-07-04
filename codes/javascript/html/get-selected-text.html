@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能文本分析工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .text-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .text-area:hover {
+            border-color: #4facfe;
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.1);
+        }
+
+        .text-area h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .sample-text {
+            line-height: 1.8;
+            color: #6c757d;
+            font-size: 1rem;
+            user-select: text;
+            cursor: text;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            min-height: 200px;
+        }
+
+        .analysis-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .analysis-panel h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .selected-text-display {
+            background: white;
+            border: 2px solid #4facfe;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 60px;
+            font-style: italic;
+            color: #495057;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4facfe;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-text {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+        .modal-content {
+             max-height: 400px;
+             overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>智能文本分析工具</h1>
+            <p>选中文本，获取深度分析、翻译和更多功能</p>
+        </div>
+
+        <div class="content">
+            <div class="text-area">
+                <h3>📝 示例文本</h3>
+                <div class="sample-text" id="sampleText">
+                    人工智能（Artificial Intelligence，AI）是计算机科学的一个分支，它企图了解智能的实质，并生产出一种新的能以人类智能相似的方式做出反应的智能机器。该领域的研究包括机器人、语言识别、图像识别、自然语言处理和专家系统等。
+
+                    人工智能从诞生以来，理论和技术日益成熟，应用领域也不断扩大，可以设想，未来人工智能带来的科技产品，将会是人类智慧的"容器"。人工智能可以对人的意识、思维的信息过程的模拟。人工智能不是人的智能，但能像人那样思考、也可能超过人的智能。
+
+                    人工智能是一门极富挑战性的科学，从事人工智能研究的人员必须懂得计算机知识，心理学和哲学。人工智能是包括十分广泛的科学，它由不同的领域组成，如机器学习，计算机视觉等等，总的说来，人工智能研究的一个主要目标是使机器能够胜任一些通常需要人类智能才能完成的复杂工作。
+                </div>
+            </div>
+
+            <div class="analysis-panel">
+                <h3>🔍 文本分析</h3>
+                
+                <div class="selected-text-display" id="selectedTextDisplay">
+                    <em>请选中上方文本进行分析...</em>
+                </div>
+
+                <div class="stats-grid" id="statsGrid" style="display: none;">
+                    <div class="stat-card">
+                        <span class="stat-number" id="charCount">0</span>
+                        <span class="stat-label">字符数</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="wordCount">0</span>
+                        <span class="stat-label">单词数</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="sentenceCount">0</span>
+                        <span class="stat-label">句子数</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="paragraphCount">0</span>
+                        <span class="stat-label">段落数</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="analyzeText()">
+                        📊 深度分析
+                    </button>
+                    <button class="btn btn-success" onclick="translateText()">
+                        🌐 翻译文本
+                    </button>
+                    <button class="btn btn-warning" onclick="saveToHistory()">
+                        💾 保存到历史
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearSelection()">
+                        🗑️ 清除选择
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="analysisType">分析类型：</label>
+                    <div id="analysisType"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxLength">最大长度：</label>
+                    <div id="maxLength"></div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>正在分析中...</p>
+                </div>
+
+                <div class="history-section">
+                    <h4>📚 分析历史</h4>
+                    <div id="historyList">
+                        <div class="empty-state">暂无分析历史</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <!-- 插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // 获取选中文本的核心方法
+        const getSelectionText = () => window.getSelection().toString();
+
+        // 全局变量
+        let analysisHistory = JSON.parse(localStorage.getItem('textAnalysisHistory') || '[]');
+        let currentSelectedText = '';
+        let analysisTypeSelect = null;
+        let maxLengthInput = null;
+        // 初始化插件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化选择插件
+            analysisTypeSelect = new Select({
+                container: '#analysisType',
+                placeholder: '选择分析类型',
+                onChange: function(value) {
+                    console.log('分析类型改变:', value);
+                }
+            });
+
+            analysisTypeSelect.setOptions([
+                { label: '基础分析', value: 'basic' },
+                { label: '情感分析', value: 'sentiment' },
+                { label: '关键词提取', value: 'keyword' },
+                { label: '文本摘要', value: 'summary' }
+            ]);
+
+            analysisTypeSelect.setValue('basic');
+
+            // 初始化数字输入插件
+            maxLengthInput = new InputNumber({
+                container: '#maxLength',
+                min: 10,
+                max: 1000,
+                step: 10,
+                value: 100,
+                onChange: function(value) {
+                    console.log('最大长度改变:', value);
+                }
+            });
+
+            // 初始化模态框插件
+            window.modal = new Modal({
+                title: '分析结果',
+                width: '600px',
+                height: '400px'
+            });
+
+            // 监听文本选择
+            setupTextSelection();
+            
+            // 加载历史记录
+            loadHistory();
+        });
+
+        // 设置文本选择监听
+        function setupTextSelection() {
+            const sampleText = document.getElementById('sampleText');
+            
+            sampleText.addEventListener('mouseup', function() {
+                setTimeout(() => {
+                    const selectedText = getSelectionText();
+                    if (selectedText) {
+                        currentSelectedText = selectedText;
+                        updateSelectedTextDisplay(selectedText);
+                        showStats(selectedText);
+                    }
+                }, 100);
+            });
+
+            // 监听选择变化
+            document.addEventListener('selectionchange', function() {
+                const selectedText = getSelectionText();
+                if (!selectedText && currentSelectedText) {
+                    currentSelectedText = '';
+                    updateSelectedTextDisplay('');
+                    hideStats();
+                }
+            });
+        }
+
+        // 更新选中文本显示
+        function updateSelectedTextDisplay(text) {
+            const display = document.getElementById('selectedTextDisplay');
+            if (text) {
+                display.innerHTML = `<strong>已选中：</strong>"${text}"`;
+                display.style.borderColor = '#28a745';
+            } else {
+                display.innerHTML = '<em>请选中上方文本进行分析...</em>';
+                display.style.borderColor = '#4facfe';
+            }
+        }
+
+        // 显示统计信息
+        function showStats(text) {
+            const statsGrid = document.getElementById('statsGrid');
+            const charCount = document.getElementById('charCount');
+            const wordCount = document.getElementById('wordCount');
+            const sentenceCount = document.getElementById('sentenceCount');
+            const paragraphCount = document.getElementById('paragraphCount');
+
+            // 计算统计信息
+            const chars = text.length;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const sentences = text.split(/[。！？.!?]/).filter(sentence => sentence.trim().length > 0).length;
+            const paragraphs = text.split(/\n+/).filter(para => para.trim().length > 0).length;
+
+            // 更新显示
+            charCount.textContent = chars;
+            wordCount.textContent = words;
+            sentenceCount.textContent = sentences;
+            paragraphCount.textContent = paragraphs;
+
+            statsGrid.style.display = 'grid';
+        }
+
+        // 隐藏统计信息
+        function hideStats() {
+            document.getElementById('statsGrid').style.display = 'none';
+        }
+
+        // 深度分析文本
+        function analyzeText() {
+            if (!currentSelectedText) {
+                showNotification('请先选中文本', 'error');
+                return;
+            }
+
+            showLoading(true);
+            
+            // 模拟API调用
+            setTimeout(() => {
+                const analysisType = analysisTypeSelect.getValue();
+                const maxLength = maxLengthInput.getValue();
+                
+                let analysisResult = '';
+
+                switch(analysisType) {
+                    case 'basic':
+                        analysisResult = performBasicAnalysis(currentSelectedText);
+                        break;
+                    case 'sentiment':
+                        analysisResult = performSentimentAnalysis(currentSelectedText);
+                        break;
+                    case 'keyword':
+                        analysisResult = performKeywordAnalysis(currentSelectedText);
+                        break;
+                    case 'summary':
+                        analysisResult = performSummaryAnalysis(currentSelectedText, maxLength);
+                        break;
+                }
+
+                showLoading(false);
+                showAnalysisModal(analysisResult, analysisType);
+            }, 2000);
+        }
+
+        // 基础分析
+        function performBasicAnalysis(text) {
+            const chars = text.length;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const sentences = text.split(/[。！？.!?]/).filter(sentence => sentence.trim().length > 0).length;
+            const paragraphs = text.split(/\n+/).filter(para => para.trim().length > 0).length;
+            
+            return `
+                <h3>基础文本分析结果</h3>
+                <div style="margin: 20px 0;">
+                    <p><strong>文本长度：</strong>${chars} 个字符</p>
+                    <p><strong>单词数量：</strong>${words} 个单词</p>
+                    <p><strong>句子数量：</strong>${sentences} 个句子</p>
+                    <p><strong>段落数量：</strong>${paragraphs} 个段落</p>
+                    <p><strong>平均句长：</strong>${(words / sentences).toFixed(1)} 个单词/句</p>
+                    <p><strong>阅读时间：</strong>约 ${Math.ceil(words / 200)} 分钟</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h4>文本预览：</h4>
+                    <p style="font-style: italic; color: #6c757d;">${text.substring(0, 100)}${text.length > 100 ? '...' : ''}</p>
+                </div>
+            `;
+        }
+
+        // 情感分析
+        function performSentimentAnalysis(text) {
+            const positiveWords = ['智能', '优秀', '成功', '美好', '快乐', '创新', '进步', '发展'];
+            const negativeWords = ['困难', '问题', '失败', '痛苦', '错误', '缺陷', '限制'];
+            
+            let positiveCount = 0;
+            let negativeCount = 0;
+            
+            positiveWords.forEach(word => {
+                const regex = new RegExp(word, 'g');
+                positiveCount += (text.match(regex) || []).length;
+            });
+            
+            negativeWords.forEach(word => {
+                const regex = new RegExp(word, 'g');
+                negativeCount += (text.match(regex) || []).length;
+            });
+            
+            const sentiment = positiveCount > negativeCount ? '积极' : 
+                            negativeCount > positiveCount ? '消极' : '中性';
+            
+            return `
+                <h3>情感分析结果</h3>
+                <div style="margin: 20px 0;">
+                    <p><strong>整体情感倾向：</strong><span style="color: ${sentiment === '积极' ? '#28a745' : sentiment === '消极' ? '#dc3545' : '#6c757d'}; font-weight: bold;">${sentiment}</span></p>
+                    <p><strong>积极词汇：</strong>${positiveCount} 个</p>
+                    <p><strong>消极词汇：</strong>${negativeCount} 个</p>
+                    <p><strong>情感强度：</strong>${Math.abs(positiveCount - negativeCount)}</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h4>检测到的情感词汇：</h4>
+                    <p><strong>积极：</strong>${positiveWords.filter(word => text.includes(word)).join(', ') || '无'}</p>
+                    <p><strong>消极：</strong>${negativeWords.filter(word => text.includes(word)).join(', ') || '无'}</p>
+                </div>
+            `;
+        }
+
+        // 关键词分析
+        function performKeywordAnalysis(text) {
+            const stopWords = ['的', '是', '在', '有', '和', '与', '或', '但', '而', '了', '着', '过', '来', '去', '上', '下', '中', '外', '内', '前', '后', '左', '右', '东', '西', '南', '北'];
+            const words = text.match(/[\u4e00-\u9fa5]+/g) || [];
+            const wordFreq = {};
+            
+            words.forEach(word => {
+                if (word.length > 1 && !stopWords.includes(word)) {
+                    wordFreq[word] = (wordFreq[word] || 0) + 1;
+                }
+            });
+            
+            const sortedWords = Object.entries(wordFreq)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+            
+            return `
+                <h3>关键词分析结果</h3>
+                <div style="margin: 20px 0;">
+                    <p><strong>检测到 ${Object.keys(wordFreq).length} 个关键词</strong></p>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h4>Top 10 关键词：</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                        ${sortedWords.map(([word, count], index) => `
+                            <span style="background: ${getColorByIndex(index)}; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">
+                                ${word} (${count})
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 文本摘要
+        function performSummaryAnalysis(text, maxLength) {
+            const sentences = text.split(/[。！？.!?]/).filter(sentence => sentence.trim().length > 0);
+            const summary = sentences.slice(0, 3).join('。') + '。';
+            
+            return `
+                <h3>文本摘要结果</h3>
+                <div style="margin: 20px 0;">
+                    <p><strong>原文长度：</strong>${text.length} 字符</p>
+                    <p><strong>摘要长度：</strong>${summary.length} 字符</p>
+                    <p><strong>压缩率：</strong>${((1 - summary.length / text.length) * 100).toFixed(1)}%</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h4>摘要内容：</h4>
+                    <p style="line-height: 1.6; color: #495057;">${summary}</p>
+                </div>
+            `;
+        }
+
+        // 获取颜色
+        function getColorByIndex(index) {
+            const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8'];
+            return colors[index % colors.length];
+        }
+
+        // 翻译文本
+        function translateText() {
+            if (!currentSelectedText) {
+                showNotification('请先选中文本', 'error');
+                return;
+            }
+
+            showLoading(true);
+            
+            // 模拟翻译API调用
+            setTimeout(() => {
+                const translations = {
+                    'en': `Artificial Intelligence (AI) is a branch of computer science that attempts to understand the essence of intelligence and produce a new type of intelligent machine that can react in ways similar to human intelligence.`,
+                    'ja': `人工知能（AI）は、知能の本質を理解し、人間の知能と同様の方法で反応できる新しいタイプの知的機械を生産しようとするコンピュータサイエンスの一分野です。`,
+                    'ko': `인공지능(AI)은 지능의 본질을 이해하고 인간 지능과 유사한 방식으로 반응할 수 있는 새로운 유형의 지능형 기계를 생산하려는 컴퓨터 과학의 한 분야입니다.`
+                };
+
+                showLoading(false);
+                
+                const modalContent = `
+                    <h3>文本翻译结果</h3>
+                    <div style="margin: 20px 0;">
+                        <p><strong>原文：</strong></p>
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                            ${currentSelectedText}
+                        </div>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <p><strong>英文翻译：</strong></p>
+                        <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                            ${translations.en}
+                        </div>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <p><strong>日文翻译：</strong></p>
+                        <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                            ${translations.ja}
+                        </div>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <p><strong>韩文翻译：</strong></p>
+                        <div style="background: #f3e5f5; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                            ${translations.ko}
+                        </div>
+                    </div>
+                `;
+                
+                window.modal.show({ content: modalContent });
+            }, 1500);
+        }
+
+        // 保存到历史
+        function saveToHistory() {
+            if (!currentSelectedText) {
+                showNotification('请先选中文本', 'error');
+                return;
+            }
+
+            const historyItem = {
+                id: Date.now(),
+                text: currentSelectedText,
+                timestamp: new Date().toLocaleString(),
+                type: analysisTypeSelect.getValue()
+            };
+
+            analysisHistory.unshift(historyItem);
+            
+            // 只保留最近20条记录
+            if (analysisHistory.length > 20) {
+                analysisHistory = analysisHistory.slice(0, 20);
+            }
+
+            localStorage.setItem('textAnalysisHistory', JSON.stringify(analysisHistory));
+            loadHistory();
+            showNotification('已保存到历史记录');
+        }
+
+        // 清除选择
+        function clearSelection() {
+            window.getSelection().removeAllRanges();
+            currentSelectedText = '';
+            updateSelectedTextDisplay('');
+            hideStats();
+            localStorage.removeItem('textAnalysisHistory');
+            analysisHistory = [];
+            loadHistory();
+            showNotification('已清除选择');
+        }
+
+        // 显示分析模态框
+        function showAnalysisModal(content, type) {
+            const modalContent = `
+                <div style="max-height: 350px; overflow-y: auto;">
+                    ${content}
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-primary" onclick="saveToHistory()">保存到历史</button>
+                    <button class="btn btn-secondary" onclick="window.modal.hide()">关闭</button>
+                </div>
+            `;
+            
+            window.modal.show({ content: modalContent });
+        }
+
+        // 加载历史记录
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            
+            if (analysisHistory.length === 0) {
+                historyList.innerHTML = '<div class="empty-state">暂无分析历史</div>';
+                return;
+            }
+
+            historyList.innerHTML = analysisHistory.map(item => `
+                <div class="history-item" onclick="loadHistoryItem('${item.id}')">
+                    <div class="history-text">${item.text.substring(0, 50)}${item.text.length > 50 ? '...' : ''}</div>
+                    <div class="history-meta">
+                        <span>类型: ${getTypeName(item.type)}</span> | 
+                        <span>时间: ${item.timestamp}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 加载历史项目
+        function loadHistoryItem(id) {
+            const item = analysisHistory.find(h => h.id == id);
+            if (item) {
+                currentSelectedText = item.text;
+                updateSelectedTextDisplay(item.text);
+                showStats(item.text);
+                document.getElementById('analysisType').value = item.type;
+                showNotification('已加载历史记录');
+            }
+        }
+
+        // 获取类型名称
+        function getTypeName(type) {
+            const typeNames = {
+                'basic': '基础分析',
+                'sentiment': '情感分析',
+                'keyword': '关键词提取',
+                'summary': '文本摘要'
+            };
+            return typeNames[type] || type;
+        }
+
+        // 显示加载状态
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
