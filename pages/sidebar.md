@@ -306,7 +306,7 @@
 - [计算窗口垂直滚动条的宽度-2022-07-18](codes/javascript/get-scrollbar-width.md)
 - [获取日期之间的秒数差-2022-07-19](codes/javascript/get-seconds-diff-between-dates.md)
 - [获取选中的文本-2022-07-20](codes/javascript/get-selected-text.md)
-- [获取兄弟节点-2022-07-21](codes/javascript/getSiblings.md)
+- [获取兄弟节点-2022-07-21](codes/javascript/get-siblings.md)
 - [获取样式-2022-07-22](codes/javascript/getStyle.md)
 - [获取时间戳-2022-07-23](codes/javascript/getTimestamp.md)
 - [获取数据类型-2022-07-24](codes/javascript/getType.md)

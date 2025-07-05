@@ -11,9 +11,13 @@
 //the nodeType of text node is 3
 const getSiblings = el =>
   [...el.parentNode.childNodes].filter(
-    item => item !== el && node.nodeType !== 3
+    item => item !== el && el.nodeType !== 3
   );
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/get-siblings.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -23,8 +27,10 @@ getSiblings(document.querySelector('head')); // ['body']
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/getSiblings.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/get-siblings.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/get-siblings.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/getSiblings.html"></iframe>
+<iframe src="codes/javascript/html/get-siblings.html"></iframe>

@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM元素关系可视化工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .demo-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .demo-area:hover {
+            border-color: #4facfe;
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.1);
+        }
+
+        .demo-area h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .demo-item {
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .demo-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-item.selected {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .demo-item.sibling {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .demo-item.parent {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+
+        .demo-item.child {
+            border-color: #6f42c1;
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+            color: white;
+        }
+
+        .item-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .analysis-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .analysis-panel h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .current-element {
+            background: white;
+            border: 2px solid #4facfe;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .element-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            transition: transform 0.2s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .info-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4facfe;
+            display: block;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .siblings-list {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .sibling-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 6px;
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sibling-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .sibling-item.selected {
+            background: #28a745;
+            color: white;
+        }
+
+        .relationship-diagram {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px;
+            position: relative;
+        }
+
+        .diagram-node {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .diagram-node.current {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .diagram-node.sibling {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .diagram-arrow {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: #6c757d;
+            transform-origin: top;
+        }
+
+        .diagram-arrow::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -3px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 6px solid #6c757d;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-item > div:first-child:hover {
+            background: rgba(79, 172, 254, 0.05);
+            border-radius: 5px;
+            padding: 5px;
+            margin: -5px;
+        }
+
+        .history-text {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .element-info {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* 插件样式调整 */
+        .ew-select {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .ew-input-number {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DOM元素关系可视化工具</h1>
+            <p>探索和操作DOM元素的兄弟节点关系</p>
+        </div>
+
+        <div class="main-content">
+            <div class="demo-area">
+                <h3>🎯 演示区域</h3>
+                <div class="demo-container" id="demoContainer">
+                    <div class="demo-item" data-type="header" onclick="selectElement(this)">
+                        <span class="item-badge">1</span>
+                        📋 头部元素
+                    </div>
+                    <div class="demo-item" data-type="content" onclick="selectElement(this)">
+                        <span class="item-badge">2</span>
+                        📄 内容元素
+                    </div>
+                    <div class="demo-item" data-type="sidebar" onclick="selectElement(this)">
+                        <span class="item-badge">3</span>
+                        📌 侧边栏元素
+                    </div>
+                    <div class="demo-item" data-type="footer" onclick="selectElement(this)">
+                        <span class="item-badge">4</span>
+                        🦶 底部元素
+                    </div>
+                    <div class="demo-item" data-type="navigation" onclick="selectElement(this)">
+                        <span class="item-badge">5</span>
+                        🧭 导航元素
+                    </div>
+                    <div class="demo-item" data-type="widget" onclick="selectElement(this)">
+                        <span class="item-badge">6</span>
+                        ⚙️ 组件元素
+                    </div>
+                    <div class="demo-item" data-type="advertisement" onclick="selectElement(this)">
+                        <span class="item-badge">7</span>
+                        📢 广告元素
+                    </div>
+                    <div class="demo-item" data-type="social" onclick="selectElement(this)">
+                        <span class="item-badge">8</span>
+                        🌐 社交元素
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-panel">
+                <h3>🔍 元素分析</h3>
+                
+                <div class="current-element" id="currentElement">
+                    <em>请选择一个元素进行分析...</em>
+                </div>
+
+                <div class="element-info" id="elementInfo" style="display: none;">
+                    <div class="info-card">
+                        <span class="info-number" id="siblingsCount">0</span>
+                        <span class="info-label">兄弟节点</span>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-number" id="childrenCount">0</span>
+                        <span class="info-label">子节点</span>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-number" id="parentType">-</span>
+                        <span class="info-label">父节点类型</span>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-number" id="nodeIndex">-</span>
+                        <span class="info-label">节点索引</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="highlightSiblings()">
+                        🔍 高亮兄弟节点
+                    </button>
+                    <button class="btn btn-success" onclick="showRelationshipDiagram()">
+                        📊 关系图
+                    </button>
+                    <button class="btn btn-warning" onclick="addNewSibling()">
+                        ➕ 添加兄弟节点
+                    </button>
+                    <button class="btn btn-danger" onclick="removeSiblings()">
+                        🗑️ 删除兄弟节点
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearSelection()">
+                        🧹 清除选择
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="operationType">操作类型：</label>
+                    <div id="operationType"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="targetIndex">目标位置：</label>
+                    <div id="targetIndex"></div>
+                </div>
+
+                <div class="siblings-list" id="siblingsList" style="display: none;">
+                    <h4>👥 兄弟节点列表</h4>
+                    <div id="siblingsContainer"></div>
+                </div>
+
+                <div class="relationship-diagram" id="relationshipDiagram" style="display: none;">
+                    <h4>📈 关系图</h4>
+                    <div class="diagram-container" id="diagramContainer"></div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>正在分析中...</p>
+                </div>
+
+                <div class="history-section">
+                    <h4>📚 操作历史</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="color: #6c757d; font-size: 0.9rem;">共 <span id="historyCount">0</span> 条记录</span>
+                                            <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-success" onclick="exportHistory()" style="padding: 5px 10px; font-size: 0.8rem;">
+                            📤 导出历史
+                        </button>
+                        <button class="btn btn-danger" onclick="clearHistory()" style="padding: 5px 10px; font-size: 0.8rem;">
+                            🗑️ 清空历史
+                        </button>
+                        <button class="btn btn-warning" onclick="testNotification()" style="padding: 5px 10px; font-size: 0.8rem;">
+                            🔔 测试通知
+                        </button>
+                    </div>
+                    </div>
+                    <div id="historyList">
+                        <div class="empty-state">暂无操作历史</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 获取兄弟节点的核心方法
+        const getSiblings = (el) => [...el.parentNode.childNodes].filter(node => node !== el && node.nodeType !== 3);
+
+        // 全局变量
+        let currentElement = null;
+        let operationHistory = JSON.parse(localStorage.getItem('domOperationHistory') || '[]');
+        let elementCounter = 8;
+        let operationTypeSelect = null;
+        let targetIndexInput = null;
+        let notificationPlugin = null;
+
+        // 初始化插件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化选择插件
+            operationTypeSelect = new Select({
+                container: '#operationType',
+                placeholder: '选择操作类型',
+                onChange: function(value) {
+                    console.log('操作类型改变:', value);
+                }
+            });
+            
+            // 设置选择插件选项
+            operationTypeSelect.setOptions([
+                { value: 'highlight', label: '高亮显示' },
+                { value: 'move', label: '移动位置' },
+                { value: 'clone', label: '克隆节点' },
+                { value: 'style', label: '样式修改' }
+            ]);
+
+            // 初始化数字输入插件
+            targetIndexInput = new InputNumber({
+                container: '#targetIndex',
+                min: 1,
+                max: 20,
+                step: 1,
+                value: 1,
+                onChange: function(value) {
+                    console.log('目标位置改变:', value);
+                }
+            });
+
+            // 初始化模态框插件
+            window.modalPlugin = new Modal({
+                closeOnOverlayClick: true
+            });
+
+            // 初始化通知插件
+            notificationPlugin = new Notification({
+                position: 'top-right',
+                duration: 3000,
+                maxCount: 5
+            });
+
+            // 加载历史记录
+            loadHistory();
+        });
+
+        // 选择元素
+        function selectElement(element) {
+            // 清除之前的选择
+            clearElementSelection();
+            
+            currentElement = element;
+            element.classList.add('selected');
+            
+            updateCurrentElementDisplay(element);
+            analyzeElement(element);
+            showSiblingsList(element);
+        }
+
+        // 清除元素选择
+        function clearElementSelection() {
+            const selectedElements = document.querySelectorAll('.demo-item.selected, .demo-item.sibling, .demo-item.parent, .demo-item.child');
+            selectedElements.forEach(el => {
+                el.classList.remove('selected', 'sibling', 'parent', 'child');
+            });
+        }
+
+        // 更新当前元素显示
+        function updateCurrentElementDisplay(element) {
+            const display = document.getElementById('currentElement');
+            const type = element.getAttribute('data-type');
+            const badge = element.querySelector('.item-badge').textContent;
+            
+            display.innerHTML = `
+                <strong>当前选中：</strong>
+                <span style="color: #4facfe; font-weight: bold;">${element.textContent.trim()}</span>
+                <br>
+                <small style="color: #6c757d;">类型: ${type} | 编号: ${badge}</small>
+            `;
+            display.style.borderColor = '#4facfe';
+        }
+
+        // 分析元素
+        function analyzeElement(element) {
+            const siblings = getSiblings(element);
+            const children = element.children || [];
+            const parent = element.parentNode;
+            const nodeIndex = Array.from(parent.children).indexOf(element) + 1;
+
+            // 更新统计信息
+            document.getElementById('siblingsCount').textContent = siblings.length;
+            document.getElementById('childrenCount').textContent = children.length;
+            document.getElementById('parentType').textContent = parent.tagName.toLowerCase();
+            document.getElementById('nodeIndex').textContent = nodeIndex;
+
+            // 显示统计面板
+            document.getElementById('elementInfo').style.display = 'grid';
+        }
+
+        // 显示兄弟节点列表
+        function showSiblingsList(element) {
+            const siblings = getSiblings(element);
+            const container = document.getElementById('siblingsContainer');
+            const list = document.getElementById('siblingsList');
+
+            if (siblings.length === 0) {
+                container.innerHTML = '<p style="color: #6c757d; font-style: italic;">没有兄弟节点</p>';
+            } else {
+                container.innerHTML = siblings.map((sibling, index) => {
+                    const type = sibling.getAttribute('data-type') || 'unknown';
+                    const badge = sibling.querySelector('.item-badge')?.textContent || '?';
+                    return `
+                        <div class="sibling-item" onclick="selectSibling(this, ${index})">
+                            <strong>${sibling.textContent.trim()}</strong>
+                            <br>
+                            <small>类型: ${type} | 编号: ${badge}</small>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            list.style.display = 'block';
+        }
+
+        // 选择兄弟节点
+        function selectSibling(siblingItem, index) {
+            const siblings = getSiblings(currentElement);
+            const sibling = siblings[index];
+            
+            // 清除之前的选择
+            document.querySelectorAll('.sibling-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            siblingItem.classList.add('selected');
+            sibling.classList.add('sibling');
+            
+            showNotification(`已选择兄弟节点: ${sibling.textContent.trim()}`);
+        }
+
+        // 高亮兄弟节点
+        function highlightSiblings() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            const siblings = getSiblings(currentElement);
+            
+            // 清除之前的高亮
+            document.querySelectorAll('.demo-item.sibling').forEach(el => {
+                el.classList.remove('sibling');
+            });
+
+            // 高亮兄弟节点
+            siblings.forEach(sibling => {
+                if (sibling.classList && sibling.classList.contains('demo-item')) {
+                    sibling.classList.add('sibling');
+                }
+            });
+
+            showNotification(`已高亮 ${siblings.length} 个兄弟节点`);
+            addToHistory('高亮兄弟节点', `高亮了 ${siblings.length} 个兄弟节点`);
+        }
+
+        // 显示关系图
+        function showRelationshipDiagram() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            const siblings = getSiblings(currentElement);
+            const container = document.getElementById('diagramContainer');
+            const diagram = document.getElementById('relationshipDiagram');
+
+            // 创建关系图
+            let diagramHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        ${siblings.map((sibling, index) => {
+                            const type = sibling.getAttribute('data-type') || 'unknown';
+                            return `
+                                <div class="diagram-node sibling" title="${sibling.textContent.trim()}">
+                                    ${type.charAt(0).toUpperCase() + type.slice(1)}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="diagram-node current" title="${currentElement.textContent.trim()}">
+                        ${currentElement.getAttribute('data-type').charAt(0).toUpperCase() + currentElement.getAttribute('data-type').slice(1)}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        ${siblings.map((sibling, index) => {
+                            const type = sibling.getAttribute('data-type') || 'unknown';
+                            return `
+                                <div class="diagram-node sibling" title="${sibling.textContent.trim()}">
+                                    ${type.charAt(0).toUpperCase() + type.slice(1)}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = diagramHTML;
+            diagram.style.display = 'block';
+
+            showNotification('关系图已生成');
+            addToHistory('显示关系图', `显示了 ${siblings.length + 1} 个节点的关系图`);
+        }
+
+        // 添加新的兄弟节点
+        function addNewSibling() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            // 获取插件实例的值
+            let operationType = 'highlight';
+            let targetIndex = 1;
+            
+            if (operationTypeSelect) {
+                operationType = operationTypeSelect.getValue();
+            }
+            
+            if (targetIndexInput) {
+                targetIndex = targetIndexInput.getValue();
+            }
+            
+            elementCounter++;
+            
+            const newElement = document.createElement('div');
+            newElement.className = 'demo-item';
+            newElement.setAttribute('data-type', 'new');
+            newElement.onclick = function() { selectElement(this); };
+            
+            const types = ['feature', 'tool', 'component', 'module', 'section'];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            const emojis = ['🚀', '⚡', '🎯', '💡', '🔧', '📦', '🎨', '🌟'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            newElement.innerHTML = `
+                <span class="item-badge">${elementCounter}</span>
+                ${randomEmoji} 新${randomType}元素
+            `;
+            newElement.setAttribute('data-type', randomType);
+
+            const parent = currentElement.parentNode;
+            const siblings = getSiblings(currentElement);
+            
+            if (operationType === 'move') {
+                // 移动到指定位置
+                const targetPosition = Math.min(parseInt(targetIndex), siblings.length + 1);
+                if (targetPosition === 1) {
+                    parent.insertBefore(newElement, parent.firstChild);
+                } else {
+                    const referenceNode = parent.children[targetPosition - 1];
+                    parent.insertBefore(newElement, referenceNode);
+                }
+            } else {
+                // 添加到当前元素后面
+                parent.insertBefore(newElement, currentElement.nextSibling);
+            }
+
+            // 高亮新元素
+            newElement.classList.add('sibling');
+            setTimeout(() => {
+                newElement.classList.remove('sibling');
+            }, 2000);
+
+            showNotification(`已添加新的兄弟节点: ${newElement.textContent.trim()}`);
+            addToHistory('添加兄弟节点', `添加了新的${randomType}元素`);
+            
+            // 重新分析当前元素
+            analyzeElement(currentElement);
+            showSiblingsList(currentElement);
+        }
+
+        // 删除兄弟节点
+        function removeSiblings() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            const siblings = getSiblings(currentElement);
+            const selectedSiblings = document.querySelectorAll('.sibling-item.selected');
+            
+            if (selectedSiblings.length === 0) {
+                showNotification('请先选择要删除的兄弟节点', 'warning');
+                return;
+            }
+
+            // 使用模态框确认删除
+            window.modalPlugin.confirm(`确定要删除选中的 ${selectedSiblings.length} 个兄弟节点吗？`).then(confirmed => {
+                if (confirmed) {
+                    let removedCount = 0;
+                    const siblingsToRemove = [];
+                    
+                    // 收集要删除的兄弟节点
+                    selectedSiblings.forEach((item, index) => {
+                        const siblingIndex = Array.from(document.querySelectorAll('.sibling-item')).indexOf(item);
+                        if (siblingIndex >= 0 && siblingIndex < siblings.length) {
+                            siblingsToRemove.push(siblings[siblingIndex]);
+                        }
+                    });
+                    
+                    // 删除兄弟节点
+                    siblingsToRemove.forEach(sibling => {
+                        if (sibling && sibling.parentNode) {
+                            sibling.parentNode.removeChild(sibling);
+                            removedCount++;
+                        }
+                    });
+
+                    showNotification(`已删除 ${removedCount} 个兄弟节点`);
+                    addToHistory('删除兄弟节点', `删除了 ${removedCount} 个兄弟节点`);
+                    
+                    // 重新分析当前元素
+                    analyzeElement(currentElement);
+                    showSiblingsList(currentElement);
+                }
+            });
+        }
+
+        // 清除选择
+        function clearSelection() {
+            clearElementSelection();
+            currentElement = null;
+            
+            document.getElementById('currentElement').innerHTML = '<em>请选择一个元素进行分析...</em>';
+            document.getElementById('currentElement').style.borderColor = '#4facfe';
+            document.getElementById('elementInfo').style.display = 'none';
+            document.getElementById('siblingsList').style.display = 'none';
+            document.getElementById('relationshipDiagram').style.display = 'none';
+            
+            showNotification('已清除选择');
+        }
+
+        // 添加到历史记录
+        function addToHistory(action, description) {
+            const historyItem = {
+                id: Date.now(),
+                action: action,
+                description: description,
+                timestamp: new Date().toLocaleString(),
+                elementType: currentElement ? currentElement.getAttribute('data-type') : 'none'
+            };
+
+            operationHistory.unshift(historyItem);
+            
+            // 只保留最近20条记录
+            if (operationHistory.length > 20) {
+                operationHistory = operationHistory.slice(0, 20);
+            }
+
+            localStorage.setItem('domOperationHistory', JSON.stringify(operationHistory));
+            loadHistory();
+        }
+
+        // 加载历史记录
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            const historyCount = document.getElementById('historyCount');
+            
+            // 更新历史记录数量
+            historyCount.textContent = operationHistory.length;
+            
+            if (operationHistory.length === 0) {
+                historyList.innerHTML = '<div class="empty-state">暂无操作历史</div>';
+                return;
+            }
+
+            historyList.innerHTML = operationHistory.map(item => `
+                <div class="history-item">
+                    <div onclick="loadHistoryItem('${item.id}')" style="flex: 1; cursor: pointer;">
+                        <div class="history-text">${item.action}</div>
+                        <div class="history-meta">
+                            <span>描述: ${item.description}</span> | 
+                            <span>元素: ${item.elementType}</span> | 
+                            <span>时间: ${item.timestamp}</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteHistoryItem('${item.id}')" style="padding: 3px 8px; font-size: 0.7rem; margin-left: 10px;">
+                        ✕
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 加载历史项目
+        function loadHistoryItem(id) {
+            const item = operationHistory.find(h => h.id == id);
+            if (item) {
+                showNotification(`历史记录: ${item.action} - ${item.description}`);
+            }
+        }
+
+        // 清空历史记录
+        function clearHistory() {
+            if (operationHistory.length === 0) {
+                showNotification('历史记录已经是空的', 'warning');
+                return;
+            }
+
+            window.modalPlugin.confirm(`确定要清空所有 ${operationHistory.length} 条操作历史吗？此操作不可恢复。`).then(confirmed => {
+                if (confirmed) {
+                    operationHistory = [];
+                    localStorage.removeItem('domOperationHistory');
+                    loadHistory();
+                    showNotification('已清空所有操作历史');
+                }
+            });
+        }
+
+        // 删除单条历史记录
+        function deleteHistoryItem(id) {
+            const item = operationHistory.find(h => h.id == id);
+            if (!item) {
+                showNotification('历史记录不存在', 'error');
+                return;
+            }
+
+            window.modalPlugin.confirm(`确定要删除这条历史记录吗？\n操作: ${item.action}\n描述: ${item.description}`).then(confirmed => {
+                if (confirmed) {
+                    operationHistory = operationHistory.filter(h => h.id != id);
+                    localStorage.setItem('domOperationHistory', JSON.stringify(operationHistory));
+                    loadHistory();
+                    showNotification('已删除历史记录');
+                }
+            });
+        }
+
+        // 导出历史记录
+        function exportHistory() {
+            if (operationHistory.length === 0) {
+                showNotification('没有历史记录可导出', 'warning');
+                return;
+            }
+
+            const exportData = {
+                exportTime: new Date().toLocaleString(),
+                totalRecords: operationHistory.length,
+                records: operationHistory
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `dom-operation-history-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(link.href);
+            showNotification('历史记录已导出');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            if (notificationPlugin) {
+                notificationPlugin.show(message, type);
+            } else {
+                // 备用方案：使用console.log
+                console.log(`[${type.toUpperCase()}] ${message}`);
+            }
+        }
+
+        // 测试通知功能
+        function testNotification() {
+            if (!notificationPlugin) {
+                console.log('Notification插件未初始化');
+                return;
+            }
+
+            // 测试不同类型的通知
+            notificationPlugin.success('这是一条成功通知！');
+            
+            setTimeout(() => {
+                notificationPlugin.error('这是一条错误通知！');
+            }, 500);
+            
+            setTimeout(() => {
+                notificationPlugin.warning('这是一条警告通知！');
+            }, 1000);
+            
+            setTimeout(() => {
+                notificationPlugin.info('这是一条信息通知！');
+            }, 1500);
+            
+            setTimeout(() => {
+                notificationPlugin.show('这是一条自定义通知！', 'success', { duration: 5000 });
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
