@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS样式分析器</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .demo-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .demo-area:hover {
+            border-color: #4facfe;
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.1);
+        }
+
+        .demo-area h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .demo-element {
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            text-align: center;
+        }
+
+        .demo-element:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-element.selected {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+        }
+
+        .demo-element.primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .demo-element.secondary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .demo-element.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+
+        .demo-element.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+        }
+
+        .demo-element.info {
+            background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+            color: white;
+        }
+
+        .demo-element.light {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+
+        .demo-element.dark {
+            background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+            color: white;
+        }
+
+        .analysis-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .analysis-panel h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .current-element {
+            background: white;
+            border: 2px solid #4facfe;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .style-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .style-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .style-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4facfe;
+            display: block;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .style-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .style-details {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .style-property {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .style-property:last-child {
+            border-bottom: none;
+        }
+
+        .property-name {
+            font-weight: 500;
+            color: #495057;
+            font-family: 'Courier New', monospace;
+        }
+
+        .property-value {
+            color: #6c757d;
+            font-family: 'Courier New', monospace;
+            max-width: 200px;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .code-generator {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .code-generator h4 {
+            color: #4facfe;
+            margin-bottom: 15px;
+        }
+
+        .code-generator pre {
+            background: transparent !important;
+            margin: 0;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+        }
+
+        .code-generator code {
+            background: transparent !important;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .code-actions .btn {
+            font-size: 0.8rem;
+            padding: 8px 15px;
+        }
+
+        .comparison-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .comparison-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .comparison-title {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-text {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .style-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CSS样式分析器</h1>
+            <p>实时分析元素样式，生成CSS代码，对比样式差异</p>
+        </div>
+
+        <div class="main-content">
+            <div class="demo-area">
+                <h3>🎯 演示元素</h3>
+                <div class="demo-container" id="demoContainer">
+                    <div class="demo-element primary" onclick="selectElement(this)">
+                        🎨 主要元素
+                    </div>
+                    <div class="demo-element secondary" onclick="selectElement(this)">
+                        🌟 次要元素
+                    </div>
+                    <div class="demo-element warning" onclick="selectElement(this)">
+                        ⚠️ 警告元素
+                    </div>
+                    <div class="demo-element danger" onclick="selectElement(this)">
+                        🚨 危险元素
+                    </div>
+                    <div class="demo-element info" onclick="selectElement(this)">
+                        ℹ️ 信息元素
+                    </div>
+                    <div class="demo-element light" onclick="selectElement(this)">
+                        💡 浅色元素
+                    </div>
+                    <div class="demo-element dark" onclick="selectElement(this)">
+                        🌙 深色元素
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-panel">
+                <h3>🔍 样式分析</h3>
+                
+                <div class="current-element" id="currentElement">
+                    <em>请选择一个元素进行分析...</em>
+                </div>
+
+                <div class="style-grid" id="styleGrid" style="display: none;">
+                    <div class="style-card" onclick="showStyleDetails('width')">
+                        <span class="style-value" id="widthValue">-</span>
+                        <span class="style-label">宽度</span>
+                    </div>
+                    <div class="style-card" onclick="showStyleDetails('height')">
+                        <span class="style-value" id="heightValue">-</span>
+                        <span class="style-label">高度</span>
+                    </div>
+                    <div class="style-card" onclick="showStyleDetails('background-color')">
+                        <span class="style-value" id="bgColorValue">-</span>
+                        <span class="style-label">背景色</span>
+                    </div>
+                    <div class="style-card" onclick="showStyleDetails('color')">
+                        <span class="style-value" id="colorValue">-</span>
+                        <span class="style-label">文字颜色</span>
+                    </div>
+                    <div class="style-card" onclick="showStyleDetails('font-size')">
+                        <span class="style-value" id="fontSizeValue">-</span>
+                        <span class="style-label">字体大小</span>
+                    </div>
+                    <div class="style-card" onclick="showStyleDetails('padding')">
+                        <span class="style-value" id="paddingValue">-</span>
+                        <span class="style-label">内边距</span>
+                    </div>
+                    <div class="style-card" onclick="showStyleDetails('margin')">
+                        <span class="style-value" id="marginValue">-</span>
+                        <span class="style-label">外边距</span>
+                    </div>
+                    <div class="style-card" onclick="showStyleDetails('border-radius')">
+                        <span class="style-value" id="borderRadiusValue">-</span>
+                        <span class="style-label">圆角</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="analyzeAllStyles()">
+                        📊 完整分析
+                    </button>
+                    <button class="btn btn-success" onclick="generateCSS()">
+                        💻 生成CSS
+                    </button>
+                    <button class="btn btn-warning" onclick="compareStyles()">
+                        🔄 样式对比
+                    </button>
+                    <button class="btn btn-secondary" onclick="saveToHistory()">
+                        💾 保存分析
+                    </button>
+                    <button class="btn btn-danger" onclick="clearSelection()">
+                        🧹 清除选择
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="styleProperty">样式属性：</label>
+                    <div id="styleProperty"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="analysisDepth">分析深度：</label>
+                    <div id="analysisDepth"></div>
+                </div>
+
+                <div class="style-details" id="styleDetails" style="display: none;">
+                    <h4>📋 详细样式信息</h4>
+                    <div id="styleDetailsContent"></div>
+                </div>
+
+                <div class="code-generator" id="codeGenerator" style="display: none;">
+                    <h4>💻 生成的CSS代码</h4>
+                    <pre><code class="language-css" id="generatedCode"></code></pre>
+                    <div class="code-actions">
+                        <button class="btn btn-primary" onclick="copyGeneratedCode()">
+                            📋 复制代码
+                        </button>
+                        <button class="btn btn-success" onclick="downloadCSS()">
+                            💾 下载CSS
+                        </button>
+                        <button class="btn btn-secondary" onclick="formatCSS()">
+                            🎨 格式化
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comparison-section" id="comparisonSection" style="display: none;">
+                    <h4>🔄 样式对比</h4>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>正在分析中...</p>
+                </div>
+
+                <div class="history-section">
+                    <h4>📚 分析历史</h4>
+                    <div id="historyList">
+                        <div class="empty-state">暂无分析历史</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+
+    <script>
+        // 获取样式的核心方法
+        const getStyle = (el, ruleName) => getComputedStyle(el)[ruleName];
+
+        // 全局变量
+        let currentElement = null;
+        let analysisHistory = JSON.parse(localStorage.getItem('styleAnalysisHistory') || '[]');
+        let previousElement = null;
+        let stylePropertySelect = null;
+        let analysisDepthInput = null;
+        let notificationPlugin = null;
+
+        // 初始化插件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化选择插件
+            stylePropertySelect = new Select({
+                container: '#styleProperty',
+                placeholder: '选择样式属性',
+                onChange: function(value) {
+                    console.log('样式属性改变:', value);
+                }
+            });
+            
+            // 设置选择插件选项
+            stylePropertySelect.setOptions([
+                { value: 'layout', label: '布局属性' },
+                { value: 'typography', label: '字体属性' },
+                { value: 'background', label: '背景属性' },
+                { value: 'border', label: '边框属性' },
+                { value: 'spacing', label: '间距属性' },
+                { value: 'effects', label: '效果属性' }
+            ]);
+
+            // 初始化数字输入插件
+            analysisDepthInput = new InputNumber({
+                container: '#analysisDepth',
+                min: 1,
+                max: 10,
+                step: 1,
+                value: 3,
+                onChange: function(value) {
+                    console.log('分析深度改变:', value);
+                }
+            });
+
+            // 初始化模态框插件
+            window.modalPlugin = new Modal({
+                closeOnOverlayClick: true
+            });
+
+            // 初始化通知插件
+            notificationPlugin = new Notification({
+                position: 'top-right',
+                duration: 3000,
+                maxCount: 5
+            });
+
+            // 加载历史记录
+            loadHistory();
+        });
+
+        // 选择元素
+        function selectElement(element) {
+            // 清除之前的选择
+            clearElementSelection();
+            
+            currentElement = element;
+            element.classList.add('selected');
+            
+            updateCurrentElementDisplay(element);
+            analyzeBasicStyles(element);
+        }
+
+        // 清除元素选择
+        function clearElementSelection() {
+            const selectedElements = document.querySelectorAll('.demo-element.selected');
+            selectedElements.forEach(el => {
+                el.classList.remove('selected');
+            });
+        }
+
+        // 更新当前元素显示
+        function updateCurrentElementDisplay(element) {
+            const display = document.getElementById('currentElement');
+            const className = element.className.split(' ').find(cls => cls !== 'demo-element' && cls !== 'selected');
+            
+            display.innerHTML = `
+                <strong>当前选中：</strong>
+                <span style="color: #4facfe; font-weight: bold;">${element.textContent.trim()}</span>
+                <br>
+                <small style="color: #6c757d;">类名: ${className || '无'} | 标签: ${element.tagName.toLowerCase()}</small>
+            `;
+            display.style.borderColor = '#4facfe';
+        }
+
+        // 分析基础样式
+        function analyzeBasicStyles(element) {
+            const styleProperties = [
+                'width', 'height', 'background-color', 'color', 
+                'font-size', 'padding', 'margin', 'border-radius'
+            ];
+
+            styleProperties.forEach(prop => {
+                const value = getStyle(element, prop);
+                const elementId = prop.replace('-', '') + 'Value';
+                const targetElement = document.getElementById(elementId);
+                if (targetElement) {
+                    targetElement.textContent = value;
+                }
+            });
+
+            // 显示样式网格
+            document.getElementById('styleGrid').style.display = 'grid';
+        }
+
+        // 完整样式分析
+        function analyzeAllStyles() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            showLoading(true);
+            
+            // 模拟分析过程
+            setTimeout(() => {
+                const allStyles = getAllComputedStyles(currentElement);
+                showStyleDetailsModal(allStyles);
+                showLoading(false);
+            }, 1500);
+        }
+
+        // 获取所有计算样式
+        function getAllComputedStyles(element) {
+            const computedStyle = getComputedStyle(element);
+            const styles = {};
+            
+            // 获取所有CSS属性
+            for (let i = 0; i < computedStyle.length; i++) {
+                const property = computedStyle[i];
+                const value = computedStyle.getPropertyValue(property);
+                if (value && value !== 'normal' && value !== 'none' && value !== '0px') {
+                    styles[property] = value;
+                }
+            }
+            
+            return styles;
+        }
+
+        // 显示样式详情模态框
+        function showStyleDetailsModal(styles) {
+            const styleGroups = {
+                layout: ['width', 'height', 'display', 'position', 'top', 'left', 'right', 'bottom'],
+                typography: ['font-family', 'font-size', 'font-weight', 'line-height', 'text-align', 'color'],
+                background: ['background-color', 'background-image', 'background-size', 'background-position'],
+                border: ['border', 'border-radius', 'border-color', 'border-width', 'border-style'],
+                spacing: ['margin', 'padding', 'gap'],
+                effects: ['box-shadow', 'opacity', 'transform', 'transition']
+            };
+
+            let modalContent = '<div style="max-height: 400px; overflow-y: auto;">';
+            modalContent += '<h3>完整样式分析结果</h3>';
+            
+            Object.keys(styleGroups).forEach(group => {
+                modalContent += `<h4 style="color: #4facfe; margin: 15px 0 10px 0;">${getGroupName(group)}</h4>`;
+                modalContent += '<div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 10px;">';
+                
+                styleGroups[group].forEach(prop => {
+                    if (styles[prop]) {
+                        modalContent += `
+                            <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                                <span style="font-family: monospace; color: #495057;">${prop}:</span>
+                                <span style="font-family: monospace; color: #6c757d;">${styles[prop]}</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                modalContent += '</div>';
+            });
+            
+            modalContent += '</div>';
+
+            window.modalPlugin.show({
+                title: '样式分析结果',
+                content: modalContent
+            });
+        }
+
+        // 获取组名
+        function getGroupName(group) {
+            const names = {
+                layout: '布局属性',
+                typography: '字体属性',
+                background: '背景属性',
+                border: '边框属性',
+                spacing: '间距属性',
+                effects: '效果属性'
+            };
+            return names[group] || group;
+        }
+
+        // 生成CSS代码
+        function generateCSS() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            const styles = getAllComputedStyles(currentElement);
+            const className = currentElement.className.split(' ').find(cls => cls !== 'demo-element' && cls !== 'selected');
+            
+            let cssCode = `.${className || 'element'} {\n`;
+            
+            Object.keys(styles).forEach(prop => {
+                cssCode += `  ${prop}: ${styles[prop]};\n`;
+            });
+            
+            cssCode += '}';
+
+            const codeGenerator = document.getElementById('codeGenerator');
+            const generatedCode = document.getElementById('generatedCode');
+            
+            // 设置代码内容并应用语法高亮
+            generatedCode.textContent = cssCode;
+            Prism.highlightElement(generatedCode);
+            codeGenerator.style.display = 'block';
+            
+            showNotification('CSS代码已生成');
+        }
+
+        // 样式对比
+        function compareStyles() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            if (!previousElement) {
+                previousElement = currentElement;
+                showNotification('已保存当前元素，请选择另一个元素进行对比', 'info');
+                return;
+            }
+
+            const currentStyles = getAllComputedStyles(currentElement);
+            const previousStyles = getAllComputedStyles(previousElement);
+            
+            const comparisonSection = document.getElementById('comparisonSection');
+            const comparisonGrid = document.getElementById('comparisonGrid');
+            
+            comparisonGrid.innerHTML = `
+                <div class="comparison-item">
+                    <div class="comparison-title">${previousElement.textContent.trim()}</div>
+                    <div style="font-size: 0.9rem; color: #6c757d;">
+                        ${Object.keys(previousStyles).length} 个样式属性
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-title">${currentElement.textContent.trim()}</div>
+                    <div style="font-size: 0.9rem; color: #6c757d;">
+                        ${Object.keys(currentStyles).length} 个样式属性
+                    </div>
+                </div>
+            `;
+            
+            comparisonSection.style.display = 'block';
+            showNotification('样式对比完成');
+            
+            previousElement = null;
+        }
+
+        // 保存到历史
+        function saveToHistory() {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            const styles = getAllComputedStyles(currentElement);
+            const historyItem = {
+                id: Date.now(),
+                elementText: currentElement.textContent.trim(),
+                elementClass: currentElement.className,
+                styles: styles,
+                timestamp: new Date().toLocaleString(),
+                styleCount: Object.keys(styles).length
+            };
+
+            analysisHistory.unshift(historyItem);
+            
+            // 只保留最近20条记录
+            if (analysisHistory.length > 20) {
+                analysisHistory = analysisHistory.slice(0, 20);
+            }
+
+            localStorage.setItem('styleAnalysisHistory', JSON.stringify(analysisHistory));
+            loadHistory();
+            showNotification('已保存到历史记录');
+        }
+
+        // 清除选择
+        function clearSelection() {
+            clearElementSelection();
+            currentElement = null;
+            previousElement = null;
+            
+            document.getElementById('currentElement').innerHTML = '<em>请选择一个元素进行分析...</em>';
+            document.getElementById('currentElement').style.borderColor = '#4facfe';
+            document.getElementById('styleGrid').style.display = 'none';
+            document.getElementById('styleDetails').style.display = 'none';
+            document.getElementById('codeGenerator').style.display = 'none';
+            document.getElementById('comparisonSection').style.display = 'none';
+            
+            showNotification('已清除选择');
+        }
+
+        // 显示样式详情
+        function showStyleDetails(property) {
+            if (!currentElement) {
+                showNotification('请先选择一个元素', 'error');
+                return;
+            }
+
+            const value = getStyle(currentElement, property);
+            const styleDetails = document.getElementById('styleDetails');
+            const styleDetailsContent = document.getElementById('styleDetailsContent');
+            
+            styleDetailsContent.innerHTML = `
+                <div class="style-property">
+                    <span class="property-name">${property}:</span>
+                    <span class="property-value">${value}</span>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                    <strong>说明：</strong>${getPropertyDescription(property)}
+                </div>
+            `;
+            
+            styleDetails.style.display = 'block';
+        }
+
+        // 获取属性描述
+        function getPropertyDescription(property) {
+            const descriptions = {
+                'width': '元素的宽度，可以是固定值、百分比或auto',
+                'height': '元素的高度，可以是固定值、百分比或auto',
+                'background-color': '元素的背景颜色',
+                'color': '文字颜色',
+                'font-size': '字体大小',
+                'padding': '内边距，元素内容与边框之间的距离',
+                'margin': '外边距，元素与其他元素之间的距离',
+                'border-radius': '边框圆角半径'
+            };
+            return descriptions[property] || '该属性的详细说明';
+        }
+
+        // 加载历史记录
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            
+            if (analysisHistory.length === 0) {
+                historyList.innerHTML = '<div class="empty-state">暂无分析历史</div>';
+                return;
+            }
+
+            historyList.innerHTML = analysisHistory.map(item => `
+                <div class="history-item" onclick="loadHistoryItem('${item.id}')">
+                    <div class="history-text">${item.elementText}</div>
+                    <div class="history-meta">
+                        <span>样式数量: ${item.styleCount}</span> | 
+                        <span>类名: ${item.elementClass}</span> | 
+                        <span>时间: ${item.timestamp}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 加载历史项目
+        function loadHistoryItem(id) {
+            const item = analysisHistory.find(h => h.id == id);
+            if (item) {
+                showNotification(`历史记录: ${item.elementText} - ${item.styleCount} 个样式属性`);
+            }
+        }
+
+        // 显示加载状态
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // 复制生成的代码
+        function copyGeneratedCode() {
+            const generatedCode = document.getElementById('generatedCode');
+            const codeText = generatedCode.textContent;
+            
+            navigator.clipboard.writeText(codeText).then(() => {
+                showNotification('代码已复制到剪贴板');
+            }).catch(() => {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = codeText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('代码已复制到剪贴板');
+            });
+        }
+
+        // 下载CSS文件
+        function downloadCSS() {
+            const generatedCode = document.getElementById('generatedCode');
+            const codeText = generatedCode.textContent;
+            const className = currentElement ? 
+                currentElement.className.split(' ').find(cls => cls !== 'demo-element' && cls !== 'selected') || 'element' : 
+                'element';
+            
+            const blob = new Blob([codeText], { type: 'text/css' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${className}-styles.css`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('CSS文件已下载');
+        }
+
+        // 格式化CSS代码
+        function formatCSS() {
+            const generatedCode = document.getElementById('generatedCode');
+            const codeText = generatedCode.textContent;
+            
+            // 简单的CSS格式化
+            let formattedCode = codeText
+                .replace(/\s*{\s*/g, ' {\n  ')
+                .replace(/\s*;\s*/g, ';\n  ')
+                .replace(/\s*}\s*/g, '\n}\n')
+                .replace(/\n\s*\n/g, '\n')
+                .trim();
+            
+            generatedCode.textContent = formattedCode;
+            Prism.highlightElement(generatedCode);
+            
+            showNotification('CSS代码已格式化');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            if (notificationPlugin) {
+                notificationPlugin.show(message, type);
+            } else {
+                console.log(`[${type.toUpperCase()}] ${message}`);
+            }
+        }
+    </script>
+</body>
+</html>
