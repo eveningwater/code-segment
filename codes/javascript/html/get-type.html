@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据类型分析器</title>
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            max-height: 90vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+            flex-wrap: nowrap;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .input-wrapper.small {
+            flex: 0 0 auto;
+            min-width: 150px;
+        }
+
+        /* 插件样式调整 */
+        .ew-input-number {
+            width: 100% !important;
+        }
+
+        .ew-select {
+            width: 100% !important;
+        }
+
+        .ew-datetime-picker {
+            width: 100% !important;
+        }
+
+        /* 修复日期选择器被遮挡问题 */
+        .ew-datetime-picker .datetime-panel {
+            z-index: 9999 !important;
+        }
+
+        /* 布尔值选择器样式 */
+        .boolean-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .boolean-option {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .boolean-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .boolean-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .input-wrapper label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            transition: all 0.3s ease;
+        }
+
+        .result-value {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 4px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .result-type {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .history-time {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .history-data {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .batch-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        .batch-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* 移除旧的通知样式，使用插件样式 */
+
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .input-wrapper {
+                width: 100%;
+            }
+
+            .input-wrapper.small {
+                width: 100%;
+            }
+            
+            .type-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 数据类型分析器</h1>
+            <p>强大的JavaScript数据类型检测与分析工具</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <div class="tabs">
+                    <div class="tab active" data-tab="single">单值分析</div>
+                    <div class="tab" data-tab="batch">批量分析</div>
+                    <div class="tab" data-tab="history">历史记录</div>
+                    <div class="tab" data-tab="stats">统计分析</div>
+                </div>
+
+                <!-- 单值分析 -->
+                <div class="tab-content active" id="single">
+                    <div class="input-group">
+                        <div class="input-wrapper small">
+                            <label>数据类型选择</label>
+                            <div id="dataTypeSelect"></div>
+                        </div>
+                        <div class="input-wrapper">
+                            <label>值</label>
+                            <div id="numberInput" style="display: none;"></div>
+                            <input type="text" id="stringInput" placeholder="输入字符串" style="display: none; width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                            <div id="dateInput" style="display: none;"></div>
+                            <div id="booleanInput" style="display: none;">
+                                <div class="boolean-selector">
+                                    <div class="boolean-option" data-value="true">True</div>
+                                    <div class="boolean-option" data-value="false">False</div>
+                                </div>
+                            </div>
+                            <div id="nullInput" style="display: none;">
+                                <div style="padding: 10px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; text-align: center; color: #666;">
+                                    无需输入，将使用 null 值
+                                </div>
+                            </div>
+                            <div id="undefinedInput" style="display: none;">
+                                <div style="padding: 10px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; text-align: center; color: #666;">
+                                    无需输入，将使用 undefined 值
+                                </div>
+                            </div>
+                            <div id="symbolInput" style="display: none;">
+                                <input type="text" id="symbolTextInput" placeholder="输入Symbol描述（可选）" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                            </div>
+                            <div id="setInput" style="display: none;">
+                                <input type="text" id="setTextInput" placeholder="输入Set元素，用逗号分隔，如：1,2,3" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                            </div>
+                            <div id="mapInput" style="display: none;">
+                                <input type="text" id="mapTextInput" placeholder="输入Map键值对，如：key1:value1,key2:value2" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                            </div>
+                            <div id="regexpInput" style="display: none;">
+                                <input type="text" id="regexpTextInput" placeholder="输入正则表达式，如：/test/g" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                            </div>
+                        </div>
+                        <button class="btn" onclick="analyzeSingle()">分析类型</button>
+                    </div>
+                    <div id="singleResults" class="results"></div>
+                </div>
+
+                <!-- 批量分析 -->
+                <div class="tab-content" id="batch">
+                    <div class="input-group">
+                        <div class="input-wrapper" style="width: 100%;">
+                            <label>批量数据 (每行一个值，支持JSON格式)</label>
+                            <textarea id="batchInput" class="batch-input" placeholder="输入数据，例如：
+1
+"hello"
+[1, 2, 3]
+{name: "test"}
+true
+null
+undefined
+new Date()
+() => {}"></textarea>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <button class="btn" onclick="analyzeBatch()">批量分析</button>
+                        <button class="btn btn-secondary" onclick="clearBatch()">清空</button>
+                        <button class="btn btn-success" onclick="exportResults()">导出结果</button>
+                    </div>
+                    <div id="batchResults" class="results"></div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div class="tab-content" id="history">
+                    <div class="input-group">
+                        <button class="btn" onclick="loadHistory()">刷新历史</button>
+                        <button class="btn btn-warning" onclick="clearHistory()">清空历史</button>
+                        <button class="btn btn-secondary" onclick="exportHistory()">导出历史</button>
+                    </div>
+                    <div id="historyResults"></div>
+                </div>
+
+                <!-- 统计分析 -->
+                <div class="tab-content" id="stats">
+                    <div class="type-stats" id="typeStats"></div>
+                    <div class="input-group" style="margin-top: 20px;">
+                        <button class="btn" onclick="generateStats()">生成统计</button>
+                        <button class="btn btn-secondary" onclick="resetStats()">重置统计</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知组件由插件自动创建 -->
+
+    <!-- 插件脚本 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心方法
+        const getType = v => v === undefined ? 'undefined' : v === null ? 'null' : v.constructor.name;
+
+        // 全局变量
+        let analysisHistory = JSON.parse(localStorage.getItem('typeAnalysisHistory') || '[]');
+        let typeStats = JSON.parse(localStorage.getItem('typeStats') || '{}');
+        let notificationPlugin;
+
+        // 初始化插件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化Select插件
+            const selectPlugin = new Select({
+                container: '#dataTypeSelect',
+                placeholder: '选择数据类型',
+                onChange: function(value) {
+                    showInputByType(value);
+                }
+            });
+
+            // 设置Select选项
+            selectPlugin.setOptions([
+                { value: 'string', label: '字符串' },
+                { value: 'number', label: '数字' },
+                { value: 'boolean', label: '布尔值' },
+                { value: 'array', label: '数组' },
+                { value: 'object', label: '对象' },
+                { value: 'null', label: 'Null' },
+                { value: 'undefined', label: 'Undefined' },
+                { value: 'function', label: '函数' },
+                { value: 'date', label: '日期' },
+                { value: 'symbol', label: 'Symbol' },
+                { value: 'set', label: 'Set' },
+                { value: 'map', label: 'Map' },
+                { value: 'regexp', label: '正则表达式' },
+                { value: 'custom', label: '自定义输入' }
+            ]);
+
+            // 初始化InputNumber插件
+            const numberPlugin = new InputNumber({
+                container: '#numberInput',
+                min: -999999,
+                max: 999999,
+                step: 1,
+                value: 0,
+                onChange: function(value) {
+                    console.log('Number changed:', value);
+                }
+            });
+
+            // 初始化DateTimePicker插件
+            const datePlugin = new DateTimePicker({
+                container: '#dateInput',
+                format: 'YYYY-MM-DD HH:mm:ss',
+                placeholder: '选择日期时间',
+                onChange: function(value) {
+                    console.log('Date changed:', value);
+                }
+            });
+
+            // 初始化Notification插件
+            notificationPlugin = new Notification({
+                position: 'top-right',
+                duration: 3000,
+                maxCount: 5
+            });
+
+            // 保存插件实例到全局变量
+            window.selectPlugin = selectPlugin;
+            window.numberPlugin = numberPlugin;
+            window.datePlugin = datePlugin;
+            window.notificationPlugin = notificationPlugin;
+
+            // 默认显示字符串输入框
+            showInputByType('string');
+
+            // 添加布尔值选择器事件监听
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('boolean-option')) {
+                    document.querySelectorAll('.boolean-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    e.target.classList.add('selected');
+                }
+            });
+
+            // 加载历史记录
+            loadHistory();
+            generateStats();
+
+            // 测试插件是否正常工作
+            console.log('插件初始化完成');
+            console.log('Select插件:', selectPlugin);
+            console.log('InputNumber插件:', numberPlugin);
+            console.log('DateTimePicker插件:', datePlugin);
+        });
+
+        // 标签页切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // 根据类型显示对应输入框
+        function showInputByType(type) {
+            const inputs = ['numberInput', 'stringInput', 'dateInput', 'booleanInput', 'nullInput', 'undefinedInput', 'symbolInput', 'setInput', 'mapInput', 'regexpInput'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = 'none';
+                }
+            });
+
+            switch(type) {
+                case 'number':
+                    const numberElement = document.getElementById('numberInput');
+                    if (numberElement) {
+                        numberElement.style.display = 'block';
+                    }
+                    break;
+                case 'string':
+                case 'array':
+                case 'object':
+                case 'function':
+                case 'custom':
+                    const stringElement = document.getElementById('stringInput');
+                    if (stringElement) {
+                        stringElement.style.display = 'block';
+                    }
+                    break;
+                case 'date':
+                    const dateElement = document.getElementById('dateInput');
+                    if (dateElement) {
+                        dateElement.style.display = 'block';
+                    }
+                    break;
+                case 'boolean':
+                    const booleanElement = document.getElementById('booleanInput');
+                    if (booleanElement) {
+                        booleanElement.style.display = 'block';
+                        // 默认选中True
+                        document.querySelectorAll('.boolean-option').forEach(option => {
+                            option.classList.remove('selected');
+                        });
+                        document.querySelector('.boolean-option[data-value="true"]').classList.add('selected');
+                    }
+                    break;
+                case 'null':
+                    const nullElement = document.getElementById('nullInput');
+                    if (nullElement) {
+                        nullElement.style.display = 'block';
+                    }
+                    break;
+                case 'undefined':
+                    const undefinedElement = document.getElementById('undefinedInput');
+                    if (undefinedElement) {
+                        undefinedElement.style.display = 'block';
+                    }
+                    break;
+                case 'symbol':
+                    const symbolElement = document.getElementById('symbolInput');
+                    if (symbolElement) {
+                        symbolElement.style.display = 'block';
+                    }
+                    break;
+                case 'set':
+                    const setElement = document.getElementById('setInput');
+                    if (setElement) {
+                        setElement.style.display = 'block';
+                    }
+                    break;
+                case 'map':
+                    const mapElement = document.getElementById('mapInput');
+                    if (mapElement) {
+                        mapElement.style.display = 'block';
+                    }
+                    break;
+                case 'regexp':
+                    const regexpElement = document.getElementById('regexpInput');
+                    if (regexpElement) {
+                        regexpElement.style.display = 'block';
+                    }
+                    break;
+            }
+        }
+
+        // 单值分析
+        function analyzeSingle() {
+            const selectedType = window.selectPlugin.getValue();
+            let value, inputValue;
+
+            try {
+                switch(selectedType) {
+                    case 'number':
+                        value = window.numberPlugin.getValue();
+                        if (isNaN(value)) throw new Error('无效数字');
+                        break;
+                    case 'string':
+                        inputValue = document.getElementById('stringInput').value;
+                        value = inputValue;
+                        break;
+                    case 'boolean':
+                        const selectedBoolean = document.querySelector('.boolean-option.selected');
+                        value = selectedBoolean ? selectedBoolean.dataset.value === 'true' : true;
+                        break;
+                    case 'array':
+                        inputValue = document.getElementById('stringInput').value;
+                        value = JSON.parse(inputValue || '[]');
+                        break;
+                    case 'object':
+                        inputValue = document.getElementById('stringInput').value;
+                        value = JSON.parse(inputValue || '{}');
+                        break;
+                    case 'null':
+                        value = null;
+                        break;
+                    case 'undefined':
+                        value = undefined;
+                        break;
+                    case 'function':
+                        inputValue = document.getElementById('stringInput').value;
+                        value = new Function('return ' + inputValue)();
+                        break;
+                    case 'date':
+                        value = window.datePlugin.getValue();
+                        if (value) {
+                            value = new Date(value);
+                        }
+                        break;
+                    case 'symbol':
+                        const symbolText = document.getElementById('symbolTextInput').value;
+                        value = symbolText ? Symbol(symbolText) : Symbol();
+                        break;
+                    case 'set':
+                        const setText = document.getElementById('setTextInput').value;
+                        if (setText) {
+                            const setItems = setText.split(',').map(item => item.trim());
+                            value = new Set(setItems);
+                        } else {
+                            value = new Set([1, 2, 3]);
+                        }
+                        break;
+                    case 'map':
+                        const mapText = document.getElementById('mapTextInput').value;
+                        if (mapText) {
+                            const mapItems = mapText.split(',').map(item => item.trim());
+                            const mapEntries = mapItems.map(item => {
+                                const [key, value] = item.split(':').map(part => part.trim());
+                                return [key || 'key', value || 'value'];
+                            });
+                            value = new Map(mapEntries);
+                        } else {
+                            value = new Map([['key', 'value']]);
+                        }
+                        break;
+                    case 'regexp':
+                        const regexpText = document.getElementById('regexpTextInput').value;
+                        if (regexpText) {
+                            // 解析正则表达式字符串，如 /test/g
+                            const match = regexpText.match(/^\/(.+)\/([gimsuy]*)$/);
+                            if (match) {
+                                value = new RegExp(match[1], match[2]);
+                            } else {
+                                value = new RegExp(regexpText);
+                            }
+                        } else {
+                            value = /test/;
+                        }
+                        break;
+                    case 'custom':
+                        inputValue = document.getElementById('stringInput').value;
+                        try {
+                            value = JSON.parse(inputValue);
+                        } catch {
+                            value = inputValue;
+                        }
+                        break;
+                }
+
+                const type = getType(value);
+                const result = {
+                    value: value,
+                    type: type,
+                    timestamp: new Date().toISOString(),
+                    inputType: selectedType
+                };
+
+                displaySingleResult(result);
+                addToHistory(result);
+                updateStats(type);
+                showNotification('分析完成！', 'success');
+
+            } catch (error) {
+                showNotification('输入错误: ' + error.message, 'error');
+            }
+        }
+
+        // 显示单值结果
+        function displaySingleResult(result) {
+            const resultsDiv = document.getElementById('singleResults');
+            const resultHtml = `
+                <div class="result-item">
+                    <div>
+                        <div class="result-value">${JSON.stringify(result.value)}</div>
+                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                            输入类型: ${result.inputType} | 检测类型: ${result.type}
+                        </div>
+                    </div>
+                    <div class="result-type">${result.type}</div>
+                </div>
+            `;
+            resultsDiv.innerHTML = resultHtml;
+        }
+
+        // 批量分析
+        function analyzeBatch() {
+            const input = document.getElementById('batchInput').value;
+            const lines = input.split('\n').filter(line => line.trim());
+            const results = [];
+
+            lines.forEach((line, index) => {
+                try {
+                    let value;
+                    const trimmedLine = line.trim();
+                    
+                    if (trimmedLine === 'null') {
+                        value = null;
+                    } else if (trimmedLine === 'undefined') {
+                        value = undefined;
+                    } else if (trimmedLine === 'true') {
+                        value = true;
+                    } else if (trimmedLine === 'false') {
+                        value = false;
+                    } else if (trimmedLine.startsWith('"') || trimmedLine.startsWith("'")) {
+                        value = trimmedLine.slice(1, -1);
+                    } else if (trimmedLine.startsWith('[') || trimmedLine.startsWith('{')) {
+                        value = JSON.parse(trimmedLine);
+                    } else if (!isNaN(trimmedLine)) {
+                        value = parseFloat(trimmedLine);
+                    } else {
+                        value = trimmedLine;
+                    }
+
+                    const type = getType(value);
+                    results.push({
+                        value: value,
+                        type: type,
+                        original: trimmedLine,
+                        line: index + 1
+                    });
+                } catch (error) {
+                    results.push({
+                        value: line.trim(),
+                        type: 'String',
+                        original: line.trim(),
+                        line: index + 1,
+                        error: true
+                    });
+                }
+            });
+
+            displayBatchResults(results);
+            showNotification(`批量分析完成，共处理 ${results.length} 项`, 'success');
+        }
+
+        // 显示批量结果
+        function displayBatchResults(results) {
+            const resultsDiv = document.getElementById('batchResults');
+            let html = '<h3>批量分析结果</h3>';
+            
+            results.forEach(result => {
+                const errorClass = result.error ? 'style="border-left: 4px solid #dc3545;"' : '';
+                html += `
+                    <div class="result-item" ${errorClass}>
+                        <div>
+                            <div class="result-value">${JSON.stringify(result.value)}</div>
+                            <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                                第${result.line}行 | 原始输入: ${result.original}
+                            </div>
+                        </div>
+                        <div class="result-type">${result.type}</div>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // 清空批量输入
+        function clearBatch() {
+            document.getElementById('batchInput').value = '';
+            document.getElementById('batchResults').innerHTML = '';
+        }
+
+        // 导出结果
+        function exportResults() {
+            const resultsDiv = document.getElementById('batchResults');
+            if (!resultsDiv.innerHTML) {
+                showNotification('没有可导出的结果', 'warning');
+                return;
+            }
+
+            const data = {
+                timestamp: new Date().toISOString(),
+                results: resultsDiv.innerHTML
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `type-analysis-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('结果已导出', 'success');
+        }
+
+        // 添加到历史记录
+        function addToHistory(result) {
+            analysisHistory.unshift(result);
+            if (analysisHistory.length > 100) {
+                analysisHistory = analysisHistory.slice(0, 100);
+            }
+            localStorage.setItem('typeAnalysisHistory', JSON.stringify(analysisHistory));
+        }
+
+        // 加载历史记录
+        function loadHistory() {
+            const historyDiv = document.getElementById('historyResults');
+            if (analysisHistory.length === 0) {
+                historyDiv.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">暂无历史记录</p>';
+                return;
+            }
+
+            let html = '<h3>分析历史</h3>';
+            analysisHistory.forEach((item, index) => {
+                html += `
+                    <div class="history-item" onclick="showHistoryDetail(${index})">
+                        <div class="history-time">${new Date(item.timestamp).toLocaleString()}</div>
+                        <div class="history-data">${JSON.stringify(item.value)}</div>
+                        <div style="margin-top: 5px;">
+                            <span class="result-type">${item.type}</span>
+                            <span style="margin-left: 10px; color: #666;">输入类型: ${item.inputType}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyDiv.innerHTML = html;
+        }
+
+        // 显示历史详情
+        function showHistoryDetail(index) {
+            const item = analysisHistory[index];
+            const modal = new Modal();
+            modal.show({
+                title: '历史记录详情',
+                content: `
+                    <div style="padding: 20px;">
+                        <p><strong>时间:</strong> ${new Date(item.timestamp).toLocaleString()}</p>
+                        <p><strong>输入类型:</strong> ${item.inputType}</p>
+                        <p><strong>检测类型:</strong> ${item.type}</p>
+                        <p><strong>值:</strong></p>
+                        <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(item.value, null, 2)}</pre>
+                    </div>
+                `
+            });
+        }
+
+        // 清空历史记录
+        function clearHistory() {
+            const modal = new Modal();
+            modal.confirm('确定要清空所有历史记录吗？此操作不可恢复。').then(confirmed => {
+                if (confirmed) {
+                    analysisHistory = [];
+                    localStorage.removeItem('typeAnalysisHistory');
+                    loadHistory();
+                    showNotification('历史记录已清空', 'success');
+                }
+            });
+        }
+
+        // 导出历史记录
+        function exportHistory() {
+            if (analysisHistory.length === 0) {
+                showNotification('没有历史记录可导出', 'warning');
+                return;
+            }
+
+            const data = {
+                exportTime: new Date().toISOString(),
+                totalRecords: analysisHistory.length,
+                records: analysisHistory
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `type-history-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('历史记录已导出', 'success');
+        }
+
+        // 更新统计
+        function updateStats(type) {
+            typeStats[type] = (typeStats[type] || 0) + 1;
+            localStorage.setItem('typeStats', JSON.stringify(typeStats));
+            generateStats();
+        }
+
+        // 生成统计
+        function generateStats() {
+            const statsDiv = document.getElementById('typeStats');
+            const total = Object.values(typeStats).reduce((sum, count) => sum + count, 0);
+            
+            if (total === 0) {
+                statsDiv.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">暂无统计数据</p>';
+                return;
+            }
+
+            let html = '';
+            Object.entries(typeStats).forEach(([type, count]) => {
+                const percentage = ((count / total) * 100).toFixed(1);
+                html += `
+                    <div class="stat-card">
+                        <div class="stat-number">${count}</div>
+                        <div class="stat-label">${type}</div>
+                        <div style="font-size: 0.8em; opacity: 0.8;">${percentage}%</div>
+                    </div>
+                `;
+            });
+            
+            statsDiv.innerHTML = html;
+        }
+
+        // 重置统计
+        function resetStats() {
+            const modal = new Modal();
+            modal.confirm('确定要重置所有统计数据吗？').then(confirmed => {
+                if (confirmed) {
+                    typeStats = {};
+                    localStorage.removeItem('typeStats');
+                    generateStats();
+                    showNotification('统计数据已重置', 'success');
+                }
+            });
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            if (window.notificationPlugin) {
+                window.notificationPlugin.show(message, type);
+            }
+        }
+
+        // 页面加载时显示欢迎信息
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                showNotification('欢迎使用数据类型分析器！', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
