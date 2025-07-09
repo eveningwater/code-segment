@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL参数分析器 - 专业工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 2px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .results {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .parameter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .parameter-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .parameter-key {
+            font-weight: 600;
+            color: #4facfe;
+            min-width: 120px;
+        }
+
+        .parameter-value {
+            color: #666;
+            flex: 1;
+            margin: 0 15px;
+            word-break: break-all;
+        }
+
+        .parameter-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+
+        .batch-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .history-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-url {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .history-time {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .batch-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 URL参数分析器</h1>
+            <p>专业的URL参数解析、编辑和管理工具</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：URL解析和编辑 -->
+            <div class="section">
+                <div class="section-title">📝 URL解析与编辑</div>
+                
+                <div class="input-group">
+                    <label class="input-label">输入URL地址</label>
+                    <input type="url" class="url-input" id="urlInput" 
+                           placeholder="https://example.com/page?name=value&id=123" 
+                           value="https://api.example.com/users?name=张三&age=25&city=北京&active=true&page=1&limit=10">
+                </div>
+
+                <div class="batch-controls">
+                    <button class="btn btn-primary" id="parseBtn">
+                        <span class="loading" id="parseLoading" style="display: none;"></span>
+                        🔍 解析参数
+                    </button>
+                    <button class="btn btn-secondary" id="clearBtn">🗑️ 清空</button>
+                    <button class="btn btn-success" id="saveBtn">💾 保存到历史</button>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">参数编辑</label>
+                    <div id="parametersContainer" class="results">
+                        <div class="empty-state">
+                            <div>📋</div>
+                            <p>点击"解析参数"开始分析URL</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">生成的URL</label>
+                    <input type="url" class="url-input" id="generatedUrl" readonly>
+                </div>
+            </div>
+
+            <!-- 右侧：批量操作和历史记录 -->
+            <div class="section">
+                <div class="section-title">📊 批量操作与统计</div>
+                
+                <div class="input-group">
+                    <label class="input-label">批量URL处理</label>
+                    <textarea class="url-input" id="batchUrls" rows="4" 
+                              placeholder="每行一个URL地址&#10;https://example1.com?param=value&#10;https://example2.com?param=value"></textarea>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-primary" id="batchParseBtn">🔄 批量解析</button>
+                        <button class="btn btn-secondary" id="exportBtn">📤 导出结果</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">处理统计</label>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalUrls">0</div>
+                            <div class="stat-label">总URL数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalParams">0</div>
+                            <div class="stat-label">总参数数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="uniqueParams">0</div>
+                            <div class="stat-label">唯一参数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgParams">0</div>
+                            <div class="stat-label">平均参数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">历史记录</label>
+                    <div id="historyContainer" class="results">
+                        <div class="empty-state">
+                            <div>📚</div>
+                            <p>暂无历史记录</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 插件脚本 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const getURLParameters = url =>
+            (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(
+                (a, v) => (
+                    (a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1)), a
+                ),
+                {}
+            );
+
+        // 应用类
+        class URLParameterAnalyzer {
+            constructor() {
+                this.history = JSON.parse(localStorage.getItem('urlHistory') || '[]');
+                this.batchResults = [];
+                this.notification = new Notification();
+                this.modal = new Modal();
+                
+                this.initElements();
+                this.bindEvents();
+                this.updateStats();
+                this.renderHistory();
+            }
+
+            initElements() {
+                this.urlInput = document.getElementById('urlInput');
+                this.parseBtn = document.getElementById('parseBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.saveBtn = document.getElementById('saveBtn');
+                this.parseLoading = document.getElementById('parseLoading');
+                this.parametersContainer = document.getElementById('parametersContainer');
+                this.generatedUrl = document.getElementById('generatedUrl');
+                this.batchUrls = document.getElementById('batchUrls');
+                this.batchParseBtn = document.getElementById('batchParseBtn');
+                this.exportBtn = document.getElementById('exportBtn');
+                this.historyContainer = document.getElementById('historyContainer');
+                
+                // 统计元素
+                this.totalUrls = document.getElementById('totalUrls');
+                this.totalParams = document.getElementById('totalParams');
+                this.uniqueParams = document.getElementById('uniqueParams');
+                this.avgParams = document.getElementById('avgParams');
+            }
+
+            bindEvents() {
+                this.parseBtn.addEventListener('click', () => this.parseURL());
+                this.clearBtn.addEventListener('click', () => this.clearAll());
+                this.saveBtn.addEventListener('click', () => this.saveToHistory());
+                this.batchParseBtn.addEventListener('click', () => this.batchParse());
+                this.exportBtn.addEventListener('click', () => this.exportResults());
+                
+                // 回车键解析
+                this.urlInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.parseURL();
+                });
+            }
+
+            async parseURL() {
+                const url = this.urlInput.value.trim();
+                if (!url) {
+                    this.notification.warning('请输入有效的URL地址');
+                    return;
+                }
+
+                this.showLoading(true);
+                
+                try {
+                    // 模拟网络延迟
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    const parameters = getURLParameters(url);
+                    this.renderParameters(parameters);
+                    this.updateGeneratedURL(parameters);
+                    this.notification.success('URL解析成功！');
+                } catch (error) {
+                    this.notification.error('URL解析失败：' + error.message);
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            renderParameters(parameters) {
+                const container = this.parametersContainer;
+                container.innerHTML = '';
+
+                if (Object.keys(parameters).length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div>🔍</div>
+                            <p>未找到URL参数</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                Object.entries(parameters).forEach(([key, value]) => {
+                    const item = document.createElement('div');
+                    item.className = 'parameter-item';
+                    item.innerHTML = `
+                        <div class="parameter-key">${this.escapeHtml(key)}</div>
+                        <div class="parameter-value">${this.escapeHtml(value)}</div>
+                        <div class="parameter-actions">
+                            <button class="btn btn-small btn-primary" onclick="app.editParameter('${key}', '${value}')">
+                                ✏️ 编辑
+                            </button>
+                            <button class="btn btn-small btn-danger" onclick="app.deleteParameter('${key}')">
+                                🗑️ 删除
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            editParameter(key, value) {
+                this.modal.prompt(`编辑参数: ${key}`, value).then(newValue => {
+                    if (newValue !== null) {
+                        const parameters = this.getCurrentParameters();
+                        parameters[key] = newValue;
+                        this.renderParameters(parameters);
+                        this.updateGeneratedURL(parameters);
+                        this.notification.success('参数更新成功！');
+                    }
+                });
+            }
+
+            deleteParameter(key) {
+                this.modal.confirm(`确定要删除参数 "${key}" 吗？`).then(confirmed => {
+                    if (confirmed) {
+                        const parameters = this.getCurrentParameters();
+                        delete parameters[key];
+                        this.renderParameters(parameters);
+                        this.updateGeneratedURL(parameters);
+                        this.notification.success('参数删除成功！');
+                    }
+                });
+            }
+
+            getCurrentParameters() {
+                const items = this.parametersContainer.querySelectorAll('.parameter-item');
+                const parameters = {};
+                items.forEach(item => {
+                    const key = item.querySelector('.parameter-key').textContent;
+                    const value = item.querySelector('.parameter-value').textContent;
+                    parameters[key] = value;
+                });
+                return parameters;
+            }
+
+            updateGeneratedURL(parameters) {
+                const baseUrl = this.getBaseURL();
+                const queryString = Object.entries(parameters)
+                    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+                    .join('&');
+                
+                this.generatedUrl.value = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+            }
+
+            getBaseURL() {
+                const url = this.urlInput.value.trim();
+                const questionMarkIndex = url.indexOf('?');
+                return questionMarkIndex !== -1 ? url.substring(0, questionMarkIndex) : url;
+            }
+
+            async batchParse() {
+                const urls = this.batchUrls.value.trim().split('\n').filter(url => url.trim());
+                if (urls.length === 0) {
+                    this.notification.warning('请输入要批量处理的URL');
+                    return;
+                }
+
+                this.batchResults = [];
+                let processed = 0;
+
+                for (const url of urls) {
+                    try {
+                        const parameters = getURLParameters(url.trim());
+                        this.batchResults.push({
+                            url: url.trim(),
+                            parameters,
+                            paramCount: Object.keys(parameters).length
+                        });
+                        processed++;
+                        
+                        // 更新进度
+                        this.notification.info(`已处理 ${processed}/${urls.length} 个URL`);
+                    } catch (error) {
+                        this.batchResults.push({
+                            url: url.trim(),
+                            parameters: {},
+                            paramCount: 0,
+                            error: error.message
+                        });
+                    }
+                }
+
+                this.updateStats();
+                this.notification.success(`批量处理完成！共处理 ${urls.length} 个URL`);
+            }
+
+            exportResults() {
+                if (this.batchResults.length === 0) {
+                    this.notification.warning('没有可导出的数据');
+                    return;
+                }
+
+                const data = {
+                    timestamp: new Date().toISOString(),
+                    totalUrls: this.batchResults.length,
+                    results: this.batchResults
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `url-parameters-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.notification.success('数据导出成功！');
+            }
+
+            saveToHistory() {
+                const url = this.urlInput.value.trim();
+                const parameters = this.getCurrentParameters();
+                
+                if (!url || Object.keys(parameters).length === 0) {
+                    this.notification.warning('请先解析URL参数');
+                    return;
+                }
+
+                const historyItem = {
+                    url,
+                    parameters,
+                    timestamp: new Date().toISOString(),
+                    paramCount: Object.keys(parameters).length
+                };
+
+                this.history.unshift(historyItem);
+                
+                // 限制历史记录数量
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+
+                localStorage.setItem('urlHistory', JSON.stringify(this.history));
+                this.renderHistory();
+                this.updateStats();
+                this.notification.success('已保存到历史记录！');
+            }
+
+            renderHistory() {
+                const container = this.historyContainer;
+                container.innerHTML = '';
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div>📚</div>
+                            <p>暂无历史记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                this.history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-url">${this.escapeHtml(item.url)}</div>
+                        <div class="history-time">
+                            ${new Date(item.timestamp).toLocaleString()} • ${item.paramCount} 个参数
+                        </div>
+                    `;
+                    
+                    historyItem.addEventListener('click', () => {
+                        this.loadFromHistory(item);
+                    });
+                    
+                    container.appendChild(historyItem);
+                });
+            }
+
+            loadFromHistory(item) {
+                this.urlInput.value = item.url;
+                this.renderParameters(item.parameters);
+                this.updateGeneratedURL(item.parameters);
+                this.notification.info('已加载历史记录');
+            }
+
+            updateStats() {
+                const allParams = new Set();
+                let totalParamCount = 0;
+                let urlCount = this.history.length + this.batchResults.length;
+
+                // 统计历史记录
+                this.history.forEach(item => {
+                    Object.keys(item.parameters).forEach(key => allParams.add(key));
+                    totalParamCount += item.paramCount;
+                });
+
+                // 统计批量结果
+                this.batchResults.forEach(item => {
+                    Object.keys(item.parameters).forEach(key => allParams.add(key));
+                    totalParamCount += item.paramCount;
+                });
+
+                this.totalUrls.textContent = urlCount;
+                this.totalParams.textContent = totalParamCount;
+                this.uniqueParams.textContent = allParams.size;
+                this.avgParams.textContent = urlCount > 0 ? Math.round(totalParamCount / urlCount * 10) / 10 : 0;
+            }
+
+            clearAll() {
+                this.modal.confirm('确定要清空所有数据吗？').then(confirmed => {
+                    if (confirmed) {
+                        this.urlInput.value = '';
+                        this.parametersContainer.innerHTML = `
+                            <div class="empty-state">
+                                <div>📋</div>
+                                <p>点击"解析参数"开始分析URL</p>
+                            </div>
+                        `;
+                        this.generatedUrl.value = '';
+                        this.batchUrls.value = '';
+                        this.batchResults = [];
+                        this.updateStats();
+                        this.notification.success('数据已清空！');
+                    }
+                });
+            }
+
+            showLoading(show) {
+                this.parseLoading.style.display = show ? 'inline-block' : 'none';
+                this.parseBtn.disabled = show;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // 初始化应用
+        const app = new URLParameterAnalyzer();
+
+        // 添加一些示例数据
+        setTimeout(() => {
+            if (app.history.length === 0) {
+                const sampleUrls = [
+                    'https://api.example.com/users?name=张三&age=25&city=北京&active=true&page=1&limit=10',
+                    'https://shop.example.com/products?category=electronics&brand=apple&price_min=100&price_max=1000&sort=price_asc',
+                    'https://blog.example.com/posts?tag=javascript&author=john&year=2024&month=01'
+                ];
+
+                sampleUrls.forEach(url => {
+                    const parameters = getURLParameters(url);
+                    const historyItem = {
+                        url,
+                        parameters,
+                        timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
+                        paramCount: Object.keys(parameters).length
+                    };
+                    app.history.push(historyItem);
+                });
+
+                localStorage.setItem('urlHistory', JSON.stringify(app.history));
+                app.renderHistory();
+                app.updateStats();
+            }
+        }, 1000);
+    </script>
+</body>
+
+</html>

@@ -310,7 +310,7 @@
 - [获取样式-2022-07-22](codes/javascript/get-stylemd)
 - [获取时间戳-2022-07-23](codes/javascript/get-timestamp.md)
 - [获取数据类型-2022-07-24](codes/javascript/get-type.md)
-- [获取路径参数-2022-07-25](codes/javascript/getURLParameters.md)
+- [获取路径参数-2022-07-25](codes/javascript/get-url-parameters.md)
 - [获取元素到文档顶部的距离-2022-07-26](codes/javascript/getVerticalOffset.md)
 - [元素分组-2022-07-27](codes/javascript/groupBy.md)
 - [汉明距离-2022-07-28](codes/javascript/hammingDistance.md)
