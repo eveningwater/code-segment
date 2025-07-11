@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据分组分析器 - groupBy实战应用</title>
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3748;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        .data-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .data-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .result-container {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+        }
+
+        .result-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .result-key {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .result-value {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .history-item:hover {
+            background: #e2e8f0;
+            border-left-color: #667eea;
+        }
+
+        .history-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab:hover {
+            background: #f7fafc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #48bb78;
+        }
+
+        .notification.error {
+            border-left: 4px solid #f56565;
+        }
+
+        .notification.info {
+            border-left: 4px solid #4299e1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-row .form-group {
+                min-width: auto;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border-left: 4px solid #f56565;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border-left: 4px solid #48bb78;
+        }
+
+        /* 主题样式 */
+        .theme-dark {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+
+        .theme-dark .card {
+            background: #2d3748;
+            color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .theme-dark .card h2 {
+            color: #e2e8f0;
+            border-bottom-color: #4a5568;
+        }
+
+        .theme-dark .form-group label {
+            color: #e2e8f0;
+        }
+
+        .theme-dark .data-input {
+            background: #4a5568;
+            color: #e2e8f0;
+            border-color: #718096;
+        }
+
+        .theme-dark .data-input:focus {
+            border-color: #667eea;
+            background: #2d3748;
+        }
+
+        .theme-dark .result-container {
+            background: #4a5568;
+            border-color: #718096;
+        }
+
+        .theme-dark .result-item {
+            background: #2d3748;
+            border-left-color: #667eea;
+        }
+
+        .theme-dark .result-value {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .theme-dark .history-item {
+            background: #4a5568;
+            border-left-color: #718096;
+            color: #e2e8f0;
+        }
+
+        .theme-dark .history-item:hover {
+            background: #2d3748;
+            border-left-color: #667eea;
+        }
+
+        .theme-dark .history-title {
+            color: #e2e8f0;
+        }
+
+        .theme-dark .history-meta {
+            color: #a0aec0;
+        }
+
+        .theme-dark .tab {
+            color: #e2e8f0;
+        }
+
+        .theme-dark .tab:hover {
+            background: #4a5568;
+        }
+
+        .theme-dark .quick-btn {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .theme-dark .quick-btn:hover {
+            background: #667eea;
+        }
+
+        .theme-light {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        }
+
+        .theme-light .card {
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .theme-light .card h2 {
+            color: #2d3748;
+            border-bottom-color: #e2e8f0;
+        }
+
+        .theme-light .form-group label {
+            color: #4a5568;
+        }
+
+        .theme-light .data-input {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        .theme-light .data-input:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .theme-light .result-container {
+            background: #f7fafc;
+            border-color: #e2e8f0;
+        }
+
+        .theme-light .result-item {
+            background: #ffffff;
+            border-left-color: #4299e1;
+        }
+
+        .theme-light .result-value {
+            background: #f8f9fa;
+            color: #2d3748;
+        }
+
+        .theme-light .history-item {
+            background: #f8f9fa;
+            border-left-color: #e2e8f0;
+        }
+
+        .theme-light .history-item:hover {
+            background: #edf2f7;
+            border-left-color: #4299e1;
+        }
+
+        .theme-light .history-title {
+            color: #2d3748;
+        }
+
+        .theme-light .history-meta {
+            color: #718096;
+        }
+
+        .theme-light .tab {
+            color: #4a5568;
+        }
+
+        .theme-light .tab:hover {
+            background: #f7fafc;
+        }
+
+        .theme-light .quick-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .theme-light .quick-btn:hover {
+            background: #4299e1;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 数据分组分析器</h1>
+            <p>基于 groupBy 方法的智能数据分组与统计分析工具</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 单值分析 -->
+            <div class="card">
+                <h2>🔍 单值分组分析</h2>
+                <div class="form-group">
+                    <label>数据类型</label>
+                    <div id="dataTypeSelect"></div>
+                </div>
+                <div class="form-group">
+                    <label>分组方式</label>
+                    <div id="groupMethodSelect"></div>
+                </div>
+                <div class="form-group">
+                    <label>数据输入</label>
+                    <textarea id="singleDataInput" class="data-input" placeholder="请输入要分组的数据，支持JSON格式或换行分隔的数组..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>自定义分组函数</label>
+                    <textarea id="customFunction" class="data-input" style="min-height: 80px;" placeholder="输入自定义分组函数，例如：item => item.length"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>最大显示数量</label>
+                        <div id="maxDisplayInput"></div>
+                    </div>
+                    <div class="form-group">
+                        <button id="analyzeBtn" class="btn">🚀 开始分析</button>
+                    </div>
+                </div>
+                <div id="singleResult" class="result-container" style="display: none;"></div>
+            </div>
+
+            <!-- 批量分析 -->
+            <div class="card">
+                <h2>📈 批量分组分析</h2>
+                <div class="form-group">
+                    <label>批量数据</label>
+                    <textarea id="batchDataInput" class="data-input" placeholder="输入多组数据，每组数据用 --- 分隔..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>分组策略</label>
+                    <div id="batchStrategySelect"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>并行处理数</label>
+                        <div id="parallelCountInput"></div>
+                    </div>
+                    <div class="form-group">
+                        <button id="batchAnalyzeBtn" class="btn btn-secondary">⚡ 批量分析</button>
+                    </div>
+                </div>
+                <div id="batchResult" class="result-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- 统计分析 -->
+        <div class="card">
+            <h2>📊 分组统计</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalGroups">0</div>
+                    <div class="stat-label">总分组数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalItems">0</div>
+                    <div class="stat-label">总项目数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgGroupSize">0</div>
+                    <div class="stat-label">平均组大小</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="maxGroupSize">0</div>
+                    <div class="stat-label">最大组大小</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" data-tab="history">📚 历史记录</div>
+                <div class="tab" data-tab="export">📤 导出功能</div>
+                <div class="tab" data-tab="settings">⚙️ 设置</div>
+            </div>
+
+            <div class="tab-content active" id="history">
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="loadSampleData()">加载示例数据</button>
+                    <button class="quick-btn" onclick="clearHistory()">清空历史</button>
+                    <button class="quick-btn" onclick="exportHistory()">导出历史</button>
+                </div>
+                <div id="historyList"></div>
+            </div>
+
+            <div class="tab-content" id="export">
+                <div class="form-group">
+                    <label>导出格式</label>
+                    <div id="exportFormatSelect"></div>
+                </div>
+                <div class="form-group">
+                    <label>导出内容</label>
+                    <div id="exportContentSelect"></div>
+                </div>
+                <button id="exportBtn" class="btn btn-success">📥 导出数据</button>
+            </div>
+
+            <div class="tab-content" id="settings">
+                <div class="form-group">
+                    <label>自动保存</label>
+                    <div id="autoSaveSelect"></div>
+                </div>
+                <div class="form-group">
+                    <label>最大历史记录数</label>
+                    <div id="maxHistoryInput"></div>
+                </div>
+                <div class="form-group">
+                    <label>主题设置</label>
+                    <div id="themeSelect"></div>
+                </div>
+                <button id="previewThemeBtn" class="btn btn-secondary">👁️ 预览主题</button>
+                <button id="cancelPreviewBtn" class="btn btn-danger" style="display: none;">❌ 取消预览</button>
+                <button id="saveSettingsBtn" class="btn">💾 保存设置</button>
+                <button id="resetThemeBtn" class="btn btn-secondary" style="margin-left: 10px;">🔄 重置主题</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script>
+        // groupBy 核心函数
+        const groupBy = (arr, handler) =>
+            arr
+                .map(typeof handler === 'function' ? handler : val => val[handler])
+                .reduce((acc, val, i) => {
+                    acc[val] = (acc[val] || []).concat(arr[i]);
+                    return acc;
+                }, {});
+
+        // 全局变量
+        let modal, currentResults = [], historyData = [], currentTheme = '默认主题';
+
+        // 初始化插件
+        function initPlugins() {
+            // 数据类型选择器
+            const dataTypeSelect = new Select({
+                container: '#dataTypeSelect',
+                placeholder: '选择数据类型',
+                onChange: (value) => {
+                    updateDataInput(value);
+                }
+            });
+            dataTypeSelect.setOptions([
+                { value: 'numbers', label: '数字数组' },
+                { value: 'strings', label: '字符串数组' },
+                { value: 'objects', label: '对象数组' },
+                { value: 'mixed', label: '混合数据' },
+                { value: 'custom', label: '自定义数据' }
+            ]);
+
+            // 分组方式选择器
+            const groupMethodSelect = new Select({
+                container: '#groupMethodSelect',
+                placeholder: '选择分组方式',
+                onChange: (value) => {
+                    updateGroupMethod(value);
+                }
+            });
+            groupMethodSelect.setOptions([
+                { value: 'function', label: '自定义函数' },
+                { value: 'property', label: '对象属性' },
+                { value: 'length', label: '字符串长度' },
+                { value: 'floor', label: '数字向下取整' },
+                { value: 'ceil', label: '数字向上取整' },
+                { value: 'round', label: '数字四舍五入' }
+            ]);
+
+            // 批量策略选择器
+            const batchStrategySelect = new Select({
+                container: '#batchStrategySelect',
+                placeholder: '选择批量策略',
+                onChange: (value) => {
+                    updateBatchStrategy(value);
+                }
+            });
+            batchStrategySelect.setOptions([
+                { value: 'sequential', label: '顺序处理' },
+                { value: 'parallel', label: '并行处理' },
+                { value: 'chunked', label: '分块处理' }
+            ]);
+
+            // 导出格式选择器
+            const exportFormatSelect = new Select({
+                container: '#exportFormatSelect',
+                placeholder: '选择导出格式'
+            });
+            exportFormatSelect.setOptions([
+                { value: 'json', label: 'JSON格式' },
+                { value: 'csv', label: 'CSV格式' },
+                { value: 'excel', label: 'Excel格式' },
+                { value: 'txt', label: '文本格式' }
+            ]);
+
+            // 导出内容选择器
+            const exportContentSelect = new Select({
+                container: '#exportContentSelect',
+                placeholder: '选择导出内容'
+            });
+            exportContentSelect.setOptions([
+                { value: 'current', label: '当前结果' },
+                { value: 'history', label: '历史记录' },
+                { value: 'stats', label: '统计数据' },
+                { value: 'all', label: '全部数据' }
+            ]);
+
+            // 自动保存选择器
+            const autoSaveSelect = new Select({
+                container: '#autoSaveSelect',
+                placeholder: '自动保存设置'
+            });
+            autoSaveSelect.setOptions([
+                { value: 'true', label: '启用自动保存' },
+                { value: 'false', label: '禁用自动保存' }
+            ]);
+
+            // 主题选择器
+            const themeSelect = new Select({
+                container: '#themeSelect',
+                placeholder: '选择主题'
+            });
+            themeSelect.setOptions([
+                { value: 'default', label: '默认主题' },
+                { value: 'dark', label: '深色主题' },
+                { value: 'light', label: '浅色主题' }
+            ]);
+
+            // 数字输入框
+            const maxDisplayInput = new InputNumber({
+                container: '#maxDisplayInput',
+                value: 10,
+                min: 1,
+                max: 100,
+                onChange: (value) => {
+                    updateMaxDisplay(value);
+                }
+            });
+
+            const parallelCountInput = new InputNumber({
+                container: '#parallelCountInput',
+                value: 3,
+                min: 1,
+                max: 10,
+                onChange: (value) => {
+                    updateParallelCount(value);
+                }
+            });
+
+            const maxHistoryInput = new InputNumber({
+                container: '#maxHistoryInput',
+                value: 50,
+                min: 10,
+                max: 200,
+                onChange: (value) => {
+                    updateMaxHistory(value);
+                }
+            });
+
+            // 初始化Modal
+            modal = new Modal();
+        }
+
+        // 更新数据输入
+        function updateDataInput(type) {
+            const input = document.getElementById('singleDataInput');
+            const examples = {
+                'numbers': '[6.1, 4.2, 6.3, 8.9, 2.1, 5.7, 3.4, 9.2, 1.8, 7.6]',
+                'strings': '["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew"]',
+                'objects': '[{"name": "Alice", "age": 25, "city": "Beijing"}, {"name": "Bob", "age": 30, "city": "Shanghai"}, {"name": "Charlie", "age": 25, "city": "Guangzhou"}]',
+                'mixed': '[1, "hello", {id: 1}, 2.5, "world", {id: 2}, 3, "test"]',
+                'custom': '// 输入自定义数据格式'
+            };
+            input.value = examples[type] || '';
+        }
+
+        // 更新分组方式
+        function updateGroupMethod(method) {
+            const customFunction = document.getElementById('customFunction');
+            const examples = {
+                'function': 'item => item.length',
+                'property': 'age',
+                'length': '// 自动使用字符串长度',
+                'floor': '// 自动使用Math.floor',
+                'ceil': '// 自动使用Math.ceil',
+                'round': '// 自动使用Math.round'
+            };
+            customFunction.value = examples[method] || '';
+        }
+
+        // 更新批量策略
+        function updateBatchStrategy(strategy) {
+            console.log('批量策略更新:', strategy);
+        }
+
+        // 更新最大显示数量
+        function updateMaxDisplay(value) {
+            console.log('最大显示数量:', value);
+        }
+
+        // 更新并行处理数
+        function updateParallelCount(value) {
+            console.log('并行处理数:', value);
+        }
+
+        // 更新最大历史记录数
+        function updateMaxHistory(value) {
+            console.log('最大历史记录数:', value);
+        }
+
+        // 解析数据
+        function parseData(input) {
+            try {
+                // 尝试解析为JSON
+                if (input.trim().startsWith('[') || input.trim().startsWith('{')) {
+                    return JSON.parse(input);
+                }
+                // 尝试解析为换行分隔的数组
+                const lines = input.trim().split('\n').filter(line => line.trim());
+                return lines.map(line => {
+                    try {
+                        return JSON.parse(line);
+                    } catch {
+                        return line.trim();
+                    }
+                });
+            } catch (error) {
+                throw new Error('数据格式错误: ' + error.message);
+            }
+        }
+
+        // 获取分组处理器
+        function getGroupHandler(method, customFunction) {
+            switch (method) {
+                case 'function':
+                    try {
+                        return eval(`(${customFunction})`);
+                    } catch (error) {
+                        throw new Error('自定义函数格式错误: ' + error.message);
+                    }
+                case 'property':
+                    return customFunction || 'id';
+                case 'length':
+                    return item => String(item).length;
+                case 'floor':
+                    return item => Math.floor(Number(item));
+                case 'ceil':
+                    return item => Math.ceil(Number(item));
+                case 'round':
+                    return item => Math.round(Number(item));
+                default:
+                    return item => item;
+            }
+        }
+
+        // 单值分析
+        async function analyzeSingle() {
+            try {
+                const dataInput = document.getElementById('singleDataInput').value;
+                const customFunction = document.getElementById('customFunction').value;
+                const dataTypeSelect = document.querySelector('#dataTypeSelect .select-header span').textContent;
+                const groupMethodSelect = document.querySelector('#groupMethodSelect .select-header span').textContent;
+
+                if (!dataInput.trim()) {
+                    showNotification('请输入数据', 'error');
+                    return;
+                }
+
+                const data = parseData(dataInput);
+                const handler = getGroupHandler(
+                    getSelectValue('#groupMethodSelect'),
+                    customFunction
+                );
+
+                const result = groupBy(data, handler);
+                currentResults = result;
+
+                displayResult(result, 'singleResult');
+                updateStats(result);
+                addToHistory('单值分析', result, dataTypeSelect, groupMethodSelect);
+
+                showNotification('分析完成！', 'success');
+            } catch (error) {
+                showNotification('分析失败: ' + error.message, 'error');
+            }
+        }
+
+        // 批量分析
+        async function analyzeBatch() {
+            try {
+                const batchInput = document.getElementById('batchDataInput').value;
+                const strategy = getSelectValue('#batchStrategySelect');
+
+                if (!batchInput.trim()) {
+                    showNotification('请输入批量数据', 'error');
+                    return;
+                }
+
+                const batches = batchInput.split('---').filter(batch => batch.trim());
+                const results = [];
+
+                for (let i = 0; i < batches.length; i++) {
+                    const batch = batches[i].trim();
+                    const data = parseData(batch);
+                    const handler = item => typeof item === 'string' ? item.length : item;
+                    const result = groupBy(data, handler);
+                    results.push({
+                        batchIndex: i + 1,
+                        data: data,
+                        result: result
+                    });
+                }
+
+                displayBatchResult(results, 'batchResult');
+                updateStats(results.reduce((acc, r) => ({...acc, ...r.result}), {}));
+                addToHistory('批量分析', results, '批量数据', strategy);
+
+                showNotification(`批量分析完成，共处理 ${batches.length} 组数据`, 'success');
+            } catch (error) {
+                showNotification('批量分析失败: ' + error.message, 'error');
+            }
+        }
+
+        // 显示结果
+        function displayResult(result, containerId) {
+            const container = document.getElementById(containerId);
+            container.style.display = 'block';
+            container.innerHTML = '';
+
+            Object.entries(result).forEach(([key, value]) => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+                    <div class="result-key">分组键: ${key}</div>
+                    <div class="result-value">${JSON.stringify(value, null, 2)}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 显示批量结果
+        function displayBatchResult(results, containerId) {
+            const container = document.getElementById(containerId);
+            container.style.display = 'block';
+            container.innerHTML = '';
+
+            results.forEach(({batchIndex, data, result}) => {
+                const batchItem = document.createElement('div');
+                batchItem.className = 'result-item';
+                batchItem.innerHTML = `
+                    <div class="result-key">批次 ${batchIndex}</div>
+                    <div class="result-value">
+                        <strong>原始数据:</strong> ${JSON.stringify(data, null, 2)}
+                        <br><br>
+                        <strong>分组结果:</strong> ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+                container.appendChild(batchItem);
+            });
+        }
+
+        // 更新统计
+        function updateStats(result) {
+            const groups = Object.keys(result);
+            const totalItems = Object.values(result).reduce((sum, arr) => sum + arr.length, 0);
+            const avgGroupSize = groups.length > 0 ? (totalItems / groups.length).toFixed(2) : 0;
+            const maxGroupSize = Math.max(...Object.values(result).map(arr => arr.length));
+
+            document.getElementById('totalGroups').textContent = groups.length;
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('avgGroupSize').textContent = avgGroupSize;
+            document.getElementById('maxGroupSize').textContent = maxGroupSize;
+        }
+
+        // 添加到历史记录
+        function addToHistory(title, result, dataType, method) {
+            const historyItem = {
+                id: Date.now(),
+                title: title,
+                result: result,
+                dataType: dataType,
+                method: method,
+                timestamp: new Date().toLocaleString(),
+                stats: {
+                    groups: Object.keys(result).length,
+                    items: Object.values(result).reduce((sum, arr) => sum + arr.length, 0)
+                }
+            };
+
+            historyData.unshift(historyItem);
+            if (historyData.length > 50) {
+                historyData = historyData.slice(0, 50);
+            }
+
+            localStorage.setItem('groupByHistory', JSON.stringify(historyData));
+            renderHistory();
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            historyData.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.onclick = () => loadHistoryItem(item);
+                historyItem.innerHTML = `
+                    <div class="history-title">${item.title}</div>
+                    <div class="history-meta">
+                        ${item.dataType} | ${item.method} | ${item.timestamp}
+                        <br>
+                        分组数: ${item.stats.groups} | 项目数: ${item.stats.items}
+                    </div>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // 加载历史记录项
+        function loadHistoryItem(item) {
+            currentResults = item.result;
+            displayResult(item.result, 'singleResult');
+            updateStats(item.result);
+            showNotification('已加载历史记录', 'info');
+        }
+
+        // 加载示例数据
+        function loadSampleData() {
+            const sampleData = `[6.1, 4.2, 6.3, 8.9, 2.1, 5.7, 3.4, 9.2, 1.8, 7.6]
+---
+["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew"]
+---
+[{"name": "Alice", "age": 25, "city": "Beijing"}, {"name": "Bob", "age": 30, "city": "Shanghai"}, {"name": "Charlie", "age": 25, "city": "Guangzhou"}]`;
+
+            document.getElementById('batchDataInput').value = sampleData;
+            showNotification('已加载示例数据', 'success');
+        }
+
+        // 清空历史记录
+        function clearHistory() {
+            modal.confirm('确定要清空所有历史记录吗？').then(confirmed => {
+                if (confirmed) {
+                    historyData = [];
+                    localStorage.removeItem('groupByHistory');
+                    renderHistory();
+                    showNotification('历史记录已清空', 'success');
+                }
+            });
+        }
+
+        // 导出历史记录
+        function exportHistory() {
+            const dataStr = JSON.stringify(historyData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `groupBy_history_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showNotification('历史记录已导出', 'success');
+        }
+
+        // 获取选择器值
+        function getSelectValue(selector) {
+            const select = document.querySelector(selector);
+            const header = select.querySelector('.select-header span');
+            const options = Array.from(select.querySelectorAll('.select-option'));
+            const selectedText = header.textContent;
+            const option = options.find(opt => opt.textContent === selectedText);
+            return option ? option.textContent : '';
+        }
+
+        // 设置选择器值
+        function setSelectValue(selector, value) {
+            const select = document.querySelector(selector);
+            const options = Array.from(select.querySelectorAll('.select-option'));
+            const option = options.find(opt => opt.textContent === value);
+            if (option) {
+                option.click();
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 标签页切换
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+        }
+
+        // 事件监听
+        function initEventListeners() {
+            document.getElementById('analyzeBtn').addEventListener('click', analyzeSingle);
+            document.getElementById('batchAnalyzeBtn').addEventListener('click', analyzeBatch);
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                const format = getSelectValue('#exportFormatSelect');
+                const content = getSelectValue('#exportContentSelect');
+                exportData(format, content);
+            });
+            document.getElementById('previewThemeBtn').addEventListener('click', previewTheme);
+            document.getElementById('cancelPreviewBtn').addEventListener('click', cancelPreview);
+            document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
+            document.getElementById('resetThemeBtn').addEventListener('click', resetTheme);
+        }
+
+        // 导出数据
+        function exportData(format, content) {
+            let data;
+            switch (content) {
+                case 'current':
+                    data = currentResults;
+                    break;
+                case 'history':
+                    data = historyData;
+                    break;
+                case 'stats':
+                    data = {
+                        totalGroups: document.getElementById('totalGroups').textContent,
+                        totalItems: document.getElementById('totalItems').textContent,
+                        avgGroupSize: document.getElementById('avgGroupSize').textContent,
+                        maxGroupSize: document.getElementById('maxGroupSize').textContent
+                    };
+                    break;
+                case 'all':
+                    data = {
+                        current: currentResults,
+                        history: historyData,
+                        stats: {
+                            totalGroups: document.getElementById('totalGroups').textContent,
+                            totalItems: document.getElementById('totalItems').textContent,
+                            avgGroupSize: document.getElementById('avgGroupSize').textContent,
+                            maxGroupSize: document.getElementById('maxGroupSize').textContent
+                        }
+                    };
+                    break;
+                default:
+                    data = currentResults;
+            }
+
+            let dataStr, mimeType, extension;
+            switch (format) {
+                case 'json':
+                    dataStr = JSON.stringify(data, null, 2);
+                    mimeType = 'application/json';
+                    extension = 'json';
+                    break;
+                case 'csv':
+                    dataStr = convertToCSV(data);
+                    mimeType = 'text/csv';
+                    extension = 'csv';
+                    break;
+                case 'txt':
+                    dataStr = JSON.stringify(data, null, 2);
+                    mimeType = 'text/plain';
+                    extension = 'txt';
+                    break;
+                default:
+                    dataStr = JSON.stringify(data, null, 2);
+                    mimeType = 'application/json';
+                    extension = 'json';
+            }
+
+            const dataBlob = new Blob([dataStr], {type: mimeType});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `groupBy_export_${new Date().toISOString().split('T')[0]}.${extension}`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showNotification('数据导出成功', 'success');
+        }
+
+        // 转换为CSV
+        function convertToCSV(data) {
+            if (Array.isArray(data)) {
+                return data.map(row => Object.values(row).join(',')).join('\n');
+            }
+            return Object.entries(data).map(([key, value]) => `${key},${JSON.stringify(value)}`).join('\n');
+        }
+
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                autoSave: getSelectValue('#autoSaveSelect'),
+                maxHistory: document.querySelector('#maxHistoryInput .input-number-input').value,
+                theme: getSelectValue('#themeSelect')
+            };
+            localStorage.setItem('groupBySettings', JSON.stringify(settings));
+            
+            // 应用主题设置并保存到存储
+            if (settings.theme) {
+                applyTheme(settings.theme, true);
+            }
+            
+            showNotification('设置已保存，主题已永久应用', 'success');
+        }
+
+        // 应用主题
+        function applyTheme(theme, saveToStorage = false) {
+            // 移除所有主题类
+            document.body.classList.remove('theme-default', 'theme-dark', 'theme-light');
+            
+            // 添加新主题类
+            if (theme && theme !== '默认主题') {
+                const themeClass = theme === '深色主题' ? 'theme-dark' : 
+                                 theme === '浅色主题' ? 'theme-light' : 'theme-default';
+                document.body.classList.add(themeClass);
+            }
+            
+            // 如果需要保存到存储
+            if (saveToStorage) {
+                const settings = JSON.parse(localStorage.getItem('groupBySettings') || '{}');
+                settings.theme = theme;
+                localStorage.setItem('groupBySettings', JSON.stringify(settings));
+            }
+        }
+
+        // 加载设置
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('groupBySettings') || '{}');
+            
+            // 应用主题
+            if (settings.theme) {
+                applyTheme(settings.theme);
+                currentTheme = settings.theme;
+            }
+            
+            // 设置选择器的值
+            if (settings.autoSave) {
+                setSelectValue('#autoSaveSelect', settings.autoSave);
+            }
+            if (settings.theme) {
+                setSelectValue('#themeSelect', settings.theme);
+            }
+            if (settings.maxHistory) {
+                const maxHistoryInput = document.querySelector('#maxHistoryInput .input-number-input');
+                if (maxHistoryInput) {
+                    maxHistoryInput.value = settings.maxHistory;
+                }
+            }
+        }
+
+        // 预览主题
+        function previewTheme() {
+            const selectedTheme = getSelectValue('#themeSelect');
+            if (selectedTheme) {
+                // 保存当前主题
+                currentTheme = getCurrentTheme();
+                // 应用预览主题
+                applyTheme(selectedTheme);
+                // 显示取消预览按钮
+                document.getElementById('cancelPreviewBtn').style.display = 'inline-block';
+                showNotification(`正在预览${selectedTheme}，点击保存设置以永久应用`, 'info');
+            } else {
+                showNotification('请先选择一个主题', 'error');
+            }
+        }
+
+        // 取消预览
+        function cancelPreview() {
+            // 恢复到之前的主题
+            applyTheme(currentTheme);
+            // 隐藏取消预览按钮
+            document.getElementById('cancelPreviewBtn').style.display = 'none';
+            showNotification('已取消预览，恢复到之前的主题', 'info');
+        }
+
+        // 获取当前主题
+        function getCurrentTheme() {
+            if (document.body.classList.contains('theme-dark')) {
+                return '深色主题';
+            } else if (document.body.classList.contains('theme-light')) {
+                return '浅色主题';
+            } else {
+                return '默认主题';
+            }
+        }
+
+        // 重置主题
+        function resetTheme() {
+            setSelectValue('#themeSelect', '默认主题');
+            showNotification('主题已重置为默认，请点击保存设置以应用', 'info');
+        }
+
+        // 加载历史记录
+        function loadHistory() {
+            const saved = localStorage.getItem('groupByHistory');
+            if (saved) {
+                historyData = JSON.parse(saved);
+                renderHistory();
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initPlugins();
+            initTabs();
+            initEventListeners();
+            loadSettings();
+            loadHistory();
+            
+            // 加载默认示例数据
+            updateDataInput('numbers');
+            updateGroupMethod('floor');
+            
+            showNotification('数据分组分析器已就绪！', 'success');
+        });
+    </script>
+</body>
+
+</html>
