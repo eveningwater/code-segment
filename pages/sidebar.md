@@ -313,7 +313,7 @@
 - [获取路径参数-2022-07-25](codes/javascript/get-url-parameters.md)
 - [获取元素到文档顶部的距离-2022-07-26](codes/javascript/get-vertical-offset.md)
 - [元素分组-2022-07-27](codes/javascript/group-by.md)
-- [汉明距离-2022-07-28](codes/javascript/hammingDistance.md)
+- [汉明距离-2022-07-28](codes/javascript/hamming-distance.md)
 - [检查 HTML 元素是否有类名-2022-07-29](codes/javascript/hasClass.md)
 - [检查数字是否有小数位-2022-07-30](codes/javascript/hasDecimals.md)
 - [检查数组是否有重复项-2022-07-31](codes/javascript/hasDuplicates.md)

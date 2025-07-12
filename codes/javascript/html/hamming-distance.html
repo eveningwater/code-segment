@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉明距离计算器 - 高级版本</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-label {
+            font-weight: bold;
+            color: #555;
+            min-width: 120px;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .binary-display {
+            background: #2c3e50;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .button.danger {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-item .numbers {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .history-item .distance {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .history-item .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #c62828;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2e7d32;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔢 汉明距离计算器</h1>
+            <p>高级版本 - 支持多种数据类型和实际应用场景</p>
+        </div>
+
+        <div class="content">
+            <!-- 基础计算器 -->
+            <div class="section">
+                <h2>📊 基础计算器</h2>
+                <div class="input-group">
+                    <label class="input-label">第一个数字:</label>
+                    <div id="number1-container"></div>
+                    <label class="input-label">第二个数字:</label>
+                    <div id="number2-container"></div>
+                    <button class="button" onclick="calculateBasic()">计算汉明距离</button>
+                </div>
+                <div id="basic-result" class="result-display" style="display: none;"></div>
+                <div id="binary-display" class="binary-display" style="display: none;"></div>
+            </div>
+
+            <!-- 批量比较 -->
+            <div class="section">
+                <h2>📋 批量比较工具</h2>
+                <div class="input-group">
+                    <label class="input-label">比较模式:</label>
+                    <div id="mode-select-container"></div>
+                    <button class="button" onclick="startBatchComparison()">开始批量比较</button>
+                    <button class="button secondary" onclick="clearResults()">清空结果</button>
+                </div>
+                <div id="batch-results"></div>
+            </div>
+
+            <!-- 数据验证 -->
+            <div class="section">
+                <h2>🔍 数据完整性验证</h2>
+                <div class="input-group">
+                    <label class="input-label">原始数据:</label>
+                    <div id="original-data-container"></div>
+                    <label class="input-label">接收数据:</label>
+                    <div id="received-data-container"></div>
+                    <button class="button" onclick="validateData()">验证数据完整性</button>
+                </div>
+                <div id="validation-result"></div>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="section">
+                <h2>📈 统计信息</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-calculations">0</div>
+                        <div class="stat-label">总计算次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-distance">0</div>
+                        <div class="stat-label">平均距离</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="max-distance">0</div>
+                        <div class="stat-label">最大距离</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="min-distance">0</div>
+                        <div class="stat-label">最小距离</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计算历史 -->
+            <div class="section">
+                <h2>📚 计算历史</h2>
+                <div class="input-group">
+                    <button class="button secondary" onclick="exportHistory()">导出历史</button>
+                    <button class="button danger" onclick="clearHistory()">清空历史</button>
+                </div>
+                <div id="history-container"></div>
+            </div>
+
+            <!-- 高级功能 -->
+            <div class="section">
+                <h2>⚡ 高级功能</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>🔐 密码相似度检测</h3>
+                        <p>检测两个密码的相似程度，用于安全评估</p>
+                        <button class="button" onclick="showPasswordComparison()">开始检测</button>
+                    </div>
+                    <div class="card">
+                        <h3>🧬 DNA序列比较</h3>
+                        <p>比较DNA序列的差异，用于生物信息学分析</p>
+                        <button class="button" onclick="showDNComparison()">开始比较</button>
+                    </div>
+                    <div class="card">
+                        <h3>📡 网络包校验</h3>
+                        <p>验证网络传输数据的完整性</p>
+                        <button class="button" onclick="showNetworkValidation()">开始校验</button>
+                    </div>
+                    <div class="card">
+                        <h3>🎯 图像哈希比较</h3>
+                        <p>比较图像哈希值，检测图像相似度</p>
+                        <button class="button" onclick="showImageComparison()">开始比较</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载插件样式和脚本 -->
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 汉明距离计算函数
+        const hammingDistance = (a, b) => {
+            if (typeof a === 'string' && typeof b === 'string') {
+                // 字符串比较
+                if (a.length !== b.length) {
+                    throw new Error('字符串长度必须相同');
+                }
+                let distance = 0;
+                for (let i = 0; i < a.length; i++) {
+                    if (a[i] !== b[i]) distance++;
+                }
+                return distance;
+            } else {
+                // 数字比较
+                return ((a ^ b).toString(2).match(/1/g) || '').length;
+            }
+        };
+
+        // 全局变量
+        let calculationHistory = [];
+        let notification;
+        let modal;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeComponents();
+            notification = new Notification();
+            modal = new Modal();
+        });
+
+        function initializeComponents() {
+            // 初始化数字输入框
+            new InputNumber({
+                container: '#number1-container',
+                min: 0,
+                max: 999999,
+                value: 2,
+                onChange: (value) => console.log('Number 1:', value)
+            });
+
+            new InputNumber({
+                container: '#number2-container',
+                min: 0,
+                max: 999999,
+                value: 3,
+                onChange: (value) => console.log('Number 2:', value)
+            });
+
+            // 初始化模式选择器
+            const modeSelect = new Select({
+                container: '#mode-select-container',
+                placeholder: '选择比较模式'
+            });
+
+            modeSelect.setOptions([
+                { value: 'random', label: '随机数比较' },
+                { value: 'sequential', label: '连续数比较' },
+                { value: 'fibonacci', label: '斐波那契数列' },
+                { value: 'prime', label: '质数比较' }
+            ]);
+
+            // 初始化数据验证输入框
+            new InputNumber({
+                container: '#original-data-container',
+                min: 0,
+                max: 999999,
+                value: 12345,
+                onChange: (value) => console.log('Original:', value)
+            });
+
+            new InputNumber({
+                container: '#received-data-container',
+                min: 0,
+                max: 999999,
+                value: 12345,
+                onChange: (value) => console.log('Received:', value)
+            });
+        }
+
+        function calculateBasic() {
+            try {
+                const num1 = parseInt(document.querySelector('#number1-container input').value);
+                const num2 = parseInt(document.querySelector('#number2-container input').value);
+                
+                const distance = hammingDistance(num1, num2);
+                const binary1 = num1.toString(2).padStart(8, '0');
+                const binary2 = num2.toString(2).padStart(8, '0');
+                
+                // 显示结果
+                const resultDiv = document.getElementById('basic-result');
+                resultDiv.innerHTML = `
+                    <strong>汉明距离: ${distance}</strong><br>
+                    数字1: ${num1} | 数字2: ${num2}
+                `;
+                resultDiv.style.display = 'block';
+                
+                // 显示二进制
+                const binaryDiv = document.getElementById('binary-display');
+                binaryDiv.innerHTML = `
+                    二进制表示:<br>
+                    数字1: ${binary1}<br>
+                    数字2: ${binary2}<br>
+                    差异位: ${(num1 ^ num2).toString(2).padStart(8, '0').replace(/0/g, ' ').replace(/1/g, '^')}
+                `;
+                binaryDiv.style.display = 'block';
+                
+                // 添加到历史
+                addToHistory(num1, num2, distance);
+                updateStats();
+                
+                notification.success(`计算完成！汉明距离: ${distance}`);
+                
+            } catch (error) {
+                notification.error('计算失败: ' + error.message);
+            }
+        }
+
+        function startBatchComparison() {
+            const mode = document.querySelector('#mode-select-container .select-header span').textContent;
+            const resultsDiv = document.getElementById('batch-results');
+            
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>正在计算...</div>';
+            document.querySelector('.loading').style.display = 'block';
+            
+            setTimeout(() => {
+                let numbers = [];
+                let comparisons = [];
+                
+                switch(mode) {
+                    case '随机数比较':
+                        numbers = Array.from({length: 10}, () => Math.floor(Math.random() * 1000));
+                        break;
+                    case '连续数比较':
+                        numbers = Array.from({length: 10}, (_, i) => i + 1);
+                        break;
+                    case '斐波那契数列':
+                        numbers = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+                        break;
+                    case '质数比较':
+                        numbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
+                        break;
+                }
+                
+                // 生成比较结果
+                for (let i = 0; i < numbers.length - 1; i++) {
+                    for (let j = i + 1; j < numbers.length; j++) {
+                        const distance = hammingDistance(numbers[i], numbers[j]);
+                        comparisons.push({
+                            num1: numbers[i],
+                            num2: numbers[j],
+                            distance: distance
+                        });
+                        addToHistory(numbers[i], numbers[j], distance);
+                    }
+                }
+                
+                // 显示结果表格
+                displayComparisonTable(comparisons);
+                updateStats();
+                
+                notification.success(`批量比较完成！共计算 ${comparisons.length} 个距离`);
+                
+            }, 1000);
+        }
+
+        function displayComparisonTable(comparisons) {
+            const resultsDiv = document.getElementById('batch-results');
+            resultsDiv.innerHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>数字1</th>
+                            <th>数字2</th>
+                            <th>汉明距离</th>
+                            <th>二进制1</th>
+                            <th>二进制2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${comparisons.map(comp => `
+                            <tr>
+                                <td>${comp.num1}</td>
+                                <td>${comp.num2}</td>
+                                <td><strong>${comp.distance}</strong></td>
+                                <td><code>${comp.num1.toString(2).padStart(8, '0')}</code></td>
+                                <td><code>${comp.num2.toString(2).padStart(8, '0')}</code></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function validateData() {
+            const original = parseInt(document.querySelector('#original-data-container input').value);
+            const received = parseInt(document.querySelector('#received-data-container input').value);
+            
+            const distance = hammingDistance(original, received);
+            const isValid = distance === 0;
+            
+            const resultDiv = document.getElementById('validation-result');
+            if (isValid) {
+                resultDiv.innerHTML = '<div class="success-message">✅ 数据完整性验证通过！数据完全一致。</div>';
+                notification.success('数据验证通过！');
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        ❌ 数据完整性验证失败！<br>
+                        汉明距离: ${distance}<br>
+                        检测到 ${distance} 个位差异
+                    </div>
+                `;
+                notification.error(`数据验证失败！差异位数: ${distance}`);
+            }
+            
+            addToHistory(original, received, distance);
+            updateStats();
+        }
+
+        function addToHistory(num1, num2, distance) {
+            const historyItem = {
+                num1: num1,
+                num2: num2,
+                distance: distance,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            calculationHistory.unshift(historyItem);
+            if (calculationHistory.length > 50) {
+                calculationHistory = calculationHistory.slice(0, 50);
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const container = document.getElementById('history-container');
+            container.innerHTML = calculationHistory.map(item => `
+                <div class="history-item">
+                    <div class="numbers">${item.num1} ↔ ${item.num2}</div>
+                    <div class="distance">汉明距离: ${item.distance}</div>
+                    <div class="timestamp">${item.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            if (calculationHistory.length === 0) return;
+            
+            const distances = calculationHistory.map(item => item.distance);
+            const total = calculationHistory.length;
+            const avg = (distances.reduce((a, b) => a + b, 0) / total).toFixed(2);
+            const max = Math.max(...distances);
+            const min = Math.min(...distances);
+            
+            document.getElementById('total-calculations').textContent = total;
+            document.getElementById('avg-distance').textContent = avg;
+            document.getElementById('max-distance').textContent = max;
+            document.getElementById('min-distance').textContent = min;
+        }
+
+        function clearResults() {
+            document.getElementById('batch-results').innerHTML = '';
+            notification.info('结果已清空');
+        }
+
+        function clearHistory() {
+            modal.confirm('确定要清空所有计算历史吗？').then(confirmed => {
+                if (confirmed) {
+                    calculationHistory = [];
+                    updateHistoryDisplay();
+                    updateStats();
+                    notification.success('历史记录已清空');
+                }
+            });
+        }
+
+        function exportHistory() {
+            if (calculationHistory.length === 0) {
+                notification.warning('没有历史记录可导出');
+                return;
+            }
+            
+            const csv = [
+                '数字1,数字2,汉明距离,时间戳',
+                ...calculationHistory.map(item => 
+                    `${item.num1},${item.num2},${item.distance},${item.timestamp}`
+                )
+            ].join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hamming-distance-history-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            notification.success('历史记录已导出为CSV文件');
+        }
+
+        // 高级功能
+        function showPasswordComparison() {
+            modal.prompt('请输入第一个密码:').then(pwd1 => {
+                if (pwd1) {
+                    modal.prompt('请输入第二个密码:').then(pwd2 => {
+                        if (pwd2) {
+                            try {
+                                const distance = hammingDistance(pwd1, pwd2);
+                                const similarity = ((pwd1.length - distance) / pwd1.length * 100).toFixed(1);
+                                
+                                modal.alert(`
+                                    密码相似度分析结果：
+                                    
+                                    密码1: ${'*'.repeat(pwd1.length)}
+                                    密码2: ${'*'.repeat(pwd2.length)}
+                                    汉明距离: ${distance}
+                                    相似度: ${similarity}%
+                                    
+                                    ${similarity > 80 ? '⚠️ 警告：密码过于相似！' : '✅ 密码差异度良好'}
+                                `);
+                            } catch (error) {
+                                notification.error('密码长度不同，无法比较');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function showDNComparison() {
+            const sequences = [
+                'ATCGATCGATCG',
+                'ATCGATCGATCG',
+                'GCTAGCTAGCTA',
+                'TAGCTAGCTAGC'
+            ];
+            
+            let result = 'DNA序列比较结果：\n\n';
+            for (let i = 0; i < sequences.length - 1; i++) {
+                for (let j = i + 1; j < sequences.length; j++) {
+                    const distance = hammingDistance(sequences[i], sequences[j]);
+                    result += `序列${i+1} vs 序列${j+1}: ${distance} 个碱基差异\n`;
+                }
+            }
+            
+            modal.alert(result);
+        }
+
+        function showNetworkValidation() {
+            const originalPacket = '1010101010101010';
+            const receivedPacket = '1010101010101011';
+            
+            const distance = hammingDistance(originalPacket, receivedPacket);
+            const errorRate = (distance / originalPacket.length * 100).toFixed(2);
+            
+            modal.alert(`
+                网络包校验结果：
+                
+                原始包: ${originalPacket}
+                接收包: ${receivedPacket}
+                错误位数: ${distance}
+                错误率: ${errorRate}%
+                
+                ${distance === 0 ? '✅ 传输成功' : '❌ 检测到传输错误'}
+            `);
+        }
+
+        function showImageComparison() {
+            const hash1 = '1010101010101010';
+            const hash2 = '1010101010101011';
+            
+            const distance = hammingDistance(hash1, hash2);
+            const similarity = ((hash1.length - distance) / hash1.length * 100).toFixed(1);
+            
+            modal.alert(`
+                图像哈希比较结果：
+                
+                图像1哈希: ${hash1}
+                图像2哈希: ${hash2}
+                汉明距离: ${distance}
+                相似度: ${similarity}%
+                
+                ${similarity > 90 ? '🖼️ 图像高度相似' : similarity > 70 ? '🖼️ 图像部分相似' : '🖼️ 图像差异较大'}
+            `);
+        }
+    </script>
+</body>
+
+</html>
