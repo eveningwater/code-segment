@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务计算器 - hasDecimals 实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-theme {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .calculator-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #fff;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #incomeInput .ew-input-number {
+            width: 100%;
+        }
+
+       
+        #dataInput .ew-input-number {
+            width: 100%;
+            min-width: 600px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .result-title {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-value {
+            color: #27ae60;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .result-details {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .data-analysis {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .data-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .data-input input {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .add-data-btn {
+            background: rgba(39, 174, 96, 0.3);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-data-btn:hover {
+            background: rgba(39, 174, 96, 0.5);
+        }
+
+        .data-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+
+        .data-item .value {
+            font-weight: 600;
+        }
+
+        .data-item .type {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .remove-data-btn {
+            background: rgba(231, 76, 60, 0.3);
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-data-btn:hover {
+            background: rgba(231, 76, 60, 0.5);
+        }
+
+        .analysis-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .analysis-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .analysis-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .analysis-value {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .analysis-value.integer {
+            color: #27ae60;
+        }
+
+        .analysis-value.decimal {
+            color: #f39c12;
+        }
+
+        .validation-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .validation-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid transparent;
+        }
+
+        .validation-item.valid {
+            border-left-color: #27ae60;
+        }
+
+        .validation-item.invalid {
+            border-left-color: #e74c3c;
+        }
+
+        .validation-label {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .validation-result {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .validation-result.valid {
+            color: #27ae60;
+        }
+
+        .validation-result.invalid {
+            color: #e74c3c;
+        }
+
+        .currency-converter {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .converter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .converter-row input {
+            flex: 1;
+        }
+
+        .converter-row .ew-select {
+            flex: 1;
+        }
+
+        .swap-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .swap-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(180deg);
+        }
+
+        .dark-theme .form-group input,
+        .dark-theme .form-group select {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+        }
+
+        .dark-theme .form-group input:focus,
+        .dark-theme .form-group select:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-theme .ew-select {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+        }
+
+
+        .ew-select {
+            position: relative;
+            z-index: 100;
+        }
+
+        .ew-select .select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dark-theme .ew-select .select-options {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .select-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .select-option:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .dark-theme .select-option {
+            color: #ecf0f1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-theme .select-option:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        /* InputNumber 插件自定义样式 */
+        .dark-theme .ew-input-number {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-theme .input-number-input {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+        }
+
+        .dark-theme .input-number-button {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ecf0f1;
+        }
+
+        .dark-theme .input-number-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .data-input .ew-input-number {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .converter-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">🌙 切换主题</button>
+    
+    <div class="container">
+        <header class="header">
+            <h1>财务计算器</h1>
+            <p>基于 hasDecimals 方法的智能财务计算与数据分析系统</p>
+        </header>
+
+        <div class="main-content">
+            <div class="calculator-section">
+                <h2 class="section-title">税率计算器</h2>
+                <div class="form-group">
+                    <label>收入金额</label>
+                    <div id="incomeInput"></div>
+                </div>
+                <div class="form-group">
+                    <label>税率类型</label>
+                    <div id="taxTypeSelect"></div>
+                </div>
+                <button class="calculate-btn" id="calculateTaxBtn">计算税额</button>
+                <div class="result-card" id="taxResult" style="display: none;">
+                    <div class="result-title">计算结果</div>
+                    <div class="result-value" id="taxAmount">¥0.00</div>
+                    <div class="result-details" id="taxDetails"></div>
+                </div>
+            </div>
+
+            <div class="currency-converter">
+                <h2 class="section-title">货币转换器</h2>
+                <div class="converter-row">
+                    <div id="fromAmountInput"></div>
+                    <div id="fromCurrencySelect"></div>
+                </div>
+                <div class="converter-row">
+                    <button class="swap-btn" id="swapBtn">⇅</button>
+                </div>
+                <div class="converter-row">
+                    <div id="toAmountInput"></div>
+                    <div id="toCurrencySelect"></div>
+                </div>
+                <button class="calculate-btn" id="convertBtn">转换货币</button>
+                <div class="result-card" id="conversionResult" style="display: none;">
+                    <div class="result-title">转换结果</div>
+                    <div class="result-value" id="convertedAmount">$0.00</div>
+                    <div class="result-details" id="conversionDetails"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-analysis">
+            <h2 class="section-title">数据分析</h2>
+            <div class="data-input">
+                <div id="dataInput"></div>
+                <button class="add-data-btn" id="addDataBtn">添加</button>
+            </div>
+            <div class="data-list" id="dataList"></div>
+            <div class="analysis-results" id="analysisResults"></div>
+        </div>
+
+        <div class="validation-section">
+            <h2 class="section-title">数值验证</h2>
+            <div id="validationResults"></div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    
+    <script>
+        // hasDecimals 方法
+        const hasDecimals = num => num % 1 !== 0;
+
+        // 财务计算器系统
+        class FinancialCalculator {
+            constructor() {
+                this.dataSet = [];
+                this.exchangeRates = {
+                    'CNY': 1,
+                    'USD': 0.14,
+                    'EUR': 0.13,
+                    'JPY': 20.5,
+                    'GBP': 0.11
+                };
+                this.taxRates = {
+                    'progressive': {
+                        brackets: [
+                            { min: 0, max: 3000, rate: 0.03 },
+                            { min: 3000, max: 12000, rate: 0.10 },
+                            { min: 12000, max: 25000, rate: 0.20 },
+                            { min: 25000, max: 35000, rate: 0.25 },
+                            { min: 35000, max: 55000, rate: 0.30 },
+                            { min: 55000, max: 80000, rate: 0.35 },
+                            { min: 80000, max: Infinity, rate: 0.45 }
+                        ]
+                    },
+                    'flat': { rate: 0.20 },
+                    'reduced': { rate: 0.10 }
+                };
+                
+                this.modal = new Modal();
+                this.notification = new Notification();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.initComponents();
+                this.runValidationTests();
+            }
+
+            setupEventListeners() {
+                // 主题切换
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // 税率计算
+                document.getElementById('calculateTaxBtn').addEventListener('click', () => {
+                    this.calculateTax();
+                });
+
+                // 货币转换
+                document.getElementById('convertBtn').addEventListener('click', () => {
+                    this.convertCurrency();
+                });
+
+                // 数据添加
+                document.getElementById('addDataBtn').addEventListener('click', () => {
+                    this.addData();
+                });
+
+                // 货币交换
+                document.getElementById('swapBtn').addEventListener('click', () => {
+                    this.swapCurrencies();
+                });
+
+                // 回车键添加数据
+                document.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.target.closest('#dataInput')) {
+                        this.addData();
+                    }
+                });
+            }
+
+            initComponents() {
+                // 初始化收入输入
+                this.incomeInput = new InputNumber({
+                    container: '#incomeInput',
+                    min: 0,
+                    max: 1000000,
+                    step: 100,
+                    value: 50000,
+                    onChange: (value) => {
+                        console.log('收入金额:', value);
+                    }
+                });
+
+                // 初始化税率类型选择
+                this.taxTypeSelect = new Select({
+                    container: '#taxTypeSelect',
+                    placeholder: '选择税率类型'
+                });
+                this.taxTypeSelect.setOptions([
+                    { value: 'progressive', label: '累进税率' },
+                    { value: 'flat', label: '统一税率 (20%)' },
+                    { value: 'reduced', label: '优惠税率 (10%)' }
+                ]);
+
+                // 初始化货币转换器
+                this.fromAmountInput = new InputNumber({
+                    container: '#fromAmountInput',
+                    min: 0,
+                    max: 1000000,
+                    step: 0.01,
+                    value: 1000,
+                    onChange: (value) => {
+                        console.log('转换金额:', value);
+                    }
+                });
+
+                this.toAmountInput = new InputNumber({
+                    container: '#toAmountInput',
+                    min: 0,
+                    max: 1000000,
+                    step: 0.01,
+                    value: 0,
+                    onChange: (value) => {
+                        console.log('转换结果:', value);
+                    }
+                });
+
+                this.fromCurrencySelect = new Select({
+                    container: '#fromCurrencySelect',
+                    placeholder: '选择货币'
+                });
+                this.fromCurrencySelect.setOptions([
+                    { value: 'CNY', label: '人民币 (CNY)' },
+                    { value: 'USD', label: '美元 (USD)' },
+                    { value: 'EUR', label: '欧元 (EUR)' },
+                    { value: 'JPY', label: '日元 (JPY)' },
+                    { value: 'GBP', label: '英镑 (GBP)' }
+                ]);
+                this.fromCurrencySelect.setValue('CNY');
+
+                this.toCurrencySelect = new Select({
+                    container: '#toCurrencySelect',
+                    placeholder: '选择货币'
+                });
+                this.toCurrencySelect.setOptions([
+                    { value: 'USD', label: '美元 (USD)' },
+                    { value: 'CNY', label: '人民币 (CNY)' },
+                    { value: 'EUR', label: '欧元 (EUR)' },
+                    { value: 'JPY', label: '日元 (JPY)' },
+                    { value: 'GBP', label: '英镑 (GBP)' }
+                ]);
+                this.toCurrencySelect.setValue('USD');
+
+                // 初始化数据分析输入
+                this.dataInput = new InputNumber({
+                    container: '#dataInput',
+                    min: -1000000,
+                    max: 1000000,
+                    step: 0.01,
+                    value: 0,
+                    onChange: (value) => {
+                        console.log('数据输入:', value);
+                    }
+                });
+            }
+
+            toggleTheme() {
+                const body = document.body;
+                const themeBtn = document.getElementById('themeToggle');
+                
+                if (body.classList.contains('dark-theme')) {
+                    body.classList.remove('dark-theme');
+                    themeBtn.textContent = '🌙 切换主题';
+                    this.notification.success('已切换到浅色主题');
+                } else {
+                    body.classList.add('dark-theme');
+                    themeBtn.textContent = '☀️ 切换主题';
+                    this.notification.success('已切换到深色主题');
+                }
+            }
+
+            calculateTax() {
+                const income = this.incomeInput.getValue();
+                const taxType = this.taxTypeSelect.getValue();
+
+                if (!income || income <= 0) {
+                    this.notification.error('请输入有效的收入金额');
+                    return;
+                }
+
+                if (!taxType) {
+                    this.notification.error('请选择税率类型');
+                    return;
+                }
+
+                let taxAmount = 0;
+                let taxDetails = '';
+
+                if (taxType === 'progressive') {
+                    // 累进税率计算
+                    let remainingIncome = income;
+                    let totalTax = 0;
+                    const brackets = this.taxRates.progressive.brackets;
+
+                    for (let i = 0; i < brackets.length; i++) {
+                        const bracket = brackets[i];
+                        if (remainingIncome > 0) {
+                            const taxableInBracket = Math.min(remainingIncome, bracket.max - bracket.min);
+                            const taxInBracket = taxableInBracket * bracket.rate;
+                            totalTax += taxInBracket;
+                            remainingIncome -= taxableInBracket;
+
+                            if (taxInBracket > 0) {
+                                taxDetails += `${bracket.min.toLocaleString()}-${bracket.max === Infinity ? '∞' : bracket.max.toLocaleString()}: ¥${taxInBracket.toFixed(2)} (${(bracket.rate * 100)}%)<br>`;
+                            }
+                        }
+                    }
+                    taxAmount = totalTax;
+                } else {
+                    // 统一税率或优惠税率
+                    const rate = this.taxRates[taxType].rate;
+                    taxAmount = income * rate;
+                    taxDetails = `税率: ${(rate * 100)}%`;
+                }
+
+                // 使用 hasDecimals 检查税额是否有小数
+                const hasDecimalTax = hasDecimals(taxAmount);
+                const taxDisplay = hasDecimalTax ? taxAmount.toFixed(2) : taxAmount.toFixed(0);
+
+                document.getElementById('taxAmount').textContent = `¥${taxDisplay}`;
+                document.getElementById('taxDetails').innerHTML = taxDetails;
+                document.getElementById('taxResult').style.display = 'block';
+
+                this.notification.success(`税额计算完成: ¥${taxDisplay}`);
+            }
+
+            convertCurrency() {
+                const amount = this.fromAmountInput.getValue();
+                const fromCurrency = this.fromCurrencySelect.getValue();
+                const toCurrency = this.toCurrencySelect.getValue();
+
+                if (!amount || amount <= 0) {
+                    this.notification.error('请输入有效的转换金额');
+                    return;
+                }
+
+                if (!fromCurrency || !toCurrency) {
+                    this.notification.error('请选择货币类型');
+                    return;
+                }
+
+                // 转换为人民币，再转换为目标货币
+                const cnyAmount = amount / this.exchangeRates[fromCurrency];
+                const convertedAmount = cnyAmount * this.exchangeRates[toCurrency];
+
+                // 使用 hasDecimals 检查转换结果是否有小数
+                const hasDecimalResult = hasDecimals(convertedAmount);
+                const displayAmount = hasDecimalResult ? convertedAmount.toFixed(2) : convertedAmount.toFixed(0);
+
+                this.toAmountInput.setValue(convertedAmount);
+
+                document.getElementById('convertedAmount').textContent = `${toCurrency} ${displayAmount}`;
+                document.getElementById('conversionDetails').innerHTML = `
+                    汇率: 1 ${fromCurrency} = ${(this.exchangeRates[toCurrency] / this.exchangeRates[fromCurrency]).toFixed(4)} ${toCurrency}<br>
+                    转换类型: ${hasDecimalResult ? '小数金额' : '整数金额'}
+                `;
+                document.getElementById('conversionResult').style.display = 'block';
+
+                this.notification.success(`货币转换完成: ${toCurrency} ${displayAmount}`);
+            }
+
+            swapCurrencies() {
+                const fromCurrency = this.fromCurrencySelect.getValue();
+                const toCurrency = this.toCurrencySelect.getValue();
+                const amount = this.fromAmountInput.getValue();
+
+                this.fromCurrencySelect.setValue(toCurrency);
+                this.toCurrencySelect.setValue(fromCurrency);
+                this.fromAmountInput.setValue(amount);
+
+                // 自动转换
+                this.convertCurrency();
+            }
+
+            addData() {
+                const value = this.dataInput.getValue();
+
+                if (value === null || isNaN(value)) {
+                    this.notification.error('请输入有效的数值');
+                    return;
+                }
+
+                this.dataSet.push(value);
+                this.dataInput.setValue(0);
+                this.renderDataList();
+                this.analyzeData();
+                this.notification.success(`数据添加成功: ${value}`);
+            }
+
+            renderDataList() {
+                const dataList = document.getElementById('dataList');
+                dataList.innerHTML = '';
+
+                this.dataSet.forEach((value, index) => {
+                    const dataItem = document.createElement('div');
+                    dataItem.className = 'data-item';
+                    
+                    const hasDecimal = hasDecimals(value);
+                    const displayValue = hasDecimal ? value.toFixed(2) : value.toFixed(0);
+                    
+                    dataItem.innerHTML = `
+                        <div>
+                            <div class="value">${displayValue}</div>
+                            <div class="type">${hasDecimal ? '小数' : '整数'}</div>
+                        </div>
+                        <button class="remove-data-btn" onclick="calculator.removeData(${index})">删除</button>
+                    `;
+                    dataList.appendChild(dataItem);
+                });
+            }
+
+            removeData(index) {
+                this.dataSet.splice(index, 1);
+                this.renderDataList();
+                this.analyzeData();
+                this.notification.success('数据删除成功');
+            }
+
+            analyzeData() {
+                if (this.dataSet.length === 0) {
+                    document.getElementById('analysisResults').innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center;">暂无数据</p>';
+                    return;
+                }
+
+                const sum = this.dataSet.reduce((a, b) => a + b, 0);
+                const average = sum / this.dataSet.length;
+                const min = Math.min(...this.dataSet);
+                const max = Math.max(...this.dataSet);
+                const integerCount = this.dataSet.filter(num => !hasDecimals(num)).length;
+                const decimalCount = this.dataSet.filter(num => hasDecimals(num)).length;
+
+                const results = [
+                    { label: '总和', value: sum, hasDecimal: hasDecimals(sum) },
+                    { label: '平均值', value: average, hasDecimal: hasDecimals(average) },
+                    { label: '最小值', value: min, hasDecimal: hasDecimals(min) },
+                    { label: '最大值', value: max, hasDecimal: hasDecimals(max) },
+                    { label: '整数数量', value: integerCount, hasDecimal: false },
+                    { label: '小数数量', value: decimalCount, hasDecimal: false }
+                ];
+
+                document.getElementById('analysisResults').innerHTML = results.map(result => `
+                    <div class="analysis-card">
+                        <div class="analysis-label">${result.label}</div>
+                        <div class="analysis-value ${result.hasDecimal ? 'decimal' : 'integer'}">
+                            ${result.hasDecimal ? result.value.toFixed(2) : result.value}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            runValidationTests() {
+                const testCases = [
+                    { value: 42, expected: false, description: '整数 42' },
+                    { value: 3.14, expected: true, description: '小数 3.14' },
+                    { value: 0, expected: false, description: '零值 0' },
+                    { value: -5, expected: false, description: '负整数 -5' },
+                    { value: -2.5, expected: true, description: '负小数 -2.5' },
+                    { value: 100.0, expected: false, description: '整数值 100.0' },
+                    { value: 0.001, expected: true, description: '小数值 0.001' }
+                ];
+
+                const validationResults = document.getElementById('validationResults');
+                validationResults.innerHTML = '';
+
+                testCases.forEach(testCase => {
+                    const result = hasDecimals(testCase.value);
+                    const isValid = result === testCase.expected;
+                    
+                    const validationItem = document.createElement('div');
+                    validationItem.className = `validation-item ${isValid ? 'valid' : 'invalid'}`;
+                    
+                    validationItem.innerHTML = `
+                        <div class="validation-label">${testCase.description}</div>
+                        <div class="validation-result ${isValid ? 'valid' : 'invalid'}">
+                            输入: ${testCase.value} | 期望: ${testCase.expected} | 实际: ${result} | 
+                            ${isValid ? '✓ 通过' : '✗ 失败'}
+                        </div>
+                    `;
+                    
+                    validationResults.appendChild(validationItem);
+                });
+            }
+        }
+
+        // 初始化财务计算器
+        const calculator = new FinancialCalculator();
+
+        // 演示 hasDecimals 方法的使用
+        console.log('hasDecimals 方法演示:');
+        console.log('hasDecimals(42):', hasDecimals(42));
+        console.log('hasDecimals(3.14):', hasDecimals(3.14));
+        console.log('hasDecimals(100.0):', hasDecimals(100.0));
+        console.log('hasDecimals(0.001):', hasDecimals(0.001));
+    </script>
+</body>
+</html>
