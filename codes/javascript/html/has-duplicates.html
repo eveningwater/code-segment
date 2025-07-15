@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据质量管理系统 - hasDuplicates 实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-theme {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .data-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #fff;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            /* border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px; */
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group .ew-input-number {
+            width: 100%;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .action-btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .action-btn.danger:hover {
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        .data-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .data-item.duplicate {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid #e74c3c;
+        }
+
+        .data-item.unique {
+            background: rgba(39, 174, 96, 0.2);
+            border-left: 4px solid #27ae60;
+        }
+
+        .data-item .value {
+            font-weight: 600;
+        }
+
+        .data-item .status {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .status.duplicate {
+            background: rgba(231, 76, 60, 0.3);
+            color: #ff6b6b;
+        }
+
+        .status.unique {
+            background: rgba(39, 174, 96, 0.3);
+            color: #48dbfb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .user-management {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .user-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .user-details h4 {
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .user-details p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .user-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .user-action-btn.edit {
+            background: rgba(243, 156, 18, 0.3);
+        }
+
+        .user-action-btn.edit:hover {
+            background: rgba(243, 156, 18, 0.5);
+        }
+
+        .user-action-btn.delete {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        .user-action-btn.delete:hover {
+            background: rgba(231, 76, 60, 0.5);
+        }
+
+        .duplicate-analysis {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .duplicate-group {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .duplicate-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .duplicate-count {
+            background: rgba(231, 76, 60, 0.3);
+            color: #ff6b6b;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .duplicate-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .duplicate-item {
+            background: rgba(231, 76, 60, 0.2);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .duplicate-item:hover {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        .duplicate-item.selected {
+            background: rgba(39, 174, 96, 0.3);
+            border: 2px solid #27ae60;
+        }
+
+        /* Select 插件样式修复 */
+        .ew-select {
+            position: relative;
+            z-index: 100;
+        }
+
+        .ew-select .select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dark-theme .ew-select .select-options {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .select-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .select-option:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .dark-theme .select-option {
+            color: #ecf0f1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-theme .select-option:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        /* InputNumber 插件自定义样式 */
+        .dark-theme .ew-input-number {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-theme .input-number-input {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+        }
+
+        .dark-theme .input-number-button {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ecf0f1;
+        }
+
+        .dark-theme .input-number-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Checkbox 插件自定义样式 */
+        .dark-theme .checkbox-label {
+            color: #ecf0f1;
+        }
+
+        .dark-theme .checkbox-checkmark {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .dark-theme .checkbox-input:checked ~ .checkbox-checkmark {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+
+        .dark-theme .form-group input,
+        .dark-theme .form-group textarea {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+        }
+
+        .dark-theme .form-group input:focus,
+        .dark-theme .form-group textarea:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">🌙 切换主题</button>
+    
+    <div class="container">
+        <header class="header">
+            <h1>数据质量管理系统</h1>
+            <p>基于 hasDuplicates 方法的智能重复数据检测与清洗系统</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalRecords">0</div>
+                <div class="stat-label">总记录数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="uniqueRecords">0</div>
+                <div class="stat-label">唯一记录</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="duplicateRecords">0</div>
+                <div class="stat-label">重复记录</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="duplicateRate">0%</div>
+                <div class="stat-label">重复率</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="data-section">
+                <h2 class="section-title">数据输入与检测</h2>
+                <div class="form-group">
+                    <label>数据类型</label>
+                    <div id="dataTypeSelect"></div>
+                </div>
+                <div class="form-group">
+                    <label>数据内容 (每行一个值)</label>
+                    <textarea id="dataInput" rows="8" placeholder="请输入数据，每行一个值&#10;例如：&#10;张三&#10;李四&#10;张三&#10;王五"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>检测选项</label>
+                    <div id="detectionOptions"></div>
+                </div>
+                <button class="action-btn" id="detectBtn">🔍 检测重复</button>
+                <button class="action-btn secondary" id="cleanBtn">🧹 自动清洗</button>
+                <button class="action-btn danger" id="exportBtn">📤 导出结果</button>
+                
+                <div class="data-preview" id="dataPreview"></div>
+            </div>
+
+            <div class="duplicate-analysis">
+                <h2 class="section-title">重复数据分析</h2>
+                <div id="duplicateGroups"></div>
+            </div>
+        </div>
+
+        <div class="user-management">
+            <h2 class="section-title">用户管理</h2>
+            <div class="form-group">
+                <label>用户名</label>
+                <div id="usernameInput"></div>
+            </div>
+            <div class="form-group">
+                <label>邮箱</label>
+                <div id="emailInput"></div>
+            </div>
+            <div class="form-group">
+                <label>角色</label>
+                <div id="roleSelect"></div>
+            </div>
+            <button class="action-btn" id="addUserBtn">➕ 添加用户</button>
+            <button class="action-btn secondary" id="checkUsersBtn">🔍 检查重复用户</button>
+            
+            <div class="user-list" id="userList"></div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    
+    <script>
+        // hasDuplicates 方法
+        const hasDuplicates = arr => new Set(arr).size !== arr.length;
+
+        // 数据质量管理系统
+        class DataQualityManager {
+            constructor() {
+                this.dataSet = [];
+                this.users = [];
+                this.duplicateGroups = [];
+                this.modal = new Modal();
+                this.notification = new Notification();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.initComponents();
+                this.loadSampleData();
+            }
+
+            setupEventListeners() {
+                // 主题切换
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // 数据检测
+                document.getElementById('detectBtn').addEventListener('click', () => {
+                    this.detectDuplicates();
+                });
+
+                // 数据清洗
+                document.getElementById('cleanBtn').addEventListener('click', () => {
+                    this.cleanData();
+                });
+
+                // 导出结果
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportResults();
+                });
+
+                // 用户管理
+                document.getElementById('addUserBtn').addEventListener('click', () => {
+                    this.addUser();
+                });
+
+                document.getElementById('checkUsersBtn').addEventListener('click', () => {
+                    this.checkDuplicateUsers();
+                });
+
+                // 数据输入变化
+                document.getElementById('dataInput').addEventListener('input', () => {
+                    this.updateDataPreview();
+                });
+            }
+
+            initComponents() {
+                // 初始化数据类型选择
+                this.dataTypeSelect = new Select({
+                    container: '#dataTypeSelect',
+                    placeholder: '选择数据类型'
+                });
+                this.dataTypeSelect.setOptions([
+                    { value: 'text', label: '文本数据' },
+                    { value: 'email', label: '邮箱地址' },
+                    { value: 'phone', label: '电话号码' },
+                    { value: 'id', label: '身份证号' },
+                    { value: 'custom', label: '自定义' }
+                ]);
+                this.dataTypeSelect.setValue('text');
+
+                // 初始化检测选项
+                const detectionGroup = Checkbox.createCheckboxGroup({
+                    items: [
+                        { label: '区分大小写', id: 'case-sensitive' },
+                        { label: '忽略空格', id: 'ignore-spaces' },
+                        { label: '忽略特殊字符', id: 'ignore-special' },
+                        { label: '严格模式', id: 'strict-mode' }
+                    ],
+                    onChange: (checkedStates) => {
+                        console.log('检测选项:', checkedStates);
+                    }
+                });
+                document.getElementById('detectionOptions').appendChild(detectionGroup.container);
+
+                // 初始化用户输入
+                this.usernameInput = new InputNumber({
+                    container: '#usernameInput',
+                    min: 1,
+                    max: 100,
+                    step: 1,
+                    value: 1,
+                    onChange: (value) => {
+                        console.log('用户ID:', value);
+                    }
+                });
+
+                this.emailInput = new InputNumber({
+                    container: '#emailInput',
+                    min: 1,
+                    max: 100,
+                    step: 1,
+                    value: 1,
+                    onChange: (value) => {
+                        console.log('邮箱ID:', value);
+                    }
+                });
+
+                // 初始化角色选择
+                this.roleSelect = new Select({
+                    container: '#roleSelect',
+                    placeholder: '选择用户角色'
+                });
+                this.roleSelect.setOptions([
+                    { value: 'admin', label: '管理员' },
+                    { value: 'user', label: '普通用户' },
+                    { value: 'guest', label: '访客' },
+                    { value: 'moderator', label: '版主' }
+                ]);
+                this.roleSelect.setValue('user');
+
+                // 保存复选框引用
+                this.detectionCheckboxes = detectionGroup.checkboxes;
+            }
+
+            loadSampleData() {
+                const sampleData = [
+                    '张三', '李四', '张三', '王五', '赵六',
+                    'admin@example.com', 'user@example.com', 'admin@example.com',
+                    '13800138000', '13900139000', '13800138000',
+                    '110101199001011234', '110101199001011234', '110101199002022345'
+                ];
+
+                document.getElementById('dataInput').value = sampleData.join('\n');
+                this.updateDataPreview();
+            }
+
+            toggleTheme() {
+                const body = document.body;
+                const themeBtn = document.getElementById('themeToggle');
+                
+                if (body.classList.contains('dark-theme')) {
+                    body.classList.remove('dark-theme');
+                    themeBtn.textContent = '🌙 切换主题';
+                    this.notification.success('已切换到浅色主题');
+                } else {
+                    body.classList.add('dark-theme');
+                    themeBtn.textContent = '☀️ 切换主题';
+                    this.notification.success('已切换到深色主题');
+                }
+            }
+
+            updateDataPreview() {
+                const input = document.getElementById('dataInput');
+                const data = input.value.split('\n').filter(item => item.trim() !== '');
+                
+                const preview = document.getElementById('dataPreview');
+                preview.innerHTML = '';
+
+                if (data.length === 0) {
+                    preview.innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center;">暂无数据</p>';
+                    return;
+                }
+
+                // 使用 hasDuplicates 检测重复
+                const hasDuplicateData = hasDuplicates(data);
+                const uniqueData = [...new Set(data)];
+                const duplicateCount = data.length - uniqueData.length;
+
+                data.forEach((item, index) => {
+                    const isDuplicate = data.indexOf(item) !== data.lastIndexOf(item);
+                    
+                    const dataItem = document.createElement('div');
+                    dataItem.className = `data-item ${isDuplicate ? 'duplicate' : 'unique'}`;
+                    
+                    dataItem.innerHTML = `
+                        <div class="value">${item}</div>
+                        <div class="status ${isDuplicate ? 'duplicate' : 'unique'}">
+                            ${isDuplicate ? '重复' : '唯一'}
+                        </div>
+                    `;
+                    
+                    preview.appendChild(dataItem);
+                });
+
+                // 更新统计
+                this.updateStats(data.length, uniqueData.length, duplicateCount);
+            }
+
+            detectDuplicates() {
+                const input = document.getElementById('dataInput');
+                const data = input.value.split('\n').filter(item => item.trim() !== '');
+
+                if (data.length === 0) {
+                    this.notification.error('请输入数据');
+                    return;
+                }
+
+                // 使用 hasDuplicates 方法检测
+                const hasDuplicateData = hasDuplicates(data);
+                
+                if (hasDuplicateData) {
+                    this.analyzeDuplicateGroups(data);
+                    this.notification.warning(`检测到重复数据！共 ${data.length - new Set(data).size} 个重复项`);
+                } else {
+                    this.duplicateGroups = [];
+                    this.renderDuplicateGroups();
+                    this.notification.success('数据质量良好，未发现重复项');
+                }
+
+                this.updateDataPreview();
+            }
+
+            analyzeDuplicateGroups(data) {
+                const groups = {};
+                
+                data.forEach(item => {
+                    if (!groups[item]) {
+                        groups[item] = [];
+                    }
+                    groups[item].push(item);
+                });
+
+                this.duplicateGroups = Object.values(groups).filter(group => group.length > 1);
+                this.renderDuplicateGroups();
+            }
+
+            renderDuplicateGroups() {
+                const container = document.getElementById('duplicateGroups');
+                container.innerHTML = '';
+
+                if (this.duplicateGroups.length === 0) {
+                    container.innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center;">暂无重复数据</p>';
+                    return;
+                }
+
+                this.duplicateGroups.forEach((group, index) => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'duplicate-group';
+                    
+                    groupDiv.innerHTML = `
+                        <div class="duplicate-group-header">
+                            <h4>重复组 ${index + 1}</h4>
+                            <span class="duplicate-count">${group.length} 个重复项</span>
+                        </div>
+                        <div class="duplicate-items">
+                            ${group.map(item => `
+                                <div class="duplicate-item" onclick="dataManager.selectDuplicateItem(this, '${item}')">
+                                    ${item}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    container.appendChild(groupDiv);
+                });
+            }
+
+            selectDuplicateItem(element, value) {
+                element.classList.toggle('selected');
+                this.notification.info(`已选择: ${value}`);
+            }
+
+            cleanData() {
+                const input = document.getElementById('dataInput');
+                const data = input.value.split('\n').filter(item => item.trim() !== '');
+
+                if (data.length === 0) {
+                    this.notification.error('请输入数据');
+                    return;
+                }
+
+                // 使用 Set 去重
+                const uniqueData = [...new Set(data)];
+                const removedCount = data.length - uniqueData.length;
+
+                input.value = uniqueData.join('\n');
+                this.updateDataPreview();
+                this.duplicateGroups = [];
+                this.renderDuplicateGroups();
+
+                this.notification.success(`数据清洗完成！移除了 ${removedCount} 个重复项`);
+            }
+
+            exportResults() {
+                const input = document.getElementById('dataInput');
+                const data = input.value.split('\n').filter(item => item.trim() !== '');
+                const hasDuplicateData = hasDuplicates(data);
+                const uniqueData = [...new Set(data)];
+                const duplicateCount = data.length - uniqueData.length;
+
+                const report = {
+                    timestamp: new Date().toISOString(),
+                    totalRecords: data.length,
+                    uniqueRecords: uniqueData.length,
+                    duplicateRecords: duplicateCount,
+                    duplicateRate: ((duplicateCount / data.length) * 100).toFixed(2),
+                    hasDuplicates: hasDuplicateData,
+                    data: data,
+                    uniqueData: uniqueData
+                };
+
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `data-quality-report-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.notification.success('报告导出成功！');
+            }
+
+            addUser() {
+                const username = this.usernameInput.getValue();
+                const email = this.emailInput.getValue();
+                const role = this.roleSelect.getValue();
+
+                if (!username || !email || !role) {
+                    this.notification.error('请填写完整的用户信息');
+                    return;
+                }
+
+                const newUser = {
+                    id: Date.now(),
+                    username: `用户${username}`,
+                    email: `user${email}@example.com`,
+                    role: role,
+                    createdAt: new Date().toLocaleString('zh-CN')
+                };
+
+                this.users.push(newUser);
+                this.renderUsers();
+                this.notification.success('用户添加成功！');
+            }
+
+            checkDuplicateUsers() {
+                if (this.users.length === 0) {
+                    this.notification.warning('暂无用户数据');
+                    return;
+                }
+
+                const usernames = this.users.map(user => user.username);
+                const emails = this.users.map(user => user.email);
+                const roles = this.users.map(user => user.role);
+
+                const hasDuplicateUsernames = hasDuplicates(usernames);
+                const hasDuplicateEmails = hasDuplicates(emails);
+                const hasDuplicateRoles = hasDuplicates(roles);
+
+                let message = '重复检测结果：\n';
+                message += hasDuplicateUsernames ? '⚠️ 发现重复用户名\n' : '✅ 用户名无重复\n';
+                message += hasDuplicateEmails ? '⚠️ 发现重复邮箱\n' : '✅ 邮箱无重复\n';
+                message += hasDuplicateRoles ? '⚠️ 发现重复角色\n' : '✅ 角色无重复\n';
+
+                this.modal.alert(message);
+            }
+
+            renderUsers() {
+                const userList = document.getElementById('userList');
+                userList.innerHTML = '';
+
+                if (this.users.length === 0) {
+                    userList.innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center;">暂无用户</p>';
+                    return;
+                }
+
+                this.users.forEach((user, index) => {
+                    const userItem = document.createElement('div');
+                    userItem.className = 'user-item';
+                    
+                    userItem.innerHTML = `
+                        <div class="user-info">
+                            <div class="user-avatar">${user.username.charAt(0)}</div>
+                            <div class="user-details">
+                                <h4>${user.username}</h4>
+                                <p>${user.email} • ${user.role}</p>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="user-action-btn edit" onclick="dataManager.editUser(${index})">编辑</button>
+                            <button class="user-action-btn delete" onclick="dataManager.deleteUser(${index})">删除</button>
+                        </div>
+                    `;
+                    
+                    userList.appendChild(userItem);
+                });
+            }
+
+            editUser(index) {
+                const user = this.users[index];
+                this.notification.info(`编辑用户: ${user.username}`);
+            }
+
+            deleteUser(index) {
+                this.modal.confirm('确定要删除这个用户吗？').then(confirmed => {
+                    if (confirmed) {
+                        this.users.splice(index, 1);
+                        this.renderUsers();
+                        this.notification.success('用户删除成功！');
+                    }
+                });
+            }
+
+            updateStats(total, unique, duplicate) {
+                document.getElementById('totalRecords').textContent = total;
+                document.getElementById('uniqueRecords').textContent = unique;
+                document.getElementById('duplicateRecords').textContent = duplicate;
+                document.getElementById('duplicateRate').textContent = total > 0 ? `${((duplicate / total) * 100).toFixed(1)}%` : '0%';
+            }
+        }
+
+        // 初始化数据质量管理器
+        const dataManager = new DataQualityManager();
+
+        // 演示 hasDuplicates 方法的使用
+        console.log('hasDuplicates 方法演示:');
+        console.log('hasDuplicates([0, 1, 1, 2]):', hasDuplicates([0, 1, 1, 2]));
+        console.log('hasDuplicates([0, 1, 2, 3]):', hasDuplicates([0, 1, 2, 3]));
+        console.log('hasDuplicates(["张三", "李四", "张三"]):', hasDuplicates(["张三", "李四", "张三"]));
+    </script>
+</body>
+</html>

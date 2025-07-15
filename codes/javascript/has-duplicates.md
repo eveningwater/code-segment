@@ -11,6 +11,10 @@
 const hasDuplicates = arr => new Set(arr).size !== arr.length;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/has-duplicates.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,8 +24,12 @@ hasDuplicates([0, 1, 2, 3]); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/hasDuplicates.html" data-language="html"></div>
+
+以下是一个实战<a href="codes/javascript/html/has-duplicates.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+
+<div class="code-editor" data-url="codes/javascript/html/has-duplicates.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/hasDuplicates.html"></iframe>
+<iframe src="codes/javascript/html/has-duplicates.html"></iframe>
