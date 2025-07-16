@@ -21,6 +21,10 @@ const hasKey = (obj, keys) =>
   });
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/has-key.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -40,8 +44,12 @@ hasKey(obj, ['b', 'f']); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/hasKey.html" data-language="html"></div>
+
+以下是一个实战<a href="codes/javascript/html/has-key.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+
+<div class="code-editor" data-url="codes/javascript/html/has-key.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/hasKey.html"></iframe>
+<iframe src="codes/javascript/html/has-key.html"></iframe>

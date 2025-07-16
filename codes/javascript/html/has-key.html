@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置管理系统 - hasKey方法实战</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .header p {
+            color: #718096;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group .ew-input-number {
+            width: 100%;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+        }
+
+        .config-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .config-path {
+            background: #edf2f7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .validation-result {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .validation-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #9ae6b4;
+        }
+
+        .validation-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #feb2b2;
+        }
+
+        .template-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-item {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .template-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-item h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .template-item p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .permission-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f7fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .permission-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        /* 自定义复选框样式适配 */
+        #permissionControls .ew-checkbox {
+            margin: 8px 12px;
+        }
+
+        #permissionControls .checkbox-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        #permissionControls .checkbox-checkmark {
+            border-color: #667eea;
+        }
+
+        #permissionControls .checkbox-input:checked ~ .checkbox-checkmark {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .config-tree {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .tree-node::before {
+            content: "├─ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tree-node:last-child::before {
+            content: "└─ ";
+        }
+
+        .tree-value {
+            color: #718096;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 配置管理系统</h1>
+            <p>基于 hasKey 方法的复杂配置验证与管理平台</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 配置编辑器面板 -->
+            <div class="panel">
+                <h2>
+                    <div class="panel-icon">📝</div>
+                    配置编辑器
+                </h2>
+                
+                <div class="form-group">
+                    <label>配置路径验证:</label>
+                    <input type="text" id="configPath" placeholder="输入配置路径，如: database.connection.host" value="database.connection.host">
+                </div>
+
+                <div class="form-group">
+                    <label>配置值:</label>
+                    <textarea id="configValue" rows="4" placeholder="输入配置值 (JSON格式)">{
+  "database": {
+    "connection": {
+      "host": "localhost",
+      "port": 3306,
+      "credentials": {
+        "username": "admin",
+        "password": "secret123"
+      }
+    },
+    "pool": {
+      "max": 10,
+      "min": 2
+    }
+  },
+  "api": {
+    "endpoints": {
+      "users": "/api/users",
+      "products": "/api/products"
+    },
+    "rateLimit": {
+      "requests": 100,
+      "window": 60000
+    }
+  },
+  "cache": {
+    "redis": {
+      "host": "127.0.0.1",
+      "port": 6379
+    }
+  }
+}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>验证级别:</label>
+                    <div id="validationLevel"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>权限控制:</label>
+                    <div id="permissionControls"></div>
+                </div>
+
+                <button class="btn" onclick="validateConfig()">🔍 验证配置</button>
+                <button class="btn btn-secondary" onclick="saveConfig()">💾 保存配置</button>
+                <button class="btn btn-success" onclick="loadTemplate()">📋 加载模板</button>
+            </div>
+
+            <!-- 配置验证结果面板 -->
+            <div class="panel">
+                <h2>
+                    <div class="panel-icon">✅</div>
+                    验证结果
+                </h2>
+                
+                <div id="validationResult"></div>
+                
+                <div class="config-display" id="configDisplay"></div>
+                
+                <div class="config-tree" id="configTree"></div>
+            </div>
+        </div>
+
+        <!-- 统计信息面板 -->
+        <div class="panel">
+            <h2>
+                <div class="panel-icon">📊</div>
+                系统统计
+            </h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalConfigs">0</div>
+                    <div class="stat-label">总配置数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="validConfigs">0</div>
+                    <div class="stat-label">有效配置</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="invalidConfigs">0</div>
+                    <div class="stat-label">无效配置</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="nestedLevels">0</div>
+                    <div class="stat-label">最大嵌套层级</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
+    <script>
+        // 初始化插件
+        const modal = new Modal();
+        const notification = new Notification();
+
+        // 配置模板
+        const configTemplates = {
+            'database': {
+                name: '数据库配置',
+                description: 'MySQL/PostgreSQL 数据库连接配置',
+                config: {
+                    database: {
+                        connection: {
+                            host: 'localhost',
+                            port: 3306,
+                            credentials: {
+                                username: 'admin',
+                                password: 'secret123'
+                            }
+                        },
+                        pool: {
+                            max: 10,
+                            min: 2
+                        }
+                    }
+                }
+            },
+            'api': {
+                name: 'API配置',
+                description: 'RESTful API 服务配置',
+                config: {
+                    api: {
+                        endpoints: {
+                            users: '/api/users',
+                            products: '/api/products',
+                            orders: '/api/orders'
+                        },
+                        rateLimit: {
+                            requests: 100,
+                            window: 60000
+                        },
+                        security: {
+                            jwt: {
+                                secret: 'your-secret-key',
+                                expiresIn: '24h'
+                            }
+                        }
+                    }
+                }
+            },
+            'cache': {
+                name: '缓存配置',
+                description: 'Redis 缓存服务配置',
+                config: {
+                    cache: {
+                        redis: {
+                            host: '127.0.0.1',
+                            port: 6379,
+                            password: null,
+                            db: 0
+                        },
+                        ttl: {
+                            default: 3600,
+                            user: 1800,
+                            product: 7200
+                        }
+                    }
+                }
+            }
+        };
+
+        // hasKey 方法实现
+        const hasKey = (obj, keys) => {
+            if (!keys || keys.length === 0) return false;
+            
+            return keys.every(key => {
+                if (typeof obj !== 'object' || obj === null || !obj.hasOwnProperty(key)) {
+                    return false;
+                }
+                obj = obj[key];
+                return true;
+            });
+        };
+
+        // 配置验证器类
+        class ConfigValidator {
+            constructor() {
+                this.configs = new Map();
+                this.validationHistory = [];
+            }
+
+            // 验证配置路径
+            validatePath(config, path) {
+                const keys = path.split('.');
+                const isValid = hasKey(config, keys);
+                
+                this.validationHistory.push({
+                    path,
+                    isValid,
+                    timestamp: new Date(),
+                    keys
+                });
+
+                return {
+                    isValid,
+                    keys,
+                    value: isValid ? this.getNestedValue(config, keys) : null,
+                    depth: keys.length
+                };
+            }
+
+            // 获取嵌套值
+            getNestedValue(obj, keys) {
+                return keys.reduce((current, key) => current?.[key], obj);
+            }
+
+            // 验证配置完整性
+            validateCompleteness(config, requiredPaths) {
+                const results = requiredPaths.map(path => ({
+                    path,
+                    ...this.validatePath(config, path)
+                }));
+
+                return {
+                    isValid: results.every(r => r.isValid),
+                    results,
+                    missingPaths: results.filter(r => !r.isValid).map(r => r.path)
+                };
+            }
+
+            // 分析配置结构
+            analyzeStructure(config) {
+                const analysis = {
+                    totalKeys: 0,
+                    maxDepth: 0,
+                    nestedObjects: 0,
+                    primitiveValues: 0,
+                    arrays: 0
+                };
+
+                this.analyzeObject(config, 0, analysis);
+                return analysis;
+            }
+
+            analyzeObject(obj, depth, analysis) {
+                analysis.maxDepth = Math.max(analysis.maxDepth, depth);
+                analysis.totalKeys += Object.keys(obj).length;
+
+                for (const [key, value] of Object.entries(obj)) {
+                    if (Array.isArray(value)) {
+                        analysis.arrays++;
+                    } else if (typeof value === 'object' && value !== null) {
+                        analysis.nestedObjects++;
+                        this.analyzeObject(value, depth + 1, analysis);
+                    } else {
+                        analysis.primitiveValues++;
+                    }
+                }
+            }
+
+            // 保存配置
+            saveConfig(name, config) {
+                this.configs.set(name, {
+                    config,
+                    timestamp: new Date(),
+                    analysis: this.analyzeStructure(config)
+                });
+            }
+
+            // 获取配置
+            getConfig(name) {
+                return this.configs.get(name);
+            }
+
+            // 获取所有配置
+            getAllConfigs() {
+                return Array.from(this.configs.entries());
+            }
+        }
+
+        // 权限管理器
+        class PermissionManager {
+            constructor() {
+                this.permissions = new Set();
+            }
+
+            hasPermission(permission) {
+                return this.permissions.has(permission);
+            }
+
+            addPermission(permission) {
+                this.permissions.add(permission);
+            }
+
+            removePermission(permission) {
+                this.permissions.delete(permission);
+            }
+
+            getPermissions() {
+                return Array.from(this.permissions);
+            }
+
+            canRead() {
+                return this.hasPermission('read');
+            }
+
+            canWrite() {
+                return this.hasPermission('write');
+            }
+
+            canDelete() {
+                return this.hasPermission('delete');
+            }
+
+            isAdmin() {
+                return this.hasPermission('admin');
+            }
+        }
+
+        // 初始化组件
+        let validator = new ConfigValidator();
+        let permissionManager = new PermissionManager();
+
+        // 初始化选择器
+        let validationLevelSelect;
+        
+        // 等待DOM加载完成后初始化选择器
+        document.addEventListener('DOMContentLoaded', function() {
+            validationLevelSelect = new Select({
+                container: document.getElementById('validationLevel'),
+                placeholder: '选择验证级别',
+                options: [
+                    { value: 'basic', label: '基础验证' },
+                    { value: 'strict', label: '严格验证' },
+                    { value: 'comprehensive', label: '全面验证' }
+                ],
+                onChange: (value) => {
+                    console.log('验证级别:', value);
+                }
+            });
+        });
+
+        // 初始化权限控制复选框组
+        let permissionCheckboxGroup;
+        
+        // 等待DOM加载完成后初始化复选框组
+        document.addEventListener('DOMContentLoaded', function() {
+            // 创建权限控制复选框组
+            const permissionControls = document.getElementById('permissionControls');
+            
+            // 创建读取权限复选框
+            const readCheckbox = new Checkbox({
+                label: '读取权限',
+                checked: true,
+                onChange: (checked) => {
+                    if (checked) {
+                        permissionManager.addPermission('read');
+                    } else {
+                        permissionManager.removePermission('read');
+                    }
+                }
+            });
+            readCheckbox.mount(permissionControls);
+            // 立即设置默认权限
+            permissionManager.addPermission('read');
+
+            // 创建写入权限复选框
+            const writeCheckbox = new Checkbox({
+                label: '写入权限',
+                checked: true,
+                onChange: (checked) => {
+                    if (checked) {
+                        permissionManager.addPermission('write');
+                    } else {
+                        permissionManager.removePermission('write');
+                    }
+                }
+            });
+            writeCheckbox.mount(permissionControls);
+            // 立即设置默认权限
+            permissionManager.addPermission('write');
+
+            // 创建删除权限复选框
+            const deleteCheckbox = new Checkbox({
+                label: '删除权限',
+                checked: false,
+                onChange: (checked) => {
+                    if (checked) {
+                        permissionManager.addPermission('delete');
+                    } else {
+                        permissionManager.removePermission('delete');
+                    }
+                }
+            });
+            deleteCheckbox.mount(permissionControls);
+
+            // 创建管理员权限复选框
+            const adminCheckbox = new Checkbox({
+                label: '管理员权限',
+                checked: false,
+                onChange: (checked) => {
+                    if (checked) {
+                        permissionManager.addPermission('admin');
+                    } else {
+                        permissionManager.removePermission('admin');
+                    }
+                }
+            });
+            adminCheckbox.mount(permissionControls);
+        });
+
+
+
+        // 验证配置函数
+        function validateConfig() {
+            if (!permissionManager.canRead()) {
+                notification.error('没有读取权限，无法验证配置');
+                return;
+            }
+
+            const path = document.getElementById('configPath').value.trim();
+            const configText = document.getElementById('configValue').value.trim();
+            
+            if (!path || !configText) {
+                notification.warning('请填写配置路径和配置值');
+                return;
+            }
+
+            try {
+                const config = JSON.parse(configText);
+                const result = validator.validatePath(config, path);
+                
+                displayValidationResult(result, config);
+                updateStats();
+                
+                if (result.isValid) {
+                    notification.success(`配置路径 "${path}" 验证成功`);
+                } else {
+                    notification.error(`配置路径 "${path}" 验证失败`);
+                }
+            } catch (error) {
+                notification.error('配置JSON格式错误: ' + error.message);
+            }
+        }
+
+        // 显示验证结果
+        function displayValidationResult(result, config) {
+            const resultDiv = document.getElementById('validationResult');
+            const displayDiv = document.getElementById('configDisplay');
+            const treeDiv = document.getElementById('configTree');
+
+            // 显示验证结果
+            resultDiv.innerHTML = `
+                <div class="validation-result ${result.isValid ? 'validation-success' : 'validation-error'}">
+                    <strong>${result.isValid ? '✅ 验证成功' : '❌ 验证失败'}</strong><br>
+                    路径: ${result.keys.join('.')}<br>
+                    深度: ${result.depth} 层<br>
+                    ${result.isValid ? `值: ${JSON.stringify(result.value)}` : '路径不存在'}
+                </div>
+            `;
+
+            // 显示配置树
+            displayConfigTree(config, treeDiv);
+            
+            // 显示完整配置
+            displayDiv.textContent = JSON.stringify(config, null, 2);
+        }
+
+        // 显示配置树
+        function displayConfigTree(obj, container, prefix = '') {
+            container.innerHTML = '';
+            
+            function buildTree(obj, prefix) {
+                let html = '';
+                for (const [key, value] of Object.entries(obj)) {
+                    const currentPath = prefix ? `${prefix}.${key}` : key;
+                    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                        html += `<div class="tree-node">${key} <span class="tree-value">(对象)</span></div>`;
+                        html += buildTree(value, currentPath);
+                    } else {
+                        const valueStr = Array.isArray(value) ? '[数组]' : JSON.stringify(value);
+                        html += `<div class="tree-node">${key}: <span class="tree-value">${valueStr}</span></div>`;
+                    }
+                }
+                return html;
+            }
+            
+            container.innerHTML = buildTree(obj, prefix);
+        }
+
+        // 保存配置
+        function saveConfig() {
+            if (!permissionManager.canWrite()) {
+                notification.error('没有写入权限，无法保存配置');
+                return;
+            }
+
+            const configText = document.getElementById('configValue').value.trim();
+            
+            if (!configText) {
+                notification.warning('请填写配置内容');
+                return;
+            }
+
+            try {
+                const config = JSON.parse(configText);
+                const name = `config_${Date.now()}`;
+                
+                validator.saveConfig(name, config);
+                updateStats();
+                
+                notification.success('配置保存成功');
+                
+                // 显示保存确认对话框
+                modal.confirm('配置已保存，是否查看所有配置？').then(confirmed => {
+                    if (confirmed) {
+                        showAllConfigs();
+                    }
+                });
+            } catch (error) {
+                notification.error('配置保存失败: ' + error.message);
+            }
+        }
+
+        // 显示所有配置
+        function showAllConfigs() {
+            const configs = validator.getAllConfigs();
+            
+            if (configs.length === 0) {
+                notification.info('暂无保存的配置');
+                return;
+            }
+
+            let content = '<div style="max-height: 300px; overflow-y: auto;">';
+            configs.forEach(([name, data]) => {
+                content += `
+                    <div style="margin-bottom: 15px; padding: 10px; background: #f7fafc; border-radius: 8px;">
+                        <strong>${name}</strong><br>
+                        保存时间: ${data.timestamp.toLocaleString()}<br>
+                        总键数: ${data.analysis.totalKeys}<br>
+                        最大深度: ${data.analysis.maxDepth}
+                    </div>
+                `;
+            });
+            content += '</div>';
+
+            modal.show({
+                title: '所有保存的配置',
+                content: content,
+                type: 'alert'
+            });
+        }
+
+        // 加载模板
+        function loadTemplate() {
+            const templateNames = Object.keys(configTemplates);
+            const options = templateNames.map(name => ({
+                value: name,
+                label: configTemplates[name].name
+            }));
+
+            const templateSelect = new Select({
+                placeholder: '选择配置模板',
+                options: options,
+                onChange: (value) => {
+                    if (value && configTemplates[value]) {
+                        const template = configTemplates[value];
+                        document.getElementById('configValue').value = JSON.stringify(template.config, null, 2);
+                        notification.success(`已加载 ${template.name} 模板`);
+                    }
+                }
+            });
+
+            modal.show({
+                title: '选择配置模板',
+                content: `
+                    <div style="margin-bottom: 15px;">
+                        <p>选择一个预定义的配置模板：</p>
+                    </div>
+                    <div id="templateSelectContainer"></div>
+                `,
+                type: 'alert',
+                onConfirm: () => {
+                    const container = document.getElementById('templateSelectContainer');
+                    templateSelect.mount(container);
+                }
+            });
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const configs = validator.getAllConfigs();
+            const analysis = validator.analyzeStructure(JSON.parse(document.getElementById('configValue').value || '{}'));
+            
+            document.getElementById('totalConfigs').textContent = configs.length;
+            document.getElementById('validConfigs').textContent = validator.validationHistory.filter(h => h.isValid).length;
+            document.getElementById('invalidConfigs').textContent = validator.validationHistory.filter(h => !h.isValid).length;
+            document.getElementById('nestedLevels').textContent = analysis.maxDepth;
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化统计
+            updateStats();
+            
+            // 显示欢迎消息
+            setTimeout(() => {
+                notification.info('欢迎使用配置管理系统！请尝试验证配置路径或加载模板。');
+            }, 1000);
+        });
+
+        // 添加键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        saveConfig();
+                        break;
+                    case 'v':
+                        e.preventDefault();
+                        validateConfig();
+                        break;
+                    case 'l':
+                        e.preventDefault();
+                        loadTemplate();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

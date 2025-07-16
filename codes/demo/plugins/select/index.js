@@ -2,7 +2,7 @@ class Select {
   static currentOpenSelect = null;
 
   constructor(options = {}) {
-    const { container, ...restOptions } = options;
+    const { container, options: selectOptions, ...restOptions } = options;
     this.options = {
       placeholder: "请选择",
       ...restOptions,
@@ -14,6 +14,11 @@ class Select {
     }
     this.selectedValue = "";
     this.setupEventListeners();
+    
+    // 如果传入了options参数，则设置选项
+    if (selectOptions && Array.isArray(selectOptions)) {
+      this.setOptions(selectOptions);
+    }
   }
 
   createSelectElement() {
@@ -68,7 +73,7 @@ class Select {
     optionsContainer.innerHTML = "";
 
     // 保存options到实例中，以便在hover事件中使用
-    this.options = options;
+    this.selectOptions = options;
 
     // 添加普通选项
     options.forEach((option) => {
@@ -98,7 +103,7 @@ class Select {
 
   setValue(value) {
     this.selectedValue = value;
-    const label = this.options.find((option) => option.value === value)?.label;
+    const label = this.selectOptions?.find((option) => option.value === value)?.label;
     const header = this.element.querySelector(".select-header span");
     header.textContent = label || value;
   }
@@ -126,7 +131,10 @@ class Select {
     optionsContainer.appendChild(optionElement);
 
     // 更新options数组，添加自定义选项
-    this.options.push({
+    if (!this.selectOptions) {
+      this.selectOptions = [];
+    }
+    this.selectOptions.push({
       value: label,
       label: label,
       tooltip: null,
@@ -139,8 +147,8 @@ class Select {
 
     Array.from(options).forEach((optionElement, index) => {
       optionElement.addEventListener("mouseenter", () => {
-        if (onHover && this.options[index]) {
-          const option = this.options[index];
+        if (onHover && this.selectOptions && this.selectOptions[index]) {
+          const option = this.selectOptions[index];
           onHover(option, optionElement);
         }
       });
