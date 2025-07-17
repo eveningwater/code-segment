@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据分析系统 - 重复模式检测</title>
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        .results-panel {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .result-card h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .result-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .result-value.success {
+            color: #38a169;
+        }
+
+        .result-value.warning {
+            color: #d69e2e;
+        }
+
+        .result-value.error {
+            color: #e53e3e;
+        }
+
+        .data-preview {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+        }
+
+        .data-preview pre {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #4a5568;
+            white-space: pre-wrap;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .chart-placeholder {
+            text-align: center;
+            color: #718096;
+        }
+
+        .chart-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group .ew-checkbox {
+            margin-right: 15px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 数据分析系统</h1>
+            <p>基于 hasMany 方法的重复模式检测与数据分析平台</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 数据输入面板 -->
+            <div class="panel">
+                <h2>📊 数据输入</h2>
+                <div class="form-group">
+                    <label>数据类型</label>
+                    <div id="dataTypeSelect"></div>
+                </div>
+                <div class="form-group">
+                    <label>数据内容</label>
+                    <textarea id="dataInput" rows="8" placeholder="请输入数据，每行一个元素或使用逗号分隔" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-family: monospace; resize: vertical;"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>检测阈值</label>
+                        <div id="thresholdInput"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>分析深度</label>
+                        <div id="depthInput"></div>
+                    </div>
+                </div>
+                <button class="btn" onclick="analyzeData()">🚀 开始分析</button>
+            </div>
+
+            <!-- 检测条件面板 -->
+            <div class="panel">
+                <h2>🎯 检测条件</h2>
+                <div class="form-group">
+                    <label>检测模式</label>
+                    <div id="patternSelect"></div>
+                </div>
+                <div class="form-group">
+                    <label>检测选项</label>
+                    <div id="detectionOptions"></div>
+                </div>
+                <div class="form-group">
+                    <label>过滤条件</label>
+                    <div id="filterSelect"></div>
+                </div>
+                <div class="form-row">
+                    <button class="btn btn-secondary" onclick="loadSampleData()">📋 加载示例数据</button>
+                    <button class="btn btn-success" onclick="exportResults()">📤 导出结果</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载状态 -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在分析数据，请稍候...</p>
+        </div>
+
+        <!-- 结果展示面板 -->
+        <div class="results-panel" id="resultsPanel" style="display: none;">
+            <h2>📈 分析结果</h2>
+            
+            <!-- 统计概览 -->
+            <div class="stats-grid" id="statsGrid"></div>
+            
+            <!-- 详细结果 -->
+            <div class="results-grid" id="resultsGrid"></div>
+            
+            <!-- 数据预览 -->
+            <div class="data-preview" id="dataPreview"></div>
+            
+            <!-- 图表容器 -->
+            <div class="chart-container" id="chartContainer">
+                <div class="chart-placeholder">
+                    <i>📊</i>
+                    <p>分析完成后将显示可视化图表</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入插件脚本 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
+    <script>
+        // 初始化插件
+        let notification, modal;
+        let dataTypeSelect, patternSelect, filterSelect;
+        let thresholdInput, depthInput;
+        let detectionOptions;
+
+        // hasMany 方法实现
+        const hasMany = (arr, handler) => arr.filter(handler).length > 1;
+
+        // 初始化系统
+        function initSystem() {
+            // 初始化通知系统
+            notification = new Notification({
+                position: 'top-right',
+                duration: 4000
+            });
+
+            // 初始化模态框
+            modal = new Modal();
+
+            // 初始化数据类型选择器
+            dataTypeSelect = new Select({
+                container: '#dataTypeSelect',
+                options: [
+                    { value: 'numbers', label: '数字数组' },
+                    { value: 'strings', label: '字符串数组' },
+                    { value: 'objects', label: '对象数组' },
+                    { value: 'mixed', label: '混合数据' }
+                ],
+                onChange: (value) => {
+                    updateDataInputPlaceholder(value);
+                }
+            });
+
+            // 初始化检测模式选择器
+            patternSelect = new Select({
+                container: '#patternSelect',
+                options: [
+                    { value: 'duplicates', label: '重复值检测' },
+                    { value: 'patterns', label: '模式匹配' },
+                    { value: 'outliers', label: '异常值检测' },
+                    { value: 'clusters', label: '聚类分析' },
+                    { value: 'trends', label: '趋势分析' }
+                ]
+            });
+
+            // 初始化过滤条件选择器
+            filterSelect = new Select({
+                container: '#filterSelect',
+                options: [
+                    { value: 'none', label: '无过滤' },
+                    { value: 'min', label: '最小值过滤' },
+                    { value: 'max', label: '最大值过滤' },
+                    { value: 'range', label: '范围过滤' },
+                    { value: 'custom', label: '自定义过滤' }
+                ]
+            });
+
+            // 初始化数值输入
+            thresholdInput = new InputNumber({
+                container: '#thresholdInput',
+                min: 1,
+                max: 100,
+                value: 2,
+                onChange: (value) => {
+                    console.log('阈值设置为:', value);
+                }
+            });
+
+            depthInput = new InputNumber({
+                container: '#depthInput',
+                min: 1,
+                max: 10,
+                value: 3,
+                onChange: (value) => {
+                    console.log('分析深度设置为:', value);
+                }
+            });
+
+            // 初始化检测选项复选框组
+            detectionOptions = Checkbox.createCheckboxGroup({
+                container: '#detectionOptions',
+                items: [
+                    { label: '严格模式', checked: false },
+                    { label: '忽略大小写', checked: true },
+                    { label: '包含空值', checked: false },
+                    { label: '递归检测', checked: true },
+                    { label: '实时分析', checked: false }
+                ],
+                onChange: (values) => {
+                    console.log('检测选项:', values);
+                }
+            });
+
+            // 设置默认数据类型
+            dataTypeSelect.setValue('numbers');
+            
+            notification.success('数据分析系统初始化完成！');
+        }
+
+        // 更新数据输入占位符
+        function updateDataInputPlaceholder(dataType) {
+            const dataInput = document.getElementById('dataInput');
+            const placeholders = {
+                numbers: '请输入数字，每行一个或使用逗号分隔\n例如：\n1\n2\n3\n4\n5',
+                strings: '请输入字符串，每行一个或使用逗号分隔\n例如：\napple\nbanana\napple\norange',
+                objects: '请输入JSON格式的对象数组\n例如：\n[{"id": 1, "name": "Alice"},\n{"id": 2, "name": "Bob"},\n{"id": 1, "name": "Alice"}]',
+                mixed: '请输入混合数据，每行一个元素\n例如：\n123\n"hello"\n456\n"hello"\n789'
+            };
+            dataInput.placeholder = placeholders[dataType] || placeholders.numbers;
+        }
+
+        // 解析输入数据
+        function parseInputData(input, dataType) {
+            try {
+                if (dataType === 'objects') {
+                    return JSON.parse(input);
+                }
+                
+                const lines = input.trim().split('\n');
+                const data = [];
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line) continue;
+                    
+                    if (line.includes(',')) {
+                        const items = line.split(',').map(item => item.trim());
+                        data.push(...items);
+                    } else {
+                        data.push(line);
+                    }
+                }
+                
+                if (dataType === 'numbers') {
+                    return data.map(item => {
+                        const num = parseFloat(item);
+                        return isNaN(num) ? item : num;
+                    });
+                }
+                
+                return data;
+            } catch (error) {
+                throw new Error('数据解析失败: ' + error.message);
+            }
+        }
+
+        // 分析数据
+        async function analyzeData() {
+            const dataInput = document.getElementById('dataInput').value.trim();
+            if (!dataInput) {
+                notification.error('请输入数据内容');
+                return;
+            }
+
+            // 显示加载状态
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultsPanel').style.display = 'none';
+
+            try {
+                // 模拟异步分析
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                const dataType = dataTypeSelect.getValue();
+                const pattern = patternSelect.getValue();
+                const threshold = thresholdInput.getValue();
+                const depth = depthInput.getValue();
+                const filterType = filterSelect.getValue();
+                const options = detectionOptions.checkboxes.map(cb => cb.isChecked());
+
+                // 解析数据
+                const data = parseInputData(dataInput, dataType);
+                
+                // 执行分析
+                const results = performAnalysis(data, pattern, threshold, depth, filterType, options);
+                
+                // 显示结果
+                displayResults(results, data);
+                
+                notification.success('数据分析完成！');
+                
+            } catch (error) {
+                notification.error('分析失败: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+
+        // 执行数据分析
+        function performAnalysis(data, pattern, threshold, depth, filterType, options) {
+            const results = {
+                totalItems: data.length,
+                uniqueItems: new Set(data).size,
+                duplicates: [],
+                patterns: [],
+                outliers: [],
+                clusters: [],
+                trends: [],
+                statistics: {}
+            };
+
+            // 重复值检测
+            if (pattern === 'duplicates' || pattern === 'patterns') {
+                const valueCounts = {};
+                data.forEach(item => {
+                    const key = options[1] ? String(item).toLowerCase() : String(item);
+                    valueCounts[key] = (valueCounts[key] || 0) + 1;
+                });
+
+                Object.entries(valueCounts).forEach(([value, count]) => {
+                    if (count >= threshold) {
+                        results.duplicates.push({
+                            value: value,
+                            count: count,
+                            percentage: (count / data.length * 100).toFixed(2)
+                        });
+                    }
+                });
+            }
+
+            // 使用 hasMany 方法检测模式
+            if (pattern === 'patterns') {
+                // 检测数值模式
+                if (dataTypeSelect.getValue() === 'numbers') {
+                    const numbers = data.filter(item => typeof item === 'number');
+                    
+                    // 检测偶数
+                    if (hasMany(numbers, x => x % 2 === 0)) {
+                        results.patterns.push({
+                            type: '偶数模式',
+                            description: '存在多个偶数',
+                            count: numbers.filter(x => x % 2 === 0).length
+                        });
+                    }
+                    
+                    // 检测奇数
+                    if (hasMany(numbers, x => x % 2 === 1)) {
+                        results.patterns.push({
+                            type: '奇数模式',
+                            description: '存在多个奇数',
+                            count: numbers.filter(x => x % 2 === 1).length
+                        });
+                    }
+                    
+                    // 检测大于平均值的数
+                    const avg = numbers.reduce((sum, x) => sum + x, 0) / numbers.length;
+                    if (hasMany(numbers, x => x > avg)) {
+                        results.patterns.push({
+                            type: '高于平均值',
+                            description: '存在多个高于平均值的数',
+                            count: numbers.filter(x => x > avg).length,
+                            average: avg.toFixed(2)
+                        });
+                    }
+                }
+                
+                // 检测字符串模式
+                if (dataTypeSelect.getValue() === 'strings') {
+                    const strings = data.filter(item => typeof item === 'string');
+                    
+                    // 检测相同长度的字符串
+                    const lengthGroups = {};
+                    strings.forEach(str => {
+                        const len = str.length;
+                        lengthGroups[len] = (lengthGroups[len] || 0) + 1;
+                    });
+                    
+                    Object.entries(lengthGroups).forEach(([length, count]) => {
+                        if (count >= threshold) {
+                            results.patterns.push({
+                                type: '长度模式',
+                                description: `存在${count}个长度为${length}的字符串`,
+                                length: parseInt(length),
+                                count: count
+                            });
+                        }
+                    });
+                }
+            }
+
+            // 异常值检测
+            if (pattern === 'outliers') {
+                const numbers = data.filter(item => typeof item === 'number');
+                if (numbers.length > 0) {
+                    const sorted = numbers.sort((a, b) => a - b);
+                    const q1 = sorted[Math.floor(sorted.length * 0.25)];
+                    const q3 = sorted[Math.floor(sorted.length * 0.75)];
+                    const iqr = q3 - q1;
+                    const lowerBound = q1 - 1.5 * iqr;
+                    const upperBound = q3 + 1.5 * iqr;
+                    
+                    const outliers = numbers.filter(x => x < lowerBound || x > upperBound);
+                    if (hasMany(outliers, x => true)) {
+                        results.outliers = outliers.map(x => ({
+                            value: x,
+                            type: x < lowerBound ? '下异常值' : '上异常值'
+                        }));
+                    }
+                }
+            }
+
+            // 计算统计信息
+            if (dataTypeSelect.getValue() === 'numbers') {
+                const numbers = data.filter(item => typeof item === 'number');
+                if (numbers.length > 0) {
+                    results.statistics = {
+                        min: Math.min(...numbers),
+                        max: Math.max(...numbers),
+                        average: (numbers.reduce((sum, x) => sum + x, 0) / numbers.length).toFixed(2),
+                        median: calculateMedian(numbers),
+                        standardDeviation: calculateStandardDeviation(numbers)
+                    };
+                }
+            }
+
+            return results;
+        }
+
+        // 计算中位数
+        function calculateMedian(numbers) {
+            const sorted = numbers.sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 === 0 
+                ? ((sorted[mid - 1] + sorted[mid]) / 2).toFixed(2)
+                : sorted[mid].toFixed(2);
+        }
+
+        // 计算标准差
+        function calculateStandardDeviation(numbers) {
+            const avg = numbers.reduce((sum, x) => sum + x, 0) / numbers.length;
+            const variance = numbers.reduce((sum, x) => sum + Math.pow(x - avg, 2), 0) / numbers.length;
+            return Math.sqrt(variance).toFixed(2);
+        }
+
+        // 显示分析结果
+        function displayResults(results, originalData) {
+            const resultsPanel = document.getElementById('resultsPanel');
+            const statsGrid = document.getElementById('statsGrid');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const dataPreview = document.getElementById('dataPreview');
+
+            // 显示统计概览
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${results.totalItems}</div>
+                    <div class="stat-label">总数据量</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${results.uniqueItems}</div>
+                    <div class="stat-label">唯一值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${results.duplicates.length}</div>
+                    <div class="stat-label">重复模式</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${results.patterns.length}</div>
+                    <div class="stat-label">检测模式</div>
+                </div>
+            `;
+
+            // 显示详细结果
+            resultsGrid.innerHTML = '';
+
+            // 重复值结果
+            if (results.duplicates.length > 0) {
+                const duplicateCard = createResultCard('重复值检测', results.duplicates.map(item => ({
+                    label: `值: ${item.value}`,
+                    value: `${item.count}次 (${item.percentage}%)`,
+                    className: item.count >= 3 ? 'warning' : 'success'
+                })));
+                resultsGrid.appendChild(duplicateCard);
+            }
+
+            // 模式检测结果
+            if (results.patterns.length > 0) {
+                const patternCard = createResultCard('模式检测', results.patterns.map(item => ({
+                    label: item.type,
+                    value: item.description,
+                    className: 'success'
+                })));
+                resultsGrid.appendChild(patternCard);
+            }
+
+            // 异常值结果
+            if (results.outliers.length > 0) {
+                const outlierCard = createResultCard('异常值检测', results.outliers.map(item => ({
+                    label: `异常值: ${item.value}`,
+                    value: item.type,
+                    className: 'error'
+                })));
+                resultsGrid.appendChild(outlierCard);
+            }
+
+            // 统计信息
+            if (Object.keys(results.statistics).length > 0) {
+                const statsCard = createResultCard('统计信息', [
+                    { label: '最小值', value: results.statistics.min, className: 'success' },
+                    { label: '最大值', value: results.statistics.max, className: 'success' },
+                    { label: '平均值', value: results.statistics.average, className: 'success' },
+                    { label: '中位数', value: results.statistics.median, className: 'success' },
+                    { label: '标准差', value: results.statistics.standardDeviation, className: 'success' }
+                ]);
+                resultsGrid.appendChild(statsCard);
+            }
+
+            // 显示数据预览
+            dataPreview.innerHTML = `
+                <h4>原始数据预览 (前20项):</h4>
+                <pre>${JSON.stringify(originalData.slice(0, 20), null, 2)}</pre>
+            `;
+
+            resultsPanel.style.display = 'block';
+        }
+
+        // 创建结果卡片
+        function createResultCard(title, items) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = title;
+            card.appendChild(titleElement);
+            
+            items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'result-item';
+                itemElement.innerHTML = `
+                    <span class="result-label">${item.label}</span>
+                    <span class="result-value ${item.className || ''}">${item.value}</span>
+                `;
+                card.appendChild(itemElement);
+            });
+            
+            return card;
+        }
+
+        // 加载示例数据
+        function loadSampleData() {
+            const dataType = dataTypeSelect.getValue();
+            const sampleData = {
+                numbers: '1\n2\n3\n4\n5\n2\n3\n6\n7\n8\n9\n10\n2\n3\n4',
+                strings: 'apple\nbanana\napple\norange\nbanana\napple\ngrape\norange\nkiwi\napple',
+                objects: '[{"id": 1, "name": "Alice", "age": 25},\n{"id": 2, "name": "Bob", "age": 30},\n{"id": 1, "name": "Alice", "age": 25},\n{"id": 3, "name": "Charlie", "age": 35},\n{"id": 2, "name": "Bob", "age": 30}]',
+                mixed: '123\n"hello"\n456\n"hello"\n789\n"world"\n123\n"hello"\n999'
+            };
+            
+            document.getElementById('dataInput').value = sampleData[dataType];
+            notification.info('示例数据已加载');
+        }
+
+        // 导出结果
+        function exportResults() {
+            const resultsPanel = document.getElementById('resultsPanel');
+            if (resultsPanel.style.display === 'none') {
+                notification.warning('请先进行数据分析');
+                return;
+            }
+
+            modal.confirm('确定要导出分析结果吗？').then(confirmed => {
+                if (confirmed) {
+                    // 模拟导出
+                    setTimeout(() => {
+                        notification.success('分析结果已导出到 downloads/analysis-report.json');
+                    }, 1000);
+                }
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initSystem);
+    </script>
+</body>
+
+</html>
