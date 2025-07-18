@@ -319,7 +319,7 @@
 - [检查数组是否有重复项-2022-07-31](codes/javascript/has-duplicates.md)
 - [检查对象中是否含有属性-2022-08-02](codes/javascript/has-key.md)
 - [匹配数组是否含有满足给定函数条件的数组项-2022-08-03](codes/javascript/has-many.md)
-- [匹配数组是否含有满足给定函数条件的一个数组项-2022-08-04](codes/javascript/hasOne.md)
+- [匹配数组是否含有满足给定函数条件的一个数组项-2022-08-04](codes/javascript/has-one.md)
 - [基于浏览器的 hash 算法-2022-08-05](codes/javascript/hashBrowser.md)
 - [判断两个数组是否含有相同的数组项-2022-08-07](codes/javascript/haveSameContents.md)
 - [查找数组当中的第一个数组项-2022-08-08](codes/javascript/head.md)

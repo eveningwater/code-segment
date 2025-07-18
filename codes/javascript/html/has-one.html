@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理系统 - hasOne 实战示例</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .task-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-title::before {
+            content: "📝";
+            font-size: 1.8rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .tasks-section {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .tasks-header {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tasks-title {
+            font-size: 1.3rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tasks-title::before {
+            content: "📋";
+            font-size: 1.5rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tasks-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            padding: 20px 30px;
+            border-bottom: 1px solid #f1f3f4;
+            display: grid;
+            grid-template-columns: auto 1fr auto auto auto;
+            gap: 20px;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .task-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .task-title {
+            font-weight: 500;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .task-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .priority-high {
+            background: #ffe6e6;
+            color: #d63384;
+        }
+
+        .priority-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .priority-low {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .task-date {
+            color: #666;
+            font-size: 0.9rem;
+            min-width: 120px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state::before {
+            content: "📝";
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+        }
+
+        /* 自定义滚动条 */
+        .tasks-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .tasks-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .tasks-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .tasks-list::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+                /* 自定义 Select 插件样式 */
+        .ew-select {
+            width: 100%;
+        }
+
+        .select-header {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .select-header:hover {
+            border-color: #667eea;
+        }
+
+        .select-header .arrow {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #666;
+            transition: transform 0.3s ease;
+        }
+
+        .ew-select.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .select-option {
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            transition: background-color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .select-option:hover {
+            background: #f8f9fa;
+        }
+
+        .select-option:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+
+        .select-option:last-child {
+            border-radius: 0 0 6px 6px;
+        }
+
+        .ew-select.open .select-options {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .task-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>任务管理系统</h1>
+            <p>基于 hasOne 方法的智能任务优先级管理</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalTasks">0</h3>
+                    <p>总任务数</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="completedTasks">0</h3>
+                    <p>已完成</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="highPriorityTasks">0</h3>
+                    <p>高优先级</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="singleHighPriority">否</h3>
+                    <p>唯一高优先级</p>
+                </div>
+            </div>
+
+            <!-- 任务表单 -->
+            <div class="task-form">
+                <h2 class="form-title">添加新任务</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskTitle">任务标题</label>
+                        <input type="text" id="taskTitle" placeholder="输入任务标题..." maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">优先级</label>
+                        <div id="prioritySelectContainer"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDate">截止日期</label>
+                        <div id="datePickerContainer"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addTask()">
+                        <span>➕</span> 添加任务
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="taskDescription">任务描述</label>
+                        <input type="text" id="taskDescription" placeholder="输入任务描述..." maxlength="200">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提示信息 -->
+            <div id="alerts"></div>
+
+            <!-- 任务列表 -->
+            <div class="tasks-section">
+                <div class="tasks-header">
+                    <h2 class="tasks-title">任务列表</h2>
+                    <div class="filter-controls">
+                        <div id="filterPriorityContainer"></div>
+                        <div id="filterStatusContainer"></div>
+                        <button class="btn btn-secondary" onclick="clearCompleted()">
+                            <span>🗑️</span> 清除已完成
+                        </button>
+                    </div>
+                </div>
+                <div class="tasks-list" id="tasksList">
+                    <div class="empty-state">
+                        <p>还没有任务，开始添加你的第一个任务吧！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // hasOne 方法实现
+        const hasOne = (arr, handler) => arr.filter(handler).length === 1;
+
+        // 全局变量
+        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        let modal = null;
+        let datePicker = null;
+        let prioritySelect = null;
+        let filterPrioritySelect = null;
+        let filterStatusSelect = null;
+
+                // 初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            modal = new Modal();
+            datePicker = new DateTimePicker({
+                container: '#datePickerContainer',
+                placeholder: '选择截止日期',
+                onChange: (value) => {
+                    console.log('选择的日期:', value);
+                }
+            });
+
+            // 初始化优先级选择器
+            prioritySelect = new Select({
+                container: '#prioritySelectContainer',
+                placeholder: '选择优先级',
+                options: [
+                    { value: 'low', label: '低' },
+                    { value: 'medium', label: '中' },
+                    { value: 'high', label: '高' }
+                ],
+                onChange: (value) => {
+                    console.log('选择的优先级:', value);
+                }
+            });
+
+            // 初始化过滤器选择器
+            filterPrioritySelect = new Select({
+                container: '#filterPriorityContainer',
+                placeholder: '全部优先级',
+                options: [
+                    { value: 'all', label: '全部优先级' },
+                    { value: 'high', label: '高优先级' },
+                    { value: 'medium', label: '中优先级' },
+                    { value: 'low', label: '低优先级' }
+                ],
+                onChange: (value) => {
+                    filterTasks();
+                }
+            });
+
+            filterStatusSelect = new Select({
+                container: '#filterStatusContainer',
+                placeholder: '全部状态',
+                options: [
+                    { value: 'all', label: '全部状态' },
+                    { value: 'pending', label: '待完成' },
+                    { value: 'completed', label: '已完成' }
+                ],
+                onChange: (value) => {
+                    filterTasks();
+                }
+            });
+            
+            renderTasks();
+            updateStats();
+        });
+
+        // 添加任务
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const priority = prioritySelect.getValue();
+            const dueDate = datePicker.getValue();
+
+            if (!title) {
+                showAlert('请输入任务标题', 'warning');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                title,
+                description,
+                priority,
+                dueDate,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            updateStats();
+            clearForm();
+            showAlert('任务添加成功！', 'success');
+
+            // 检查是否只有一个高优先级任务
+            checkSingleHighPriority();
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            const filterPriority = filterPrioritySelect.getValue();
+            const filterStatus = filterStatusSelect.getValue();
+
+            let filteredTasks = tasks;
+
+            // 应用过滤器
+            if (filterPriority !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.priority === filterPriority);
+            }
+
+            if (filterStatus !== 'all') {
+                const isCompleted = filterStatus === 'completed';
+                filteredTasks = filteredTasks.filter(task => task.completed === isCompleted);
+            }
+
+            if (filteredTasks.length === 0) {
+                tasksList.innerHTML = '<div class="empty-state"><p>没有找到符合条件的任务</p></div>';
+                return;
+            }
+
+            tasksList.innerHTML = filteredTasks.map(task => `
+                <div class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                    <input type="checkbox" class="task-checkbox" 
+                           ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask(${task.id})">
+                    <div class="task-content">
+                        <div class="task-title">${escapeHtml(task.title)}</div>
+                        ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+                    </div>
+                    <div class="task-priority priority-${task.priority}">
+                        ${getPriorityText(task.priority)}
+                    </div>
+                    <div class="task-date">
+                        ${task.dueDate ? formatDate(task.dueDate) : '无截止日期'}
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="editTask(${task.id})">
+                            ✏️ 编辑
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
+                            🗑️ 删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 切换任务状态
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+                updateStats();
+                checkSingleHighPriority();
+            }
+        }
+
+        // 删除任务
+        function deleteTask(id) {
+            modal.confirm('确定要删除这个任务吗？').then(confirmed => {
+                if (confirmed) {
+                    tasks = tasks.filter(t => t.id !== id);
+                    saveTasks();
+                    renderTasks();
+                    updateStats();
+                    checkSingleHighPriority();
+                    showAlert('任务已删除', 'info');
+                }
+            });
+        }
+
+        // 编辑任务
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            modal.prompt('编辑任务标题', task.title).then(newTitle => {
+                if (newTitle && newTitle.trim()) {
+                    task.title = newTitle.trim();
+                    saveTasks();
+                    renderTasks();
+                    showAlert('任务已更新', 'success');
+                }
+            });
+        }
+
+        // 清除已完成任务
+        function clearCompleted() {
+            const completedCount = tasks.filter(t => t.completed).length;
+            if (completedCount === 0) {
+                showAlert('没有已完成的任务', 'info');
+                return;
+            }
+
+            modal.confirm(`确定要删除 ${completedCount} 个已完成的任务吗？`).then(confirmed => {
+                if (confirmed) {
+                    tasks = tasks.filter(t => !t.completed);
+                    saveTasks();
+                    renderTasks();
+                    updateStats();
+                    checkSingleHighPriority();
+                    showAlert(`已删除 ${completedCount} 个已完成的任务`, 'success');
+                }
+            });
+        }
+
+        // 过滤任务
+        function filterTasks() {
+            renderTasks();
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const highPriorityTasks = tasks.filter(t => t.priority === 'high' && !t.completed).length;
+            const hasSingleHighPriority = hasOne(tasks.filter(t => !t.completed), t => t.priority === 'high');
+
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('highPriorityTasks').textContent = highPriorityTasks;
+            document.getElementById('singleHighPriority').textContent = hasSingleHighPriority ? '是' : '否';
+        }
+
+        // 检查是否只有一个高优先级任务
+        function checkSingleHighPriority() {
+            const hasSingle = hasOne(tasks.filter(t => !t.completed), t => t.priority === 'high');
+            if (hasSingle) {
+                showAlert('⚠️ 注意：当前只有一个高优先级任务，请优先处理！', 'warning');
+            }
+        }
+
+        // 保存任务到本地存储
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // 清空表单
+        function clearForm() {
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            prioritySelect.setValue('low');
+            datePicker.setValue('');
+        }
+
+        // 显示提示信息
+        function showAlert(message, type = 'info') {
+            const alertsContainer = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <span>${getAlertIcon(type)}</span>
+                <span>${message}</span>
+            `;
+
+            alertsContainer.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // 获取提示图标
+        function getAlertIcon(type) {
+            const icons = {
+                success: '✅',
+                warning: '⚠️',
+                info: 'ℹ️',
+                danger: '❌'
+            };
+            return icons[type] || icons.info;
+        }
+
+        // 获取优先级文本
+        function getPriorityText(priority) {
+            const texts = {
+                high: '高',
+                medium: '中',
+                low: '低'
+            };
+            return texts[priority] || '低';
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        addTask();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        document.getElementById('taskTitle').focus();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
