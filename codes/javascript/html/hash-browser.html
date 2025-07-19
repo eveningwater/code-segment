@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哈希计算器</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2196F3;
+            --danger-color: #f44336;
+            --background-color: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .file-drop {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-drop.dragover {
+            border-color: var(--primary-color);
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .button-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .button-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .button-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .result-table th {
+            background: #f5f5f5;
+        }
+
+        .hash-result {
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .toolbar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .algorithm-select {
+            width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Web哈希计算器</h1>
+            <p>支持文本和文件哈希计算，可保存历史记录并进行对比</p>
+        </div>
+
+        <div class="toolbar">
+            <div class="algorithm-select"></div>
+            <button class="button button-secondary" id="compareBtn">对比哈希值</button>
+            <button class="button button-danger" id="clearHistoryBtn">清除历史</button>
+        </div>
+
+        <div class="main">
+            <div class="panel">
+                <div class="input-section">
+                    <label>文本内容</label>
+                    <textarea class="text-input" id="textInput" placeholder="输入要计算哈希的文本内容..."></textarea>
+                    <button class="button button-primary" id="calcTextBtn" style="margin-top: 10px;">计算哈希值</button>
+                </div>
+
+                <div class="input-section">
+                    <label>文件内容</label>
+                    <div class="file-drop" id="fileDrop">
+                        <p>拖放文件到此处或点击选择文件</p>
+                        <input type="file" id="fileInput" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>历史记录</h3>
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>内容/文件名</th>
+                            <th>哈希值</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 初始化插件
+        const notification = new Notification();
+        const modal = new Modal();
+        const algorithmSelect = new Select({
+            container: '.algorithm-select',
+            placeholder: '选择哈希算法',
+            options: [
+                { value: 'SHA-256', label: 'SHA-256' },
+                { value: 'SHA-384', label: 'SHA-384' },
+                { value: 'SHA-512', label: 'SHA-512' }
+            ],
+            value: 'SHA-256'
+        });
+
+        // 哈希计算函数
+        const hashBrowser = (val, algorithm = 'SHA-256') => crypto.subtle.digest(algorithm, new TextEncoder('utf-8').encode(val))
+            .then(h => {
+                const hexes = [];
+                const view = new DataView(h);
+                for (let i = 0; i < view.byteLength; i += 4) {
+                    hexes.push('00000000' + view.getUint32(i).toString(16).slice(-8));
+                }
+                return hexes.join("");
+            });
+
+        // 文件转base64
+        const fileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        };
+
+        // 历史记录管理
+        let hashHistory = JSON.parse(localStorage.getItem('hashHistory') || '[]');
+
+        const addToHistory = (type, content, hash) => {
+            const record = {
+                id: Date.now(),
+                type,
+                content: type === 'text' ? content : content.name,
+                hash,
+                timestamp: new Date().toLocaleString()
+            };
+            hashHistory.unshift(record);
+            if (hashHistory.length > 10) hashHistory.pop();
+            localStorage.setItem('hashHistory', JSON.stringify(hashHistory));
+            renderHistory();
+        };
+
+        const renderHistory = () => {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = hashHistory.map(record => `
+                <tr>
+                    <td>${record.type === 'text' ? '文本' : '文件'}</td>
+                    <td>${record.content}</td>
+                    <td class="hash-result">${record.hash}</td>
+                    <td>${record.timestamp}</td>
+                    <td>
+                        <button class="button button-secondary" onclick="copyHash('${record.hash}')">复制</button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        // 复制哈希值
+        const copyHash = async (hash) => {
+            try {
+                await navigator.clipboard.writeText(hash);
+                notification.success('哈希值已复制到剪贴板');
+            } catch (err) {
+                notification.error('复制失败');
+            }
+        };
+
+        // 事件处理
+        document.getElementById('calcTextBtn').addEventListener('click', async () => {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                notification.warning('请输入文本内容');
+                return;
+            }
+
+            try {
+                const hash = await hashBrowser(text, algorithmSelect.getValue());
+                addToHistory('text', text, hash);
+                notification.success('哈希计算完成');
+            } catch (err) {
+                notification.error('计算失败');
+            }
+        });
+
+        const fileDrop = document.getElementById('fileDrop');
+        const fileInput = document.getElementById('fileInput');
+
+        fileDrop.addEventListener('click', () => fileInput.click());
+
+        fileDrop.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDrop.classList.add('dragover');
+        });
+
+        fileDrop.addEventListener('dragleave', () => {
+            fileDrop.classList.remove('dragover');
+        });
+
+        fileDrop.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            fileDrop.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                await processFile(file);
+            }
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await processFile(file);
+            }
+        });
+
+        // 找到 processFile 函数并替换为以下代码:
+        const processFile = async (file) => {
+            try {
+                // 更新拖放区域的提示文本
+                const dropZone = document.getElementById('fileDrop');
+                const originalText = dropZone.innerHTML;
+                dropZone.innerHTML = `<p>正在处理文件: ${file.name}...</p>`;
+
+                const content = await fileToBase64(file);
+                const hash = await hashBrowser(content, algorithmSelect.getValue());
+                addToHistory('file', file, hash);
+
+                // 显示成功状态
+                dropZone.innerHTML = `
+            <p style="color: var(--primary-color);">
+                ✅ 文件处理成功: ${file.name}
+            </p>
+            <p style="font-size: 0.9em; margin-top: 8px;">
+                点击或拖放可继续上传新文件
+            </p>
+        `;
+
+                notification.success('文件哈希计算完成');
+
+                // 3秒后恢复原始提示文本
+                setTimeout(() => {
+                    dropZone.innerHTML = originalText;
+                }, 3000);
+            } catch (err) {
+                console.error(err);
+                notification.error('文件处理失败');
+
+                // 恢复原始提示文本
+                document.getElementById('fileDrop').innerHTML = `
+            <p>拖放文件到此处或点击选择文件</p>
+            <input type="file" id="fileInput" style="display: none;">
+        `;
+            }
+        };
+
+        document.getElementById('compareBtn').addEventListener('click', () => {
+            if (hashHistory.length < 2) {
+                notification.warning('需要至少两条记录才能进行对比');
+                return;
+            }
+
+            const content = hashHistory.slice(0, 2).map(record => `
+                <div style="margin-bottom: 10px;">
+                    <div><strong>${record.type === 'text' ? '文本' : '文件'}:</strong> ${record.content}</div>
+                    <div style="word-break: break-all;"><strong>哈希值:</strong> ${record.hash}</div>
+                </div>
+            `).join('<hr style="margin: 10px 0;">');
+
+            const isEqual = hashHistory[0].hash === hashHistory[1].hash;
+
+            modal.show({
+                title: '哈希值对比',
+                content: `
+                    ${content}
+                    <div style="margin-top: 15px; text-align: center; font-weight: bold; color: ${isEqual ? '#4CAF50' : '#f44336'}">
+                        ${isEqual ? '✅ 哈希值相同' : '❌ 哈希值不同'}
+                    </div>
+                `
+            });
+        });
+
+        document.getElementById('clearHistoryBtn').addEventListener('click', async () => {
+            const confirmed = await modal.confirm('确定要清除所有历史记录吗？');
+            if (confirmed) {
+                hashHistory = [];
+                localStorage.setItem('hashHistory', '[]');
+                renderHistory();
+                notification.success('历史记录已清除');
+            }
+        });
+
+        // 初始渲染
+        renderHistory();
+    </script>
+</body>
+
+</html>
