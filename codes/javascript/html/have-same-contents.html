@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品属性对比系统</title>
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f7fa;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .product-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .product-attributes {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .attribute {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+
+        .btn-default {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-default:hover {
+            background: #e8e8e8;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .remove-btn:hover {
+            color: #ff4d4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>商品属性对比系统</h1>
+        
+        <div class="section">
+            <div class="section-title">添加商品到对比列表</div>
+            <div id="product-select"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">选择要对比的属性</div>
+            <div id="attribute-checkboxes"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">对比列表</div>
+            <div id="product-list" class="product-list"></div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-primary" onclick="compareProducts()">开始对比</button>
+            <button class="btn btn-default" onclick="clearProducts()">清空列表</button>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script>
+        // 商品数据
+        const products = [
+            {
+                id: 1,
+                name: "iPhone 13",
+                attributes: {
+                    color: ["黑色", "白色", "蓝色"],
+                    storage: ["128GB", "256GB"],
+                    camera: ["双摄像头", "夜景模式"],
+                    screen: ["6.1英寸", "OLED"]
+                }
+            },
+            {
+                id: 2,
+                name: "iPhone 13 Pro",
+                attributes: {
+                    color: ["黑色", "白色", "金色"],
+                    storage: ["128GB", "256GB", "512GB"],
+                    camera: ["三摄像头", "夜景模式", "微距"],
+                    screen: ["6.1英寸", "OLED", "ProMotion"]
+                }
+            },
+            {
+                id: 3,
+                name: "iPhone 13 Mini",
+                attributes: {
+                    color: ["黑色", "白色", "红色"],
+                    storage: ["128GB", "256GB"],
+                    camera: ["双摄像头", "夜景模式"],
+                    screen: ["5.4英寸", "OLED"]
+                }
+            }
+        ];
+
+        // 初始化组件
+        const notification = new Notification();
+        const modal = new Modal();
+        let selectedProducts = [];
+        let attributeGroup;
+
+        // 初始化Select组件
+        const productSelect = new Select({
+            container: '#product-select',
+            placeholder: '选择要添加的商品',
+            options: products.map(p => ({
+                value: p.id,
+                label: p.name
+            })),
+            onChange: (value) => {
+                addProduct(parseInt(value));
+            }
+        });
+
+        // 初始化属性复选框组
+        const attributes = [
+            { label: '颜色', value: 'color' },
+            { label: '存储容量', value: 'storage' },
+            { label: '摄像头', value: 'camera' },
+            { label: '屏幕', value: 'screen' }
+        ];
+
+        attributeGroup = Checkbox.createCheckboxGroup({
+            items: attributes,
+            onChange: (values) => {
+                console.log('Selected attributes:', values);
+            }
+        });
+        document.querySelector('#attribute-checkboxes').appendChild(attributeGroup.container);
+
+        // 添加商品到对比列表
+        function addProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            if (selectedProducts.some(p => p.id === productId)) {
+                notification.warning('该商品已在对比列表中');
+                return;
+            }
+
+            if (selectedProducts.length >= 3) {
+                notification.error('最多只能添加3个商品进行对比');
+                return;
+            }
+
+            selectedProducts.push(product);
+            renderProductList();
+            notification.success(`已添加 ${product.name} 到对比列表`);
+        }
+
+        // 渲染商品列表
+        function renderProductList() {
+            const container = document.getElementById('product-list');
+            container.innerHTML = '';
+
+            selectedProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                
+                const html = `
+                    <button class="remove-btn" onclick="removeProduct(${product.id})">×</button>
+                    <h3>${product.name}</h3>
+                    <div class="product-attributes">
+                        ${Object.entries(product.attributes).map(([key, values]) => `
+                            <div class="attribute">
+                                <span>${getAttributeLabel(key)}:</span>
+                                <span>${values.join(', ')}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        // 获取属性标签
+        function getAttributeLabel(key) {
+            const attr = attributes.find(a => a.value === key);
+            return attr ? attr.label : key;
+        }
+
+        // 移除商品
+        function removeProduct(productId) {
+            selectedProducts = selectedProducts.filter(p => p.id !== productId);
+            renderProductList();
+            notification.info('已移除商品');
+        }
+
+        // 清空列表
+        function clearProducts() {
+            modal.confirm('确定要清空对比列表吗？').then(confirmed => {
+                if (confirmed) {
+                    selectedProducts = [];
+                    renderProductList();
+                    notification.info('已清空对比列表');
+                }
+            });
+        }
+
+        // 对比商品属性
+        function compareProducts() {
+            if (selectedProducts.length < 2) {
+                notification.error('请至少选择2个商品进行对比');
+                return;
+            }
+
+            // 获取选中的属性
+            const selectedAttributes = attributeGroup.checkboxes
+                .filter(cb => cb.isChecked())
+                .map(cb => cb.options.value);
+
+            if (selectedAttributes.length === 0) {
+                notification.warning('请至少选择一个要对比的属性');
+                return;
+            }
+
+            // 对比每个选中的属性
+            let results = [];
+            selectedAttributes.forEach(attr => {
+                const values = selectedProducts.map(p => p.attributes[attr]);
+                const haveSame = haveSameContents(...values);
+                results.push({
+                    attribute: getAttributeLabel(attr),
+                    haveSame,
+                    values: values
+                });
+            });
+
+            // 显示对比结果
+            showComparisonResults(results);
+        }
+
+        // 显示对比结果
+        function showComparisonResults(results) {
+            const productNames = selectedProducts.map(p => p.name).join(' vs ');
+            let content = `<div style="max-height: 400px; overflow-y: auto;">
+                <h3 style="margin-top: 0;">对比结果: ${productNames}</h3>
+                ${results.map(result => `
+                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                        <div style="margin-bottom: 8px; color: ${result.haveSame ? '#52c41a' : '#ff4d4f'};">
+                            <strong>${result.attribute}</strong>: 
+                            ${result.haveSame ? '✅ 完全相同' : '❌ 存在差异'}
+                        </div>
+                        <div style="font-size: 14px; color: #666;">
+                            ${result.values.map((vals, i) => `
+                                ${selectedProducts[i].name}: ${vals.join(', ')}
+                            `).join('<br>')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>`;
+
+            modal.show({
+                title: '商品属性对比结果',
+                content,
+                onConfirm: () => {
+                    modal.hide();
+                }
+            });
+        }
+
+        // 原有的对比函数
+        const _haveSameContents = (a, b) => {
+            for (const v of new Set([...a, ...b])) {
+                if (a.filter(e => e === v).length !== b.filter(e => e === v).length) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        // 扩展haveSameContents函数以支持多数组对比
+        function haveSameContents(...arrays) {
+            if (arrays.length < 2) return true;
+            return arrays.slice(1).every(arr => _haveSameContents(arrays[0], arr));
+        }
+    </script>
+</body>
+</html>
