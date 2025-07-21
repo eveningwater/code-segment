@@ -24,6 +24,7 @@ class InputNumber {
 
     const decreaseBtn = document.createElement("button");
     decreaseBtn.className = "input-number-button decrease";
+    decreaseBtn.setAttribute("type", "button");
     decreaseBtn.innerHTML = "-";
 
     const input = document.createElement("input");
@@ -34,6 +35,7 @@ class InputNumber {
     const increaseBtn = document.createElement("button");
     increaseBtn.className = "input-number-button increase";
     increaseBtn.innerHTML = "+";
+    increaseBtn.setAttribute("type", "button");
 
     container.appendChild(decreaseBtn);
     container.appendChild(input);
