@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>堆排序可视化系统 - 基于 heapSort 函数</title>
+    <!-- 引入自定义插件 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .visualization-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .array-visualization {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .array-container {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 80px;
+            align-items: center;
+        }
+
+        .array-element {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .array-element.unsorted {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .array-element.comparing {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+        }
+
+        .array-element.swapping {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            transform: scale(1.2);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .array-element.sorted {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .heap-visualization {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .heap-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+
+        .heap-level {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .heap-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .heap-node.root {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .heap-node.child {
+            background: linear-gradient(135deg, #17a2b8 0%, #4facfe 100%);
+        }
+
+        .heap-node.active {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .plugin-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .plugin-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .step-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .step-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .visualization-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔢 堆排序可视化系统</h1>
+            <p>基于 heapSort 函数的算法可视化演示</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 统计信息 -->
+            <div class="stats-section">
+                <h3 style="margin-bottom: 20px; color: #2c3e50;">📊 排序统计</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="arraySize">0</div>
+                        <div class="stat-label">数组大小</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="comparisons">0</div>
+                        <div class="stat-label">比较次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="swaps">0</div>
+                        <div class="stat-label">交换次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="timeComplexity">O(n log n)</div>
+                        <div class="stat-label">时间复杂度</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 当前步骤信息 -->
+            <div class="step-info" id="stepInfo" style="display: none;">
+                <div class="step-title">🎯 当前步骤</div>
+                <div class="step-description" id="stepDescription"></div>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="controls">
+                <button class="btn btn-primary" onclick="showArrayConfigModal()">
+                    ⚙️ 配置数组
+                </button>
+                <button class="btn btn-success" onclick="startSorting()">
+                    ▶️ 开始排序
+                </button>
+                <button class="btn btn-warning" onclick="pauseSorting()">
+                    ⏸️ 暂停排序
+                </button>
+                <button class="btn btn-secondary" onclick="resetSorting()">
+                    🔄 重置
+                </button>
+                <button class="btn btn-secondary" onclick="showAlgorithmInfo()">
+                    📚 算法说明
+                </button>
+            </div>
+
+            <!-- 可视化区域 -->
+            <div class="visualization-section">
+                <div class="array-visualization">
+                    <h3>📋 数组可视化</h3>
+                    <div class="array-container" id="arrayContainer">
+                        <!-- 数组元素将在这里动态生成 -->
+                    </div>
+                </div>
+
+                <div class="heap-visualization">
+                    <h3>🌳 堆结构可视化</h3>
+                    <div class="heap-container" id="heapContainer">
+                        <!-- 堆结构将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 核心 heapSort 函数
+        const heapSort = arr => {
+            const copyArr = [...arr];
+            let l = copyArr.length;
+            
+            // 创建一个最大堆
+            const heapify = (data, i) => {
+                const left = 2 * i + 1,
+                    right = 2 * i + 2;
+
+                let max = i;
+                // 计算最大堆
+                if (left < l && data[left] > data[max]) {
+                    max = left;
+                }
+                if (right < l && data[right] > data[max]) {
+                    max = right;
+                }
+
+                if (max !== i) {
+                    // 数组结构交换元素
+                    [data[max], data[i]] = [data[i], data[max]];
+                    // 递归
+                    heapify(data, max);
+                }
+            };
+
+            for (let i = Math.floor(l / 2); i >= 0; i--) {
+                heapify(copyArr, i);
+            }
+            // 重复缩小范围
+            for (let i = copyArr.length - 1; i >= 0; i--) {
+                [copyArr[0], copyArr[i]] = [copyArr[i], copyArr[0]];
+                l--;
+                heapify(copyArr, 0);
+            }
+            return copyArr;
+        };
+
+        // 排序可视化系统
+        class HeapSortVisualizer {
+            constructor() {
+                this.array = [6, 3, 4, 1, 8, 9, 2, 7, 5];
+                this.originalArray = [...this.array];
+                this.isSorting = false;
+                this.isPaused = false;
+                this.currentStep = 0;
+                this.comparisons = 0;
+                this.swaps = 0;
+                this.sortSpeed = 1000;
+                this.init();
+            }
+
+            init() {
+                this.renderArray();
+                this.renderHeap();
+                this.updateStats();
+            }
+
+            // 渲染数组可视化
+            renderArray() {
+                const container = document.getElementById('arrayContainer');
+                container.innerHTML = '';
+
+                this.array.forEach((value, index) => {
+                    const element = document.createElement('div');
+                    element.className = 'array-element unsorted';
+                    element.textContent = value;
+                    element.setAttribute('data-index', index);
+                    container.appendChild(element);
+                });
+            }
+
+            // 渲染堆结构可视化
+            renderHeap() {
+                const container = document.getElementById('heapContainer');
+                container.innerHTML = '';
+
+                // 计算堆的层数
+                const levels = Math.ceil(Math.log2(this.array.length + 1));
+                
+                for (let level = 0; level < levels; level++) {
+                    const levelDiv = document.createElement('div');
+                    levelDiv.className = 'heap-level';
+                    
+                    const startIndex = Math.pow(2, level) - 1;
+                    const endIndex = Math.min(Math.pow(2, level + 1) - 1, this.array.length);
+                    
+                    for (let i = startIndex; i < endIndex; i++) {
+                        const node = document.createElement('div');
+                        node.className = `heap-node ${level === 0 ? 'root' : 'child'}`;
+                        node.textContent = this.array[i];
+                        node.setAttribute('data-index', i);
+                        levelDiv.appendChild(node);
+                    }
+                    
+                    container.appendChild(levelDiv);
+                }
+            }
+
+            // 更新统计信息
+            updateStats() {
+                document.getElementById('arraySize').textContent = this.array.length;
+                document.getElementById('comparisons').textContent = this.comparisons;
+                document.getElementById('swaps').textContent = this.swaps;
+            }
+
+            // 高亮数组元素
+            highlightArrayElement(index, className) {
+                const elements = document.querySelectorAll('.array-element');
+                elements.forEach(el => el.className = 'array-element unsorted');
+                
+                if (elements[index]) {
+                    elements[index].className = `array-element ${className}`;
+                }
+            }
+
+            // 高亮堆节点
+            highlightHeapNode(index, className) {
+                const nodes = document.querySelectorAll('.heap-node');
+                nodes.forEach(node => {
+                    node.classList.remove('active');
+                });
+                
+                const targetNode = document.querySelector(`[data-index="${index}"]`);
+                if (targetNode) {
+                    targetNode.classList.add('active');
+                }
+            }
+
+            // 显示步骤信息
+            showStepInfo(title, description) {
+                const stepInfo = document.getElementById('stepInfo');
+                const stepDescription = document.getElementById('stepDescription');
+                
+                stepInfo.style.display = 'block';
+                stepDescription.innerHTML = `<strong>${title}</strong><br>${description}`;
+            }
+
+            // 开始排序
+            async startSorting() {
+                if (this.isSorting) {
+                    notification.show('排序已在进行中', 'warning');
+                    return;
+                }
+
+                this.isSorting = true;
+                this.isPaused = false;
+                this.comparisons = 0;
+                this.swaps = 0;
+                this.currentStep = 0;
+                this.array = [...this.originalArray];
+                
+                this.renderArray();
+                this.renderHeap();
+                this.updateStats();
+
+                notification.show('开始堆排序', 'info');
+
+                // 执行堆排序可视化
+                await this.visualizeHeapSort();
+            }
+
+            // 可视化堆排序
+            async visualizeHeapSort() {
+                const copyArr = [...this.array];
+                let l = copyArr.length;
+
+                // 构建最大堆
+                this.showStepInfo('构建最大堆', '将数组转换为最大堆结构');
+                await this.delay(this.sortSpeed);
+
+                for (let i = Math.floor(l / 2); i >= 0; i--) {
+                    if (this.isPaused) {
+                        await this.waitForResume();
+                    }
+                    
+                    this.highlightHeapNode(i, 'active');
+                    this.showStepInfo('堆化节点', `正在堆化索引 ${i} 的节点`);
+                    await this.delay(this.sortSpeed);
+                    
+                    await this.heapifyVisual(copyArr, i, l);
+                }
+
+                // 排序过程
+                this.showStepInfo('开始排序', '逐个提取堆顶元素进行排序');
+                await this.delay(this.sortSpeed);
+
+                for (let i = copyArr.length - 1; i >= 0; i--) {
+                    if (this.isPaused) {
+                        await this.waitForResume();
+                    }
+
+                    // 交换堆顶元素到末尾
+                    this.highlightArrayElement(0, 'swapping');
+                    this.highlightArrayElement(i, 'swapping');
+                    this.showStepInfo('交换元素', `将堆顶元素 ${copyArr[0]} 与位置 ${i} 的元素交换`);
+                    await this.delay(this.sortSpeed);
+
+                    [copyArr[0], copyArr[i]] = [copyArr[i], copyArr[0]];
+                    this.swaps++;
+                    this.array = [...copyArr];
+                    this.renderArray();
+                    this.renderHeap();
+                    this.updateStats();
+
+                    l--;
+                    
+                    if (l > 0) {
+                        // 重新堆化
+                        this.highlightHeapNode(0, 'active');
+                        this.showStepInfo('重新堆化', '对剩余元素重新构建最大堆');
+                        await this.delay(this.sortSpeed);
+                        
+                        await this.heapifyVisual(copyArr, 0, l);
+                    }
+                }
+
+                this.isSorting = false;
+                this.showStepInfo('排序完成', '堆排序已完成，数组已按升序排列');
+                notification.show('堆排序完成！', 'success');
+            }
+
+            // 可视化堆化过程
+            async heapifyVisual(data, i, l) {
+                const left = 2 * i + 1;
+                const right = 2 * i + 2;
+
+                let max = i;
+                this.comparisons++;
+
+                // 比较左子节点
+                if (left < l) {
+                    this.highlightHeapNode(left, 'active');
+                    this.showStepInfo('比较节点', `比较节点 ${data[i]} 和左子节点 ${data[left]}`);
+                    await this.delay(this.sortSpeed);
+                    
+                    if (data[left] > data[max]) {
+                        max = left;
+                    }
+                }
+
+                // 比较右子节点
+                if (right < l) {
+                    this.highlightHeapNode(right, 'active');
+                    this.showStepInfo('比较节点', `比较节点 ${data[i]} 和右子节点 ${data[right]}`);
+                    await this.delay(this.sortSpeed);
+                    
+                    if (data[right] > data[max]) {
+                        max = right;
+                    }
+                }
+
+                if (max !== i) {
+                    // 交换元素
+                    this.highlightHeapNode(i, 'active');
+                    this.highlightHeapNode(max, 'active');
+                    this.showStepInfo('交换节点', `交换节点 ${data[i]} 和 ${data[max]}`);
+                    await this.delay(this.sortSpeed);
+
+                    [data[max], data[i]] = [data[i], data[max]];
+                    this.swaps++;
+                    this.array = [...data];
+                    this.renderArray();
+                    this.renderHeap();
+                    this.updateStats();
+
+                    // 递归堆化
+                    await this.heapifyVisual(data, max, l);
+                }
+            }
+
+            // 暂停排序
+            pauseSorting() {
+                if (!this.isSorting) {
+                    notification.show('没有正在进行的排序', 'warning');
+                    return;
+                }
+                
+                this.isPaused = true;
+                notification.show('排序已暂停', 'info');
+            }
+
+            // 等待恢复
+            async waitForResume() {
+                return new Promise(resolve => {
+                    const checkResume = () => {
+                        if (!this.isPaused) {
+                            resolve();
+                        } else {
+                            setTimeout(checkResume, 100);
+                        }
+                    };
+                    checkResume();
+                });
+            }
+
+            // 重置排序
+            resetSorting() {
+                this.isSorting = false;
+                this.isPaused = false;
+                this.array = [...this.originalArray];
+                this.comparisons = 0;
+                this.swaps = 0;
+                this.currentStep = 0;
+                
+                document.getElementById('stepInfo').style.display = 'none';
+                this.renderArray();
+                this.renderHeap();
+                this.updateStats();
+                
+                notification.show('已重置排序状态', 'info');
+            }
+
+            // 延迟函数
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            // 设置排序速度
+            setSortSpeed(speed) {
+                this.sortSpeed = speed;
+            }
+
+            // 生成随机数组
+            generateRandomArray(size) {
+                this.originalArray = Array.from({length: size}, () => Math.floor(Math.random() * 100) + 1);
+                this.array = [...this.originalArray];
+                this.renderArray();
+                this.renderHeap();
+                this.updateStats();
+            }
+
+            // 设置自定义数组
+            setCustomArray(arr) {
+                this.originalArray = [...arr];
+                this.array = [...arr];
+                this.renderArray();
+                this.renderHeap();
+                this.updateStats();
+            }
+        }
+
+        // 全局变量
+        let visualizer;
+        let modal;
+        let notification;
+
+        // 显示数组配置模态框
+        function showArrayConfigModal() {
+            const modalContent = `
+                <div class="modal-body">
+                    <form id="arrayConfigForm">
+                        <div class="form-group">
+                            <label class="plugin-label">数组生成方式</label>
+                            <div class="plugin-container">
+                                <div id="arrayTypeSelect"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="plugin-label">数组大小</label>
+                            <div class="plugin-container">
+                                <div id="arraySizeInput"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="plugin-label">排序速度 (毫秒)</label>
+                            <div class="plugin-container">
+                                <div id="sortSpeedInput"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">自定义数组 (用逗号分隔)</label>
+                            <input type="text" class="form-input" id="customArrayInput" placeholder="例如: 6,3,4,1,8,9,2,7,5">
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            modal.show({
+                title: '配置数组参数',
+                content: modalContent,
+                width: '600px',
+                onConfirm: function() {
+                    applyArrayConfig();
+                }
+            });
+
+            // 初始化自定义插件
+            setTimeout(() => {
+                // 初始化数组类型选择器
+                const arrayTypeSelect = new Select({
+                    container: '#arrayTypeSelect',
+                    options: [
+                        { value: 'random', label: '随机生成' },
+                        { value: 'custom', label: '自定义数组' }
+                    ],
+                    placeholder: '选择数组生成方式'
+                });
+                arrayTypeSelect.setValue('random');
+                window.arrayTypeSelect = arrayTypeSelect;
+
+                // 初始化数组大小输入框
+                const arraySizeInput = new InputNumber({
+                    container: '#arraySizeInput',
+                    min: 3,
+                    max: 20,
+                    step: 1,
+                    value: 9
+                });
+                window.arraySizeInput = arraySizeInput;
+
+                // 初始化排序速度输入框
+                const sortSpeedInput = new InputNumber({
+                    container: '#sortSpeedInput',
+                    min: 100,
+                    max: 3000,
+                    step: 100,
+                    value: 1000
+                });
+                window.sortSpeedInput = sortSpeedInput;
+            }, 100);
+        }
+
+        // 应用数组配置
+        function applyArrayConfig() {
+            const arrayType = window.arrayTypeSelect.getValue();
+            const arraySize = window.arraySizeInput.getValue();
+            const sortSpeed = window.sortSpeedInput.getValue();
+            const customArray = document.getElementById('customArrayInput').value;
+
+            visualizer.setSortSpeed(sortSpeed);
+
+            if (arrayType === 'random') {
+                visualizer.generateRandomArray(arraySize);
+                notification.show(`已生成 ${arraySize} 个随机数的数组`, 'success');
+            } else if (arrayType === 'custom' && customArray.trim()) {
+                try {
+                    const arr = customArray.split(',').map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+                    if (arr.length > 0) {
+                        visualizer.setCustomArray(arr);
+                        notification.show(`已设置自定义数组，包含 ${arr.length} 个元素`, 'success');
+                    } else {
+                        notification.show('自定义数组格式错误', 'error');
+                    }
+                } catch (error) {
+                    notification.show('自定义数组格式错误', 'error');
+                }
+            }
+
+            modal.hide();
+        }
+
+        // 开始排序
+        function startSorting() {
+            visualizer.startSorting();
+        }
+
+        // 暂停排序
+        function pauseSorting() {
+            visualizer.pauseSorting();
+        }
+
+        // 重置排序
+        function resetSorting() {
+            visualizer.resetSorting();
+        }
+
+        // 显示算法说明
+        function showAlgorithmInfo() {
+            const modalContent = `
+                <div class="modal-body">
+                    <h3>堆排序算法说明</h3>
+                    <p><strong>堆排序</strong>是一种基于二叉堆的排序算法，具有以下特点：</p>
+                    
+                    <h4>算法步骤：</h4>
+                    <ol>
+                        <li><strong>构建最大堆</strong>：将数组转换为最大堆结构</li>
+                        <li><strong>提取堆顶</strong>：将堆顶元素（最大值）与末尾元素交换</li>
+                        <li><strong>重新堆化</strong>：对剩余元素重新构建最大堆</li>
+                        <li><strong>重复步骤2-3</strong>：直到所有元素排序完成</li>
+                    </ol>
+                    
+                    <h4>时间复杂度：</h4>
+                    <ul>
+                        <li>最好情况：O(n log n)</li>
+                        <li>平均情况：O(n log n)</li>
+                        <li>最坏情况：O(n log n)</li>
+                    </ul>
+                    
+                    <h4>空间复杂度：</h4>
+                    <p>O(1) - 原地排序算法</p>
+                    
+                    <h4>稳定性：</h4>
+                    <p>不稳定排序</p>
+                </div>
+            `;
+
+            modal.show({
+                title: '堆排序算法说明',
+                content: modalContent,
+                width: '700px'
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化全局插件实例
+            modal = new Modal();
+            notification = new Notification();
+            
+            visualizer = new HeapSortVisualizer();
+            
+            // 显示欢迎通知
+            setTimeout(() => {
+                notification.show('欢迎使用堆排序可视化系统', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 
