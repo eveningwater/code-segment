@@ -335,7 +335,7 @@
 - [判断两个数组是否含有相同的数组项-2022-08-07](codes/javascript/have-same-contents.md)
 - [查找数组当中的第一个数组项-2022-08-08](codes/javascript/head.md)
 - [堆排序算法-2022-08-09](codes/javascript/heap-sort.md)
-- [HEX 颜色转换成 RGBA 颜色-2022-08-10](codes/javascript/hexToRGB.md)
+- [HEX 颜色转换成 RGBA 颜色-2022-08-10](codes/javascript/hex-to-rgb.md)
 - [隐藏所有 DOM 元素-2022-08-11](codes/javascript/hide.md)
 - [Delete 请求-2022-08-12](codes/javascript/httpDelete.md)
 - [Get 请求-2022-08-13](codes/javascript/httpGet.md)

@@ -32,6 +32,10 @@ const hexToRGB = hex => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/hex-to-rgb.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -42,8 +46,10 @@ hexToRGB('#fff'); // 'rgb(255, 255, 255)'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/hexToRGB.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/hex-to-rgb.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/hex-to-rgb.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/hexToRGB.html"></iframe>
+<iframe src="codes/javascript/html/hex-to-rgb.html"></iframe>
