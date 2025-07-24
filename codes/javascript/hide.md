@@ -11,6 +11,10 @@ const hide = (...elements) =>
   elements.forEach(el => (el.style.display = 'none'));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/hide.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -18,6 +22,8 @@ hide(...document.querySelectorAll('img')); // Hides all <img> elements on the pa
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/hide.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/hide.html" data-language="html"></div>
 
