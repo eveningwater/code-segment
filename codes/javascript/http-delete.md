@@ -29,8 +29,8 @@ httpDelete('https://jsonplaceholder.typicode.com/posts/1', request => {
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/httpDelete.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/http-delete.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/httpDelete.html"></iframe>
+<iframe src="codes/javascript/html/http-delete.html"></iframe>

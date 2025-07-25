@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理系统 - httpDelete 实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css"></script>
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css"></script>
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css"></script>
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css"></script>
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css"></script>
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(81, 207, 102, 0.4);
+        }
+
+        .tasks-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .task-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-card.high-priority {
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .task-card.medium-priority {
+            border-left: 5px solid #ffd93d;
+        }
+
+        .task-card.low-priority {
+            border-left: 5px solid #51cf66;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .task-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: #ffe3e3;
+            color: #c92a2a;
+        }
+
+        .priority-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .priority-low {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-in-progress {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-completed {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-actions {
+                flex-direction: column;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 任务管理系统</h1>
+            <p>基于 httpDelete 方法的实战示例 - 任务删除功能演示</p>
+        </div>
+
+        <div class="content">
+            <!-- 统计信息 -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">总任务数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingTasks">0</div>
+                    <div class="stat-label">待处理</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label">已完成</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="deletedTasks">0</div>
+                    <div class="stat-label">已删除</div>
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="controls">
+                <div class="control-group">
+                    <label>任务标题</label>
+                    <input type="text" id="taskTitle" placeholder="输入任务标题" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+                <div class="control-group">
+                    <label>任务描述</label>
+                    <textarea id="taskDescription" placeholder="输入任务描述" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; height: 60px; resize: vertical;"></textarea>
+                </div>
+                <div class="control-group">
+                    <label>优先级</label>
+                    <div id="prioritySelect"></div>
+                </div>
+                <div class="control-group">
+                    <label>截止日期</label>
+                    <div id="deadlinePicker"></div>
+                </div>
+                <div class="control-group">
+                    <label>任务数量</label>
+                    <div id="taskCountInput"></div>
+                </div>
+                <div class="control-group">
+                    <label>批量操作</label>
+                    <div id="batchCheckbox"></div>
+                </div>
+                <div class="control-group">
+                    <label>操作</label>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="addTask()">添加任务</button>
+                        <button class="btn btn-danger" onclick="deleteSelectedTasks()">删除选中</button>
+                        <button class="btn btn-success" onclick="generateDemoTasks()">生成演示数据</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选器 -->
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterTasks('all')">全部</button>
+                <button class="filter-btn" onclick="filterTasks('pending')">待处理</button>
+                <button class="filter-btn" onclick="filterTasks('in-progress')">进行中</button>
+                <button class="filter-btn" onclick="filterTasks('completed')">已完成</button>
+                <button class="filter-btn" onclick="filterTasks('high')">高优先级</button>
+                <button class="filter-btn" onclick="filterTasks('medium')">中优先级</button>
+                <button class="filter-btn" onclick="filterTasks('low')">低优先级</button>
+            </div>
+
+            <!-- 任务列表 -->
+            <div id="tasksContainer" class="tasks-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在加载任务...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // 全局变量
+        let tasks = [];
+        let deletedTasksCount = 0;
+        let currentFilter = 'all';
+        let selectedTaskIds = [];
+
+        // 初始化插件
+        let modal, notification, prioritySelect, deadlinePicker, taskCountInput, batchCheckbox;
+
+        // httpDelete 方法
+        const httpDelete = (url, callback, error = console.error) => {
+            const request = new XMLHttpRequest();
+            request.open('DELETE', url, true);
+            request.onload = () => callback(request);
+            request.onerror = () => error(request);
+            request.send();
+        };
+
+        // 初始化应用
+        function initApp() {
+            // 初始化插件
+            modal = new Modal();
+            notification = new Notification({ position: 'top-right' });
+            
+            prioritySelect = new Select({
+                container: document.getElementById('prioritySelect'),
+                options: [
+                    { value: 'low', label: '低优先级' },
+                    { value: 'medium', label: '中优先级' },
+                    { value: 'high', label: '高优先级' }
+                ],
+                placeholder: '选择优先级'
+            });
+
+            deadlinePicker = new DateTimePicker({
+                container: document.getElementById('deadlinePicker'),
+                placeholder: '选择截止日期'
+            });
+
+            taskCountInput = new InputNumber({
+                container: document.getElementById('taskCountInput'),
+                min: 1,
+                max: 100,
+                value: 1,
+                step: 1
+            });
+
+            batchCheckbox = Checkbox.createCheckboxGroup({
+                container: document.getElementById('batchCheckbox'),
+                items: [
+                    { label: '全选任务', checked: false }
+                ],
+                onChange: (checked) => {
+                    if (checked[0]) {
+                        selectedTaskIds = tasks.map(task => task.id);
+                    } else {
+                        selectedTaskIds = [];
+                    }
+                    updateTaskSelection();
+                }
+            });
+
+            // 加载演示数据
+            loadDemoTasks();
+        }
+
+        // 加载演示任务
+        function loadDemoTasks() {
+            const demoTasks = [
+                {
+                    id: 1,
+                    title: '完成项目文档',
+                    description: '编写详细的项目技术文档，包括架构设计、API文档等',
+                    priority: 'high',
+                    status: 'pending',
+                    deadline: '2024-01-15T10:00',
+                    createdAt: '2024-01-10T09:00'
+                },
+                {
+                    id: 2,
+                    title: '代码审查',
+                    description: '对团队提交的代码进行审查，确保代码质量和规范',
+                    priority: 'medium',
+                    status: 'in-progress',
+                    deadline: '2024-01-12T16:00',
+                    createdAt: '2024-01-09T14:00'
+                },
+                {
+                    id: 3,
+                    title: '单元测试',
+                    description: '为核心功能模块编写单元测试，提高代码覆盖率',
+                    priority: 'low',
+                    status: 'completed',
+                    deadline: '2024-01-11T12:00',
+                    createdAt: '2024-01-08T10:00'
+                },
+                {
+                    id: 4,
+                    title: '性能优化',
+                    description: '分析并优化应用性能瓶颈，提升用户体验',
+                    priority: 'high',
+                    status: 'pending',
+                    deadline: '2024-01-20T18:00',
+                    createdAt: '2024-01-10T11:00'
+                },
+                {
+                    id: 5,
+                    title: '安全审计',
+                    description: '进行安全漏洞扫描和修复，确保系统安全',
+                    priority: 'high',
+                    status: 'in-progress',
+                    deadline: '2024-01-14T15:00',
+                    createdAt: '2024-01-09T16:00'
+                }
+            ];
+
+            tasks = demoTasks;
+            renderTasks();
+            updateStats();
+        }
+
+        // 添加任务
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const priority = prioritySelect.getValue();
+            const deadline = deadlinePicker.getValue();
+            const count = taskCountInput.getValue();
+
+            if (!title) {
+                notification.error('请输入任务标题');
+                return;
+            }
+
+            if (!priority) {
+                notification.error('请选择优先级');
+                return;
+            }
+
+            for (let i = 0; i < count; i++) {
+                const task = {
+                    id: Date.now() + i,
+                    title: count > 1 ? `${title} (${i + 1})` : title,
+                    description: description,
+                    priority: priority,
+                    status: 'pending',
+                    deadline: deadline,
+                    createdAt: new Date().toISOString()
+                };
+                tasks.push(task);
+            }
+
+            // 清空表单
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            prioritySelect.setValue('');
+            deadlinePicker.setValue('');
+            taskCountInput.setValue(1);
+
+            renderTasks();
+            updateStats();
+            notification.success(`成功添加 ${count} 个任务`);
+        }
+
+        // 删除单个任务
+        function deleteTask(taskId) {
+            modal.confirm('确定要删除这个任务吗？此操作不可撤销。').then(confirmed => {
+                if (confirmed) {
+                    // 模拟 HTTP DELETE 请求
+                    const task = tasks.find(t => t.id === taskId);
+                    if (task) {
+                        httpDelete(
+                            `https://jsonplaceholder.typicode.com/posts/${taskId}`,
+                            (request) => {
+                                // 从本地数组中移除任务
+                                tasks = tasks.filter(t => t.id !== taskId);
+                                deletedTasksCount++;
+                                
+                                renderTasks();
+                                updateStats();
+                                notification.success(`任务 "${task.title}" 已删除`);
+                            },
+                            (error) => {
+                                notification.error('删除任务失败，请重试');
+                                console.error('Delete error:', error);
+                            }
+                        );
+                    }
+                }
+            });
+        }
+
+        // 删除选中的任务
+        function deleteSelectedTasks() {
+            if (selectedTaskIds.length === 0) {
+                notification.warning('请先选择要删除的任务');
+                return;
+            }
+
+            modal.confirm(`确定要删除选中的 ${selectedTaskIds.length} 个任务吗？此操作不可撤销。`).then(confirmed => {
+                if (confirmed) {
+                    const tasksToDelete = tasks.filter(t => selectedTaskIds.includes(t.id));
+                    let deletedCount = 0;
+
+                    // 批量删除
+                    const deletePromises = selectedTaskIds.map(taskId => {
+                        return new Promise((resolve) => {
+                            httpDelete(
+                                `https://jsonplaceholder.typicode.com/posts/${taskId}`,
+                                (request) => {
+                                    deletedCount++;
+                                    resolve();
+                                },
+                                (error) => {
+                                    console.error('Delete error:', error);
+                                    resolve();
+                                }
+                            );
+                        });
+                    });
+
+                    Promise.all(deletePromises).then(() => {
+                        // 从本地数组中移除任务
+                        tasks = tasks.filter(t => !selectedTaskIds.includes(t.id));
+                        deletedTasksCount += deletedCount;
+                        selectedTaskIds = [];
+                        
+                        renderTasks();
+                        updateStats();
+                        updateTaskSelection();
+                        notification.success(`成功删除 ${deletedCount} 个任务`);
+                    });
+                }
+            });
+        }
+
+        // 生成演示数据
+        function generateDemoTasks() {
+            const demoTitles = [
+                '用户界面优化',
+                '数据库迁移',
+                'API 接口开发',
+                '移动端适配',
+                '第三方集成',
+                '日志系统搭建',
+                '监控告警配置',
+                '自动化部署',
+                '文档更新',
+                'Bug 修复'
+            ];
+
+            const demoDescriptions = [
+                '优化用户界面交互体验，提升用户满意度',
+                '将旧数据库迁移到新的数据库系统',
+                '开发新的 API 接口，支持更多功能',
+                '确保应用在移动设备上的良好体验',
+                '集成第三方服务，扩展应用功能',
+                '搭建完整的日志收集和分析系统',
+                '配置系统监控和告警机制',
+                '实现自动化部署流程',
+                '更新项目文档和用户手册',
+                '修复已知的 Bug 和问题'
+            ];
+
+            const priorities = ['low', 'medium', 'high'];
+            const statuses = ['pending', 'in-progress', 'completed'];
+
+            for (let i = 0; i < 10; i++) {
+                const task = {
+                    id: Date.now() + i,
+                    title: demoTitles[i],
+                    description: demoDescriptions[i],
+                    priority: priorities[Math.floor(Math.random() * priorities.length)],
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    deadline: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+                tasks.push(task);
+            }
+
+            renderTasks();
+            updateStats();
+            notification.success('成功生成 10 个演示任务');
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            const container = document.getElementById('tasksContainer');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📝 暂无任务</h3>
+                        <p>点击"生成演示数据"或"添加任务"来开始管理您的任务</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const filteredTasks = filterTasksByStatus(tasks, currentFilter);
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🔍 没有找到匹配的任务</h3>
+                        <p>尝试调整筛选条件或添加新任务</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredTasks.map(task => `
+                <div class="task-card ${task.priority}-priority" data-task-id="${task.id}">
+                    <div class="task-header">
+                        <div>
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span>创建时间: ${formatDate(task.createdAt)}</span>
+                                ${task.deadline ? `<span>截止时间: ${formatDate(task.deadline)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span class="priority-badge priority-${task.priority}">${getPriorityText(task.priority)}</span>
+                            <span class="status-badge status-${task.status}">${getStatusText(task.status)}</span>
+                        </div>
+                    </div>
+                    <div class="task-description">${task.description}</div>
+                    <div class="task-actions">
+                        <button class="btn btn-primary" onclick="editTask(${task.id})">编辑</button>
+                        <button class="btn btn-success" onclick="toggleTaskStatus(${task.id})">${task.status === 'completed' ? '标记未完成' : '标记完成'}</button>
+                        <button class="btn btn-danger" onclick="deleteTask(${task.id})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 筛选任务
+        function filterTasks(filter) {
+            currentFilter = filter;
+            
+            // 更新筛选按钮状态
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderTasks();
+        }
+
+        // 根据状态筛选任务
+        function filterTasksByStatus(tasks, filter) {
+            switch (filter) {
+                case 'pending':
+                    return tasks.filter(task => task.status === 'pending');
+                case 'in-progress':
+                    return tasks.filter(task => task.status === 'in-progress');
+                case 'completed':
+                    return tasks.filter(task => task.status === 'completed');
+                case 'high':
+                    return tasks.filter(task => task.priority === 'high');
+                case 'medium':
+                    return tasks.filter(task => task.priority === 'medium');
+                case 'low':
+                    return tasks.filter(task => task.priority === 'low');
+                default:
+                    return tasks;
+            }
+        }
+
+        // 切换任务状态
+        function toggleTaskStatus(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                if (task.status === 'completed') {
+                    task.status = 'pending';
+                    notification.info(`任务 "${task.title}" 已标记为待处理`);
+                } else if (task.status === 'pending') {
+                    task.status = 'in-progress';
+                    notification.info(`任务 "${task.title}" 已标记为进行中`);
+                } else {
+                    task.status = 'completed';
+                    notification.success(`任务 "${task.title}" 已完成`);
+                }
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        // 编辑任务
+        function editTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                modal.prompt('编辑任务标题', task.title).then(newTitle => {
+                    if (newTitle && newTitle.trim()) {
+                        task.title = newTitle.trim();
+                        renderTasks();
+                        notification.success('任务标题已更新');
+                    }
+                });
+            }
+        }
+
+        // 更新任务选择状态
+        function updateTaskSelection() {
+            // 这里可以添加选中状态的视觉反馈
+            console.log('Selected task IDs:', selectedTaskIds);
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('totalTasks').textContent = tasks.length;
+            document.getElementById('pendingTasks').textContent = tasks.filter(t => t.status === 'pending').length;
+            document.getElementById('completedTasks').textContent = tasks.filter(t => t.status === 'completed').length;
+            document.getElementById('deletedTasks').textContent = deletedTasksCount;
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 获取优先级文本
+        function getPriorityText(priority) {
+            const texts = {
+                'high': '高',
+                'medium': '中',
+                'low': '低'
+            };
+            return texts[priority] || priority;
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const texts = {
+                'pending': '待处理',
+                'in-progress': '进行中',
+                'completed': '已完成'
+            };
+            return texts[status] || status;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
