@@ -338,7 +338,7 @@
 - [HEX 颜色转换成 RGBA 颜色-2022-08-10](codes/javascript/hex-to-rgb.md)
 - [隐藏所有 DOM 元素-2022-08-11](codes/javascript/hide.md)
 - [Delete 请求-2022-08-12](codes/javascript/http-delete.md)
-- [Get 请求-2022-08-13](codes/javascript/httpGet.md)
+- [Get 请求-2022-08-13](codes/javascript/http-get.md)
 - [Post 请求-2022-08-14](codes/javascript/httpPost.md)
 - [https 重定向-2022-08-16](codes/javascript/httpsRedirect.md)
 - [赫兹函数频率-2022-08-17](codes/javascript/hz.md)
