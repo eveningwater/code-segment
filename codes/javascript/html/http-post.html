@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>httpPost</title>
+    <title>用户注册系统 - httpPost 实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
     <style>
         * {
             margin: 0;
@@ -13,57 +19,523 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --borderColor--: #dededf;
-            --leftColor--: rgba(0, 0, 0, .85);
-            --rightColor--: #8593a1;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
         }
 
         .content {
-            padding: 15px;
+            padding: 30px;
         }
 
-        .row {
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control.error {
+            border-color: #dc3545;
+        }
+
+        .form-control.success {
+            border-color: #28a745;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 12px 15px;
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .file-upload-label:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .file-preview.show {
+            display: block;
+        }
+
+        .file-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .result-data {
+            display: grid;
+            gap: 10px;
+        }
+
+        .result-row {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+            min-width: 120px;
+            margin-right: 15px;
+        }
+
+        .result-value {
+            color: #666;
+            flex: 1;
+        }
+
+        .validation-status {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
-            justify-content: flex-start;
-            border: 1px solid var(--borderColor--);
-            padding: 8px 12px;
-            height: 64px;
-            border-radius: 6px;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
         }
 
-        .row-left {
-            margin-right: 8px;
-            text-align: right;
-            flex: 0 1 80px;
-            color: var(--leftColor--);
-            font-size: 18px;
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
 
-        .row-right {
-            flex: 1;
-            color: var(--rightColor--);
-            font-size: 14px;
+        .status-valid {
+            background: #d4edda;
+            color: #155724;
         }
 
-        .title {
-            color: var(--leftColor--);
-            font-size: large;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-            text-align: center;
-            margin: 15px 0;
+        .status-invalid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .password-strength {
+            margin-top: 10px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak {
+            background: #dc3545;
+            width: 25%;
+        }
+
+        .strength-medium {
+            background: #ffc107;
+            width: 50%;
+        }
+
+        .strength-strong {
+            background: #28a745;
+            width: 75%;
+        }
+
+        .strength-very-strong {
+            background: #20c997;
+            width: 100%;
+        }
+
+        .strength-text {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                grid-column: 1;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h1 class="title">The request data</h1>
-    <div id="content" class="content"></div>
+    <div class="container">
+        <div class="header">
+            <h1>👤 用户注册系统</h1>
+            <p>基于 httpPost 方法的实战示例 - 表单提交与数据验证</p>
+        </div>
+
+        <div class="content">
+            <form id="registrationForm">
+                <div class="form-container">
+                    <!-- 基本信息 -->
+                    <div class="form-section">
+                        <h3>📋 基本信息</h3>
+                        
+                        <div class="form-group">
+                            <label for="username">用户名 *</label>
+                            <input type="text" id="username" class="form-control" placeholder="请输入用户名">
+                            <div class="error-message" id="username-error">用户名不能为空且长度在3-20个字符之间</div>
+                            <div class="validation-status">
+                                <span class="status-icon" id="username-status">?</span>
+                                <span id="username-status-text">请输入用户名</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">邮箱地址 *</label>
+                            <input type="email" id="email" class="form-control" placeholder="请输入邮箱地址">
+                            <div class="error-message" id="email-error">请输入有效的邮箱地址</div>
+                            <div class="validation-status">
+                                <span class="status-icon" id="email-status">?</span>
+                                <span id="email-status-text">请输入邮箱地址</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">密码 *</label>
+                            <input type="password" id="password" class="form-control" placeholder="请输入密码">
+                            <div class="error-message" id="password-error">密码长度至少8位，包含字母和数字</div>
+                            <div class="password-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strength-fill"></div>
+                                </div>
+                                <div class="strength-text" id="strength-text">密码强度：未设置</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">确认密码 *</label>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="请再次输入密码">
+                            <div class="error-message" id="confirmPassword-error">两次输入的密码不一致</div>
+                        </div>
+                    </div>
+
+                    <!-- 详细信息 -->
+                    <div class="form-section">
+                        <h3>👤 详细信息</h3>
+                        
+                        <div class="form-group">
+                            <label for="fullName">真实姓名 *</label>
+                            <input type="text" id="fullName" class="form-control" placeholder="请输入真实姓名">
+                            <div class="error-message" id="fullName-error">请输入真实姓名</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>性别</label>
+                            <div id="genderSelect"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>出生日期</label>
+                            <div id="birthDatePicker"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">手机号码</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="请输入手机号码">
+                            <div class="error-message" id="phone-error">请输入有效的手机号码</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>用户类型</label>
+                            <div id="userTypeSelect"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>注册数量</label>
+                            <div id="quantityInput"></div>
+                        </div>
+                    </div>
+
+                    <!-- 偏好设置 -->
+                    <div class="form-section">
+                        <h3>⚙️ 偏好设置</h3>
+                        
+                        <div class="form-group">
+                            <label>兴趣爱好</label>
+                            <div id="interestsCheckbox"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>通知设置</label>
+                            <div id="notificationCheckbox"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>头像上传</label>
+                            <div class="file-upload">
+                                <input type="file" id="avatar" accept="image/*">
+                                <label for="avatar" class="file-upload-label">
+                                    📷 点击选择头像文件
+                                </label>
+                            </div>
+                            <div class="file-preview" id="filePreview">
+                                <img id="previewImage" src="" alt="预览">
+                            </div>
+                            <div class="progress-bar" id="uploadProgress">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 协议确认 -->
+                    <div class="form-section">
+                        <h3>📄 协议确认</h3>
+                        
+                        <div class="form-group">
+                            <div id="agreementCheckbox"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="referralCode">推荐码（可选）</label>
+                            <input type="text" id="referralCode" class="form-control" placeholder="请输入推荐码">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表单操作 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">重置表单</button>
+                    <button type="button" class="btn btn-primary" onclick="validateAndSubmit()">提交注册</button>
+                    <button type="button" class="btn btn-success" onclick="generateDemoData()">生成演示数据</button>
+                </div>
+            </form>
+
+            <!-- 提交结果 -->
+            <div class="result-container" id="resultContainer">
+                <div class="result-title">✅ 注册成功！</div>
+                <div class="result-data" id="resultData"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
     <script>
-        const content = document.getElementById('content');
+        // 全局变量
+        let modal, notification;
+        let genderSelect, userTypeSelect, birthDatePicker, quantityInput;
+        let interestsCheckbox, notificationCheckbox, agreementCheckbox;
+        let formData = {};
+        let avatarFile = null;
+
+        // httpPost 方法
         const httpPost = (url, data, callback, error = console.error) => {
             const request = new XMLHttpRequest();
             request.open('POST', url, true);
@@ -71,37 +543,637 @@
             request.onload = () => callback(request.responseText);
             request.onerror = () => error(request);
             request.send(data);
-        }
-        const newPost = {
-            userId: 1,
-            id: 1337,
-            title: 'sdgdsgsdgsdgsdgdsgdsgsdg',
-            body: 'sdgdsgsdgsdgsdgdsgdsgsdgsdgdsgsdgsdgsdgdsgdsgsdgsdgdsgsdgsdgsdgdsgdsgsdgsdgdsgsdgsdgsdgdsgdsgsdgsdgdsgsdgsdgsdgdsgdsgsdg'
         };
-        const data = JSON.stringify(newPost);
+
+        // 初始化应用
+        function initApp() {
+            // 初始化插件
+            modal = new Modal();
+            notification = new Notification({ position: 'top-right' });
+
+            // 初始化选择器
+            genderSelect = new Select({
+                container: document.getElementById('genderSelect'),
+                options: [
+                    { value: 'male', label: '男' },
+                    { value: 'female', label: '女' },
+                    { value: 'other', label: '其他' }
+                ],
+                placeholder: '选择性别'
+            });
+
+            userTypeSelect = new Select({
+                container: document.getElementById('userTypeSelect'),
+                options: [
+                    { value: 'personal', label: '个人用户' },
+                    { value: 'business', label: '企业用户' },
+                    { value: 'developer', label: '开发者' },
+                    { value: 'student', label: '学生' }
+                ],
+                placeholder: '选择用户类型'
+            });
+
+                         birthDatePicker = new DateTimePicker({
+                 container: document.getElementById('birthDatePicker'),
+                 placeholder: '选择出生日期',
+                 format: 'YYYY-MM-DD HH:mm:ss'
+             });
+
+            quantityInput = new InputNumber({
+                container: document.getElementById('quantityInput'),
+                min: 1,
+                max: 10,
+                value: 1,
+                step: 1
+            });
+
+            // 初始化复选框组
+            interestsCheckbox = Checkbox.createCheckboxGroup({
+                container: document.getElementById('interestsCheckbox'),
+                items: [
+                    { label: '技术开发', checked: false },
+                    { label: '设计创意', checked: false },
+                    { label: '商业管理', checked: false },
+                    { label: '教育培训', checked: false },
+                    { label: '健康运动', checked: false },
+                    { label: '旅游摄影', checked: false }
+                ]
+            });
+
+            notificationCheckbox = Checkbox.createCheckboxGroup({
+                container: document.getElementById('notificationCheckbox'),
+                items: [
+                    { label: '邮件通知', checked: true },
+                    { label: '短信通知', checked: false },
+                    { label: '推送通知', checked: true },
+                    { label: '系统公告', checked: true }
+                ]
+            });
+
+                         // 创建单个协议同意复选框
+             agreementCheckbox = new Checkbox({
+                 label: '我已阅读并同意《用户协议》和《隐私政策》',
+                 checked: false,
+                 onChange: (checked) => {
+                     console.log('协议同意状态:', checked);
+                 }
+             });
+             agreementCheckbox.mount(document.getElementById('agreementCheckbox'));
+
+            // 设置事件监听器
+            setupEventListeners();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 用户名验证
+            document.getElementById('username').addEventListener('input', validateUsername);
+            document.getElementById('username').addEventListener('blur', validateUsername);
+
+            // 邮箱验证
+            document.getElementById('email').addEventListener('input', validateEmail);
+            document.getElementById('email').addEventListener('blur', validateEmail);
+
+            // 密码验证
+            document.getElementById('password').addEventListener('input', validatePassword);
+            document.getElementById('confirmPassword').addEventListener('input', validateConfirmPassword);
+
+            // 其他字段验证
+            document.getElementById('fullName').addEventListener('blur', validateFullName);
+            document.getElementById('phone').addEventListener('blur', validatePhone);
+
+            // 文件上传
+            document.getElementById('avatar').addEventListener('change', handleFileUpload);
+        }
+
+        // 用户名验证
+        function validateUsername() {
+            const input = document.getElementById('username');
+            const value = input.value.trim();
+            const errorElement = document.getElementById('username-error');
+            const statusElement = document.getElementById('username-status');
+            const statusText = document.getElementById('username-status-text');
+
+            if (!value) {
+                showError(input, errorElement, statusElement, statusText, '请输入用户名');
+                return false;
+            }
+
+            if (value.length < 3 || value.length > 20) {
+                showError(input, errorElement, statusElement, statusText, '用户名长度应在3-20个字符之间');
+                return false;
+            }
+
+            if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+                showError(input, errorElement, statusElement, statusText, '用户名只能包含字母、数字和下划线');
+                return false;
+            }
+
+            showSuccess(input, errorElement, statusElement, statusText, '用户名可用');
+            return true;
+        }
+
+        // 邮箱验证
+        function validateEmail() {
+            const input = document.getElementById('email');
+            const value = input.value.trim();
+            const errorElement = document.getElementById('email-error');
+            const statusElement = document.getElementById('email-status');
+            const statusText = document.getElementById('email-status-text');
+
+            if (!value) {
+                showError(input, errorElement, statusElement, statusText, '请输入邮箱地址');
+                return false;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                showError(input, errorElement, statusElement, statusText, '请输入有效的邮箱地址');
+                return false;
+            }
+
+            showSuccess(input, errorElement, statusElement, statusText, '邮箱格式正确');
+            return true;
+        }
+
+        // 密码验证
+        function validatePassword() {
+            const input = document.getElementById('password');
+            const value = input.value;
+            const errorElement = document.getElementById('password-error');
+            const strengthFill = document.getElementById('strength-fill');
+            const strengthText = document.getElementById('strength-text');
+
+            if (!value) {
+                showError(input, errorElement, null, null, '请输入密码');
+                updatePasswordStrength('', '');
+                return false;
+            }
+
+            if (value.length < 8) {
+                showError(input, errorElement, null, null, '密码长度至少8位');
+                updatePasswordStrength('weak', '弱');
+                return false;
+            }
+
+            const hasLetter = /[a-zA-Z]/.test(value);
+            const hasNumber = /\d/.test(value);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+            let strength = 'weak';
+            let strengthLabel = '弱';
+
+            if (value.length >= 12 && hasLetter && hasNumber && hasSpecial) {
+                strength = 'very-strong';
+                strengthLabel = '非常强';
+            } else if (value.length >= 10 && hasLetter && hasNumber) {
+                strength = 'strong';
+                strengthLabel = '强';
+            } else if (value.length >= 8 && (hasLetter || hasNumber)) {
+                strength = 'medium';
+                strengthLabel = '中等';
+            }
+
+            updatePasswordStrength(strength, strengthLabel);
+            showSuccess(input, errorElement, null, null, '密码格式正确');
+            return true;
+        }
+
+        // 更新密码强度显示
+        function updatePasswordStrength(strength, label) {
+            const strengthFill = document.getElementById('strength-fill');
+            const strengthText = document.getElementById('strength-text');
+
+            strengthFill.className = 'strength-fill';
+            if (strength) {
+                strengthFill.classList.add(`strength-${strength}`);
+            }
+            strengthText.textContent = `密码强度：${label}`;
+        }
+
+        // 确认密码验证
+        function validateConfirmPassword() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const input = document.getElementById('confirmPassword');
+            const errorElement = document.getElementById('confirmPassword-error');
+
+            if (!confirmPassword) {
+                showError(input, errorElement, null, null, '请确认密码');
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                showError(input, errorElement, null, null, '两次输入的密码不一致');
+                return false;
+            }
+
+            showSuccess(input, errorElement, null, null, '密码确认正确');
+            return true;
+        }
+
+        // 真实姓名验证
+        function validateFullName() {
+            const input = document.getElementById('fullName');
+            const value = input.value.trim();
+            const errorElement = document.getElementById('fullName-error');
+
+            if (!value) {
+                showError(input, errorElement, null, null, '请输入真实姓名');
+                return false;
+            }
+
+            if (value.length < 2) {
+                showError(input, errorElement, null, null, '姓名长度至少2个字符');
+                return false;
+            }
+
+            showSuccess(input, errorElement, null, null, '姓名格式正确');
+            return true;
+        }
+
+        // 手机号验证
+        function validatePhone() {
+            const input = document.getElementById('phone');
+            const value = input.value.trim();
+            const errorElement = document.getElementById('phone-error');
+
+            if (!value) {
+                showSuccess(input, errorElement, null, null, '手机号可选');
+                return true;
+            }
+
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (!phoneRegex.test(value)) {
+                showError(input, errorElement, null, null, '请输入有效的手机号码');
+                return false;
+            }
+
+            showSuccess(input, errorElement, null, null, '手机号格式正确');
+            return true;
+        }
+
+        // 显示错误状态
+        function showError(input, errorElement, statusElement, statusText, message) {
+            input.classList.remove('success');
+            input.classList.add('error');
+            if (errorElement) {
+                errorElement.classList.add('show');
+                errorElement.textContent = message;
+            }
+            if (statusElement) {
+                statusElement.className = 'status-icon status-invalid';
+                statusElement.textContent = '✕';
+            }
+            if (statusText) {
+                statusText.textContent = message;
+            }
+        }
+
+        // 显示成功状态
+        function showSuccess(input, errorElement, statusElement, statusText, message) {
+            input.classList.remove('error');
+            input.classList.add('success');
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+            if (statusElement) {
+                statusElement.className = 'status-icon status-valid';
+                statusElement.textContent = '✓';
+            }
+            if (statusText) {
+                statusText.textContent = message;
+            }
+        }
+
+        // 处理文件上传
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 验证文件类型
+            if (!file.type.startsWith('image/')) {
+                notification.error('请选择图片文件');
+                return;
+            }
+
+            // 验证文件大小（最大5MB）
+            if (file.size > 5 * 1024 * 1024) {
+                notification.error('文件大小不能超过5MB');
+                return;
+            }
+
+            avatarFile = file;
+
+            // 显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImage = document.getElementById('previewImage');
+                const filePreview = document.getElementById('filePreview');
+                previewImage.src = e.target.result;
+                filePreview.classList.add('show');
+            };
+            reader.readAsDataURL(file);
+
+            notification.success('文件选择成功');
+        }
+
+        // 收集表单数据
+        function collectFormData() {
+            const formData = {
+                username: document.getElementById('username').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                fullName: document.getElementById('fullName').value.trim(),
+                gender: genderSelect.getValue(),
+                                 birthDate: formatDateOnlyFromPicker(birthDatePicker.getValue()),
+                phone: document.getElementById('phone').value.trim(),
+                userType: userTypeSelect.getValue(),
+                quantity: quantityInput.getValue(),
+                interests: interestsCheckbox.checkboxes.map((cb, index) => cb.isChecked() ? interestsCheckbox.checkboxes[index].options.label : null).filter(Boolean),
+                notifications: notificationCheckbox.checkboxes.map((cb, index) => cb.isChecked() ? notificationCheckbox.checkboxes[index].options.label : null).filter(Boolean),
+                                 agreement: agreementCheckbox.isChecked(),
+                referralCode: document.getElementById('referralCode').value.trim(),
+                avatar: avatarFile ? avatarFile.name : null,
+                                 registrationTime: formatDateTime(new Date())
+            };
+
+            return formData;
+        }
+
+        // 验证并提交表单
+        function validateAndSubmit() {
+            // 验证必填字段
+            const validations = [
+                validateUsername(),
+                validateEmail(),
+                validatePassword(),
+                validateConfirmPassword(),
+                validateFullName(),
+                validatePhone()
+            ];
+
+            if (validations.some(v => !v)) {
+                notification.error('请检查表单中的错误信息');
+                return;
+            }
+
+                         // 检查协议同意
+             if (!agreementCheckbox.isChecked()) {
+                 notification.error('请先同意用户协议和隐私政策');
+                 return;
+             }
+
+            // 收集表单数据
+            const data = collectFormData();
+
+            // 显示确认对话框
+            modal.confirm('确认提交注册信息吗？').then(confirmed => {
+                if (confirmed) {
+                    submitForm(data);
+                }
+            });
+        }
+
+        // 提交表单
+        function submitForm(data) {
+            // 显示上传进度
+            const progressBar = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            progressBar.classList.add('show');
+
+            // 模拟上传进度
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+
+            // 发送POST请求
+            const jsonData = JSON.stringify(data);
         httpPost(
             'https://jsonplaceholder.typicode.com/posts/',
-            data,
-            (text) => {
-                console.log(text);
-                try {
-                    const data = JSON.parse(text);
-                    console.log(data);
-                    let template = "";
-                    for (const key in data) {
+                jsonData,
+                (responseText) => {
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '100%';
+
+                    setTimeout(() => {
+                        progressBar.classList.remove('show');
+                        showResult(data, responseText);
+                        notification.success('注册成功！');
+                    }, 500);
+                },
+                (error) => {
+                    clearInterval(progressInterval);
+                    progressBar.classList.remove('show');
+                    notification.error('注册失败，请重试');
+                    console.error('Submit error:', error);
+                }
+            );
+        }
+
+        // 显示结果
+        function showResult(formData, responseText) {
+            const resultContainer = document.getElementById('resultContainer');
+            const resultData = document.getElementById('resultData');
+
+            let template = '';
+            for (const [key, value] of Object.entries(formData)) {
+                if (value !== null && value !== undefined && value !== '') {
+                                         let displayValue = value;
+                     if (Array.isArray(value)) {
+                         displayValue = value.join(', ');
+                     } else if (typeof value === 'boolean') {
+                         displayValue = value ? '是' : '否';
+                     } else if (key === 'birthDate') {
+                         // 格式化出生日期（仅显示日期部分）
+                         try {
+                             if (typeof value === 'string' && value.includes('T')) {
+                                 const date = new Date(value);
+                                 if (!isNaN(date.getTime())) {
+                                     displayValue = formatDateOnly(date);
+                                 }
+                             } else if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                 displayValue = value;
+                             } else {
+                                 displayValue = value;
+                             }
+                         } catch (e) {
+                             displayValue = value;
+                         }
+                     } else if (key === 'registrationTime') {
+                         // 格式化注册时间（显示完整的日期时间）
+                         try {
+                             if (typeof value === 'string' && value.includes('T')) {
+                                 const date = new Date(value);
+                                 if (!isNaN(date.getTime())) {
+                                     displayValue = formatDateTime(date);
+                                 }
+                             } else if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                 displayValue = value;
+                             } else {
+                                 displayValue = value;
+                             }
+                         } catch (e) {
+                             displayValue = value;
+                         }
+                     }
+                    
                         template += `
-                            <div class="row">
-                                <label class="row-left">${ key }:</label>
-                                <p class="row-right">${ data[key] }</p>    
+                        <div class="result-row">
+                            <div class="result-label">${getFieldLabel(key)}:</div>
+                            <div class="result-value">${displayValue}</div>
                             </div>
-                        `
-                    }
-                    content.innerHTML = template;
-                } catch (error) {
-                    console.error(error);
+                    `;
                 }
             }
-        );
+
+            resultData.innerHTML = template;
+            resultContainer.classList.add('show');
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+                 // 格式化日期时间
+         function formatDateTime(date) {
+             const year = date.getFullYear();
+             const month = String(date.getMonth() + 1).padStart(2, '0');
+             const day = String(date.getDate()).padStart(2, '0');
+             const hours = String(date.getHours()).padStart(2, '0');
+             const minutes = String(date.getMinutes()).padStart(2, '0');
+             const seconds = String(date.getSeconds()).padStart(2, '0');
+             return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+         }
+
+         // 格式化日期选择器的值
+         function formatDateTimeFromPicker(pickerValue) {
+             if (!pickerValue) return '';
+             // 将 YYYY-MM-DDTHH:mm 格式转换为 YYYY-MM-DD HH:mm:ss
+             const date = new Date(pickerValue);
+             if (isNaN(date.getTime())) return pickerValue;
+             return formatDateTime(date);
+         }
+
+         // 格式化日期（仅日期部分）
+         function formatDateOnly(date) {
+             const year = date.getFullYear();
+             const month = String(date.getMonth() + 1).padStart(2, '0');
+             const day = String(date.getDate()).padStart(2, '0');
+             return `${year}-${month}-${day}`;
+         }
+
+         // 格式化日期选择器的值为仅日期格式
+         function formatDateOnlyFromPicker(pickerValue) {
+             if (!pickerValue) return '';
+             const date = new Date(pickerValue);
+             if (isNaN(date.getTime())) return pickerValue;
+             return formatDateOnly(date);
+         }
+
+         // 获取字段标签
+         function getFieldLabel(key) {
+            const labels = {
+                username: '用户名',
+                email: '邮箱地址',
+                password: '密码',
+                fullName: '真实姓名',
+                gender: '性别',
+                birthDate: '出生日期',
+                phone: '手机号码',
+                userType: '用户类型',
+                quantity: '注册数量',
+                interests: '兴趣爱好',
+                notifications: '通知设置',
+                agreement: '协议同意',
+                referralCode: '推荐码',
+                avatar: '头像文件',
+                registrationTime: '注册时间'
+            };
+            return labels[key] || key;
+        }
+
+        // 重置表单
+        function resetForm() {
+            modal.confirm('确定要重置表单吗？所有数据将丢失。').then(confirmed => {
+                if (confirmed) {
+                    document.getElementById('registrationForm').reset();
+                    
+                    // 重置插件
+                    genderSelect.setValue('');
+                    userTypeSelect.setValue('');
+                    birthDatePicker.setValue('');
+                    quantityInput.setValue(1);
+                    
+                    // 重置复选框
+                    interestsCheckbox.checkboxes.forEach(cb => cb.setChecked(false));
+                    notificationCheckbox.checkboxes.forEach(cb => cb.setChecked(false));
+                                         agreementCheckbox.setChecked(false);
+
+                    // 清除文件预览
+                    document.getElementById('filePreview').classList.remove('show');
+                    avatarFile = null;
+
+                    // 隐藏结果
+                    document.getElementById('resultContainer').classList.remove('show');
+
+                    // 清除验证状态
+                    document.querySelectorAll('.form-control').forEach(input => {
+                        input.classList.remove('error', 'success');
+                    });
+                    document.querySelectorAll('.error-message').forEach(error => {
+                        error.classList.remove('show');
+                    });
+
+                    notification.info('表单已重置');
+                }
+            });
+        }
+
+        // 生成演示数据
+        function generateDemoData() {
+            const demoData = {
+                username: 'demo_user_' + Math.floor(Math.random() * 1000),
+                email: `demo${Math.floor(Math.random() * 1000)}@example.com`,
+                password: 'DemoPass123!',
+                fullName: '演示用户',
+                phone: '13800138000'
+            };
+
+            // 填充表单
+            document.getElementById('username').value = demoData.username;
+            document.getElementById('email').value = demoData.email;
+            document.getElementById('password').value = demoData.password;
+            document.getElementById('confirmPassword').value = demoData.password;
+            document.getElementById('fullName').value = demoData.fullName;
+            document.getElementById('phone').value = demoData.phone;
+
+            // 设置插件值
+            genderSelect.setValue('male');
+            userTypeSelect.setValue('personal');
+                         birthDatePicker.setValue('1990-01-01T00:00:00');
+            quantityInput.setValue(1);
+
+            // 设置复选框
+            interestsCheckbox.checkboxes[0].setChecked(true);
+            interestsCheckbox.checkboxes[2].setChecked(true);
+            notificationCheckbox.checkboxes[0].setChecked(true);
+            notificationCheckbox.checkboxes[2].setChecked(true);
+                         agreementCheckbox.setChecked(true);
+
+            // 触发验证
+            validateUsername();
+            validateEmail();
+            validatePassword();
+            validateConfirmPassword();
+            validateFullName();
+            validatePhone();
+
+            notification.success('演示数据已生成');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 
