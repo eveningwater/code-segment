@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站安全检测与重定向管理系统 - httpsRedirect 实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .protocol-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-secure {
+            background: #28a745;
+        }
+
+        .status-insecure {
+            background: #dc3545;
+        }
+
+        .status-warning {
+            background: #ffc107;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-text {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .current-url {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .card-icon {
+            font-size: 1.5em;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .security-score {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+        }
+
+        .score-excellent {
+            background: conic-gradient(#28a745 0deg, #28a745 90deg, #e9ecef 90deg, #e9ecef 360deg);
+        }
+
+        .score-good {
+            background: conic-gradient(#ffc107 0deg, #ffc107 75deg, #e9ecef 75deg, #e9ecef 360deg);
+        }
+
+        .score-poor {
+            background: conic-gradient(#dc3545 0deg, #dc3545 45deg, #e9ecef 45deg, #e9ecef 360deg);
+        }
+
+        .score-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .score-description {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .log-container {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        .log-time {
+            color: #a0aec0;
+            margin-right: 10px;
+        }
+
+        .log-level-info {
+            color: #63b3ed;
+        }
+
+        .log-level-warning {
+            color: #f6ad55;
+        }
+
+        .log-level-error {
+            color: #fc8181;
+        }
+
+        .log-level-success {
+            color: #68d391;
+        }
+
+        .redirect-history {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .history-url {
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #666;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .history-time {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .security-checklist {
+            display: grid;
+            gap: 10px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .checklist-status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+        }
+
+        .status-pass {
+            background: #28a745;
+        }
+
+        .status-fail {
+            background: #dc3545;
+        }
+
+        .status-pending {
+            background: #6c757d;
+        }
+
+        .checklist-text {
+            flex: 1;
+            font-size: 0.9em;
+        }
+
+        .checklist-action {
+            font-size: 0.8em;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .current-url {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 网站安全检测与重定向管理系统</h1>
+            <p>基于 httpsRedirect 函数的实战示例 - 安全协议检测与自动重定向</p>
+        </div>
+
+        <div class="content">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="protocol-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <div class="status-text" id="statusText">检测中...</div>
+                </div>
+                <div class="current-url" id="currentUrl" title="当前URL"></div>
+            </div>
+
+            <!-- 仪表板 -->
+            <div class="dashboard">
+                <!-- 安全评分 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📊</span>
+                        <span class="card-title">安全评分</span>
+                    </div>
+                    <div class="security-score">
+                        <div class="score-circle" id="scoreCircle">
+                            <span id="scoreValue">--</span>
+                        </div>
+                        <div class="score-text" id="scoreText">检测中...</div>
+                        <div class="score-description" id="scoreDescription">正在评估网站安全状态</div>
+                    </div>
+                </div>
+
+                <!-- 协议状态 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🌐</span>
+                        <span class="card-title">协议状态</span>
+                    </div>
+                    <div id="protocolInfo">
+                        <p><strong>当前协议：</strong><span id="currentProtocol">检测中...</span></p>
+                        <p><strong>推荐协议：</strong><span id="recommendedProtocol">HTTPS</span></p>
+                        <p><strong>SSL证书：</strong><span id="sslStatus">检测中...</span></p>
+                        <p><strong>混合内容：</strong><span id="mixedContent">检测中...</span></p>
+                    </div>
+                </div>
+
+                <!-- 重定向历史 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📋</span>
+                        <span class="card-title">重定向历史</span>
+                    </div>
+                    <div class="redirect-history" id="redirectHistory">
+                        <p style="text-align: center; color: #666;">暂无重定向记录</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>⚙️ 重定向设置</h3>
+                    <div class="form-group">
+                        <label>目标协议</label>
+                        <div id="targetProtocolSelect"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>重定向延迟（秒）</label>
+                        <div id="redirectDelayInput"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>自动重定向</label>
+                        <div id="autoRedirectCheckbox"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>强制HTTPS</label>
+                        <div id="forceHttpsCheckbox"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="performRedirect()">立即重定向</button>
+                    <button class="btn btn-success" onclick="testSecurity()">安全检测</button>
+                    <button class="btn btn-warning" onclick="clearHistory()">清除历史</button>
+                </div>
+
+                <div class="control-section">
+                    <h3>🔍 安全检测</h3>
+                    <div class="security-checklist" id="securityChecklist">
+                        <!-- 安全检测项目将在这里动态生成 -->
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📝 系统日志</h3>
+                    <div class="log-container" id="logContainer">
+                        <!-- 日志内容将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // 全局变量
+        let modal, notification;
+        let targetProtocolSelect, redirectDelayInput, autoRedirectCheckbox, forceHttpsCheckbox;
+        let redirectHistory = [];
+        let securityLog = [];
+        let currentScore = 0;
+        let isSecure = false;
+
+        // httpsRedirect 函数
+        const httpsRedirect = () => {
+            if (location.protocol !== 'https:') {
+                const newUrl = "https://" + location.href.split('//')[1];
+                addToHistory(location.href, newUrl);
+                addLog('info', `正在重定向到 HTTPS: ${newUrl}`);
+                location.replace(newUrl);
+            }
+        };
+
+        // 初始化应用
+        function initApp() {
+            // 初始化插件
+            modal = new Modal();
+            notification = new Notification({ position: 'top-right' });
+
+            // 初始化选择器
+            targetProtocolSelect = new Select({
+                container: document.getElementById('targetProtocolSelect'),
+                options: [
+                    { value: 'https', label: 'HTTPS (推荐)' },
+                    { value: 'http', label: 'HTTP (不推荐)' },
+                    { value: 'auto', label: '自动检测' }
+                ],
+                placeholder: '选择目标协议'
+            });
+
+            redirectDelayInput = new InputNumber({
+                container: document.getElementById('redirectDelayInput'),
+                min: 0,
+                max: 30,
+                value: 0,
+                step: 1
+            });
+
+            autoRedirectCheckbox = new Checkbox({
+                label: '启用自动重定向',
+                checked: true,
+                onChange: (checked) => {
+                    addLog('info', `自动重定向已${checked ? '启用' : '禁用'}`);
+                }
+            });
+            autoRedirectCheckbox.mount(document.getElementById('autoRedirectCheckbox'));
+
+            forceHttpsCheckbox = new Checkbox({
+                label: '强制使用HTTPS',
+                checked: true,
+                onChange: (checked) => {
+                    addLog('info', `强制HTTPS已${checked ? '启用' : '禁用'}`);
+                }
+            });
+            forceHttpsCheckbox.mount(document.getElementById('forceHttpsCheckbox'));
+
+            // 初始化界面
+            updateStatus();
+            generateSecurityChecklist();
+            addLog('info', '系统初始化完成');
+            
+            // 设置定时检测
+            setInterval(updateStatus, 5000);
+        }
+
+        // 更新状态
+        function updateStatus() {
+            const currentUrl = location.href;
+            const currentProtocol = location.protocol;
+            const isHttps = currentProtocol === 'https:';
+            
+            // 更新状态指示器
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const currentUrlElement = document.getElementById('currentUrl');
+            
+            currentUrlElement.textContent = currentUrl;
+            currentUrlElement.title = currentUrl;
+            
+            if (isHttps) {
+                statusIndicator.className = 'status-indicator status-secure';
+                statusText.textContent = '安全连接 (HTTPS)';
+                isSecure = true;
+                currentScore = 95;
+            } else {
+                statusIndicator.className = 'status-indicator status-insecure';
+                statusText.textContent = '不安全连接 (HTTP)';
+                isSecure = false;
+                currentScore = 30;
+            }
+            
+            // 更新协议信息
+            document.getElementById('currentProtocol').textContent = currentProtocol.replace(':', '').toUpperCase();
+            document.getElementById('recommendedProtocol').textContent = 'HTTPS';
+            document.getElementById('sslStatus').textContent = isHttps ? '有效' : '无效';
+            document.getElementById('mixedContent').textContent = isHttps ? '无' : '可能存在';
+            
+            // 更新安全评分
+            updateSecurityScore();
+            
+            // 检查是否需要自动重定向
+            if (autoRedirectCheckbox.isChecked() && forceHttpsCheckbox.isChecked() && !isHttps) {
+                const delay = redirectDelayInput.getValue();
+                if (delay > 0) {
+                    setTimeout(() => {
+                        modal.confirm('检测到不安全连接，是否立即重定向到HTTPS？').then(confirmed => {
+                            if (confirmed) {
+                                httpsRedirect();
+                            }
+                        });
+                    }, delay * 1000);
+                }
+            }
+        }
+
+        // 更新安全评分
+        function updateSecurityScore() {
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreValue = document.getElementById('scoreValue');
+            const scoreText = document.getElementById('scoreText');
+            const scoreDescription = document.getElementById('scoreDescription');
+            
+            scoreValue.textContent = currentScore;
+            
+            if (currentScore >= 90) {
+                scoreCircle.className = 'score-circle score-excellent';
+                scoreText.textContent = '优秀';
+                scoreDescription.textContent = '网站安全性很高';
+            } else if (currentScore >= 70) {
+                scoreCircle.className = 'score-circle score-good';
+                scoreText.textContent = '良好';
+                scoreDescription.textContent = '网站安全性良好，建议升级到HTTPS';
+            } else {
+                scoreCircle.className = 'score-circle score-poor';
+                scoreText.textContent = '需要改进';
+                scoreDescription.textContent = '建议立即升级到HTTPS以提高安全性';
+            }
+        }
+
+        // 执行重定向
+        function performRedirect() {
+            const targetProtocol = targetProtocolSelect.getValue();
+            
+            if (!targetProtocol) {
+                notification.error('请选择目标协议');
+                return;
+            }
+            
+            const currentProtocol = location.protocol.replace(':', '');
+            
+            if (targetProtocol === currentProtocol) {
+                notification.warning('当前已经是目标协议');
+                return;
+            }
+            
+            modal.confirm(`确定要将协议从 ${currentProtocol.toUpperCase()} 切换到 ${targetProtocol.toUpperCase()} 吗？`).then(confirmed => {
+                if (confirmed) {
+                    if (targetProtocol === 'https') {
+                        httpsRedirect();
+                    } else if (targetProtocol === 'http') {
+                        const newUrl = "http://" + location.href.split('//')[1];
+                        addToHistory(location.href, newUrl);
+                        addLog('warning', `重定向到 HTTP: ${newUrl}`);
+                        location.replace(newUrl);
+                    }
+                }
+            });
+        }
+
+        // 安全检测
+        function testSecurity() {
+            addLog('info', '开始安全检测...');
+            
+            const checks = [
+                { name: 'HTTPS协议', status: location.protocol === 'https:', action: '升级到HTTPS' },
+                { name: 'SSL证书', status: location.protocol === 'https:', action: '安装SSL证书' },
+                { name: '安全头部', status: true, action: '配置安全头部' },
+                { name: '内容安全策略', status: false, action: '启用CSP' },
+                { name: 'XSS保护', status: true, action: '配置XSS保护' },
+                { name: '点击劫持保护', status: false, action: '启用X-Frame-Options' }
+            ];
+            
+            let passedChecks = 0;
+            const checklistContainer = document.getElementById('securityChecklist');
+            checklistContainer.innerHTML = '';
+            
+            checks.forEach((check, index) => {
+                setTimeout(() => {
+                    const item = document.createElement('div');
+                    item.className = 'checklist-item';
+                    
+                    const status = document.createElement('div');
+                    status.className = `checklist-status ${check.status ? 'status-pass' : 'status-fail'}`;
+                    status.textContent = check.status ? '✓' : '✕';
+                    
+                    const text = document.createElement('div');
+                    text.className = 'checklist-text';
+                    text.textContent = check.name;
+                    
+                    const action = document.createElement('div');
+                    action.className = 'checklist-action';
+                    action.textContent = check.action;
+                    action.onclick = () => {
+                        addLog('info', `执行操作: ${check.action}`);
+                        notification.info(`正在${check.action}`);
+                    };
+                    
+                    item.appendChild(status);
+                    item.appendChild(text);
+                    item.appendChild(action);
+                    checklistContainer.appendChild(item);
+                    
+                    if (check.status) passedChecks++;
+                    
+                    addLog(check.status ? 'success' : 'warning', `${check.name}: ${check.status ? '通过' : '失败'}`);
+                    
+                    if (index === checks.length - 1) {
+                        const passRate = Math.round((passedChecks / checks.length) * 100);
+                        addLog('info', `安全检测完成，通过率: ${passRate}%`);
+                        notification.success(`安全检测完成，通过率: ${passRate}%`);
+                    }
+                }, index * 500);
+            });
+        }
+
+        // 添加重定向历史
+        function addToHistory(fromUrl, toUrl) {
+            const historyItem = {
+                from: fromUrl,
+                to: toUrl,
+                time: new Date().toISOString()
+            };
+            
+            redirectHistory.unshift(historyItem);
+            if (redirectHistory.length > 10) {
+                redirectHistory.pop();
+            }
+            
+            updateRedirectHistory();
+        }
+
+        // 更新重定向历史显示
+        function updateRedirectHistory() {
+            const container = document.getElementById('redirectHistory');
+            
+            if (redirectHistory.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">暂无重定向记录</p>';
+                return;
+            }
+            
+            container.innerHTML = redirectHistory.map(item => `
+                <div class="history-item">
+                    <div class="history-url" title="${item.from} → ${item.to}">
+                        ${item.from.split('//')[1]} → ${item.to.split('//')[1]}
+                    </div>
+                    <div class="history-time">
+                        ${formatDateTime(new Date(item.time))}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 生成安全检测清单
+        function generateSecurityChecklist() {
+            const checklistContainer = document.getElementById('securityChecklist');
+            const checks = [
+                { name: 'HTTPS协议', status: 'pending', action: '检测中...' },
+                { name: 'SSL证书', status: 'pending', action: '检测中...' },
+                { name: '安全头部', status: 'pending', action: '检测中...' },
+                { name: '内容安全策略', status: 'pending', action: '检测中...' },
+                { name: 'XSS保护', status: 'pending', action: '检测中...' },
+                { name: '点击劫持保护', status: 'pending', action: '检测中...' }
+            ];
+            
+            checklistContainer.innerHTML = checks.map(check => `
+                <div class="checklist-item">
+                    <div class="checklist-status status-${check.status}">?</div>
+                    <div class="checklist-text">${check.name}</div>
+                    <div class="checklist-action">${check.action}</div>
+                </div>
+            `).join('');
+        }
+
+        // 添加日志
+        function addLog(level, message) {
+            const timestamp = new Date();
+            const logEntry = {
+                time: timestamp,
+                level: level,
+                message: message
+            };
+            
+            securityLog.unshift(logEntry);
+            if (securityLog.length > 50) {
+                securityLog.pop();
+            }
+            
+            updateLogDisplay();
+        }
+
+        // 更新日志显示
+        function updateLogDisplay() {
+            const container = document.getElementById('logContainer');
+            
+            container.innerHTML = securityLog.map(entry => `
+                <div class="log-entry">
+                    <span class="log-time">${formatDateTime(entry.time)}</span>
+                    <span class="log-level-${entry.level}">[${entry.level.toUpperCase()}]</span>
+                    <span>${entry.message}</span>
+                </div>
+            `).join('');
+        }
+
+        // 清除历史
+        function clearHistory() {
+            modal.confirm('确定要清除所有重定向历史吗？').then(confirmed => {
+                if (confirmed) {
+                    redirectHistory = [];
+                    updateRedirectHistory();
+                    addLog('info', '重定向历史已清除');
+                    notification.success('重定向历史已清除');
+                }
+            });
+        }
+
+        // 格式化日期时间
+        function formatDateTime(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
