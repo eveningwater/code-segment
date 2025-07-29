@@ -18,6 +18,10 @@ const hz = (handler, iterations = 100) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/hz.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -37,6 +41,8 @@ Math.round(hz(sumForLoop)); // 4784
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/hz.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/hz.html" data-language="html"></div>
 
