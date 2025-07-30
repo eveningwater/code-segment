@@ -58,7 +58,7 @@ class Notification {
     const link = document.createElement('link');
     link.id = 'notification-styles';
     link.rel = 'stylesheet';
-    link.href = '../../demo/plugins/notification/style.css';
+    link.href = './style.css';
     
     // 如果外部样式加载失败，使用内联样式作为备用
     link.onerror = () => {
