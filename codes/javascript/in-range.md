@@ -16,6 +16,10 @@ const inRange = (n, start, end = null) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/in-range.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -27,8 +31,10 @@ inRange(3, 2); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/inRange.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/in-range.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/in-range.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/inRange.html"></iframe>
+<iframe src="codes/javascript/html/in-range.html"></iframe>

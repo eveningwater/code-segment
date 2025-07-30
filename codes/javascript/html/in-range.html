@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能数据范围管理系统 - inRange函数实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 30px;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .card-icon {
+            font-size: 1.5em;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .range-monitor {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .range-bar {
+            background: #e9ecef;
+            height: 20px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .range-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .range-fill.warning {
+            background: linear-gradient(90deg, #ffc107 0%, #fd7e14 100%);
+        }
+
+        .range-fill.danger {
+            background: linear-gradient(90deg, #dc3545 0%, #e74c3c 100%);
+        }
+
+        .range-marker {
+            position: absolute;
+            top: -5px;
+            width: 4px;
+            height: 30px;
+            background: #333;
+            border-radius: 2px;
+            transform: translateX(-50%);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-normal {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-panel {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .alert-panel.danger {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-panel.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .alert-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .alert-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .threshold-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .threshold-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .threshold-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .threshold-card.active {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .threshold-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .threshold-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .threshold-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .real-time-data {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .data-entry {
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        .data-time {
+            color: #a0aec0;
+            margin-right: 10px;
+        }
+
+        .data-value {
+            color: #68d391;
+        }
+
+        .data-status {
+            margin-left: 10px;
+        }
+
+        .data-status.normal {
+            color: #68d391;
+        }
+
+        .data-status.warning {
+            color: #f6ad55;
+        }
+
+        .data-status.danger {
+            color: #fc8181;
+        }
+
+        .validation-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .validation-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .validation-result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .chart-container {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .chart-line {
+            height: 2px;
+            background: #667eea;
+            position: absolute;
+            bottom: 50px;
+            left: 20px;
+            right: 20px;
+        }
+
+        .chart-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .chart-point.warning {
+            background: #ffc107;
+        }
+
+        .chart-point.danger {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .threshold-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 智能数据范围管理系统</h1>
+            <p>基于 inRange 函数的实战示例 - 数据验证、范围监控、阈值管理</p>
+        </div>
+
+        <div class="content">
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>⚙️ 系统配置</h3>
+                    <div class="controls-grid">
+                        <div class="form-group">
+                            <label>监控类型</label>
+                            <div id="monitorTypeSelect"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>数据源</label>
+                            <div id="dataSourceSelect"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>更新频率 (秒)</label>
+                            <div id="updateFrequencyInput"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>自动保存</label>
+                            <div id="autoSaveCheckbox"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startMonitoring()">开始监控</button>
+                    <button class="btn btn-warning" onclick="pauseMonitoring()">暂停监控</button>
+                    <button class="btn btn-success" onclick="addThreshold()">添加阈值</button>
+                    <button class="btn btn-danger" onclick="clearAlerts()">清除警报</button>
+                </div>
+            </div>
+
+            <!-- 仪表板 -->
+            <div class="dashboard">
+                <!-- 实时监控 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📊</span>
+                        <span class="card-title">实时数据监控</span>
+                    </div>
+                    <div class="range-monitor" id="rangeMonitor">
+                        <div class="range-bar">
+                            <div class="range-fill" id="rangeFill"></div>
+                            <div class="range-marker" id="currentValue"></div>
+                        </div>
+                        <div class="range-labels">
+                            <span id="minLabel">0</span>
+                            <span id="maxLabel">100</span>
+                        </div>
+                    </div>
+                    <div id="currentStatus">
+                        <p><strong>当前值：</strong><span id="currentValueText">--</span></p>
+                        <p><strong>状态：</strong><span id="statusText">--</span></p>
+                        <p><strong>范围：</strong><span id="rangeText">--</span></p>
+                    </div>
+                </div>
+
+                <!-- 阈值管理 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🎚️</span>
+                        <span class="card-title">阈值管理</span>
+                    </div>
+                    <div class="threshold-grid" id="thresholdGrid">
+                        <!-- 阈值卡片将在这里动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 警报系统 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🚨</span>
+                        <span class="card-title">警报系统</span>
+                    </div>
+                    <div id="alertPanel" class="alert-panel">
+                        <div class="alert-header">
+                            <span>📢 系统状态正常</span>
+                        </div>
+                        <ul class="alert-list" id="alertList">
+                            <!-- 警报列表将在这里显示 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据验证 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">✅</span>
+                    <span class="card-title">数据验证</span>
+                </div>
+                <div class="validation-form">
+                    <div class="controls-grid">
+                        <div class="form-group">
+                            <label>测试值</label>
+                            <div id="testValueInput"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>范围起始</label>
+                            <div id="rangeStartInput"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>范围结束</label>
+                            <div id="rangeEndInput"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>验证模式</label>
+                            <div id="validationModeSelect"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="validateData()">验证数据</button>
+                    <button class="btn btn-success" onclick="batchValidate()">批量验证</button>
+                    <div id="validationResult" class="validation-result" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- 数据历史 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📈</span>
+                    <span class="card-title">数据历史</span>
+                </div>
+                <div class="real-time-data" id="realTimeData">
+                    <!-- 实时数据将在这里显示 -->
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📋</span>
+                    <span class="card-title">数据记录</span>
+                </div>
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>值</th>
+                            <th>范围</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- 数据行将在这里动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // 全局变量
+        let modal, notification;
+        let monitorTypeSelect, dataSourceSelect, updateFrequencyInput, autoSaveCheckbox;
+        let testValueInput, rangeStartInput, rangeEndInput, validationModeSelect;
+        let monitoringInterval;
+        let isMonitoring = false;
+        let dataHistory = [];
+        let thresholds = [];
+        let alerts = [];
+
+        // inRange 函数
+        const inRange = (n, start, end = null) => {
+            if (end && start > end) {
+                [end, start] = [start, end];
+            }
+            return end === null ? n >= 0 && n < start : n >= start && n < end;
+        };
+
+        // 初始化应用
+        function initApp() {
+            // 初始化插件
+            modal = new Modal();
+            notification = new Notification({ position: 'top-right' });
+
+            // 初始化选择控件
+            monitorTypeSelect = new Select({
+                container: document.getElementById('monitorTypeSelect'),
+                options: [
+                    { value: 'temperature', label: '温度监控' },
+                    { value: 'pressure', label: '压力监控' },
+                    { value: 'humidity', label: '湿度监控' },
+                    { value: 'voltage', label: '电压监控' },
+                    { value: 'custom', label: '自定义监控' }
+                ],
+                placeholder: '选择监控类型'
+            });
+
+            dataSourceSelect = new Select({
+                container: document.getElementById('dataSourceSelect'),
+                options: [
+                    { value: 'sensor', label: '传感器数据' },
+                    { value: 'api', label: 'API 数据' },
+                    { value: 'manual', label: '手动输入' },
+                    { value: 'simulation', label: '模拟数据' }
+                ],
+                placeholder: '选择数据源'
+            });
+
+            updateFrequencyInput = new InputNumber({
+                container: document.getElementById('updateFrequencyInput'),
+                min: 1,
+                max: 3600,
+                value: 5,
+                step: 1
+            });
+
+            autoSaveCheckbox = new Checkbox({
+                label: '自动保存数据',
+                checked: true,
+                onChange: (checked) => {
+                    console.log('自动保存状态:', checked);
+                }
+            });
+            autoSaveCheckbox.mount(document.getElementById('autoSaveCheckbox'));
+
+            // 初始化验证控件
+            testValueInput = new InputNumber({
+                container: document.getElementById('testValueInput'),
+                min: -1000,
+                max: 1000,
+                value: 50,
+                step: 1
+            });
+
+            rangeStartInput = new InputNumber({
+                container: document.getElementById('rangeStartInput'),
+                min: -1000,
+                max: 1000,
+                value: 0,
+                step: 1
+            });
+
+            rangeEndInput = new InputNumber({
+                container: document.getElementById('rangeEndInput'),
+                min: -1000,
+                max: 1000,
+                value: 100,
+                step: 1
+            });
+
+            validationModeSelect = new Select({
+                container: document.getElementById('validationModeSelect'),
+                options: [
+                    { value: 'normal', label: '正常模式 [start, end)' },
+                    { value: 'inclusive', label: '包含模式 [start, end]' },
+                    { value: 'exclusive', label: '排除模式 (start, end)' }
+                ],
+                placeholder: '选择验证模式'
+            });
+
+            // 初始化默认阈值
+            initializeThresholds();
+
+            // 初始化界面
+            updateRangeMonitor(50, 0, 100);
+            addDataLog('系统初始化完成', 50, 'normal');
+        }
+
+        // 初始化默认阈值
+        function initializeThresholds() {
+            thresholds = [
+                { id: 1, name: '低温警告', min: 0, max: 10, type: 'warning', active: true },
+                { id: 2, name: '高温警告', min: 90, max: 100, type: 'warning', active: true },
+                { id: 3, name: '危险低温', min: -10, max: 0, type: 'danger', active: true },
+                { id: 4, name: '危险高温', min: 100, max: 120, type: 'danger', active: true }
+            ];
+            updateThresholdGrid();
+        }
+
+        // 更新阈值网格
+        function updateThresholdGrid() {
+            const container = document.getElementById('thresholdGrid');
+            container.innerHTML = '';
+
+            thresholds.forEach(threshold => {
+                const card = document.createElement('div');
+                card.className = `threshold-card ${threshold.active ? 'active' : ''}`;
+                card.onclick = () => toggleThreshold(threshold.id);
+
+                card.innerHTML = `
+                    <div class="threshold-header">
+                        <span class="threshold-name">${threshold.name}</span>
+                        <span class="status-badge status-${threshold.type}">${threshold.type}</span>
+                    </div>
+                    <div class="threshold-value">${threshold.min} - ${threshold.max}</div>
+                    <div style="font-size: 0.8em; color: #666;">
+                        ${threshold.active ? '已启用' : '已禁用'}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // 切换阈值状态
+        function toggleThreshold(id) {
+            const threshold = thresholds.find(t => t.id === id);
+            if (threshold) {
+                threshold.active = !threshold.active;
+                updateThresholdGrid();
+                addDataLog(`阈值 ${threshold.name} ${threshold.active ? '启用' : '禁用'}`, null, 'info');
+            }
+        }
+
+        // 添加阈值
+        function addThreshold() {
+            modal.prompt('请输入阈值名称:', '新阈值').then(name => {
+                if (name) {
+                    modal.prompt('请输入最小值:', '0').then(min => {
+                        if (min !== null) {
+                            modal.prompt('请输入最大值:', '100').then(max => {
+                                if (max !== null) {
+                                    const newThreshold = {
+                                        id: Date.now(),
+                                        name: name,
+                                        min: parseFloat(min),
+                                        max: parseFloat(max),
+                                        type: 'warning',
+                                        active: true
+                                    };
+                                    thresholds.push(newThreshold);
+                                    updateThresholdGrid();
+                                    addDataLog(`添加阈值: ${name}`, null, 'info');
+                                    notification.success('阈值添加成功');
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // 开始监控
+        function startMonitoring() {
+            if (isMonitoring) {
+                notification.warning('监控已在运行中');
+                return;
+            }
+
+            const frequency = updateFrequencyInput.getValue();
+            const monitorType = monitorTypeSelect.getValue();
+            const dataSource = dataSourceSelect.getValue();
+
+            if (!monitorType || !dataSource) {
+                notification.error('请选择监控类型和数据源');
+                return;
+            }
+
+            isMonitoring = true;
+            addDataLog(`开始${monitorType}监控`, null, 'info');
+
+            // 模拟数据生成
+            monitoringInterval = setInterval(() => {
+                const value = generateSimulatedData(monitorType);
+                const status = checkValueStatus(value);
+                
+                updateRangeMonitor(value, 0, 100);
+                addDataLog(`${monitorType}数据`, value, status);
+                
+                // 检查阈值
+                checkThresholds(value);
+                
+                // 自动保存
+                if (autoSaveCheckbox.isChecked()) {
+                    saveData(value, status);
+                }
+            }, frequency * 1000);
+
+            notification.success('监控已开始');
+        }
+
+        // 暂停监控
+        function pauseMonitoring() {
+            if (!isMonitoring) {
+                notification.warning('监控未在运行');
+                return;
+            }
+
+            clearInterval(monitoringInterval);
+            isMonitoring = false;
+            addDataLog('监控已暂停', null, 'info');
+            notification.success('监控已暂停');
+        }
+
+        // 生成模拟数据
+        function generateSimulatedData(type) {
+            const baseValue = 50;
+            const variation = Math.random() * 40 - 20; // -20 到 20 的随机变化
+            let value = baseValue + variation;
+
+            switch (type) {
+                case 'temperature':
+                    value = Math.max(-10, Math.min(120, value));
+                    break;
+                case 'pressure':
+                    value = Math.max(0, Math.min(200, value));
+                    break;
+                case 'humidity':
+                    value = Math.max(0, Math.min(100, value));
+                    break;
+                case 'voltage':
+                    value = Math.max(0, Math.min(500, value));
+                    break;
+                default:
+                    value = Math.max(0, Math.min(100, value));
+            }
+
+            return Math.round(value * 10) / 10;
+        }
+
+        // 检查值状态
+        function checkValueStatus(value) {
+            // 检查危险阈值
+            const dangerThresholds = thresholds.filter(t => t.active && t.type === 'danger');
+            for (const threshold of dangerThresholds) {
+                if (inRange(value, threshold.min, threshold.max)) {
+                    return 'danger';
+                }
+            }
+
+            // 检查警告阈值
+            const warningThresholds = thresholds.filter(t => t.active && t.type === 'warning');
+            for (const threshold of warningThresholds) {
+                if (inRange(value, threshold.min, threshold.max)) {
+                    return 'warning';
+                }
+            }
+
+            return 'normal';
+        }
+
+        // 检查阈值
+        function checkThresholds(value) {
+            const triggeredThresholds = thresholds.filter(t => 
+                t.active && inRange(value, t.min, t.max)
+            );
+
+            triggeredThresholds.forEach(threshold => {
+                const alert = {
+                    id: Date.now(),
+                    message: `${threshold.name}: 当前值 ${value} 超出范围 [${threshold.min}, ${threshold.max})`,
+                    type: threshold.type,
+                    timestamp: new Date(),
+                    value: value
+                };
+
+                alerts.unshift(alert);
+                if (alerts.length > 10) {
+                    alerts.pop();
+                }
+
+                updateAlertPanel();
+                notification[threshold.type === 'danger' ? 'error' : 'warning'](alert.message);
+            });
+        }
+
+        // 更新警报面板
+        function updateAlertPanel() {
+            const panel = document.getElementById('alertPanel');
+            const list = document.getElementById('alertList');
+
+            if (alerts.length === 0) {
+                panel.className = 'alert-panel success';
+                panel.querySelector('.alert-header').innerHTML = '<span>📢 系统状态正常</span>';
+                list.innerHTML = '<li class="alert-item">暂无警报</li>';
+            } else {
+                const hasDanger = alerts.some(a => a.type === 'danger');
+                panel.className = `alert-panel ${hasDanger ? 'danger' : 'warning'}`;
+                panel.querySelector('.alert-header').innerHTML = 
+                    `<span>🚨 ${hasDanger ? '危险警报' : '警告信息'} (${alerts.length})</span>`;
+
+                list.innerHTML = alerts.map(alert => `
+                    <li class="alert-item">
+                        <div style="font-weight: 600; color: ${alert.type === 'danger' ? '#dc3545' : '#ffc107'};">
+                            ${alert.type === 'danger' ? '🚨' : '⚠️'} ${alert.message}
+                        </div>
+                        <div style="font-size: 0.8em; color: #666;">
+                            ${formatDateTime(alert.timestamp)}
+                        </div>
+                    </li>
+                `).join('');
+            }
+        }
+
+        // 清除警报
+        function clearAlerts() {
+            modal.confirm('确定要清除所有警报吗？').then(confirmed => {
+                if (confirmed) {
+                    alerts = [];
+                    updateAlertPanel();
+                    addDataLog('所有警报已清除', null, 'info');
+                    notification.success('警报已清除');
+                }
+            });
+        }
+
+        // 更新范围监控器
+        function updateRangeMonitor(value, min, max) {
+            const fill = document.getElementById('rangeFill');
+            const marker = document.getElementById('currentValue');
+            const range = max - min;
+            const percentage = ((value - min) / range) * 100;
+
+            fill.style.width = `${percentage}%`;
+            marker.style.left = `${percentage}%`;
+
+            // 更新状态颜色
+            const status = checkValueStatus(value);
+            fill.className = `range-fill ${status !== 'normal' ? status : ''}`;
+
+            // 更新标签
+            document.getElementById('minLabel').textContent = min;
+            document.getElementById('maxLabel').textContent = max;
+            document.getElementById('currentValueText').textContent = value;
+            document.getElementById('statusText').innerHTML = `<span class="status-badge status-${status}">${status}</span>`;
+            document.getElementById('rangeText').textContent = `[${min}, ${max})`;
+        }
+
+        // 验证数据
+        function validateData() {
+            const value = testValueInput.getValue();
+            const start = rangeStartInput.getValue();
+            const end = rangeEndInput.getValue();
+            const mode = validationModeSelect.getValue();
+
+            if (value === null || start === null || end === null || !mode) {
+                notification.error('请填写所有验证参数');
+                return;
+            }
+
+            let isValid = false;
+            let message = '';
+
+            switch (mode) {
+                case 'normal':
+                    isValid = inRange(value, start, end);
+                    message = `值 ${value} 是否在范围 [${start}, ${end}) 内`;
+                    break;
+                case 'inclusive':
+                    isValid = value >= start && value <= end;
+                    message = `值 ${value} 是否在范围 [${start}, ${end}] 内`;
+                    break;
+                case 'exclusive':
+                    isValid = value > start && value < end;
+                    message = `值 ${value} 是否在范围 (${start}, ${end}) 内`;
+                    break;
+            }
+
+            const result = document.getElementById('validationResult');
+            result.style.display = 'block';
+            result.className = `validation-result ${isValid ? 'success' : 'error'}`;
+            result.innerHTML = `
+                <div>${message}</div>
+                <div style="margin-top: 5px; font-size: 0.9em;">
+                    结果: <strong>${isValid ? '✅ 验证通过' : '❌ 验证失败'}</strong>
+                </div>
+            `;
+
+            addDataLog(`数据验证: ${value}`, value, isValid ? 'normal' : 'warning');
+        }
+
+        // 批量验证
+        function batchValidate() {
+            const testValues = [10, 25, 50, 75, 90, 110];
+            const start = 0;
+            const end = 100;
+            
+            let results = [];
+            testValues.forEach(value => {
+                const isValid = inRange(value, start, end);
+                results.push({ value, isValid });
+            });
+
+            const content = `
+                <div style="max-width: 500px;">
+                    <h4>批量验证结果</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 8px; border: 1px solid #dee2e6;">值</th>
+                            <th style="padding: 8px; border: 1px solid #dee2e6;">范围 [${start}, ${end})</th>
+                            <th style="padding: 8px; border: 1px solid #dee2e6;">结果</th>
+                        </tr>
+                        ${results.map(r => `
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #dee2e6;">${r.value}</td>
+                                <td style="padding: 8px; border: 1px solid #dee2e6;">[${start}, ${end})</td>
+                                <td style="padding: 8px; border: 1px solid #dee2e6;">
+                                    <span style="color: ${r.isValid ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                                        ${r.isValid ? '✅ 通过' : '❌ 失败'}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+            `;
+
+            modal.alert(content, '批量验证结果');
+        }
+
+        // 添加数据日志
+        function addDataLog(message, value, status) {
+            const timestamp = new Date();
+            const logEntry = {
+                time: timestamp,
+                message: message,
+                value: value,
+                status: status
+            };
+
+            dataHistory.unshift(logEntry);
+            if (dataHistory.length > 50) {
+                dataHistory.pop();
+            }
+
+            updateRealTimeData();
+            updateDataTable();
+        }
+
+        // 更新实时数据显示
+        function updateRealTimeData() {
+            const container = document.getElementById('realTimeData');
+            
+            container.innerHTML = dataHistory.slice(0, 20).map(entry => `
+                <div class="data-entry">
+                    <span class="data-time">${formatDateTime(entry.time)}</span>
+                    <span class="data-value">${entry.value !== null ? entry.value : ''}</span>
+                    <span class="data-status ${entry.status}">${entry.message}</span>
+                </div>
+            `).join('');
+        }
+
+        // 更新数据表格
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            dataHistory.slice(0, 20).forEach(entry => {
+                if (entry.value !== null) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatDateTime(entry.time)}</td>
+                        <td>${entry.value}</td>
+                        <td>[0, 100)</td>
+                        <td><span class="status-badge status-${entry.status}">${entry.status}</span></td>
+                        <td>
+                            <button onclick="deleteDataEntry('${entry.time.getTime()}')" 
+                                    style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em;">
+                                删除
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+
+        // 删除数据条目
+        function deleteDataEntry(timestamp) {
+            const index = dataHistory.findIndex(entry => entry.time.getTime() == timestamp);
+            if (index !== -1) {
+                dataHistory.splice(index, 1);
+                updateRealTimeData();
+                updateDataTable();
+                notification.success('数据条目已删除');
+            }
+        }
+
+        // 保存数据
+        function saveData(value, status) {
+            // 这里可以添加数据保存到本地存储或发送到服务器的逻辑
+            console.log('保存数据:', { value, status, timestamp: new Date() });
+        }
+
+        // 格式化日期时间
+        function formatDateTime(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
