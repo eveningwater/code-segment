@@ -10,6 +10,10 @@
 const includesAll = (arr, values) => values.every(v => arr.includes(v));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/includes-all.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,8 +23,10 @@ includesAll([1, 2, 3, 4], [1, 5]); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/includesAll.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/includes-all.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/includes-all.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/includesAll.html"></iframe>
+<iframe src="codes/javascript/html/includes-all.html"></iframe>
