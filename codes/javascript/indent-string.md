@@ -12,6 +12,10 @@ const indentString = (str, count, indent = ' ') =>
   str.replace(/^/gm, indent.repeat(count));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/indent-string.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,8 +25,10 @@ indentString('Lorem\nIpsum', 2, '_'); // '__Lorem\n__Ipsum'
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/indentString.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/indent-string.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/indent-string.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/indentString.html"></iframe>
+<iframe src="codes/javascript/html/indent-string.html"></iframe>
