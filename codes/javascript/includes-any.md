@@ -10,6 +10,10 @@
 const includesAny = (arr, values) => values.some(v => arr.includes(v));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/includes-any.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,8 +23,10 @@ includesAny([1, 2, 3, 4], [8, 9]); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/includesAny.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/includes-any.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/includes-any.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/includesAny.html"></iframe>
+<iframe src="codes/javascript/html/includes-any.html"></iframe>
