@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能数据搜索与分析系统 - indexOfAll实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .results-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .results-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-weight: 600;
+            color: #333;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            color: #856404;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .match-count {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chart-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+
+        .chart-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .export-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .search-buttons {
+                flex-direction: column;
+            }
+
+            .results-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .data-table {
+                font-size: 0.9em;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px;
+            }
+        }
+
+        .modal-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 智能数据搜索与分析系统</h1>
+            <p>基于 indexOfAll 函数的高效数据检索与可视化分析平台</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <div class="control-group">
+                    <label>数据类型</label>
+                    <div id="dataTypeSelect"></div>
+                </div>
+                <div class="control-group">
+                    <label>搜索范围</label>
+                    <div id="searchScopeSelect"></div>
+                </div>
+                <div class="control-group">
+                    <label>数据量</label>
+                    <div id="dataSizeInput"></div>
+                </div>
+                <div class="control-group">
+                    <label>时间范围</label>
+                    <div id="dateRangePicker"></div>
+                </div>
+                <div class="control-group">
+                    <label>过滤选项</label>
+                    <div id="filterOptions"></div>
+                </div>
+            </div>
+
+            <!-- 搜索区域 -->
+            <div class="search-section">
+                <input type="text" id="searchInput" class="search-input" placeholder="输入搜索关键词，支持多关键词搜索（用逗号分隔）...">
+                <div class="search-buttons">
+                    <button class="btn btn-primary" onclick="performSearch()">
+                        🔍 智能搜索
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResults()">
+                        🗑️ 清空结果
+                    </button>
+                    <button class="btn btn-success" onclick="generateRandomData()">
+                        🎲 生成测试数据
+                    </button>
+                    <button class="btn btn-secondary" onclick="showAdvancedSearch()">
+                        ⚙️ 高级搜索
+                    </button>
+                </div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>正在分析数据，请稍候...</p>
+            </div>
+
+            <!-- 结果区域 -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <div class="results-title">搜索结果</div>
+                    <div class="results-stats">
+                        <span id="totalResults">总计: 0</span>
+                        <span id="matchCount">匹配: 0</span>
+                        <span id="searchTime">耗时: 0ms</span>
+                    </div>
+                </div>
+                <div id="resultsTable"></div>
+            </div>
+
+            <!-- 图表分析 -->
+            <div id="chartContainer" class="chart-container" style="display: none;">
+                <div class="chart-title">📊 数据分析报告</div>
+                <div class="chart-grid">
+                    <div class="chart-item">
+                        <div class="chart-number" id="totalItems">0</div>
+                        <div class="chart-label">总数据项</div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-number" id="matchedItems">0</div>
+                        <div class="chart-label">匹配项</div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-number" id="matchRate">0%</div>
+                        <div class="chart-label">匹配率</div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-number" id="avgMatches">0</div>
+                        <div class="chart-label">平均匹配数</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 导出区域 -->
+            <div id="exportSection" class="export-section" style="display: none;">
+                <h3>📤 导出结果</h3>
+                <div class="export-buttons">
+                    <button class="btn btn-primary" onclick="exportToCSV()">📄 导出CSV</button>
+                    <button class="btn btn-primary" onclick="exportToJSON()">📋 导出JSON</button>
+                    <button class="btn btn-secondary" onclick="printResults()">🖨️ 打印报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        // 全局变量
+        let currentData = [];
+        let searchResults = [];
+        let notification;
+        let modal;
+
+        // indexOfAll 函数实现
+        const indexOfAll = (arr, val) =>
+            arr.reduce((acc, item, i) => (item === val ? [...acc, i] : acc), []);
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePlugins();
+            generateRandomData();
+        });
+
+        // 初始化插件
+        function initializePlugins() {
+            // 初始化通知系统
+            notification = new Notification({
+                position: 'top-right',
+                duration: 3000
+            });
+
+            // 初始化模态框
+            modal = new Modal();
+
+            // 数据类型选择器
+            const dataTypeSelect = new Select({
+                container: '#dataTypeSelect',
+                options: [
+                    { value: 'users', label: '用户数据' },
+                    { value: 'products', label: '产品数据' },
+                    { value: 'orders', label: '订单数据' },
+                    { value: 'logs', label: '日志数据' },
+                    { value: 'mixed', label: '混合数据' }
+                ],
+                onChange: (value) => {
+                    console.log('数据类型:', value);
+                    generateRandomData();
+                }
+            });
+
+            // 搜索范围选择器
+            const searchScopeSelect = new Select({
+                container: '#searchScopeSelect',
+                options: [
+                    { value: 'all', label: '全部字段' },
+                    { value: 'name', label: '仅名称字段' },
+                    { value: 'description', label: '仅描述字段' },
+                    { value: 'tags', label: '仅标签字段' },
+                    { value: 'custom', label: '自定义字段' }
+                ],
+                onChange: (value) => {
+                    console.log('搜索范围:', value);
+                }
+            });
+
+            // 数据量输入器
+            const dataSizeInput = new InputNumber({
+                container: '#dataSizeInput',
+                min: 10,
+                max: 1000,
+                step: 10,
+                value: 100,
+                onChange: (value) => {
+                    console.log('数据量:', value);
+                    generateRandomData();
+                }
+            });
+
+            // 时间范围选择器
+            const dateRangePicker = new DateTimePicker({
+                container: '#dateRangePicker',
+                placeholder: '选择时间范围',
+                onChange: (value) => {
+                    console.log('时间范围:', value);
+                }
+            });
+
+            // 过滤选项复选框组
+            const filterOptions = Checkbox.createCheckboxGroup({
+                container: '#filterOptions',
+                items: [
+                    { label: '区分大小写', checked: false },
+                    { label: '模糊匹配', checked: true },
+                    { label: '正则表达式', checked: false },
+                    { label: '排除空值', checked: true }
+                ],
+                onChange: (values) => {
+                    console.log('过滤选项:', values);
+                }
+            });
+        }
+
+        // 生成随机测试数据
+        function generateRandomData() {
+            const dataSize = document.querySelector('#dataSizeInput .input-number-input')?.value || 100;
+            const dataType = document.querySelector('#dataTypeSelect .select-header span')?.textContent || '混合数据';
+            
+            currentData = [];
+            const categories = ['技术', '设计', '营销', '管理', '开发', '测试', '运维', '产品'];
+            const statuses = ['活跃', '待处理', '已完成', '已取消', '进行中'];
+            const priorities = ['高', '中', '低'];
+
+            for (let i = 0; i < dataSize; i++) {
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const priority = priorities[Math.floor(Math.random() * priorities.length)];
+                
+                currentData.push({
+                    id: i + 1,
+                    name: `${category}项目${i + 1}`,
+                    description: `这是一个关于${category}的详细描述，包含多个关键词如${category}、${status}、${priority}等`,
+                    category: category,
+                    status: status,
+                    priority: priority,
+                    tags: [category, status, priority, `标签${i + 1}`],
+                    createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    score: Math.floor(Math.random() * 100) + 1
+                });
+            }
+
+            notification.success(`已生成 ${dataSize} 条${dataType}测试数据`);
+            updateChartData();
+        }
+
+        // 执行搜索
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput').value.trim();
+            if (!searchInput) {
+                notification.warning('请输入搜索关键词');
+                return;
+            }
+
+            showLoading(true);
+            
+            // 模拟异步搜索
+            setTimeout(() => {
+                const startTime = performance.now();
+                const keywords = searchInput.split(',').map(k => k.trim()).filter(k => k);
+                
+                searchResults = [];
+                let totalMatches = 0;
+
+                currentData.forEach((item, index) => {
+                    const matches = {};
+                    let itemMatchCount = 0;
+
+                    keywords.forEach(keyword => {
+                        // 在多个字段中搜索
+                        const nameMatches = indexOfAll(item.name.toLowerCase().split(''), keyword.toLowerCase());
+                        const descMatches = indexOfAll(item.description.toLowerCase().split(''), keyword.toLowerCase());
+                        const categoryMatches = indexOfAll(item.category.toLowerCase().split(''), keyword.toLowerCase());
+                        const statusMatches = indexOfAll(item.status.toLowerCase().split(''), keyword.toLowerCase());
+                        const tagsMatches = item.tags.flatMap(tag => 
+                            indexOfAll(tag.toLowerCase().split(''), keyword.toLowerCase())
+                        );
+
+                        if (nameMatches.length > 0 || descMatches.length > 0 || 
+                            categoryMatches.length > 0 || statusMatches.length > 0 || 
+                            tagsMatches.length > 0) {
+                            matches[keyword] = {
+                                name: nameMatches,
+                                description: descMatches,
+                                category: categoryMatches,
+                                status: statusMatches,
+                                tags: tagsMatches
+                            };
+                            itemMatchCount += nameMatches.length + descMatches.length + 
+                                            categoryMatches.length + statusMatches.length + 
+                                            tagsMatches.length;
+                        }
+                    });
+
+                    if (Object.keys(matches).length > 0) {
+                        searchResults.push({
+                            ...item,
+                            matches: matches,
+                            matchCount: itemMatchCount
+                        });
+                        totalMatches += itemMatchCount;
+                    }
+                });
+
+                const endTime = performance.now();
+                const searchTime = Math.round(endTime - startTime);
+
+                showLoading(false);
+                displayResults(searchResults, totalMatches, searchTime);
+                notification.success(`搜索完成！找到 ${searchResults.length} 条匹配记录`);
+            }, 1000);
+        }
+
+        // 显示加载状态
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const resultsSection = document.getElementById('resultsSection');
+            const chartContainer = document.getElementById('chartContainer');
+            const exportSection = document.getElementById('exportSection');
+
+            if (show) {
+                loading.style.display = 'block';
+                resultsSection.style.display = 'none';
+                chartContainer.style.display = 'none';
+                exportSection.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+            }
+        }
+
+        // 显示搜索结果
+        function displayResults(results, totalMatches, searchTime) {
+            const resultsSection = document.getElementById('resultsSection');
+            const chartContainer = document.getElementById('chartContainer');
+            const exportSection = document.getElementById('exportSection');
+            const resultsTable = document.getElementById('resultsTable');
+
+            // 更新统计信息
+            document.getElementById('totalResults').textContent = `总计: ${currentData.length}`;
+            document.getElementById('matchCount').textContent = `匹配: ${results.length}`;
+            document.getElementById('searchTime').textContent = `耗时: ${searchTime}ms`;
+
+            // 生成表格
+            if (results.length === 0) {
+                resultsTable.innerHTML = '<div class="no-results">没有找到匹配的结果</div>';
+            } else {
+                let tableHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名称</th>
+                                <th>描述</th>
+                                <th>分类</th>
+                                <th>状态</th>
+                                <th>优先级</th>
+                                <th>匹配数</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                results.forEach(item => {
+                    const highlightedName = highlightMatches(item.name, item.matches);
+                    const highlightedDesc = highlightMatches(item.description, item.matches);
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${highlightedName}</td>
+                            <td>${highlightedDesc}</td>
+                            <td>${item.category}</td>
+                            <td>${item.status}</td>
+                            <td>${item.priority}</td>
+                            <td><span class="match-count">${item.matchCount}</span></td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewDetails(${item.id})" style="padding: 5px 10px; font-size: 12px;">
+                                    详情
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += '</tbody></table>';
+                resultsTable.innerHTML = tableHTML;
+            }
+
+            // 显示结果区域
+            resultsSection.style.display = 'block';
+            chartContainer.style.display = 'block';
+            exportSection.style.display = 'block';
+
+            // 更新图表数据
+            updateChartData();
+        }
+
+        // 高亮匹配的文本
+        function highlightMatches(text, matches) {
+            let highlightedText = text;
+            
+            Object.keys(matches).forEach(keyword => {
+                const regex = new RegExp(`(${keyword})`, 'gi');
+                highlightedText = highlightedText.replace(regex, '<span class="highlight">$1</span>');
+            });
+            
+            return highlightedText;
+        }
+
+        // 更新图表数据
+        function updateChartData() {
+            document.getElementById('totalItems').textContent = currentData.length;
+            document.getElementById('matchedItems').textContent = searchResults.length;
+            
+            const matchRate = currentData.length > 0 ? 
+                Math.round((searchResults.length / currentData.length) * 100) : 0;
+            document.getElementById('matchRate').textContent = `${matchRate}%`;
+            
+            const avgMatches = searchResults.length > 0 ? 
+                Math.round(searchResults.reduce((sum, item) => sum + item.matchCount, 0) / searchResults.length) : 0;
+            document.getElementById('avgMatches').textContent = avgMatches;
+        }
+
+        // 清空结果
+        function clearResults() {
+            searchResults = [];
+            document.getElementById('searchInput').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('chartContainer').style.display = 'none';
+            document.getElementById('exportSection').style.display = 'none';
+            updateChartData();
+            notification.info('已清空搜索结果');
+        }
+
+        // 显示高级搜索
+        function showAdvancedSearch() {
+            modal.show({
+                title: '高级搜索设置',
+                content: `
+                    <div style="padding: 20px;">
+                        <h3>搜索配置</h3>
+                        <p>这里可以配置更复杂的搜索条件，如：</p>
+                        <ul>
+                            <li>多字段组合搜索</li>
+                            <li>正则表达式匹配</li>
+                            <li>数值范围搜索</li>
+                            <li>时间范围过滤</li>
+                        </ul>
+                        <p>当前示例中，indexOfAll 函数主要用于在文本中查找所有匹配项的索引位置。</p>
+                    </div>
+                `,
+                type: 'alert'
+            });
+        }
+
+        // 查看详情
+        function viewDetails(id) {
+            const item = searchResults.find(r => r.id === id) || currentData.find(d => d.id === id);
+            if (!item) return;
+
+            let detailsHTML = `
+                <div style="padding: 20px;">
+                    <h3>详细信息 - ${item.name}</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>ID:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.id}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>名称:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.name}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>描述:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.description}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>分类:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.category}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>状态:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.status}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>优先级:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.priority}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>标签:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.tags.join(', ')}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>创建时间:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${new Date(item.createdAt).toLocaleString()}</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>评分:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${item.score}</td></tr>
+                    </table>
+                </div>
+            `;
+
+            if (item.matches) {
+                detailsHTML += `
+                    <div style="padding: 20px; background: #f8f9fa; margin-top: 15px;">
+                        <h4>匹配详情</h4>
+                        <p>匹配数量: ${item.matchCount}</p>
+                        <pre style="background: white; padding: 10px; border-radius: 5px; overflow-x: auto;">${JSON.stringify(item.matches, null, 2)}</pre>
+                    </div>
+                `;
+            }
+
+            modal.show({
+                title: '数据详情',
+                content: detailsHTML,
+                type: 'alert'
+            });
+        }
+
+        // 导出为CSV
+        function exportToCSV() {
+            if (searchResults.length === 0) {
+                notification.warning('没有数据可导出');
+                return;
+            }
+
+            const headers = ['ID', '名称', '描述', '分类', '状态', '优先级', '匹配数', '创建时间'];
+            const csvContent = [
+                headers.join(','),
+                ...searchResults.map(item => [
+                    item.id,
+                    `"${item.name}"`,
+                    `"${item.description}"`,
+                    item.category,
+                    item.status,
+                    item.priority,
+                    item.matchCount,
+                    new Date(item.createdAt).toLocaleString()
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `搜索结果_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            notification.success('CSV文件导出成功');
+        }
+
+        // 导出为JSON
+        function exportToJSON() {
+            if (searchResults.length === 0) {
+                notification.warning('没有数据可导出');
+                return;
+            }
+
+            const jsonContent = JSON.stringify(searchResults, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `搜索结果_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+
+            notification.success('JSON文件导出成功');
+        }
+
+        // 打印结果
+        function printResults() {
+            if (searchResults.length === 0) {
+                notification.warning('没有数据可打印');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>搜索结果报告</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f2f2f2; }
+                            .header { text-align: center; margin-bottom: 30px; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>智能数据搜索与分析系统</h1>
+                            <p>搜索结果报告 - ${new Date().toLocaleString()}</p>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名称</th>
+                                    <th>分类</th>
+                                    <th>状态</th>
+                                    <th>优先级</th>
+                                    <th>匹配数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${searchResults.map(item => `
+                                    <tr>
+                                        <td>${item.id}</td>
+                                        <td>${item.name}</td>
+                                        <td>${item.category}</td>
+                                        <td>${item.status}</td>
+                                        <td>${item.priority}</td>
+                                        <td>${item.matchCount}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+
+            notification.success('打印报告已生成');
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                        break;
+                    case 'Enter':
+                        if (document.getElementById('searchInput') === document.activeElement) {
+                            performSearch();
+                        }
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
