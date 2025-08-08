@@ -349,7 +349,7 @@
 - [缩进字符串-2022-08-22](codes/javascript/indent-string.md)
 - [基于函数将数组转换成对象-2022-08-23](codes/javascript/index-by.md)
 - [查找所有匹配的数组项-2022-08-24](codes/javascript/index-of-all.md)
-- [查找字符串中子字符串的所有索引-2022-08-25](codes/javascript/indexOfSubstrings.md)
+- [查找字符串中子字符串的所有索引-2022-08-25](codes/javascript/index-of-substrings.md)
 - [根据提供的属性名将数组转成对象-2022-08-26](codes/javascript/indexOn.md)
 - [截取除了最后一个元素的所有元素的数组-2022-08-27](codes/javascript/initial.md)
 - [初始化给定值的二维数组-2022-08-28](codes/javascript/initialize2DArray.md)

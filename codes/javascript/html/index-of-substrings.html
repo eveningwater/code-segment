@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文本检索与高亮分析 - indexOfSubstrings 实战</title>
+    <!-- 插件样式（按需） -->
+    <link id="notification-styles" rel="stylesheet" href="../../demo/plugins/notification/style.css" />
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css" />
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css" />
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css" />
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.25);
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .panel {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .col-12 {
+            grid-column: span 12;
+        }
+
+        .col-6 {
+            grid-column: span 6;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        .col-3 {
+            grid-column: span 3;
+        }
+
+        .col-2 {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 900px) {
+
+            .col-6,
+            .col-4,
+            .col-3,
+            .col-2 {
+                grid-column: span 12;
+            }
+        }
+
+        .label {
+            display: block;
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .text-input,
+        textarea {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            transition: box-shadow .2s, border-color .2s;
+        }
+
+        .text-input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, .25);
+        }
+
+        .btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            background: #111827;
+            color: #fff;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        }
+
+        .btn.secondary {
+            background: #6b7280;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, .12);
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: #374151;
+        }
+
+        .stat {
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+
+        .viewer {
+            border: 1px dashed #e5e7eb;
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 360px;
+            overflow: auto;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 4px;
+            padding: 0 2px;
+            box-shadow: inset 0 0 0 1px #fde68a;
+        }
+
+        .muted {
+            color: #6b7280;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+        }
+
+        thead th {
+            background: #f9fafb;
+            color: #374151;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .chip {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: #e5e7eb;
+            border-radius: 999px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>文本检索与高亮分析</h1>
+            <p>基于 indexOfSubstrings 的多关键词检索、高亮、统计与详情查看</p>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="panel">
+            <div class="grid">
+                <div class="col-6">
+                    <label class="label">源文本</label>
+                    <textarea id="sourceText" rows="8" placeholder="在此粘贴或输入要检索的文本..."></textarea>
+                </div>
+                <div class="col-6">
+                    <label class="label">关键词（以英文逗号分隔）</label>
+                    <input id="keywords" class="text-input" placeholder="例如：error, warn, tik" />
+
+                    <div style="height: 12px"></div>
+
+                    <div class="label">数据集选择</div>
+                    <div id="datasetSelect"></div>
+
+                    <div style="height: 12px"></div>
+
+                    <div class="grid">
+                        <div class="col-4">
+                            <div class="label">大小写敏感</div>
+                            <div id="optCase"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="label">整词匹配</div>
+                            <div id="optWhole"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="label">上下文长度</div>
+                            <div id="contextSize"></div>
+                        </div>
+                    </div>
+
+                    <div style="height: 12px"></div>
+                    <div class="btns">
+                        <button class="btn primary" id="btnSearch">🔍 开始检索</button>
+                        <button class="btn" id="btnSample">🧪 载入示例文本</button>
+                        <button class="btn secondary" id="btnClear">🧹 清空</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果与高亮查看器 -->
+        <div class="panel">
+            <div class="grid">
+                <div class="col-12">
+                    <div class="stats">
+                        <div class="stat">匹配总数：<strong id="statTotal">0</strong></div>
+                        <div class="stat">关键词命中：<strong id="statKeys">0</strong></div>
+                        <div class="stat">耗时：<strong id="statMs">0ms</strong></div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div id="viewer" class="viewer muted">暂无内容</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 命中清单 -->
+        <div class="panel">
+            <div class="col-12">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                    <div style="font-weight:600;">命中清单</div>
+                    <div id="resultInfo" class="muted" style="font-size:12px;">无</div>
+                </div>
+                <div style="overflow:auto; max-height: 360px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>关键词</th>
+                                <th>位置</th>
+                                <th>片段</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 插件脚本（按需） -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // 基于题目给定的生成器：查找所有子串出现位置（支持重叠，按 r+1 继续）
+        const indexOfSubstrings = function* (str, searchValue) {
+            let i = 0;
+            while (true) {
+                const r = str.indexOf(searchValue, i);
+                if (r === -1) return;
+                yield r;
+                i = r + 1;
+            }
+        };
+
+        // 工具函数
+        const escapeHtml = (s) => s
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        const isWordChar = (ch) => /[\w\u4e00-\u9fa5]/.test(ch || '');
+
+        // 插件实例
+        let notify, modal, selDataset, cbCase, cbWhole, numContext;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 通知与模态框
+            notify = new Notification({ duration: 3000, position: 'top-right' });
+            modal = new Modal();
+
+            // 选择器：数据集
+            selDataset = new Select({
+                container: '#datasetSelect',
+                options: [
+                    { value: 'lorem', label: '通用段落（Lorem）' },
+                    { value: 'logs', label: '系统日志（含时间戳与级别）' },
+                    { value: 'code', label: '代码片段（JavaScript）' }
+                ],
+                placeholder: '选择示例数据集',
+                onChange: (val) => {
+                    loadSample(val);
+                }
+            });
+
+            // 复选：大小写敏感、整词匹配
+            cbCase = new Checkbox({ label: '启用', checked: false });
+            cbCase.mount('#optCase');
+            cbWhole = new Checkbox({ label: '启用', checked: false });
+            cbWhole.mount('#optWhole');
+
+            // 数字：上下文长度
+            numContext = new InputNumber({ container: '#contextSize', min: 0, max: 200, step: 5, value: 20 });
+
+            // 事件
+            document.getElementById('btnSample').addEventListener('click', () => {
+                const v = selDataset.getValue() || 'lorem';
+                loadSample(v);
+                notify.info('已载入示例文本');
+            });
+            document.getElementById('btnClear').addEventListener('click', clearAll);
+            document.getElementById('btnSearch').addEventListener('click', doSearch);
+
+            // 初始示例
+            loadSample('lorem');
+        });
+
+        function loadSample(type) {
+            const samples = {
+                lorem: `TikTok is a popular platform. tiktok TOK tik.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n关键字示例：tik、tok、error、warn。`,
+                logs: `2025-08-08 10:12:03 [INFO] service started\n2025-08-08 10:12:07 [WARN] latency high for /api/tik\n2025-08-08 10:12:12 [ERROR] upstream timeout tok:504\n2025-08-08 10:12:18 [INFO] retry tik succeeded\n2025-08-08 10:12:23 [DEBUG] heartbeat ok`,
+                code: `function tokenize(input){\n  const tokens = [];\n  for(let i=0;i<input.length;i++){\n    // find tik & tok markers\n    if(input.slice(i,i+3)==='tik'){ tokens.push('TIK'); }\n    if(input.slice(i,i+3)==='tok'){ tokens.push('TOK'); }\n  }\n  return tokens;\n}\nconsole.log(tokenize('tiktok tok tok tik tok tik'));`
+            };
+            document.getElementById('sourceText').value = samples[type] || samples.lorem;
+            renderViewer();
+            updateStats({ total: 0, keys: 0, ms: 0 });
+            fillTable([]);
+        }
+
+        function clearAll() {
+            document.getElementById('sourceText').value = '';
+            document.getElementById('keywords').value = '';
+            renderViewer();
+            updateStats({ total: 0, keys: 0, ms: 0 });
+            fillTable([]);
+            notify.info('已清空');
+        }
+
+        function doSearch() {
+            const t0 = performance.now();
+            const text = document.getElementById('sourceText').value || '';
+            let keys = (document.getElementById('keywords').value || '')
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            if (!text) { notify.warning('请输入源文本'); return; }
+            if (keys.length === 0) { notify.warning('请输入至少一个关键词'); return; }
+
+            const caseSensitive = cbCase.isChecked();
+            const wholeWord = cbWhole.isChecked();
+            const ctx = numContext.getValue();
+
+            const searchIn = caseSensitive ? text : text.toLowerCase();
+            const keyList = caseSensitive ? keys : keys.map(k => k.toLowerCase());
+
+            const matches = [];
+            const matchedKeySet = new Set();
+
+            for (let ki = 0; ki < keyList.length; ki++) {
+                const key = keyList[ki];
+                if (!key) continue;
+                for (const pos of indexOfSubstrings(searchIn, key)) {
+                    // 整词匹配判断
+                    if (wholeWord) {
+                        const prev = text[pos - 1];
+                        const next = text[pos + key.length];
+                        if (isWordChar(prev) || isWordChar(next)) continue;
+                    }
+                    matches.push({ index: pos, len: key.length, key: keys[ki] });
+                    matchedKeySet.add(keys[ki]);
+                }
+            }
+
+            matches.sort((a, b) => a.index - b.index || b.len - a.len);
+
+            // 渲染高亮
+            renderViewer(text, matches);
+
+            // 渲染表格
+            const rows = matches.map((m, i) => ({
+                no: i + 1,
+                key: m.key,
+                index: m.index,
+                snippet: makeSnippet(text, m.index, m.len, ctx),
+            }));
+            fillTable(rows);
+
+            const t1 = performance.now();
+            updateStats({ total: matches.length, keys: matchedKeySet.size, ms: Math.round(t1 - t0) });
+            notify.success(`检索完成：${matches.length} 处命中 / ${matchedKeySet.size} 个关键词`);
+        }
+
+        function renderViewer(text = '', matches = []) {
+            const viewer = document.getElementById('viewer');
+            if (!text) { viewer.textContent = '暂无内容'; viewer.classList.add('muted'); return; }
+            viewer.classList.remove('muted');
+
+            if (matches.length === 0) { viewer.textContent = text; return; }
+
+            let out = '';
+            let cursor = 0;
+            for (const m of matches) {
+                const before = text.slice(cursor, m.index);
+                const hit = text.slice(m.index, m.index + m.len);
+                out += escapeHtml(before) + `<span class="highlight">${escapeHtml(hit)}</span>`;
+                cursor = m.index + m.len;
+            }
+            out += escapeHtml(text.slice(cursor));
+            viewer.innerHTML = out;
+        }
+
+        function makeSnippet(text, index, len, ctx) {
+            const start = Math.max(0, index - ctx);
+            const end = Math.min(text.length, index + len + ctx);
+            const left = escapeHtml(text.slice(start, index));
+            const mid = escapeHtml(text.slice(index, index + len));
+            const right = escapeHtml(text.slice(index + len, end));
+            return `${start > 0 ? '…' : ''}${left}<span class="highlight">${mid}</span>${end < text.length ? '…' : ''}${right}`;
+        }
+
+        function fillTable(rows) {
+            const tbody = document.getElementById('resultTbody');
+            const info = document.getElementById('resultInfo');
+            tbody.innerHTML = '';
+            if (!rows || rows.length === 0) { info.textContent = '无匹配'; return; }
+            info.textContent = `共 ${rows.length} 条`;
+
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+          <td>${r.no}</td>
+          <td><span class="chip">${escapeHtml(r.key)}</span></td>
+          <td>${r.index}</td>
+          <td>${r.snippet}</td>
+          <td><button class="btn secondary" data-idx="${r.index}" data-key="${escapeHtml(r.key)}">详情</button></td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            tbody.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = Number(btn.getAttribute('data-idx'));
+                    const key = btn.getAttribute('data-key');
+                    const ctx = numContext.getValue();
+                    const text = document.getElementById('sourceText').value || '';
+                    const html = `
+            <div>
+              <div style="margin-bottom:8px; color:#6b7280;">关键词：<strong>${key}</strong> | 位置：<strong>${idx}</strong></div>
+              <div style="border:1px solid #eee; border-radius:10px; padding:10px; background:#fafafa;">
+                ${makeSnippet(text, idx, key.length, ctx)}
+              </div>
+            </div>`;
+                    modal.show({ title: '命中详情', content: html, type: 'alert' });
+                });
+            });
+        }
+
+        function updateStats({ total, keys, ms }) {
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statKeys').textContent = keys;
+            document.getElementById('statMs').textContent = `${ms}ms`;
+        }
+    </script>
+</body>
+
+</html>
