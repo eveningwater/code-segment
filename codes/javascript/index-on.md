@@ -10,11 +10,15 @@
 ```js
 const indexOn = (arr, key) =>
   arr.reduce((acc, val) => {
-    const { [key]: id, ...data } = v;
+    const { [key]: id, ...data } = val;
     acc[id] = data;
     return acc;
   }, {});
 ```
+
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/index-on.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -31,8 +35,10 @@ indexOn(
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/indexOn.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/index-on.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/index-on.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/indexOn.html"></iframe>
+<iframe src="codes/javascript/html/index-on.html"></iframe>

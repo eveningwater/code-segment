@@ -50,7 +50,18 @@ class Notification {
 
   setupStyles() {
     // 检查是否已添加样式
-    if (document.querySelector('#notification-styles')) {
+    const links = document.querySelectorAll('link');
+    let hasStyle = false;
+    if (links.length > 0) {
+      for (const link of links) {
+        if (link.href.includes('notification/style.css')) {
+          hasStyle = true;
+          break;
+        }
+      }
+    }
+
+    if (hasStyle) {
       return;
     }
 

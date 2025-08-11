@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D数组可视化编辑器</title>
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-item label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 80px;
+        }
+
+        .array-display {
+            padding: 30px;
+            background: white;
+        }
+
+        .array-grid {
+            display: grid;
+            gap: 2px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .array-cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .array-cell:hover {
+            border-color: #4facfe;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .array-cell.editable {
+            background: #e3f2fd;
+        }
+
+        .array-cell.editable:hover {
+            background: #bbdefb;
+        }
+
+        .array-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: transparent;
+            outline: none;
+        }
+
+        .operations {
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .operation-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(86, 171, 47, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(240, 147, 251, 0.3);
+        }
+
+        .array-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .array-info h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .array-info p {
+            color: #424242;
+            line-height: 1.6;
+        }
+
+        .cell-value-display {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cell-value-display.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .array-cell {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+
+            .operation-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 2D数组可视化编辑器</h1>
+            <p>基于 initialize2DArray 函数的强大数组操作工具</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-item">
+                    <label>宽度:</label>
+                    <div id="width-input"></div>
+                </div>
+                <div class="control-item">
+                    <label>高度:</label>
+                    <div id="height-input"></div>
+                </div>
+                <div class="control-item">
+                    <label>填充值:</label>
+                    <div id="fill-value-select"></div>
+                </div>
+                <div class="control-item">
+                    <label>特殊功能:</label>
+                    <div id="special-features"></div>
+                </div>
+            </div>
+            <div class="control-group">
+                <button class="btn btn-primary" id="create-array">创建数组</button>
+                <button class="btn btn-secondary" id="random-fill">随机填充</button>
+                <button class="btn btn-success" id="export-array">导出数组</button>
+                <button class="btn btn-warning" id="clear-array">清空数组</button>
+            </div>
+        </div>
+
+        <div class="array-display">
+            <div class="array-info">
+                <h3>📊 数组信息</h3>
+                <p id="array-info-text">请先创建数组</p>
+            </div>
+            <div id="array-container">
+                <div style="text-align: center; color: #666; padding: 40px;">
+                    点击"创建数组"按钮开始创建您的2D数组
+                </div>
+            </div>
+        </div>
+
+        <div class="operations">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #495057;">🔄 数组操作</h3>
+            <div class="operation-buttons">
+                <button class="btn btn-primary" id="transpose">转置矩阵</button>
+                <button class="btn btn-secondary" id="rotate-90">旋转90°</button>
+                <button class="btn btn-secondary" id="rotate-180">旋转180°</button>
+                <button class="btn btn-secondary" id="rotate-270">旋转270°</button>
+                <button class="btn btn-success" id="flip-horizontal">水平翻转</button>
+                <button class="btn btn-success" id="flip-vertical">垂直翻转</button>
+                <button class="btn btn-warning" id="sort-rows">行排序</button>
+                <button class="btn btn-warning" id="sort-columns">列排序</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cell-value-display" id="cell-tooltip"></div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const initialize2DArray = (w, h, val = null) =>
+            Array.from({ length: h }).map(() => Array.from({ length: w }).fill(val));
+
+        // 应用主类
+        class ArrayVisualizer {
+            constructor() {
+                this.array = null;
+                this.width = 5;
+                this.height = 5;
+                this.fillValue = 0;
+                this.specialFeatures = {
+                    editable: true,
+                    showTooltip: true,
+                    autoSave: false
+                };
+
+                this.modal = new Modal();
+                this.notification = new Notification();
+
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+            }
+
+            setupControls() {
+                // 宽度输入
+                this.widthInput = new InputNumber({
+                    container: '#width-input',
+                    min: 1,
+                    max: 20,
+                    value: this.width,
+                    onChange: (value) => {
+                        this.width = value;
+                    }
+                });
+
+                // 高度输入
+                this.heightInput = new InputNumber({
+                    container: '#height-input',
+                    min: 1,
+                    max: 20,
+                    value: this.height,
+                    onChange: (value) => {
+                        this.height = value;
+                    }
+                });
+
+                // 填充值选择
+                this.fillValueSelect = new Select({
+                    container: '#fill-value-select',
+                    options: [
+                        { value: 0, label: '0' },
+                        { value: 1, label: '1' },
+                        { value: null, label: 'null' },
+                        { value: '', label: '空字符串' },
+                        { value: 'X', label: 'X' }
+                    ],
+                    onChange: (value) => {
+                        this.fillValue = value;
+                    }
+                });
+
+                // 特殊功能复选框
+                this.specialFeaturesGroup = Checkbox.createCheckboxGroup({
+                    container: '#special-features',
+                    items: [
+                        { label: '可编辑', checked: true },
+                        { label: '显示提示', checked: true },
+                        { label: '自动保存', checked: false }
+                    ],
+                    onChange: (values) => {
+                        this.specialFeatures.editable = values[0];
+                        this.specialFeatures.showTooltip = values[1];
+                        this.specialFeatures.autoSave = values[2];
+                    }
+                });
+            }
+
+            setupEventListeners() {
+                document.getElementById('create-array').addEventListener('click', () => {
+                    this.createArray();
+                });
+
+                document.getElementById('random-fill').addEventListener('click', () => {
+                    this.randomFill();
+                });
+
+                document.getElementById('export-array').addEventListener('click', () => {
+                    this.exportArray();
+                });
+
+                document.getElementById('clear-array').addEventListener('click', () => {
+                    this.clearArray();
+                });
+
+                // 数组操作事件
+                document.getElementById('transpose').addEventListener('click', () => {
+                    this.transposeArray();
+                });
+
+                document.getElementById('rotate-90').addEventListener('click', () => {
+                    this.rotateArray(90);
+                });
+
+                document.getElementById('rotate-180').addEventListener('click', () => {
+                    this.rotateArray(180);
+                });
+
+                document.getElementById('rotate-270').addEventListener('click', () => {
+                    this.rotateArray(270);
+                });
+
+                document.getElementById('flip-horizontal').addEventListener('click', () => {
+                    this.flipArray('horizontal');
+                });
+
+                document.getElementById('flip-vertical').addEventListener('click', () => {
+                    this.flipArray('vertical');
+                });
+
+                document.getElementById('sort-rows').addEventListener('click', () => {
+                    this.sortArray('rows');
+                });
+
+                document.getElementById('sort-columns').addEventListener('click', () => {
+                    this.sortArray('columns');
+                });
+            }
+
+            createArray() {
+                this.array = initialize2DArray(this.width, this.height, this.fillValue);
+                this.renderArray();
+                this.updateArrayInfo();
+                this.notification.success(`成功创建 ${this.width}×${this.height} 的2D数组`);
+            }
+
+            renderArray() {
+                const container = document.getElementById('array-container');
+                container.innerHTML = '';
+
+                const grid = document.createElement('div');
+                grid.className = 'array-grid';
+                grid.style.gridTemplateColumns = `repeat(${this.width}, 1fr)`;
+
+                for (let i = 0; i < this.height; i++) {
+                    for (let j = 0; j < this.width; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'array-cell';
+                        if (this.specialFeatures.editable) {
+                            cell.classList.add('editable');
+                        }
+
+                        const value = this.array[i][j];
+                        cell.textContent = value !== null ? value : 'null';
+
+                        if (this.specialFeatures.editable) {
+                            cell.addEventListener('click', () => {
+                                this.makeCellEditable(cell, i, j);
+                            });
+                        }
+
+                        if (this.specialFeatures.showTooltip) {
+                            cell.addEventListener('mouseenter', (e) => {
+                                this.showTooltip(e, `位置: [${i}][${j}], 值: ${value}`);
+                            });
+                            cell.addEventListener('mouseleave', () => {
+                                this.hideTooltip();
+                            });
+                        }
+
+                        grid.appendChild(cell);
+                    }
+                }
+
+                container.appendChild(grid);
+            }
+
+            makeCellEditable(cell, i, j) {
+                const currentValue = this.array[i][j];
+                const input = document.createElement('input');
+                input.value = currentValue !== null ? currentValue : '';
+                input.type = 'text';
+
+                input.addEventListener('blur', () => {
+                    const newValue = input.value.trim();
+                    if (newValue === '') {
+                        this.array[i][j] = null;
+                        cell.textContent = 'null';
+                    } else {
+                        // 尝试转换为数字
+                        const numValue = parseFloat(newValue);
+                        if (!isNaN(numValue)) {
+                            this.array[i][j] = numValue;
+                            cell.textContent = numValue;
+                        } else {
+                            this.array[i][j] = newValue;
+                            cell.textContent = newValue;
+                        }
+                    }
+                    cell.classList.remove('editing');
+                    this.updateArrayInfo();
+
+                    if (this.specialFeatures.autoSave) {
+                        this.notification.info('自动保存完成');
+                    }
+                });
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        input.blur();
+                    }
+                });
+
+                cell.innerHTML = '';
+                cell.appendChild(input);
+                cell.classList.add('editing');
+                input.focus();
+            }
+
+            showTooltip(event, text) {
+                const tooltip = document.getElementById('cell-tooltip');
+                tooltip.textContent = text;
+                tooltip.style.left = event.pageX + 10 + 'px';
+                tooltip.style.top = event.pageY - 30 + 'px';
+                tooltip.classList.add('show');
+            }
+
+            hideTooltip() {
+                const tooltip = document.getElementById('cell-tooltip');
+                tooltip.classList.remove('show');
+            }
+
+            randomFill() {
+                if (!this.array) {
+                    this.notification.warning('请先创建数组');
+                    return;
+                }
+
+                for (let i = 0; i < this.height; i++) {
+                    for (let j = 0; j < this.width; j++) {
+                        this.array[i][j] = Math.floor(Math.random() * 100);
+                    }
+                }
+
+                this.renderArray();
+                this.updateArrayInfo();
+                this.notification.success('随机填充完成');
+            }
+
+            exportArray() {
+                if (!this.array) {
+                    this.notification.warning('请先创建数组');
+                    return;
+                }
+
+                const arrayStr = JSON.stringify(this.array, null, 2);
+                const blob = new Blob([arrayStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `2d-array-${this.width}x${this.height}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.notification.success('数组导出成功');
+            }
+
+            clearArray() {
+                if (!this.array) {
+                    this.notification.warning('请先创建数组');
+                    return;
+                }
+
+                this.modal.confirm('确定要清空数组吗？此操作不可撤销。').then((confirmed) => {
+                    if (confirmed) {
+                        this.array = initialize2DArray(this.width, this.height, this.fillValue);
+                        this.renderArray();
+                        this.updateArrayInfo();
+                        this.notification.success('数组已清空');
+                    }
+                });
+            }
+
+            transposeArray() {
+                if (!this.array) {
+                    this.notification.warning('请先创建数组');
+                    return;
+                }
+
+                const newArray = [];
+                for (let j = 0; j < this.width; j++) {
+                    newArray[j] = [];
+                    for (let i = 0; i < this.height; i++) {
+                        newArray[j][i] = this.array[i][j];
+                    }
+                }
+
+                this.array = newArray;
+                [this.width, this.height] = [this.height, this.width];
+
+                this.widthInput.setValue(this.width);
+                this.heightInput.setValue(this.height);
+
+                this.renderArray();
+                this.updateArrayInfo();
+                this.notification.success('矩阵转置完成');
+            }
+
+            rotateArray(degrees) {
+                if (!this.array) {
+                    this.notification.warning('请先创建数组');
+                    return;
+                }
+
+                let newArray;
+                const h = this.height;
+                const w = this.width;
+
+                switch (degrees) {
+                    case 90:
+                        newArray = initialize2DArray(h, w, null);
+                        for (let i = 0; i < h; i++) {
+                            for (let j = 0; j < w; j++) {
+                                newArray[j][w - 1 - i] = this.array[i][j];
+                            }
+                        }
+                        [this.width, this.height] = [h, w];
+                        break;
+                    case 180:
+                        newArray = initialize2DArray(w, h, null);
+                        for (let i = 0; i < h; i++) {
+                            for (let j = 0; j < w; j++) {
+                                newArray[h - 1 - i][w - 1 - j] = this.array[i][j];
+                            }
+                        }
+                        break;
+                    case 270:
+                        newArray = initialize2DArray(h, w, null);
+                        for (let i = 0; i < h; i++) {
+                            for (let j = 0; j < w; j++) {
+                                newArray[h - 1 - j][i] = this.array[i][j];
+                            }
+                        }
+                        [this.width, this.height] = [h, w];
+                        break;
+                }
+
+                this.array = newArray;
+                this.widthInput.setValue(this.width);
+                this.heightInput.setValue(this.height);
+
+                this.renderArray();
+                this.updateArrayInfo();
+                this.notification.success(`数组旋转${degrees}°完成`);
+            }
+
+            flipArray(direction) {
+                if (!this.array) {
+                    this.notification.warning('请先创建数组');
+                    return;
+                }
+
+                const newArray = initialize2DArray(this.width, this.height, null);
+
+                if (direction === 'horizontal') {
+                    for (let i = 0; i < this.height; i++) {
+                        for (let j = 0; j < this.width; j++) {
+                            newArray[i][j] = this.array[i][this.width - 1 - j];
+                        }
+                    }
+                } else { // vertical
+                    for (let i = 0; i < this.height; i++) {
+                        for (let j = 0; j < this.width; j++) {
+                            newArray[i][j] = this.array[this.height - 1 - i][j];
+                        }
+                    }
+                }
+
+                this.array = newArray;
+                this.renderArray();
+                this.updateArrayInfo();
+                this.notification.success(`数组${direction === 'horizontal' ? '水平' : '垂直'}翻转完成`);
+            }
+
+            sortArray(direction) {
+                if (!this.array) {
+                    this.notification.warning('请先创建数组');
+                    return;
+                }
+
+                if (direction === 'rows') {
+                    for (let i = 0; i < this.height; i++) {
+                        this.array[i].sort((a, b) => {
+                            if (a === null) return 1;
+                            if (b === null) return -1;
+                            return a - b;
+                        });
+                    }
+                } else { // columns
+                    for (let j = 0; j < this.width; j++) {
+                        const column = [];
+                        for (let i = 0; i < this.height; i++) {
+                            column.push(this.array[i][j]);
+                        }
+                        column.sort((a, b) => {
+                            if (a === null) return 1;
+                            if (b === null) return -1;
+                            return a - b;
+                        });
+                        for (let i = 0; i < this.height; i++) {
+                            this.array[i][j] = column[i];
+                        }
+                    }
+                }
+
+                this.renderArray();
+                this.updateArrayInfo();
+                this.notification.success(`数组${direction === 'rows' ? '行' : '列'}排序完成`);
+            }
+
+            updateArrayInfo() {
+                if (!this.array) {
+                    document.getElementById('array-info-text').textContent = '请先创建数组';
+                    return;
+                }
+
+                const info = document.getElementById('array-info-text');
+                const totalElements = this.width * this.height;
+                const nonNullElements = this.array.flat().filter(x => x !== null).length;
+                const nullElements = totalElements - nonNullElements;
+
+                let sum = 0;
+                let count = 0;
+                this.array.flat().forEach(val => {
+                    if (typeof val === 'number' && !isNaN(val)) {
+                        sum += val;
+                        count++;
+                    }
+                });
+
+                const average = count > 0 ? (sum / count).toFixed(2) : 0;
+
+                info.innerHTML = `
+                    <strong>尺寸:</strong> ${this.width} × ${this.height} | 
+                    <strong>总元素:</strong> ${totalElements} | 
+                    <strong>非空元素:</strong> ${nonNullElements} | 
+                    <strong>空值:</strong> ${nullElements} | 
+                    <strong>数值平均:</strong> ${average}
+                `;
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new ArrayVisualizer();
+        });
+    </script>
+</body>
+
+</html>
