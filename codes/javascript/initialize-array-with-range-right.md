@@ -16,6 +16,10 @@ const initializeArrayWithRangeRight = (end, start = 0, step = 1) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/initialize-array-with-range-right.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,8 +30,10 @@ initializeArrayWithRangeRight(9, 0, 2); // [8, 6, 4, 2, 0]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/initializeArrayWithRangeRight.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/initialize-array-with-range-right.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/initialize-array-with-range-right.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/initializeArrayWithRangeRight.html"></iframe>
+<iframe src="codes/javascript/html/initialize-array-with-range-right.html"></iframe>

@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <title>数组范围生成器与可视化工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-item label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 80px;
+        }
+
+        .array-display {
+            padding: 30px;
+            background: white;
+        }
+
+        .array-visualization {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .array-list {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .array-item {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 4px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .array-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .array-item.even {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        .array-item.odd {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .array-item.prime {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+
+        .array-chart {
+            flex: 1;
+            min-width: 400px;
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 40px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scaleY(1.1);
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            transform: rotate(-45deg);
+            transform-origin: top left;
+        }
+
+        .operations {
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .operation-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(86, 171, 47, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(240, 147, 251, 0.3);
+        }
+
+        .array-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .array-info h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .array-info p {
+            color: #424242;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 4px solid #4facfe;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .filter-section {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .filter-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .array-visualization {
+                flex-direction: column;
+            }
+
+            .operation-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 数组范围生成器与可视化工具</h1>
+            <p>基于 initializeArrayWithRange 函数的强大数组操作工具</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-item">
+                    <label>起始值:</label>
+                    <div id="start-input"></div>
+                </div>
+                <div class="control-item">
+                    <label>结束值:</label>
+                    <div id="end-input"></div>
+                </div>
+                <div class="control-item">
+                    <label>步长:</label>
+                    <div id="step-input"></div>
+                </div>
+                <div class="control-item">
+                    <label>操作类型:</label>
+                    <div id="operation-select"></div>
+                </div>
+                <div class="control-item">
+                    <label>特殊功能:</label>
+                    <div id="special-features"></div>
+                </div>
+            </div>
+            <div class="control-group">
+                <button class="btn btn-primary" id="generate-array">生成数组</button>
+                <button class="btn btn-secondary" id="random-range">随机范围</button>
+                <button class="btn btn-success" id="export-array">导出数组</button>
+                <button class="btn btn-warning" id="clear-array">清空数组</button>
+            </div>
+        </div>
+
+        <div class="array-display">
+            <div class="array-info">
+                <h3>📊 数组信息</h3>
+                <p id="array-info-text">请先生成数组</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="array-length">-</div>
+                    <div class="stat-label">数组长度</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="array-sum">-</div>
+                    <div class="stat-label">元素总和</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="array-avg">-</div>
+                    <div class="stat-label">平均值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="array-min">-</div>
+                    <div class="stat-label">最小值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="array-max">-</div>
+                    <div class="stat-label">最大值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="array-median">-</div>
+                    <div class="stat-label">中位数</div>
+                </div>
+            </div>
+
+            <div class="array-visualization">
+                <div class="array-list">
+                    <h3>📋 数组元素</h3>
+                    <div id="array-container">
+                        <div style="text-align: center; color: #666; padding: 40px;">
+                            点击"生成数组"按钮开始创建您的数组
+                        </div>
+                    </div>
+                </div>
+
+                <div class="array-chart">
+                    <h3>📈 数据可视化</h3>
+                    <div id="chart-container">
+                        <div style="text-align: center; color: #666; padding: 40px;">
+                            生成数组后将显示图表
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>🔍 数组过滤与操作</h3>
+                <div class="filter-controls">
+                    <button class="btn btn-primary" id="filter-even">偶数</button>
+                    <button class="btn btn-secondary" id="filter-odd">奇数</button>
+                    <button class="btn btn-success" id="filter-prime">质数</button>
+                    <button class="btn btn-warning" id="filter-range">自定义范围</button>
+                    <button class="btn btn-primary" id="reverse-array">反转</button>
+                    <button class="btn btn-secondary" id="shuffle-array">随机排序</button>
+                </div>
+                <div id="filtered-result" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <div class="operations">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #495057;">🔄 高级操作</h3>
+            <div class="operation-buttons">
+                <button class="btn btn-primary" id="map-square">平方映射</button>
+                <button class="btn btn-secondary" id="map-fibonacci">斐波那契</button>
+                <button class="btn btn-success" id="map-factorial">阶乘映射</button>
+                <button class="btn btn-warning" id="map-prime-factors">质因数</button>
+                <button class="btn btn-primary" id="find-patterns">查找模式</button>
+                <button class="btn btn-secondary" id="calculate-gcd">最大公约数</button>
+                <button class="btn btn-success" id="calculate-lcm">最小公倍数</button>
+                <button class="btn btn-warning" id="generate-subsequences">子序列</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const initializeArrayWithRange = (end, start = 0, step = 1) =>
+            Array.from({ length: Math.ceil((end - start + 1) / step) }, (_, i) => start + i * step);
+
+
+
+        // 应用主类
+        class ArrayRangeVisualizer {
+            constructor() {
+                this.array = null;
+                this.start = 0;
+                this.end = 10;
+                this.step = 1;
+                this.operationType = 'basic';
+                this.specialFeatures = {
+                    highlightPrimes: true,
+                    showTooltip: true,
+                    autoCalculate: true
+                };
+
+                this.modal = new Modal();
+                this.notification = new Notification();
+
+                this.init();
+            }
+
+            init() {
+                const callback = () => {
+                    this.setupControls();
+                    this.setupEventListeners();
+                }
+                // 等待DOM完全加载后再初始化控件
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', callback);
+                } else {
+                    callback();
+                }
+            }
+
+            setupControls() {
+                // 起始值输入
+                this.startInput = new InputNumber({
+                    container: '#start-input',
+                    min: -1000,
+                    max: 1000,
+                    value: this.start,
+                    onChange: (value) => {
+                        this.start = value;
+                    }
+                });
+
+                // 结束值输入
+                this.endInput = new InputNumber({
+                    container: '#end-input',
+                    min: -1000,
+                    max: 1000,
+                    value: this.end,
+                    onChange: (value) => {
+                        this.end = value;
+                    }
+                });
+
+                // 步长输入
+                this.stepInput = new InputNumber({
+                    container: '#step-input',
+                    min: 1,
+                    max: 100,
+                    value: this.step,
+                    onChange: (value) => {
+                        this.step = value;
+                    }
+                });
+
+                // 操作类型选择
+                this.operationSelect = new Select({
+                    container: '#operation-select',
+                    options: [
+                        { value: 'basic', label: '基础范围' },
+                        { value: 'reverse', label: '反向范围' },
+                        { value: 'negative', label: '负数范围' },
+                        { value: 'decimal', label: '小数范围' },
+                        { value: 'custom', label: '自定义' }
+                    ],
+                    onChange: (value) => {
+                        this.operationType = value;
+                        this.updateRangeBasedOnOperation();
+                    }
+                });
+
+                // 特殊功能复选框
+                try {
+                    const container = document.querySelector('#special-features');
+                    if (container) {
+                        this.specialFeaturesGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '高亮质数', checked: true },
+                                { label: '显示提示', checked: true },
+                                { label: '自动计算', checked: true }
+                            ],
+                            onChange: (values) => {
+                                this.specialFeatures.highlightPrimes = values[0];
+                                this.specialFeatures.showTooltip = values[1];
+                                this.specialFeatures.autoCalculate = values[2];
+
+                                // 不在这里调用updateAllCheckboxState，避免递归
+                            }
+                        });
+
+                        // 将复选框组容器挂载到页面上
+                        container.appendChild(this.specialFeaturesGroup.container);
+
+                        // 修复全选复选框的初始状态
+                        this.updateAllCheckboxState();
+                    }
+                } catch (error) {
+                    // 静默处理错误
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('generate-array').addEventListener('click', () => {
+                    this.generateArray();
+                });
+
+                document.getElementById('random-range').addEventListener('click', () => {
+                    this.randomRange();
+                });
+
+                document.getElementById('export-array').addEventListener('click', () => {
+                    this.exportArray();
+                });
+
+                document.getElementById('clear-array').addEventListener('click', () => {
+                    this.clearArray();
+                });
+
+                // 过滤操作事件
+                document.getElementById('filter-even').addEventListener('click', () => {
+                    this.filterArray('even');
+                });
+
+                document.getElementById('filter-odd').addEventListener('click', () => {
+                    this.filterArray('odd');
+                });
+
+                document.getElementById('filter-prime').addEventListener('click', () => {
+                    this.filterArray('prime');
+                });
+
+                document.getElementById('filter-range').addEventListener('click', () => {
+                    this.customFilterRange();
+                });
+
+                document.getElementById('reverse-array').addEventListener('click', () => {
+                    this.reverseArray();
+                });
+
+                document.getElementById('shuffle-array').addEventListener('click', () => {
+                    this.shuffleArray();
+                });
+
+                // 高级操作事件
+                document.getElementById('map-square').addEventListener('click', () => {
+                    this.mapArray('square');
+                });
+
+                document.getElementById('map-fibonacci').addEventListener('click', () => {
+                    this.mapArray('fibonacci');
+                });
+
+                document.getElementById('map-factorial').addEventListener('click', () => {
+                    this.mapArray('factorial');
+                });
+
+                document.getElementById('map-prime-factors').addEventListener('click', () => {
+                    this.mapArray('primeFactors');
+                });
+
+                document.getElementById('find-patterns').addEventListener('click', () => {
+                    this.findPatterns();
+                });
+
+                document.getElementById('calculate-gcd').addEventListener('click', () => {
+                    this.calculateGCD();
+                });
+
+                document.getElementById('calculate-lcm').addEventListener('click', () => {
+                    this.calculateLCM();
+                });
+
+                document.getElementById('generate-subsequences').addEventListener('click', () => {
+                    this.generateSubsequences();
+                });
+            }
+
+            updateRangeBasedOnOperation() {
+                switch (this.operationType) {
+                    case 'reverse':
+                        this.startInput.setValue(10);
+                        this.endInput.setValue(0);
+                        this.stepInput.setValue(1);
+                        break;
+                    case 'negative':
+                        this.startInput.setValue(-10);
+                        this.endInput.setValue(0);
+                        this.stepInput.setValue(1);
+                        break;
+                    case 'decimal':
+                        this.startInput.setValue(0);
+                        this.endInput.setValue(10);
+                        this.stepInput.setValue(0.5);
+                        break;
+                    case 'custom':
+                        this.startInput.setValue(0);
+                        this.endInput.setValue(20);
+                        this.stepInput.setValue(2);
+                        break;
+                }
+            }
+
+            generateArray() {
+                try {
+                    this.array = initializeArrayWithRange(this.end, this.start, this.step);
+                    this.renderArray();
+                    this.updateArrayInfo();
+                    this.updateStats();
+                    if (this.specialFeatures.showTooltip) {
+                        this.renderChart();
+                    }
+                    this.notification.success(`成功生成数组，包含 ${this.array.length} 个元素`);
+                } catch (error) {
+                    this.notification.error('生成数组失败：' + error.message);
+                }
+            }
+
+            renderArray() {
+                const container = document.getElementById('array-container');
+                container.innerHTML = '';
+
+                this.array.forEach((value, index) => {
+                    const item = document.createElement('span');
+                    item.className = 'array-item';
+                    item.textContent = value;
+
+                    // 添加特殊样式
+                    if (this.specialFeatures.highlightPrimes) {
+                        if (this.isPrime(value)) {
+                            item.classList.add('prime');
+                        } else if (value % 2 === 0) {
+                            item.classList.add('even');
+                        } else {
+                            item.classList.add('odd');
+                        }
+                    }
+
+                    item.addEventListener('click', () => {
+                        this.showItemDetails(value, index);
+                    });
+
+                    container.appendChild(item);
+                });
+            }
+
+            renderChart() {
+                const container = document.getElementById('chart-container');
+                container.innerHTML = '';
+
+                if (!this.array || this.array.length === 0) return;
+
+                const maxValue = Math.max(...this.array);
+                const minValue = Math.min(...this.array);
+                const range = maxValue - minValue;
+                const chartWidth = 300;
+                const chartHeight = 200;
+                const maxBarHeight = chartHeight - 80; // 留出空间给标签和底部边距
+
+                // 动态计算柱状图宽度，确保不会太窄
+                const barWidth = Math.max(10, Math.min(30, chartWidth / this.array.length));
+                const totalWidth = this.array.length * barWidth;
+                const startLeft = (chartWidth - totalWidth) / 2 + 20; // 居中显示
+
+                this.array.forEach((value, index) => {
+                    const bar = document.createElement('div');
+                    bar.className = 'chart-bar';
+
+                    // 计算柱状图高度，限制在合理范围内
+                    let height;
+                    if (range > 0) {
+                        height = ((value - minValue) / range) * maxBarHeight;
+                    } else {
+                        height = 20; // 最小值
+                    }
+
+                    // 确保高度在合理范围内
+                    height = Math.max(10, Math.min(maxBarHeight, height));
+
+                    const left = startLeft + index * barWidth;
+
+                    bar.style.width = (barWidth - 2) + 'px';
+                    bar.style.height = height + 'px';
+                    bar.style.left = left + 'px';
+                    bar.style.bottom = '60px'; // 固定底部位置，避免超出边界
+
+                    const label = document.createElement('div');
+                    label.className = 'chart-label';
+                    label.textContent = value;
+                    label.style.left = (left + barWidth / 2) + 'px';
+
+                    container.appendChild(bar);
+                    container.appendChild(label);
+                });
+            }
+
+            updateArrayInfo() {
+                if (!this.array) {
+                    document.getElementById('array-info-text').textContent = '请先生成数组';
+                    return;
+                }
+
+                const info = document.getElementById('array-info-text');
+                info.innerHTML = `
+                        <strong>范围:</strong> ${this.start} 到 ${this.end} | 
+                        <strong>步长:</strong> ${this.step} | 
+                        <strong>操作类型:</strong> ${this.getOperationTypeName()} | 
+                        <strong>生成时间:</strong> ${new Date().toLocaleTimeString()}
+                    `;
+            }
+
+            updateStats() {
+                if (!this.array || this.array.length === 0) return;
+
+                const length = this.array.length;
+                const sum = this.array.reduce((a, b) => a + b, 0);
+                const avg = (sum / length).toFixed(2);
+                const min = Math.min(...this.array);
+                const max = Math.max(...this.array);
+                const sorted = [...this.array].sort((a, b) => a - b);
+                const median = length % 2 === 0
+                    ? ((sorted[length / 2 - 1] + sorted[length / 2]) / 2).toFixed(2)
+                    : sorted[Math.floor(length / 2)];
+
+                document.getElementById('array-length').textContent = length;
+                document.getElementById('array-sum').textContent = sum;
+                document.getElementById('array-avg').textContent = avg;
+                document.getElementById('array-min').textContent = min;
+                document.getElementById('array-max').textContent = max;
+                document.getElementById('array-median').textContent = median;
+            }
+
+            getOperationTypeName() {
+                const names = {
+                    'basic': '基础范围',
+                    'reverse': '反向范围',
+                    'negative': '负数范围',
+                    'decimal': '小数范围',
+                    'custom': '自定义'
+                };
+                return names[this.operationType] || '未知';
+            }
+
+            isPrime(num) {
+                if (num < 2) return false;
+                if (num === 2) return true;
+                if (num % 2 === 0) return false;
+                for (let i = 3; i <= Math.sqrt(num); i += 2) {
+                    if (num % i === 0) return false;
+                }
+                return true;
+            }
+
+            randomRange() {
+                this.start = Math.floor(Math.random() * 100) - 50;
+                this.end = this.start + Math.floor(Math.random() * 50) + 10;
+                this.step = Math.floor(Math.random() * 5) + 1;
+
+                this.startInput.setValue(this.start);
+                this.endInput.setValue(this.end);
+                this.stepInput.setValue(this.step);
+
+                this.notification.info('已生成随机范围参数');
+            }
+
+            exportArray() {
+                if (!this.array) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                const data = {
+                    array: this.array,
+                    start: this.start,
+                    end: this.end,
+                    step: this.step,
+                    operationType: this.operationType,
+                    generatedAt: new Date().toISOString()
+                };
+
+                const arrayStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([arrayStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `array-range-${this.start}-${this.end}-${this.step}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.notification.success('数组导出成功');
+            }
+
+            clearArray() {
+                if (!this.array) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                this.modal.confirm('确定要清空数组吗？此操作不可撤销。').then((confirmed) => {
+                    if (confirmed) {
+                        this.array = null;
+                        this.renderArray();
+                        this.updateArrayInfo();
+                        this.updateStats();
+                        document.getElementById('chart-container').innerHTML =
+                            '<div style="text-align: center; color: #666; padding: 40px;">生成数组后将显示图表</div>';
+                        this.notification.success('数组已清空');
+                    }
+                });
+            }
+
+            filterArray(type) {
+                if (!this.array) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                let filtered;
+                switch (type) {
+                    case 'even':
+                        filtered = this.array.filter(x => x % 2 === 0);
+                        break;
+                    case 'odd':
+                        filtered = this.array.filter(x => x % 2 !== 0);
+                        break;
+                    case 'prime':
+                        filtered = this.array.filter(x => this.isPrime(x));
+                        break;
+                }
+
+                this.showFilteredResult(filtered, type);
+            }
+
+            customFilterRange() {
+                if (!this.array) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                this.modal.prompt('请输入过滤范围 (例如: 5-15 或 >10 或 <20)').then((input) => {
+                    if (!input) return;
+
+                    let filtered;
+                    if (input.includes('-')) {
+                        const [min, max] = input.split('-').map(Number);
+                        filtered = this.array.filter(x => x >= min && x <= max);
+                    } else if (input.startsWith('>')) {
+                        const value = Number(input.slice(1));
+                        filtered = this.array.filter(x => x > value);
+                    } else if (input.startsWith('<')) {
+                        const value = Number(input.slice(1));
+                        filtered = this.array.filter(x => x < value);
+                    } else {
+                        const value = Number(input);
+                        filtered = this.array.filter(x => x === value);
+                    }
+
+                    this.showFilteredResult(filtered, '自定义范围');
+                });
+            }
+
+            showFilteredResult(filtered, type) {
+                const resultDiv = document.getElementById('filtered-result');
+                const typeNames = {
+                    'even': '偶数',
+                    'odd': '奇数',
+                    'prime': '质数',
+                    '自定义范围': '自定义范围'
+                };
+
+                resultDiv.innerHTML = `
+                        <div style="margin-top: 15px; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+                            <strong>${typeNames[type] || type} 过滤结果:</strong> 
+                            [${filtered.join(', ')}] 
+                            <br><small>共 ${filtered.length} 个元素</small>
+            </div>
+        `;
+            }
+
+            reverseArray() {
+                if (!this.array) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                this.array.reverse();
+                this.renderArray();
+                this.notification.success('数组已反转');
+            }
+
+            shuffleArray() {
+                if (!this.array) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                for (let i = this.array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.array[i], this.array[j]] = [this.array[j], this.array[i]];
+                }
+
+                this.renderArray();
+                this.notification.success('数组已随机排序');
+            }
+
+            mapArray(type) {
+                if (!this.array) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                let mapped;
+                switch (type) {
+                    case 'square':
+                        mapped = this.array.map(x => x * x);
+                        break;
+                    case 'fibonacci':
+                        mapped = this.array.map(x => this.fibonacci(x));
+                        break;
+                    case 'factorial':
+                        mapped = this.array.map(x => this.factorial(x));
+                        break;
+                    case 'primeFactors':
+                        mapped = this.array.map(x => this.getPrimeFactors(x));
+                        break;
+                }
+
+                this.showMappedResult(mapped, type);
+            }
+
+            fibonacci(n) {
+                if (n <= 1) return n;
+                let a = 0, b = 1;
+                for (let i = 2; i <= n; i++) {
+                    [a, b] = [b, a + b];
+                }
+                return b;
+            }
+
+            factorial(n) {
+                if (n < 0) return NaN;
+                if (n <= 1) return 1;
+                let result = 1;
+                for (let i = 2; i <= n; i++) {
+                    result *= i;
+                }
+                return result;
+            }
+
+            getPrimeFactors(n) {
+                if (n < 2) return [n];
+                const factors = [];
+                let d = 2;
+                while (n > 1) {
+                    while (n % d === 0) {
+                        factors.push(d);
+                        n /= d;
+                    }
+                    d++;
+                }
+                return factors;
+            }
+
+            showMappedResult(mapped, type) {
+                const typeNames = {
+                    'square': '平方',
+                    'fibonacci': '斐波那契',
+                    'factorial': '阶乘',
+                    'primeFactors': '质因数'
+                };
+
+                this.modal.alert(`
+                        <strong>${typeNames[type] || type} 映射结果:</strong><br>
+                        原数组: [${this.array.join(', ')}]<br>
+                        映射后: [${mapped.join(', ')}]
+                    `);
+            }
+
+            findPatterns() {
+                if (!this.array || this.array.length < 3) {
+                    this.notification.warning('数组元素不足，无法查找模式');
+                    return;
+                }
+
+                const patterns = [];
+
+                // 查找等差数列
+                if (this.array.length >= 3) {
+                    const diff = this.array[1] - this.array[0];
+                    if (this.array.every((val, i) => i === 0 || val - this.array[i - 1] === diff)) {
+                        patterns.push(`等差数列，公差: ${diff}`);
+                    }
+                }
+
+                // 查找等比数列
+                if (this.array.length >= 3 && this.array[0] !== 0) {
+                    const ratio = this.array[1] / this.array[0];
+                    if (this.array.every((val, i) => i === 0 || val / this.array[i - 1] === ratio)) {
+                        patterns.push(`等比数列，公比: ${ratio}`);
+                    }
+                }
+
+                // 查找重复模式
+                const unique = [...new Set(this.array)];
+                if (unique.length < this.array.length) {
+                    patterns.push(`包含重复元素，重复率: ${((this.array.length - unique.length) / this.array.length * 100).toFixed(1)}%`);
+                }
+
+                if (patterns.length > 0) {
+                    this.modal.alert(`<strong>发现的模式:</strong><br>${patterns.join('<br>')}`);
+                } else {
+                    this.modal.alert('未发现明显的数学模式');
+                }
+            }
+
+            calculateGCD() {
+                if (!this.array || this.array.length < 2) {
+                    this.notification.warning('需要至少2个元素来计算最大公约数');
+                    return;
+                }
+
+                const gcd = this.array.reduce((a, b) => this.gcd(a, b));
+                this.modal.alert(`数组 [${this.array.join(', ')}] 的最大公约数是: ${gcd}`);
+            }
+
+            calculateLCM() {
+                if (!this.array || this.array.length < 2) {
+                    this.notification.warning('需要至少2个元素来计算最小公倍数');
+                    return;
+                }
+
+                const lcm = this.array.reduce((a, b) => this.lcm(a, b));
+                this.modal.alert(`数组 [${this.array.join(', ')}] 的最小公倍数是: ${lcm}`);
+            }
+
+            gcd(a, b) {
+                return b === 0 ? a : this.gcd(b, a % b);
+            }
+
+            lcm(a, b) {
+                return Math.abs(a * b) / this.gcd(a, b);
+            }
+
+            generateSubsequences() {
+                if (!this.array || this.array.length === 0) {
+                    this.notification.warning('请先生成数组');
+                    return;
+                }
+
+                const subsequences = [];
+                const n = this.array.length;
+
+                // 生成所有可能的子序列
+                for (let i = 0; i < (1 << n); i++) {
+                    const subseq = [];
+                    for (let j = 0; j < n; j++) {
+                        if (i & (1 << j)) {
+                            subseq.push(this.array[j]);
+                        }
+                    }
+                    if (subseq.length > 0) {
+                        subsequences.push(subseq);
+                    }
+                }
+
+                // 只显示前10个，避免过多
+                const displayCount = Math.min(10, subsequences.length);
+                const displaySubseqs = subsequences.slice(0, displayCount);
+
+                this.modal.alert(`
+                        <strong>子序列 (显示前${displayCount}个):</strong><br>
+                        ${displaySubseqs.map((seq, i) => `${i + 1}. [${seq.join(', ')}]`).join('<br>')}
+                        ${subsequences.length > displayCount ? `<br><small>... 还有 ${subsequences.length - displayCount} 个子序列</small>` : ''}
+                    `);
+            }
+
+            updateAllCheckboxState() {
+                if (this.specialFeaturesGroup && this.specialFeaturesGroup.checkboxes) {
+                    const allChecked = this.specialFeaturesGroup.checkboxes.every(cb => cb.isChecked());
+                    const noneChecked = this.specialFeaturesGroup.checkboxes.every(cb => !cb.isChecked());
+
+                    // 更新全选复选框的状态，但不触发onChange事件
+                    if (this.specialFeaturesGroup.allCheckbox) {
+                        // 直接设置状态，避免调用setChecked方法
+                        this.specialFeaturesGroup.allCheckbox.checked = allChecked;
+                        const allCheckboxInput = this.specialFeaturesGroup.allCheckbox.element.querySelector('.checkbox-input');
+                        if (allCheckboxInput) {
+                            allCheckboxInput.checked = allChecked;
+                            allCheckboxInput.indeterminate = !allChecked && !noneChecked;
+                        }
+                    }
+                }
+            }
+
+            showItemDetails(value, index) {
+                this.modal.alert(`
+                    <strong>元素详情:</strong><br>
+                    值: ${value}<br>
+                    索引: ${index}<br>
+                    类型: ${typeof value}<br>
+                    是否为质数: ${this.isPrime(value) ? '是' : '否'}<br>
+                    是否为偶数: ${value % 2 === 0 ? '是' : '否'}<br>
+                    平方: ${value * value}<br>
+                    立方: ${value * value * value}
+                `);
+            }
+        }
+
+        // 初始化应用
+        let app;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                app = new ArrayRangeVisualizer();
+            });
+        } else {
+            app = new ArrayRangeVisualizer();
+        }
+    </script>
+</body>
+
+</html>

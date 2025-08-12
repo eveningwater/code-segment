@@ -17,6 +17,11 @@ const initializeArrayWithRange = (end, start = 0, step = 1) =>
   );
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/initialize-array-with-range.ts" data-language="typescript"></div>
+
+
 > 调用方式:
 
 ```js
@@ -27,8 +32,10 @@ initializeArrayWithRange(9, 0, 2); // [0, 2, 4, 6, 8]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/initializeArrayWithRange.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/initialize-array-with-range.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/initialize-array-with-range.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/initializeArrayWithRange.html"></iframe>
+<iframe src="codes/javascript/html/initialize-array-with-range.html"></iframe>
