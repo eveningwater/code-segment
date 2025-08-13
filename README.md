@@ -355,7 +355,7 @@
 - [初始化给定值的二维数组-2022-08-28](codes/javascript/initialize-2d-array.md)
 - [生成范围连续数组-2022-08-29](codes/javascript/initialize-array-with-range.md)
 - [生成范围连续数组（降序）-2022-08-30](codes/javascript/initialize-array-with-range-right.md)
-- [生成数组-2022-08-31](codes/javascript/initializeArrayWithValues.md)
+- [生成数组-2022-08-31](codes/javascript/initialize-array-with-values.md)
 - [注入样式-2022-09-02](codes/javascript/injectCSS.md)
 - [后续插入元素-2022-09-03](codes/javascript/insertAfter.md)
 - [往数组特定索引中插入元素-2022-09-04](codes/javascript/insertAt.md)

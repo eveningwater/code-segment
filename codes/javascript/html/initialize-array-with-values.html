@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理系统 - initializeArrayWithValues实战示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            background: #fafbfc;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #34495e;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .result-display {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-display h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .array-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .array-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .task-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .task-card {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .priority-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .priority-low {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .task-description {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .function-demo {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .function-demo h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .highlight {
+            background: #f39c12;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 任务管理系统</h1>
+            <p>基于 initializeArrayWithValues 函数的实战应用示例</p>
+        </div>
+
+        <div class="content">
+            <!-- 函数介绍部分 -->
+            <div class="section">
+                <h2>📚 核心函数介绍</h2>
+                <div class="function-demo">
+                    <h4>initializeArrayWithValues 函数</h4>
+                    <div class="code-block">
+const initializeArrayWithValues = (n, val = 0) => Array.from({ length: n }).fill(val);
+                    </div>
+                    <p>这个函数可以快速创建指定长度和初始值的数组，在我们的任务管理系统中被广泛使用。</p>
+                </div>
+            </div>
+
+            <!-- 任务生成控制 -->
+            <div class="section">
+                <h2>⚙️ 任务生成控制</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="taskCount">任务数量</label>
+                        <div id="taskCountInput"></div>
+                    </div>
+                    <div class="control-group">
+                        <label for="prioritySelect">默认优先级</label>
+                        <div id="prioritySelect"></div>
+                    </div>
+                    <div class="control-group">
+                        <label for="autoGenerate">自动生成</label>
+                        <div id="autoGenerateCheckbox"></div>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn" id="generateTasks">生成任务</button>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-secondary" id="clearTasks">清空任务</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="section">
+                <h2>📊 任务统计</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTasks">0</div>
+                        <div class="stat-label">总任务数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="highPriority">0</div>
+                        <div class="stat-label">高优先级</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="mediumPriority">0</div>
+                        <div class="stat-label">中优先级</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="lowPriority">0</div>
+                        <div class="stat-label">低优先级</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务列表 -->
+            <div class="section">
+                <h2>📋 任务列表</h2>
+                <div id="taskList" class="task-list">
+                    <div class="task-card">
+                        <div class="task-header">
+                            <div class="task-title">欢迎使用任务管理系统</div>
+                            <span class="task-priority priority-medium">中</span>
+                        </div>
+                        <div class="task-description">
+                            这是一个基于 initializeArrayWithValues 函数构建的任务管理系统示例。
+                            点击"生成任务"按钮来创建随机任务。
+                        </div>
+                        <div class="task-footer">
+                            <span>创建时间: 刚刚</span>
+                            <span>状态: 待处理</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数组操作演示 -->
+            <div class="section">
+                <h2>🔧 数组操作演示</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="arraySize">数组大小</label>
+                        <div id="arraySizeInput"></div>
+                    </div>
+                    <div class="control-group">
+                        <label for="arrayValue">初始值</label>
+                        <div id="arrayValueInput"></div>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn" id="createArray">创建数组</button>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-secondary" id="transformArray">转换数组</button>
+                    </div>
+                </div>
+                <div class="result-display">
+                    <h3>数组结果:</h3>
+                    <div id="arrayResult" class="array-grid"></div>
+                </div>
+            </div>
+
+            <!-- 批量操作 -->
+            <div class="section">
+                <h2>🔄 批量操作</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="batchSize">批量大小</label>
+                        <div id="batchSizeInput"></div>
+                    </div>
+                    <div class="control-group">
+                        <label for="operationType">操作类型</label>
+                        <div id="operationTypeSelect"></div>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn" id="executeBatch">执行批量操作</button>
+                    </div>
+                </div>
+                <div class="result-display">
+                    <h3>批量操作结果:</h3>
+                    <div id="batchResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const initializeArrayWithValues = (n, val = 0) => Array.from({ length: n }).fill(val);
+
+        // 初始化插件
+        const modal = new Modal();
+        const notification = new Notification();
+
+        // 任务数据
+        let tasks = [];
+        let taskCounter = 0;
+
+        // 任务模板
+        const taskTemplates = [
+            "完成项目文档编写",
+            "代码审查和优化",
+            "单元测试编写",
+            "性能测试和优化",
+            "用户界面设计",
+            "数据库设计",
+            "API接口开发",
+            "前端组件开发",
+            "后端服务开发",
+            "系统集成测试",
+            "部署和配置",
+            "用户培训",
+            "问题修复",
+            "功能增强",
+            "代码重构"
+        ];
+
+        const priorities = [
+            { value: 'high', label: '高', class: 'priority-high' },
+            { value: 'medium', label: '中', class: 'priority-medium' },
+            { value: 'low', label: '低', class: 'priority-low' }
+        ];
+
+        // 初始化控件
+        function initializeControls() {
+            // 任务数量输入
+            new InputNumber({
+                container: '#taskCountInput',
+                min: 1,
+                max: 100,
+                value: 10,
+                onChange: (value) => {
+                    // 可以在这里添加验证逻辑
+                }
+            });
+
+            // 优先级选择
+            new Select({
+                container: '#prioritySelect',
+                options: priorities,
+                onChange: (value) => {
+                    // 优先级选择变化处理
+                }
+            });
+
+            // 自动生成复选框
+            new Checkbox({
+                container: '#autoGenerateCheckbox',
+                label: '启用自动生成',
+                checked: false,
+                onChange: (checked) => {
+                    if (checked) {
+                        notification.success('自动生成已启用，每30秒生成新任务');
+                        startAutoGeneration();
+                    } else {
+                        notification.warning('自动生成已禁用');
+                        stopAutoGeneration();
+                    }
+                }
+            });
+
+            // 数组大小输入
+            new InputNumber({
+                container: '#arraySizeInput',
+                min: 1,
+                max: 1000,
+                value: 20,
+                onChange: (value) => {
+                    // 数组大小变化处理
+                }
+            });
+
+            // 数组值输入
+            new InputNumber({
+                container: '#arrayValueInput',
+                min: -1000,
+                max: 1000,
+                value: 0,
+                onChange: (value) => {
+                    // 数组值变化处理
+                }
+            });
+
+            // 批量大小输入
+            new InputNumber({
+                container: '#batchSizeInput',
+                min: 1,
+                max: 1000,
+                value: 50,
+                onChange: (value) => {
+                    // 批量大小变化处理
+                }
+            });
+
+            // 操作类型选择
+            new Select({
+                container: '#operationTypeSelect',
+                options: [
+                    { value: 'multiply', label: '乘法运算' },
+                    { value: 'add', label: '加法运算' },
+                    { value: 'power', label: '幂运算' },
+                    { value: 'random', label: '随机化' }
+                ],
+                onChange: (value) => {
+                    // 操作类型变化处理
+                }
+            });
+        }
+
+        // 生成随机任务
+        function generateRandomTasks(count, defaultPriority = 'medium') {
+            const newTasks = [];
+            
+            // 使用 initializeArrayWithValues 创建任务ID数组
+            const taskIds = initializeArrayWithValues(count, 0).map((_, index) => taskCounter + index + 1);
+            
+            // 使用 initializeArrayWithValues 创建优先级数组
+            const priorityArray = initializeArrayWithValues(count, defaultPriority);
+            
+            // 使用 initializeArrayWithValues 创建时间戳数组
+            const timestamps = initializeArrayWithValues(count, Date.now());
+
+            for (let i = 0; i < count; i++) {
+                const task = {
+                    id: taskIds[i],
+                    title: taskTemplates[Math.floor(Math.random() * taskTemplates.length)],
+                    description: `这是第${taskIds[i]}个任务，需要认真完成。`,
+                    priority: priorityArray[i],
+                    createdAt: new Date(timestamps[i] - Math.random() * 86400000), // 随机时间
+                    status: 'pending'
+                };
+                newTasks.push(task);
+            }
+
+            return newTasks;
+        }
+
+        // 更新任务统计
+        function updateTaskStats() {
+            const total = tasks.length;
+            const high = tasks.filter(t => t.priority === 'high').length;
+            const medium = tasks.filter(t => t.priority === 'medium').length;
+            const low = tasks.filter(t => t.priority === 'low').length;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('highPriority').textContent = high;
+            document.getElementById('mediumPriority').textContent = medium;
+            document.getElementById('lowPriority').textContent = low;
+        }
+
+        // 渲染任务列表
+        function renderTaskList() {
+            const taskListContainer = document.getElementById('taskList');
+            taskListContainer.innerHTML = '';
+
+            if (tasks.length === 0) {
+                taskListContainer.innerHTML = `
+                    <div class="task-card">
+                        <div class="task-header">
+                            <div class="task-title">暂无任务</div>
+                            <span class="task-priority priority-low">无</span>
+                        </div>
+                        <div class="task-description">
+                            当前没有任务，请点击"生成任务"按钮来创建新任务。
+                        </div>
+                        <div class="task-footer">
+                            <span>状态: 空闲</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            tasks.forEach(task => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-title">${task.title}</div>
+                        <span class="task-priority ${priorities.find(p => p.value === task.priority)?.class || 'priority-medium'}">
+                            ${priorities.find(p => p.value === task.priority)?.label || '中'}
+                        </span>
+                    </div>
+                    <div class="task-description">${task.description}</div>
+                    <div class="task-footer">
+                        <span>创建时间: ${task.createdAt.toLocaleString()}</span>
+                        <span>状态: ${task.status === 'pending' ? '待处理' : '已完成'}</span>
+                    </div>
+                `;
+                taskListContainer.appendChild(taskCard);
+            });
+        }
+
+        // 创建数组演示
+        function createArrayDemo() {
+            const size = parseInt(document.querySelector('#arraySizeInput input').value) || 20;
+            const value = parseInt(document.querySelector('#arrayValueInput input').value) || 0;
+            
+            const array = initializeArrayWithValues(size, value);
+            
+            const resultContainer = document.getElementById('arrayResult');
+            resultContainer.innerHTML = '';
+            
+            array.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'array-item';
+                itemElement.textContent = item;
+                itemElement.title = `索引 ${index}: ${item}`;
+                resultContainer.appendChild(itemElement);
+            });
+
+            notification.success(`成功创建了长度为 ${size}，初始值为 ${value} 的数组`);
+        }
+
+        // 转换数组演示
+        function transformArrayDemo() {
+            const size = parseInt(document.querySelector('#arraySizeInput input').value) || 20;
+            const baseArray = initializeArrayWithValues(size, 1);
+            
+            // 使用 initializeArrayWithValues 创建索引数组
+            const indices = initializeArrayWithValues(size, 0).map((_, i) => i);
+            
+            // 转换数组
+            const transformed = baseArray.map((item, index) => {
+                return item * (indices[index] + 1);
+            });
+            
+            const resultContainer = document.getElementById('arrayResult');
+            resultContainer.innerHTML = '';
+            
+            transformed.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'array-item';
+                itemElement.textContent = item;
+                itemElement.title = `索引 ${index}: ${item}`;
+                resultContainer.appendChild(itemElement);
+            });
+
+            notification.info(`数组已转换为: [${transformed.join(', ')}]`);
+        }
+
+        // 批量操作演示
+        function executeBatchOperation() {
+            const batchSize = parseInt(document.querySelector('#batchSizeInput input').value) || 50;
+            const operationType = document.querySelector('#operationTypeSelect .select-header span').textContent;
+            
+            // 使用 initializeArrayWithValues 创建基础数组
+            const baseArray = initializeArrayWithValues(batchSize, 1);
+            
+            let result;
+            let operationName;
+            
+            switch (operationType) {
+                case '乘法运算':
+                    result = baseArray.map((item, index) => item * (index + 1));
+                    operationName = '乘法';
+                    break;
+                case '加法运算':
+                    result = baseArray.map((item, index) => item + index);
+                    operationName = '加法';
+                    break;
+                case '幂运算':
+                    result = baseArray.map((item, index) => Math.pow(item, index + 1));
+                    operationName = '幂运算';
+                    break;
+                case '随机化':
+                    result = baseArray.map(() => Math.floor(Math.random() * 100) + 1);
+                    operationName = '随机化';
+                    break;
+                default:
+                    result = baseArray;
+                    operationName = '默认';
+            }
+            
+            const resultContainer = document.getElementById('batchResult');
+            resultContainer.innerHTML = `
+                <h4>批量${operationName}操作结果:</h4>
+                <p>操作类型: <span class="highlight">${operationName}</span></p>
+                <p>数组大小: <span class="highlight">${batchSize}</span></p>
+                <p>前10个结果: <span class="highlight">[${result.slice(0, 10).join(', ')}${result.length > 10 ? '...' : ''}]</span></p>
+                <p>总和: <span class="highlight">${result.reduce((sum, val) => sum + val, 0)}</span></p>
+                <p>平均值: <span class="highlight">${(result.reduce((sum, val) => sum + val, 0) / result.length).toFixed(2)}</span></p>
+            `;
+
+            notification.success(`批量${operationName}操作完成，处理了 ${batchSize} 个元素`);
+        }
+
+        // 自动生成相关
+        let autoGenerationInterval;
+
+        function startAutoGeneration() {
+            autoGenerationInterval = setInterval(() => {
+                const count = parseInt(document.querySelector('#taskCountInput input').value) || 5;
+                const priority = document.querySelector('#prioritySelect .select-header span').textContent;
+                const priorityValue = priorities.find(p => p.label === priority)?.value || 'medium';
+                
+                const newTasks = generateRandomTasks(count, priorityValue);
+                tasks.push(...newTasks);
+                taskCounter += count;
+                
+                updateTaskStats();
+                renderTaskList();
+                
+                notification.info(`自动生成了 ${count} 个新任务`);
+            }, 30000); // 30秒
+        }
+
+        function stopAutoGeneration() {
+            if (autoGenerationInterval) {
+                clearInterval(autoGenerationInterval);
+                autoGenerationInterval = null;
+            }
+        }
+
+        // 事件绑定
+        function bindEvents() {
+            document.getElementById('generateTasks').addEventListener('click', () => {
+                const count = parseInt(document.querySelector('#taskCountInput input').value) || 10;
+                const priority = document.querySelector('#prioritySelect .select-header span').textContent;
+                const priorityValue = priorities.find(p => p.label === priority)?.value || 'medium';
+                
+                const newTasks = generateRandomTasks(count, priorityValue);
+                tasks.push(...newTasks);
+                taskCounter += count;
+                
+                updateTaskStats();
+                renderTaskList();
+                
+                notification.success(`成功生成了 ${count} 个任务`);
+            });
+
+            document.getElementById('clearTasks').addEventListener('click', async () => {
+                const confirmed = await modal.confirm('确定要清空所有任务吗？此操作不可恢复。');
+                if (confirmed) {
+                    tasks = [];
+                    taskCounter = 0;
+                    updateTaskStats();
+                    renderTaskList();
+                    notification.warning('所有任务已清空');
+                }
+            });
+
+            document.getElementById('createArray').addEventListener('click', createArrayDemo);
+            document.getElementById('transformArray').addEventListener('click', transformArrayDemo);
+            document.getElementById('executeBatch').addEventListener('click', executeBatchOperation);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeControls();
+            bindEvents();
+            updateTaskStats();
+            
+            notification.success('任务管理系统初始化完成！', 'success', { duration: 2000 });
+        });
+    </script>
+</body>
+</html>
