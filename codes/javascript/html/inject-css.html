@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态CSS主题切换器与样式编辑器</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        #app {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .app-main {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .theme-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: #f8f9fa;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .theme-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .theme-btn.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .param-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .param-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .param-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .preview-panel {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .preview-header h3 {
+            color: #333;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .demo-card, .demo-form, .demo-list {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .list-items {
+            list-style: none;
+        }
+
+        .list-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .code-panel {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .code-header h3 {
+            color: #333;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-container {
+            background: #2d3748;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .code-block {
+            color: #e2e8f0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1200px) {
+            .app-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 2rem;
+            }
+            
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .code-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header class="app-header">
+            <h1>🎨 动态CSS主题切换器</h1>
+            <p>基于 injectCSS 函数的实时样式编辑器</p>
+        </header>
+
+        <main class="app-main">
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>🎯 预设主题</h3>
+                    <div class="theme-grid">
+                        <button class="theme-btn" data-theme="default">默认主题</button>
+                        <button class="theme-btn" data-theme="dark">暗黑主题</button>
+                        <button class="theme-btn" data-theme="sunset">日落主题</button>
+                        <button class="theme-btn" data-theme="ocean">海洋主题</button>
+                        <button class="theme-btn" data-theme="forest">森林主题</button>
+                        <button class="theme-btn" data-theme="neon">霓虹主题</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ 自定义参数</h3>
+                    <div class="param-controls">
+                        <div class="param-group">
+                            <label>主色调:</label>
+                            <div id="primary-color"></div>
+                        </div>
+                        <div class="param-group">
+                            <label>次色调:</label>
+                            <div id="secondary-color"></div>
+                        </div>
+                        <div class="param-group">
+                            <label>背景渐变:</label>
+                            <div id="gradient-select"></div>
+                        </div>
+                        <div class="param-group">
+                            <label>圆角大小:</label>
+                            <div id="border-radius"></div>
+                        </div>
+                        <div class="param-group">
+                            <label>阴影强度:</label>
+                            <div id="shadow-intensity"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🔧 高级功能</h3>
+                    <div class="advanced-controls">
+                        <div id="animation-toggle"></div>
+                        <div id="glass-effect-toggle"></div>
+                        <div id="particle-effect-toggle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>👁️ 实时预览</h3>
+                    <button id="fullscreen-preview" class="btn btn-primary">全屏预览</button>
+                </div>
+                <div class="preview-container">
+                    <div class="demo-card">
+                        <div class="card-header">
+                            <h4>示例卡片</h4>
+                            <span class="card-badge">NEW</span>
+                        </div>
+                        <div class="card-content">
+                            <p>这是一个动态样式的示例卡片，所有的样式都是通过 injectCSS 函数实时注入的。</p>
+                            <div class="card-actions">
+                                <button class="btn btn-primary">主要按钮</button>
+                                <button class="btn btn-secondary">次要按钮</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="demo-form">
+                        <h4>示例表单</h4>
+                        <div class="form-group">
+                            <label>用户名:</label>
+                            <input type="text" placeholder="请输入用户名" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>邮箱:</label>
+                            <input type="email" placeholder="请输入邮箱" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>消息:</label>
+                            <textarea placeholder="请输入消息" class="form-textarea"></textarea>
+                        </div>
+                        <button class="btn btn-success">提交</button>
+                    </div>
+
+                    <div class="demo-list">
+                        <h4>示例列表</h4>
+                        <ul class="list-items">
+                            <li class="list-item">列表项目 1</li>
+                            <li class="list-item">列表项目 2</li>
+                            <li class="list-item">列表项目 3</li>
+                            <li class="list-item">列表项目 4</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-panel">
+                <div class="code-header">
+                    <h3>💻 生成的CSS代码</h3>
+                    <div class="code-actions">
+                        <button id="copy-css" class="btn btn-secondary">复制代码</button>
+                        <button id="export-css" class="btn btn-success">导出CSS</button>
+                        <button id="reset-css" class="btn btn-warning">重置样式</button>
+                    </div>
+                </div>
+                <div class="code-container">
+                    <pre id="css-code" class="code-block"></pre>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const injectCSS = css => {
+            const el = document.createElement('style');
+            el.innerText = css;
+            el.type = 'text/css';
+            el.id = 'dynamic-css';
+            
+            // 移除之前的动态CSS
+            const existingCSS = document.getElementById('dynamic-css');
+            if (existingCSS) {
+                existingCSS.remove();
+            }
+            
+            document.head.appendChild(el);
+            return el;
+        };
+
+        // 主题管理器
+        class CSSThemeManager {
+            constructor() {
+                this.currentTheme = 'default';
+                this.customParams = {
+                    primaryColor: '#4facfe',
+                    secondaryColor: '#00f2fe',
+                    gradientType: 'linear',
+                    borderRadius: 8,
+                    shadowIntensity: 0.2,
+                    animations: true,
+                    glassEffect: false,
+                    particleEffect: false
+                };
+                
+                this.themes = {
+                    default: {
+                        primaryColor: '#4facfe',
+                        secondaryColor: '#00f2fe',
+                        gradientType: 'linear',
+                        borderRadius: 8,
+                        shadowIntensity: 0.2
+                    },
+                    dark: {
+                        primaryColor: '#2c3e50',
+                        secondaryColor: '#34495e',
+                        gradientType: 'radial',
+                        borderRadius: 4,
+                        shadowIntensity: 0.4
+                    },
+                    sunset: {
+                        primaryColor: '#ff6b6b',
+                        secondaryColor: '#feca57',
+                        gradientType: 'linear',
+                        borderRadius: 12,
+                        shadowIntensity: 0.3
+                    },
+                    ocean: {
+                        primaryColor: '#74b9ff',
+                        secondaryColor: '#0984e3',
+                        gradientType: 'linear',
+                        borderRadius: 6,
+                        shadowIntensity: 0.25
+                    },
+                    forest: {
+                        primaryColor: '#00b894',
+                        secondaryColor: '#55a3ff',
+                        gradientType: 'radial',
+                        borderRadius: 10,
+                        shadowIntensity: 0.15
+                    },
+                    neon: {
+                        primaryColor: '#fd79a8',
+                        secondaryColor: '#fdcb6e',
+                        gradientType: 'linear',
+                        borderRadius: 16,
+                        shadowIntensity: 0.5
+                    }
+                };
+
+                this.modal = new Modal();
+                this.notification = new Notification();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.applyTheme('default');
+                
+                // 激活默认主题按钮
+                document.querySelector('.theme-btn[data-theme="default"]').classList.add('active');
+            }
+
+            setupControls() {
+                // 主色调选择器 - 使用颜色输入而不是数字输入
+                const primaryColorContainer = document.querySelector('#primary-color');
+                if (primaryColorContainer) {
+                    const primaryInput = document.createElement('input');
+                    primaryInput.type = 'color';
+                    primaryInput.value = this.customParams.primaryColor;
+                    primaryInput.style.width = '100%';
+                    primaryInput.style.height = '40px';
+                    primaryInput.style.border = 'none';
+                    primaryInput.style.borderRadius = '8px';
+                    primaryInput.style.cursor = 'pointer';
+                    
+                    primaryInput.addEventListener('change', (e) => {
+                        this.customParams.primaryColor = e.target.value;
+                        this.updatePreview();
+                    });
+                    
+                    primaryColorContainer.appendChild(primaryInput);
+                }
+
+                // 次色调选择器 - 使用颜色输入而不是数字输入
+                const secondaryColorContainer = document.querySelector('#secondary-color');
+                if (secondaryColorContainer) {
+                    const secondaryInput = document.createElement('input');
+                    secondaryInput.type = 'color';
+                    secondaryInput.value = this.customParams.secondaryColor;
+                    secondaryInput.style.width = '100%';
+                    secondaryInput.style.height = '40px';
+                    secondaryInput.style.border = 'none';
+                    secondaryInput.style.borderRadius = '8px';
+                    secondaryInput.style.cursor = 'pointer';
+                    
+                    secondaryInput.addEventListener('change', (e) => {
+                        this.customParams.secondaryColor = e.target.value;
+                        this.updatePreview();
+                    });
+                    
+                    secondaryColorContainer.appendChild(secondaryInput);
+                }
+
+                // 渐变类型选择
+                this.gradientSelect = new Select({
+                    container: '#gradient-select',
+                    options: [
+                        { value: 'linear', label: '线性渐变' },
+                        { value: 'radial', label: '径向渐变' },
+                        { value: 'conic', label: '锥形渐变' }
+                    ],
+                    onChange: (value) => {
+                        this.customParams.gradientType = value;
+                        this.updatePreview();
+                    }
+                });
+
+                // 圆角大小
+                this.borderRadiusInput = new InputNumber({
+                    container: '#border-radius',
+                    min: 0,
+                    max: 50,
+                    value: this.customParams.borderRadius,
+                    onChange: (value) => {
+                        this.customParams.borderRadius = value;
+                        this.updatePreview();
+                    }
+                });
+
+                // 阴影强度
+                this.shadowIntensityInput = new InputNumber({
+                    container: '#shadow-intensity',
+                    min: 0,
+                    max: 1,
+                    step: 0.1,
+                    value: this.customParams.shadowIntensity,
+                    onChange: (value) => {
+                        this.customParams.shadowIntensity = value;
+                        this.updatePreview();
+                    }
+                });
+
+                // 高级功能复选框
+                this.animationToggle = Checkbox.createCheckboxGroup({
+                    items: [
+                        { label: '启用动画', checked: true },
+                        { label: '毛玻璃效果', checked: false },
+                        { label: '粒子效果', checked: false }
+                    ],
+                    onChange: (values) => {
+                        this.customParams.animations = values[0];
+                        this.customParams.glassEffect = values[1];
+                        this.customParams.particleEffect = values[2];
+                        this.updatePreview();
+                    }
+                });
+
+                document.querySelector('#animation-toggle').appendChild(this.animationToggle.container);
+            }
+
+            setupEventListeners() {
+                // 主题按钮事件
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const theme = btn.dataset.theme;
+                        this.applyTheme(theme);
+                        
+                        // 更新UI状态
+                        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
+                });
+
+                // 全屏预览
+                document.getElementById('fullscreen-preview').addEventListener('click', () => {
+                    this.openFullscreenPreview();
+                });
+
+                // 代码操作
+                document.getElementById('copy-css').addEventListener('click', () => {
+                    this.copyCSSCode();
+                });
+
+                document.getElementById('export-css').addEventListener('click', () => {
+                    this.exportCSS();
+                });
+
+                document.getElementById('reset-css').addEventListener('click', () => {
+                    this.resetCSS();
+                });
+            }
+
+            applyTheme(themeName) {
+                this.currentTheme = themeName;
+                const theme = this.themes[themeName];
+                
+                if (theme) {
+                    Object.assign(this.customParams, theme);
+                    this.updateControlValues();
+                    this.updatePreview();
+                }
+            }
+
+            updateControlValues() {
+                // 更新控件值
+                const primaryInput = document.querySelector('#primary-color input[type="color"]');
+                const secondaryInput = document.querySelector('#secondary-color input[type="color"]');
+                
+                if (primaryInput) primaryInput.value = this.customParams.primaryColor;
+                if (secondaryInput) secondaryInput.value = this.customParams.secondaryColor;
+                
+                this.gradientSelect.setValue(this.customParams.gradientType);
+                this.borderRadiusInput.setValue(this.customParams.borderRadius);
+                this.shadowIntensityInput.setValue(this.customParams.shadowIntensity);
+            }
+
+            updatePreview() {
+                const css = this.generateCSS();
+                injectCSS(css);
+                this.updateCodeDisplay(css);
+            }
+
+            generateCSS() {
+                const { primaryColor, secondaryColor, gradientType, borderRadius, shadowIntensity, animations, glassEffect, particleEffect } = this.customParams;
+                
+                let css = `
+                    /* 动态生成的CSS样式 */
+                    body {
+                        background: ${this.generateGradient(gradientType, primaryColor, secondaryColor)};
+                        transition: all 0.3s ease;
+                    }
+
+                    .app-header {
+                        background: ${glassEffect ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)'};
+                        backdrop-filter: ${glassEffect ? 'blur(10px)' : 'none'};
+                        border-radius: ${borderRadius}px;
+                        box-shadow: 0 ${8 * shadowIntensity}px ${16 * shadowIntensity}px rgba(0, 0, 0, ${0.1 * shadowIntensity});
+                    }
+
+                    .demo-card, .demo-form, .demo-list {
+                        background: ${glassEffect ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.95)'};
+                        backdrop-filter: ${glassEffect ? 'blur(15px)' : 'none'};
+                        border-radius: ${borderRadius}px;
+                        box-shadow: 0 ${4 * shadowIntensity}px ${8 * shadowIntensity}px rgba(0, 0, 0, ${0.1 * shadowIntensity});
+                        border: 1px solid ${glassEffect ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'};
+                    }
+
+                    .btn {
+                        background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
+                        border-radius: ${borderRadius}px;
+                        box-shadow: 0 ${4 * shadowIntensity}px ${8 * shadowIntensity}px rgba(0, 0, 0, ${0.2 * shadowIntensity});
+                        transition: all 0.3s ease;
+                    }
+
+                    .btn:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 ${6 * shadowIntensity}px ${12 * shadowIntensity}px rgba(0, 0, 0, ${0.3 * shadowIntensity});
+                    }
+
+                    .form-input, .form-textarea {
+                        border: 2px solid ${primaryColor}20;
+                        border-radius: ${borderRadius}px;
+                        transition: all 0.3s ease;
+                    }
+
+                    .form-input:focus, .form-textarea:focus {
+                        border-color: ${primaryColor};
+                        box-shadow: 0 0 0 3px ${primaryColor}20;
+                    }
+
+                    .list-item {
+                        border-radius: ${borderRadius}px;
+                        transition: all 0.3s ease;
+                    }
+
+                    .list-item:hover {
+                        background: ${primaryColor}10;
+                        transform: translateX(5px);
+                    }
+                `;
+
+                if (animations) {
+                    css += `
+                        .demo-card, .demo-form, .demo-list {
+                            animation: slideInUp 0.6s ease-out;
+                        }
+
+                        @keyframes slideInUp {
+                            from {
+                                opacity: 0;
+                                transform: translateY(30px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        .btn {
+                            animation: pulse 2s infinite;
+                        }
+
+                        @keyframes pulse {
+                            0%, 100% { transform: scale(1); }
+                            50% { transform: scale(1.05); }
+                        }
+                    `;
+                }
+
+                if (particleEffect) {
+                    css += `
+                        body::before {
+                            content: '';
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-image: 
+                                radial-gradient(circle at 20% 80%, ${primaryColor}20 1px, transparent 1px),
+                                radial-gradient(circle at 80% 20%, ${secondaryColor}20 1px, transparent 1px),
+                                radial-gradient(circle at 40% 40%, ${primaryColor}15 1px, transparent 1px);
+                            background-size: 50px 50px, 80px 80px, 30px 30px;
+                            animation: float 20s infinite linear;
+                            pointer-events: none;
+                        }
+
+                        @keyframes float {
+                            0% { transform: translateY(0px); }
+                            100% { transform: translateY(-100px); }
+                        }
+                    `;
+                }
+
+                return css;
+            }
+
+            generateGradient(type, color1, color2) {
+                switch (type) {
+                    case 'linear':
+                        return `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+                    case 'radial':
+                        return `radial-gradient(circle at center, ${color1} 0%, ${color2} 100%)`;
+                    case 'conic':
+                        return `conic-gradient(from 0deg, ${color1}, ${color2}, ${color1})`;
+                    default:
+                        return `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+                }
+            }
+
+            updateCodeDisplay(css) {
+                const codeBlock = document.getElementById('css-code');
+                codeBlock.textContent = css;
+            }
+
+            openFullscreenPreview() {
+                const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+                const previewHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>全屏预览</title>
+                        <style>${this.generateCSS()}</style>
+                    </head>
+                    <body>
+                        <div style="padding: 40px; font-family: Arial, sans-serif;">
+                            <h1>全屏预览模式</h1>
+                            <p>这是当前样式的全屏预览效果。</p>
+                            <div class="demo-card" style="padding: 20px; margin: 20px 0;">
+                                <h3>示例卡片</h3>
+                                <p>所有样式都已应用</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                previewWindow.document.write(previewHTML);
+                previewWindow.document.close();
+            }
+
+            copyCSSCode() {
+                const css = this.generateCSS();
+                navigator.clipboard.writeText(css).then(() => {
+                    this.notification.success('CSS代码已复制到剪贴板');
+                }).catch(() => {
+                    this.notification.error('复制失败，请手动复制');
+                });
+            }
+
+            exportCSS() {
+                const css = this.generateCSS();
+                const blob = new Blob([css], { type: 'text/css' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `theme-${this.currentTheme}-${Date.now()}.css`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.notification.success('CSS文件导出成功');
+            }
+
+            resetCSS() {
+                this.modal.confirm('确定要重置所有样式吗？').then((confirmed) => {
+                    if (confirmed) {
+                        this.applyTheme('default');
+                        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                        document.querySelector('.theme-btn[data-theme="default"]').classList.add('active');
+                        this.notification.success('样式已重置为默认主题');
+                    }
+                });
+            }
+        }
+
+        // 初始化应用
+        let app;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                app = new CSSThemeManager();
+            });
+        } else {
+            app = new CSSThemeManager();
+        }
+    </script>
+</body>
+</html>
