@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态数组操作器与可视化工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .array-input-section {
+            margin-bottom: 20px;
+        }
+
+        .array-input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .array-input-section textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .insert-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .insert-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .insert-group label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .insert-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .insert-inputs input {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            flex: 1;
+        }
+
+        .insert-inputs input[type="number"] {
+            flex: 0 0 80px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .preview-header h3 {
+            color: #333;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .array-visualization {
+            margin-bottom: 30px;
+        }
+
+        .array-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            min-height: 100px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #e9ecef;
+        }
+
+        .array-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .array-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .array-item.inserted {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        .array-item.insertion-point {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 3px dashed #fff;
+        }
+
+        .array-item .index {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: normal;
+        }
+
+        .array-item.inserted .index {
+            background: #56ab2f;
+        }
+
+        .array-item.insertion-point .index {
+            background: #f093fb;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .operation-history {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-item h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .history-item .operation {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .history-item .result {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #4facfe;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .template-gallery {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .template-gallery h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .template-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .template-item:hover {
+            border-color: #4facfe;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+        }
+
+        .template-item h5 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .template-item p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 2rem;
+            }
+            
+            .insert-inputs {
+                flex-direction: column;
+            }
+            
+            .preview-actions {
+                flex-direction: column;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🔧 动态数组操作器</h1>
+            <p>基于 insertAt 函数的数组操作与可视化工具</p>
+        </header>
+
+        <main class="main-content">
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>📝 数组输入</h3>
+                    <div class="array-input-section">
+                        <label>输入数组 (用逗号分隔):</label>
+                        <textarea id="array-input" placeholder="例如: 1, 2, 3, 4, 5">1, 2, 3, 4, 5</textarea>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>➕ 插入操作</h3>
+                    <div class="insert-controls">
+                        <div class="insert-group">
+                            <label>插入位置 (索引):</label>
+                            <div id="insert-index"></div>
+                        </div>
+                        <div class="insert-group">
+                            <label>插入值 (用逗号分隔):</label>
+                            <div id="insert-values"></div>
+                        </div>
+                        <div class="action-buttons">
+                            <button id="insert-btn" class="btn btn-primary">执行插入</button>
+                            <button id="random-insert-btn" class="btn btn-secondary">随机插入</button>
+                            <button id="clear-btn" class="btn btn-warning">清空数组</button>
+                            <button id="export-btn" class="btn btn-success">导出数组</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ 高级选项</h3>
+                    <div id="advanced-options">
+                        <!-- 复选框将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>👁️ 数组可视化</h3>
+                    <div class="preview-actions">
+                        <button id="undo-btn" class="btn btn-secondary">撤销</button>
+                        <button id="redo-btn" class="btn btn-secondary">重做</button>
+                        <button id="reset-btn" class="btn btn-warning">重置</button>
+                    </div>
+                </div>
+
+                <div class="array-visualization">
+                    <h4>当前数组状态</h4>
+                    <div class="array-container" id="array-container">
+                        <div style="text-align: center; color: #666; padding: 40px;">
+                            请输入数组并执行插入操作
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="stat-value" id="array-length">0</div>
+                        <div class="stat-label">数组长度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="array-sum">0</div>
+                        <div class="stat-label">元素总和</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="array-avg">0</div>
+                        <div class="stat-label">平均值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="operation-count">0</div>
+                        <div class="stat-label">操作次数</div>
+                    </div>
+                </div>
+
+                <div class="template-gallery">
+                    <h4>📋 快速操作模板</h4>
+                    <div class="template-grid">
+                        <div class="template-item" data-template="middle">
+                            <h5>中间插入</h5>
+                            <p>在数组中间插入新元素</p>
+                        </div>
+                        <div class="template-item" data-template="beginning">
+                            <h5>开头插入</h5>
+                            <p>在数组开头插入新元素</p>
+                        </div>
+                        <div class="template-item" data-template="end">
+                            <h5>末尾插入</h5>
+                            <p>在数组末尾插入新元素</p>
+                        </div>
+                        <div class="template-item" data-template="multiple">
+                            <h5>批量插入</h5>
+                            <p>一次性插入多个元素</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="operation-history">
+                    <h4>📚 操作历史</h4>
+                    <div id="history-list">
+                        <div class="history-item">
+                            <h4>页面初始化</h4>
+                            <div class="operation">初始数组: [1, 2, 3, 4, 5]</div>
+                            <div class="result">数组长度: 5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const insertAt = (arr, i, ...v) => {
+            if (!Array.isArray(arr)) {
+                return console.error('First argument should be an array!');
+            }
+            if (typeof i !== 'number' || (i | 0) !== i) {
+                return console.error('Second argument should be an integer index!');
+            }
+            arr.splice(i + 1, 0, ...v);
+            return arr;
+        };
+
+        // 数组操作器主类
+        class ArrayOperator {
+            constructor() {
+                this.array = [1, 2, 3, 4, 5];
+                this.originalArray = [...this.array];
+                this.operationHistory = [];
+                this.undoStack = [];
+                this.redoStack = [];
+                this.operationCount = 0;
+                this.advancedOptions = {
+                    showIndex: true,
+                    highlightInserted: true,
+                    autoCalculate: true,
+                    animationSpeed: 'normal'
+                };
+
+                this.modal = new Modal();
+                this.notification = new Notification();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.renderArray();
+                this.updateStats();
+                this.addToHistory('页面初始化', `初始数组: [${this.array.join(', ')}]`, `数组长度: ${this.array.length}`);
+            }
+
+            setupControls() {
+                // 插入位置输入
+                this.insertIndexInput = new InputNumber({
+                    container: '#insert-index',
+                    min: -1,
+                    max: 1000,
+                    value: 2,
+                    onChange: (value) => {
+                        // 插入位置变化时的处理
+                    }
+                });
+
+                // 插入值输入
+                const insertValuesContainer = document.querySelector('#insert-values');
+                if (insertValuesContainer) {
+                    const insertValuesInput = document.createElement('input');
+                    insertValuesInput.type = 'text';
+                    insertValuesInput.placeholder = '例如: 10, 20, 30';
+                    insertValuesInput.style.width = '100%';
+                    insertValuesInput.style.padding = '10px';
+                    insertValuesInput.style.border = '2px solid #e9ecef';
+                    insertValuesInput.style.borderRadius = '8px';
+                    insertValuesInput.style.fontSize = '1rem';
+                    
+                    insertValuesInput.addEventListener('input', (e) => {
+                        // 插入值变化时的处理
+                    });
+                    
+                    insertValuesContainer.appendChild(insertValuesInput);
+                    this.insertValuesInput = insertValuesInput;
+                }
+
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '显示索引', checked: true },
+                                { label: '高亮插入元素', checked: true },
+                                { label: '自动计算统计', checked: true },
+                                { label: '快速动画', checked: false }
+                            ],
+                            onChange: (values) => {
+                                this.advancedOptions.showIndex = values[0];
+                                this.advancedOptions.highlightInserted = values[1];
+                                this.advancedOptions.autoCalculate = values[2];
+                                this.advancedOptions.animationSpeed = values[3] ? 'fast' : 'normal';
+                                this.renderArray();
+                            }
+                        });
+                        
+                        container.appendChild(this.advancedOptionsGroup.container);
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                }
+            }
+
+            setupEventListeners() {
+                // 插入按钮
+                document.getElementById('insert-btn').addEventListener('click', () => {
+                    this.performInsert();
+                });
+
+                // 随机插入按钮
+                document.getElementById('random-insert-btn').addEventListener('click', () => {
+                    this.randomInsert();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearArray();
+                });
+
+                // 导出按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportArray();
+                });
+
+                // 撤销按钮
+                document.getElementById('undo-btn').addEventListener('click', () => {
+                    this.undo();
+                });
+
+                // 重做按钮
+                document.getElementById('redo-btn').addEventListener('click', () => {
+                    this.redo();
+                });
+
+                // 重置按钮
+                document.getElementById('reset-btn').addEventListener('click', () => {
+                    this.resetArray();
+                });
+
+                // 数组输入变化
+                document.getElementById('array-input').addEventListener('input', (e) => {
+                    this.parseArrayInput(e.target.value);
+                });
+
+                // 模板点击
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const template = item.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+            }
+
+            parseArrayInput(input) {
+                try {
+                    const newArray = input.split(',').map(item => {
+                        const trimmed = item.trim();
+                        return isNaN(trimmed) ? trimmed : Number(trimmed);
+                    });
+                    
+                    if (newArray.length > 0 && newArray.every(item => item !== '')) {
+                        this.array = newArray;
+                        this.originalArray = [...this.array];
+                        this.renderArray();
+                        this.updateStats();
+                        this.addToHistory('数组输入更新', `新数组: [${this.array.join(', ')}]`, `数组长度: ${this.array.length}`);
+                    }
+                } catch (error) {
+                    console.warn('数组解析失败:', error);
+                }
+            }
+
+            performInsert() {
+                const index = this.insertIndexInput ? this.insertIndexInput.getValue() : 2;
+                const valuesInput = this.insertValuesInput ? this.insertValuesInput.value : '10';
+                
+                if (!valuesInput.trim()) {
+                    this.notification.warning('请输入要插入的值');
+                    return;
+                }
+
+                const values = valuesInput.split(',').map(item => {
+                    const trimmed = item.trim();
+                    return isNaN(trimmed) ? trimmed : Number(trimmed);
+                });
+
+                if (index < -1 || index > this.array.length) {
+                    this.notification.error('插入位置超出范围');
+                    return;
+                }
+
+                // 保存当前状态用于撤销
+                this.saveState();
+
+                // 执行插入操作
+                const result = insertAt([...this.array], index, ...values);
+                this.array = result;
+
+                // 渲染数组
+                this.renderArray();
+                this.updateStats();
+
+                // 添加到历史记录
+                this.addToHistory(
+                    '插入操作', 
+                    `在索引 ${index} 后插入: [${values.join(', ')}]`, 
+                    `结果: [${this.array.join(', ')}]`
+                );
+
+                this.notification.success('插入操作成功！');
+            }
+
+            randomInsert() {
+                const randomIndex = Math.floor(Math.random() * (this.array.length + 1));
+                const randomValues = Array.from({length: Math.floor(Math.random() * 3) + 1}, () => 
+                    Math.floor(Math.random() * 100)
+                );
+
+                this.insertIndexInput.setValue(randomIndex);
+                this.insertValuesInput.value = randomValues.join(', ');
+
+                this.performInsert();
+            }
+
+            clearArray() {
+                this.modal.confirm('确定要清空数组吗？此操作不可撤销。').then((confirmed) => {
+                    if (confirmed) {
+                        this.saveState();
+                        this.array = [];
+                        this.renderArray();
+                        this.updateStats();
+                        this.addToHistory('清空数组', '数组已清空', '数组长度: 0');
+                        this.notification.success('数组已清空');
+                    }
+                });
+            }
+
+            exportArray() {
+                const data = {
+                    array: this.array,
+                    operationCount: this.operationCount,
+                    exportedAt: new Date().toISOString()
+                };
+
+                const arrayStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([arrayStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `array-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.notification.success('数组导出成功！');
+            }
+
+            saveState() {
+                this.undoStack.push([...this.array]);
+                this.redoStack = []; // 清空重做栈
+            }
+
+            undo() {
+                if (this.undoStack.length === 0) {
+                    this.notification.warning('没有可撤销的操作');
+                    return;
+                }
+
+                this.redoStack.push([...this.array]);
+                this.array = this.undoStack.pop();
+                
+                this.renderArray();
+                this.updateStats();
+                this.addToHistory('撤销操作', '撤销上一步操作', `当前数组: [${this.array.join(', ')}]`);
+                this.notification.success('操作已撤销');
+            }
+
+            redo() {
+                if (this.redoStack.length === 0) {
+                    this.notification.warning('没有可重做的操作');
+                    return;
+                }
+
+                this.undoStack.push([...this.array]);
+                this.array = this.redoStack.pop();
+                
+                this.renderArray();
+                this.updateStats();
+                this.addToHistory('重做操作', '重做上一步操作', `当前数组: [${this.array.join(', ')}]`);
+                this.notification.success('操作已重做');
+            }
+
+            resetArray() {
+                this.modal.confirm('确定要重置为初始数组吗？此操作不可撤销。').then((confirmed) => {
+                    if (confirmed) {
+                        this.saveState();
+                        this.array = [...this.originalArray];
+                        this.renderArray();
+                        this.updateStats();
+                        this.addToHistory('重置数组', '重置为初始数组', `数组: [${this.array.join(', ')}]`);
+                        this.notification.success('数组已重置');
+                    }
+                });
+            }
+
+            renderArray() {
+                const container = document.getElementById('array-container');
+                
+                if (this.array.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">数组为空</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                
+                this.array.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'array-item';
+                    itemElement.textContent = item;
+                    
+                    if (this.advancedOptions.showIndex) {
+                        const indexElement = document.createElement('div');
+                        indexElement.className = 'index';
+                        indexElement.textContent = index;
+                        itemElement.appendChild(indexElement);
+                    }
+                    
+                    container.appendChild(itemElement);
+                });
+            }
+
+            updateStats() {
+                if (this.array.length === 0) {
+                    document.getElementById('array-length').textContent = '0';
+                    document.getElementById('array-sum').textContent = '0';
+                    document.getElementById('array-avg').textContent = '0';
+                    return;
+                }
+
+                const length = this.array.length;
+                const sum = this.array.reduce((a, b) => a + b, 0);
+                const avg = (sum / length).toFixed(2);
+
+                document.getElementById('array-length').textContent = length;
+                document.getElementById('array-sum').textContent = sum;
+                document.getElementById('array-avg').textContent = avg;
+            }
+
+            loadTemplate(templateName) {
+                const templates = {
+                    middle: {
+                        index: Math.floor(this.array.length / 2),
+                        values: '50, 60'
+                    },
+                    beginning: {
+                        index: -1,
+                        values: '0, 10'
+                    },
+                    end: {
+                        index: this.array.length - 1,
+                        values: '100, 200'
+                    },
+                    multiple: {
+                        index: 1,
+                        values: '25, 35, 45, 55'
+                    }
+                };
+
+                const template = templates[templateName];
+                if (template) {
+                    this.insertIndexInput.setValue(template.index);
+                    this.insertValuesInput.value = template.values;
+                    this.notification.success(`已加载 ${templateName} 模板`);
+                }
+            }
+
+            addToHistory(operation, details, result) {
+                this.operationCount++;
+                document.getElementById('operation-count').textContent = this.operationCount;
+
+                const historyList = document.getElementById('history-list');
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const time = new Date().toLocaleTimeString();
+                historyItem.innerHTML = `
+                    <h4>${operation} (${time})</h4>
+                    <div class="operation">${details}</div>
+                    <div class="result">${result}</div>
+                `;
+                
+                historyList.insertBefore(historyItem, historyList.firstChild);
+                
+                // 限制历史记录数量
+                if (historyList.children.length > 10) {
+                    historyList.removeChild(historyList.lastChild);
+                }
+            }
+        }
+
+        // 初始化应用
+        let app;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                app = new ArrayOperator();
+            });
+        } else {
+            app = new ArrayOperator();
+        }
+    </script>
+</body>
+</html>

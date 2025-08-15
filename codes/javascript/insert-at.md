@@ -19,6 +19,10 @@ const insertAt = (arr, i, ...v) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/insert-at.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -31,8 +35,10 @@ insertAt(otherArray, 0, 4, 6, 8); // otherArray = [2, 4, 6, 8, 10]
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/insertAt.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/insert-at.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/insert-at.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/insertAt.html"></iframe>
+<iframe src="codes/javascript/html/insert-at.html"></iframe>

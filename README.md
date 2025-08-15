@@ -358,7 +358,7 @@
 - [生成数组-2022-08-31](codes/javascript/initialize-array-with-values.md)
 - [注入样式-2022-09-02](codes/javascript/inject-css.md)
 - [后续插入元素-2022-09-03](codes/javascript/insert-after.md)
-- [往数组特定索引中插入元素-2022-09-04](codes/javascript/insertAt.md)
+- [往数组特定索引中插入元素-2022-09-04](codes/javascript/insert-at.md)
 - [前面插入元素-2022-09-05](codes/javascript/insertBefore.md)
 - [插入排序-2022-09-06](codes/javascript/insertionSort.md)
 - [求数组交集-2022-09-07](codes/javascript/intersection.md)
