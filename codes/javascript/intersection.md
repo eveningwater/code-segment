@@ -13,6 +13,10 @@ const intersection = (a, b) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/intersection.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,6 +24,8 @@ intersection([1, 2, 3], [4, 3, 2]); // [2, 3]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/intersection.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/intersection.html" data-language="html"></div>
 

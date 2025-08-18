@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态内容插入器与页面构建工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .element-selector {
+            margin-bottom: 15px;
+        }
+
+        .element-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .element-selector select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .insert-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .insert-type {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .insert-type label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .insert-type select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .content-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .content-input label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .content-input textarea {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .preview-header h3 {
+            color: #333;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .preview-container {
+            min-height: 500px;
+            border: 2px dashed #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .preview-container.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 1.1rem;
+        }
+
+        .demo-element {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .demo-element:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .element-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .demo-element:hover .element-controls {
+            opacity: 1;
+        }
+
+        .element-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            background: #6c757d;
+            color: white;
+        }
+
+        .element-btn:hover {
+            background: #495057;
+        }
+
+        .element-btn.delete {
+            background: #dc3545;
+        }
+
+        .element-btn.delete:hover {
+            background: #c82333;
+        }
+
+        .template-gallery {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .template-gallery h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .template-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .template-item:hover {
+            border-color: #4facfe;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+        }
+
+        .template-item h5 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .template-item p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .history-panel {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .history-panel h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .history-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #4facfe;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .history-item .time {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 2rem;
+            }
+
+            .preview-actions {
+                flex-direction: column;
+            }
+
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🔧 动态内容插入器</h1>
+            <p>基于 insertBefore 函数的页面构建工具</p>
+        </header>
+
+        <main class="main-content">
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>🎯 目标元素选择</h3>
+                    <div class="element-selector">
+                        <label>选择目标元素:</label>
+                        <div id="target-selector"></div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📝 插入内容配置</h3>
+                    <div class="insert-controls">
+                        <div class="insert-type">
+                            <label>插入类型:</label>
+                            <div id="insert-type"></div>
+                        </div>
+
+                        <div class="content-input">
+                            <label>内容内容:</label>
+                            <textarea id="content-input" placeholder="请输入要插入的内容..."></textarea>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="insert-btn" class="btn btn-primary">插入内容</button>
+                            <button id="clear-btn" class="btn btn-warning">清空预览</button>
+                            <button id="export-btn" class="btn btn-success">导出HTML</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ 高级选项</h3>
+                    <div id="advanced-options">
+                        <!-- 复选框将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>👁️ 实时预览</h3>
+                    <div class="preview-actions">
+                        <button id="undo-btn" class="btn btn-secondary">撤销</button>
+                        <button id="redo-btn" class="btn btn-secondary">重做</button>
+                        <button id="reset-btn" class="btn btn-warning">重置</button>
+                    </div>
+                </div>
+
+                <div class="preview-container" id="preview-container">
+                    <div class="preview-container empty">
+                        <div>
+                            <h4>🎉 欢迎使用动态内容插入器！</h4>
+                            <p>在左侧配置插入内容，这里将显示实时预览效果</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="template-gallery">
+                    <h4>📋 快速模板</h4>
+                    <div class="template-grid">
+                        <div class="template-item" data-template="card">
+                            <h5>信息卡片</h5>
+                            <p>创建一个美观的信息卡片</p>
+                        </div>
+                        <div class="template-item" data-template="form">
+                            <h5>联系表单</h5>
+                            <p>插入一个完整的联系表单</p>
+                        </div>
+                        <div class="template-item" data-template="gallery">
+                            <h5>图片画廊</h5>
+                            <p>创建一个响应式图片画廊</p>
+                        </div>
+                        <div class="template-item" data-template="table">
+                            <h5>数据表格</h5>
+                            <p>插入一个可排序的数据表格</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="history-panel">
+                    <h4>📚 操作历史</h4>
+                    <div class="history-list" id="history-list">
+                        <div class="history-item">
+                            <div>页面初始化</div>
+                            <div class="time">刚刚</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const insertBefore = (el, html) => el.insertAdjacentHTML('beforebegin', html);
+
+        // 页面构建器主类
+        class PageBuilder {
+            constructor() {
+                this.currentTarget = null;
+                this.insertHistory = [];
+                this.undoStack = [];
+                this.redoStack = [];
+                this.elementCounter = 0;
+                this.advancedOptions = {
+                    animations: true,
+                    customStyling: true,
+                    responsive: true
+                };
+
+                this.modal = new Modal();
+                this.notification = new Notification();
+
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.populateTargetSelector();
+                this.addToHistory('页面初始化', '系统');
+            }
+
+            setupControls() {
+                // 目标元素选择器
+                this.targetSelector = new Select({
+                    container: '#target-selector',
+                    options: [
+                        { value: 'preview-container', label: '预览容器 (默认)' }
+                    ],
+                    onChange: (value) => {
+                        // 可以在这里添加选择目标元素后的逻辑
+                    }
+                });
+
+                // 插入类型选择器
+                this.insertTypeSelect = new Select({
+                    container: '#insert-type',
+                    options: [
+                        { value: 'html', label: 'HTML元素' },
+                        { value: 'text', label: '纯文本' },
+                        { value: 'component', label: '组件模板' },
+                        { value: 'form', label: '表单元素' },
+                        { value: 'media', label: '媒体元素' }
+                    ],
+                    onChange: (value) => {
+                        this.updateContentPlaceholder(value);
+                    }
+                });
+
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '启用动画效果', checked: true },
+                                { label: '自定义样式', checked: true },
+                                { label: '响应式设计', checked: true }
+                            ],
+                            onChange: (values) => {
+                                this.advancedOptions.animations = values[0];
+                                this.advancedOptions.customStyling = values[1];
+                                this.advancedOptions.responsive = values[2];
+                            }
+                        });
+
+                        container.appendChild(this.advancedOptionsGroup.container);
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                }
+            }
+
+            setupEventListeners() {
+                // 插入按钮
+                document.getElementById('insert-btn').addEventListener('click', () => {
+                    this.insertContent();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearPreview();
+                });
+
+                // 导出按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportHTML();
+                });
+
+                // 撤销按钮
+                document.getElementById('undo-btn').addEventListener('click', () => {
+                    this.undo();
+                });
+
+                // 重做按钮
+                document.getElementById('redo-btn').addEventListener('click', () => {
+                    this.redo();
+                });
+
+                // 重置按钮
+                document.getElementById('reset-btn').addEventListener('click', () => {
+                    this.resetPreview();
+                });
+
+                // 插入类型变化已在setupControls中通过Select插件的onChange处理
+
+                // 模板点击
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const template = item.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+            }
+
+            populateTargetSelector() {
+                // 目标选择器已在setupControls中初始化
+                // 监听动态添加的元素
+                this.observeDOMChanges();
+            }
+
+            observeDOMChanges() {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList') {
+                            this.updateTargetSelector();
+                        }
+                    });
+                });
+
+                const previewContainer = document.getElementById('preview-container');
+                observer.observe(previewContainer, { childList: true, subtree: true });
+            }
+
+            updateTargetSelector() {
+                const previewContainer = document.getElementById('preview-container');
+
+                // 获取新创建的元素
+                const elements = previewContainer.querySelectorAll('.demo-element');
+
+                // 构建新的选项数组
+                const options = [
+                    { value: 'preview-container', label: '预览容器 (默认)' }
+                ];
+
+                elements.forEach((element, index) => {
+                    options.push({
+                        value: `element-${index}`,
+                        label: `元素 ${index + 1} (${element.tagName.toLowerCase()})`
+                    });
+                });
+
+                // 更新Select插件的选项
+                if (this.targetSelector) {
+                    this.targetSelector.setOptions(options);
+                }
+            }
+
+            updateContentPlaceholder(type) {
+                const textarea = document.getElementById('content-input');
+                const placeholders = {
+                    'html': '<div class="custom-element">\n  <h3>标题</h3>\n  <p>内容描述</p>\n</div>',
+                    'text': '这是一段纯文本内容，可以直接插入到页面中。',
+                    'component': '<div class="component">\n  <header>组件头部</header>\n  <main>组件主体</main>\n  <footer>组件底部</footer>\n</div>',
+                    'form': '<form class="contact-form">\n  <input type="text" placeholder="姓名">\n  <input type="email" placeholder="邮箱">\n  <textarea placeholder="消息"></textarea>\n  <button type="submit">提交</button>\n</form>',
+                    'media': '<div class="media-container">\n  <img src="https://via.placeholder.com/300x200" alt="示例图片">\n  <video controls>\n    <source src="video.mp4" type="video/mp4">\n  </video>\n</div>'
+                };
+
+                textarea.placeholder = placeholders[type] || '请输入要插入的内容...';
+            }
+
+            insertContent() {
+                const targetSelector = this.targetSelector ? this.targetSelector.getValue() : 'preview-container';
+                const insertType = this.insertTypeSelect ? this.insertTypeSelect.getValue() : 'html';
+                const content = document.getElementById('content-input').value.trim();
+
+                if (!content) {
+                    this.notification.warning('请输入要插入的内容');
+                    return;
+                }
+
+                let targetElement;
+                if (targetSelector === 'preview-container') {
+                    targetElement = document.getElementById('preview-container');
+                } else if (targetSelector.startsWith('element-')) {
+                    const index = parseInt(targetSelector.split('-')[1]);
+                    const elements = document.querySelectorAll('.demo-element');
+                    targetElement = elements[index];
+                }
+
+                if (!targetElement) {
+                    this.notification.error('请选择有效的目标元素');
+                    return;
+                }
+
+                // 保存当前状态用于撤销
+                this.saveState();
+
+                // 插入内容
+                const elementId = `demo-element-${++this.elementCounter}`;
+                const wrappedContent = this.wrapContent(content, insertType, elementId);
+
+                insertBefore(targetElement, wrappedContent);
+
+                // 移除空状态提示
+                const emptyState = document.querySelector('.preview-container.empty');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+
+                // 更新目标选择器
+                this.updateTargetSelector();
+
+                // 添加到历史记录
+                this.addToHistory(`插入${insertType}内容`, content.substring(0, 50));
+
+                this.notification.success('内容插入成功！');
+            }
+
+            wrapContent(content, type, elementId) {
+                let wrappedContent = '';
+
+                if (type === 'html') {
+                    wrappedContent = content;
+                } else if (type === 'text') {
+                    wrappedContent = `<p>${content}</p>`;
+                } else {
+                    wrappedContent = content;
+                }
+
+                // 包装在demo-element中
+                return `
+                    <div class="demo-element" id="${elementId}">
+                        <div class="element-controls">
+                            <button class="element-btn edit" onclick="pageBuilder.editElement('${elementId}')">编辑</button>
+                            <button class="element-btn delete" onclick="pageBuilder.deleteElement('${elementId}')">删除</button>
+                        </div>
+                        ${wrappedContent}
+                    </div>
+                `;
+            }
+
+            loadTemplate(templateName) {
+                const templates = {
+                    card: `
+                        <div class="info-card">
+                            <div class="card-header">
+                                <h3>信息卡片</h3>
+                                <span class="badge">NEW</span>
+                            </div>
+                            <div class="card-body">
+                                <p>这是一个信息卡片的示例，展示了如何使用模板快速创建内容。</p>
+                                <div class="card-actions">
+                                    <button class="btn btn-primary">了解更多</button>
+                                    <button class="btn btn-secondary">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    form: `
+                        <form class="contact-form">
+                            <h3>联系我们</h3>
+                            <div class="form-group">
+                                <label>姓名:</label>
+                                <input type="text" placeholder="请输入您的姓名" required>
+                            </div>
+                            <div class="form-group">
+                                <label>邮箱:</label>
+                                <input type="email" placeholder="请输入您的邮箱" required>
+                            </div>
+                            <div class="form-group">
+                                <label>消息:</label>
+                                <textarea placeholder="请输入您的消息" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">发送消息</button>
+                        </form>
+                    `,
+                    gallery: `
+                        <div class="image-gallery">
+                            <h3>图片画廊</h3>
+                            <div class="gallery-grid">
+                                <img src="https://via.placeholder.com/200x150/4facfe/ffffff?text=图片1" alt="图片1">
+                                <img src="https://via.placeholder.com/200x150/00f2fe/ffffff?text=图片2" alt="图片2">
+                                <img src="https://via.placeholder.com/200x150/56ab2f/ffffff?text=图片3" alt="图片3">
+                                <img src="https://via.placeholder.com/200x150/f093fb/ffffff?text=图片4" alt="图片4">
+                            </div>
+                        </div>
+                    `,
+                    table: `
+                        <div class="data-table">
+                            <h3>数据表格</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>姓名</th>
+                                        <th>年龄</th>
+                                        <th>职业</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>张三</td>
+                                        <td>25</td>
+                                        <td>工程师</td>
+                                        <td><button class="btn btn-secondary">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>李四</td>
+                                        <td>30</td>
+                                        <td>设计师</td>
+                                        <td><button class="btn btn-secondary">编辑</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `
+                };
+
+                const content = templates[templateName];
+                if (content) {
+                    document.getElementById('content-input').value = content;
+                    if (this.insertTypeSelect) {
+                        this.insertTypeSelect.setValue('html');
+                    }
+                    this.notification.success(`已加载 ${templateName} 模板`);
+                }
+            }
+
+            editElement(elementId) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+
+                const content = element.innerHTML.replace(/<div class="element-controls">[\s\S]*?<\/div>/, '').trim();
+
+                this.modal.prompt('编辑元素内容:', content).then((newContent) => {
+                    if (newContent && newContent !== content) {
+                        this.saveState();
+
+                        // 更新元素内容
+                        const controls = element.querySelector('.element-controls');
+                        element.innerHTML = controls.outerHTML + newContent;
+
+                        this.addToHistory('编辑元素', newContent.substring(0, 50));
+                        this.notification.success('元素编辑成功！');
+                    }
+                });
+            }
+
+            deleteElement(elementId) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+
+                this.modal.confirm('确定要删除这个元素吗？').then((confirmed) => {
+                    if (confirmed) {
+                        this.saveState();
+                        element.remove();
+
+                        // 检查是否还有其他元素
+                        const remainingElements = document.querySelectorAll('.demo-element');
+                        if (remainingElements.length === 0) {
+                            this.showEmptyState();
+                        }
+
+                        this.updateTargetSelector();
+                        this.addToHistory('删除元素', elementId);
+                        this.notification.success('元素删除成功！');
+                    }
+                });
+            }
+
+            saveState() {
+                const currentState = document.getElementById('preview-container').innerHTML;
+                this.undoStack.push(currentState);
+                this.redoStack = []; // 清空重做栈
+            }
+
+            undo() {
+                if (this.undoStack.length === 0) {
+                    this.notification.warning('没有可撤销的操作');
+                    return;
+                }
+
+                const currentState = document.getElementById('preview-container').innerHTML;
+                this.redoStack.push(currentState);
+
+                const previousState = this.undoStack.pop();
+                document.getElementById('preview-container').innerHTML = previousState;
+
+                this.updateTargetSelector();
+                this.addToHistory('撤销操作', '撤销');
+                this.notification.success('操作已撤销');
+            }
+
+            redo() {
+                if (this.redoStack.length === 0) {
+                    this.notification.warning('没有可重做的操作');
+                    return;
+                }
+
+                const currentState = document.getElementById('preview-container').innerHTML;
+                this.undoStack.push(currentState);
+
+                const nextState = this.redoStack.pop();
+                document.getElementById('preview-container').innerHTML = nextState;
+
+                this.updateTargetSelector();
+                this.addToHistory('重做操作', '重做');
+                this.notification.success('操作已重做');
+            }
+
+            clearPreview() {
+                this.modal.confirm('确定要清空所有内容吗？此操作不可撤销。').then((confirmed) => {
+                    if (confirmed) {
+                        this.saveState();
+                        document.getElementById('preview-container').innerHTML = '';
+                        this.showEmptyState();
+                        this.updateTargetSelector();
+                        this.addToHistory('清空预览', '清空所有内容');
+                        this.notification.success('预览内容已清空');
+                    }
+                });
+            }
+
+            resetPreview() {
+                this.modal.confirm('确定要重置为初始状态吗？此操作不可撤销。').then((confirmed) => {
+                    if (confirmed) {
+                        this.saveState();
+                        this.showEmptyState();
+                        this.updateTargetSelector();
+                        this.addToHistory('重置预览', '重置为初始状态');
+                        this.notification.success('预览已重置');
+                    }
+                });
+            }
+
+            showEmptyState() {
+                const container = document.getElementById('preview-container');
+                container.innerHTML = `
+                    <div class="preview-container empty">
+                        <div>
+                            <h4>🎉 欢迎使用动态内容插入器！</h4>
+                            <p>在左侧配置插入内容，这里将显示实时预览效果</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            exportHTML() {
+                const previewContainer = document.getElementById('preview-container');
+                const html = previewContainer.innerHTML;
+
+                if (!html || html.includes('preview-container empty')) {
+                    this.notification.warning('没有内容可导出');
+                    return;
+                }
+
+                const fullHTML = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导出的页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .demo-element { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .gallery-grid img { width: 100%; height: auto; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    ${html}
+</body>
+</html>`;
+
+                const blob = new Blob([fullHTML], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `page-${Date.now()}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.addToHistory('导出HTML', '导出完整页面');
+                this.notification.success('HTML文件导出成功！');
+            }
+
+            addToHistory(action, content) {
+                const historyList = document.getElementById('history-list');
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+
+                const time = new Date().toLocaleTimeString();
+                historyItem.innerHTML = `
+                    <div>${action}: ${content}</div>
+                    <div class="time">${time}</div>
+                `;
+
+                historyList.insertBefore(historyItem, historyList.firstChild);
+
+                // 限制历史记录数量
+                if (historyList.children.length > 10) {
+                    historyList.removeChild(historyList.lastChild);
+                }
+            }
+        }
+
+        // 初始化应用
+        let pageBuilder;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                pageBuilder = new PageBuilder();
+            });
+        } else {
+            pageBuilder = new PageBuilder();
+        }
+    </script>
+</body>
+
+</html>
