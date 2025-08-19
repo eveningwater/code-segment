@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级集合交集分析器 - intersectionBy</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .set-input-section {
+            margin-bottom: 20px;
+        }
+
+        .set-input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .set-input-section textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .handler-section {
+            margin-bottom: 20px;
+        }
+
+        .handler-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .handler-section textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 60px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .preview-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .preview-header h3 {
+            color: #333;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .intersection-visualization {
+            margin-bottom: 30px;
+        }
+
+        .sets-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .set-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .set-display h4 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .set-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .set-item {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .set-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .set-item.intersection {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 1s infinite;
+        }
+
+        .set-item.unique {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        .set-item.original {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .set-item.transformed {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .intersection-result {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+            text-align: center;
+        }
+
+        .intersection-result h4 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .intersection-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .intersection-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .transformation-panel {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .transformation-panel h4 {
+            color: #e65100;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .transformation-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .step-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ffcc02;
+            text-align: center;
+        }
+
+        .step-card h5 {
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .step-content {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            color: #666;
+            word-break: break-all;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #4facfe;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .template-gallery {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .template-gallery h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .template-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .template-item:hover {
+            border-color: #4facfe;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+        }
+
+        .template-item h5 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .template-item p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 2rem;
+            }
+            
+            .preview-actions {
+                flex-direction: column;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sets-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🔗 高级集合交集分析器</h1>
+            <p>基于 intersectionBy 函数的数据转换与交集分析工具</p>
+        </header>
+
+        <main class="main-content">
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>📝 集合输入</h3>
+                    <div class="set-input-section">
+                        <label>集合 A:</label>
+                        <textarea id="set-a-input" placeholder="例如: 2.1, 1.2, 3.7, 4.8">2.1, 1.2, 3.7, 4.8</textarea>
+                    </div>
+                    <div class="set-input-section">
+                        <label>集合 B:</label>
+                        <textarea id="set-b-input" placeholder="例如: 2.3, 3.4, 1.9, 4.1">2.3, 3.4, 1.9, 4.1</textarea>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ 转换函数</h3>
+                    <div class="handler-section">
+                        <label>转换函数 (JavaScript代码):</label>
+                        <textarea id="handler-input" placeholder="例如: Math.floor 或 x => x.length">Math.floor</textarea>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="calculate-btn" class="btn btn-primary">计算交集</button>
+                        <button id="clear-btn" class="btn btn-warning">清空</button>
+                        <button id="random-sets-btn" class="btn btn-success">随机集合</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🔧 高级选项</h3>
+                    <div id="advanced-options">
+                        <!-- 复选框将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>👁️ 交集可视化</h3>
+                    <div class="preview-actions">
+                        <button id="export-btn" class="btn btn-success">导出结果</button>
+                        <button id="compare-btn" class="btn btn-secondary">比较模式</button>
+                    </div>
+                </div>
+
+                <div class="intersection-visualization">
+                    <h4>集合展示</h4>
+                    <div class="sets-container" id="sets-container">
+                        <div class="set-display">
+                            <h4>集合 A (原始)</h4>
+                            <div class="set-items" id="set-a-display">
+                                <div class="set-item original">2.1</div>
+                                <div class="set-item original">1.2</div>
+                                <div class="set-item original">3.7</div>
+                                <div class="set-item original">4.8</div>
+                            </div>
+                        </div>
+                        <div class="set-display">
+                            <h4>集合 B (原始)</h4>
+                            <div class="set-items" id="set-b-display">
+                                <div class="set-item original">2.3</div>
+                                <div class="set-item original">3.4</div>
+                                <div class="set-item original">1.9</div>
+                                <div class="set-item original">4.1</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="transformation-panel" id="transformation-panel">
+                        <h4>🔄 转换过程</h4>
+                        <div class="transformation-steps" id="transformation-steps">
+                            <div class="step-card">
+                                <h5>集合A转换后</h5>
+                                <div class="step-content" id="transformed-a">2, 1, 3, 4</div>
+                            </div>
+                            <div class="step-card">
+                                <h5>集合B转换后</h5>
+                                <div class="step-content" id="transformed-b">2, 3, 1, 4</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="intersection-result" id="intersection-result">
+                        <h4>🔗 交集结果</h4>
+                        <div class="intersection-items" id="intersection-items">
+                            <div class="intersection-item">2</div>
+                            <div class="intersection-item">1</div>
+                            <div class="intersection-item">3</div>
+                            <div class="intersection-item">4</div>
+                        </div>
+                        <p id="intersection-summary">找到 4 个共同元素</p>
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="stat-value" id="set-a-size">4</div>
+                        <div class="stat-label">集合A大小</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="set-b-size">4</div>
+                        <div class="stat-label">集合B大小</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="intersection-size">4</div>
+                        <div class="stat-label">交集大小</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="union-size">4</div>
+                        <div class="stat-label">并集大小</div>
+                    </div>
+                </div>
+
+                <div class="template-gallery">
+                    <h4>📋 快速测试模板</h4>
+                    <div class="template-grid">
+                        <div class="template-item" data-template="numbers">
+                            <h5>数字转换</h5>
+                            <p>Math.floor 测试</p>
+                        </div>
+                        <div class="template-item" data-template="strings">
+                            <h5>字符串长度</h5>
+                            <p>长度转换测试</p>
+                        </div>
+                        <div class="template-item" data-template="objects">
+                            <h5>对象属性</h5>
+                            <p>属性提取测试</p>
+                        </div>
+                        <div class="template-item" data-template="custom">
+                            <h5>自定义函数</h5>
+                            <p>复杂转换测试</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const intersectionBy = (a, b, handler) => {
+            const s = new Set(b.map(handler));
+            return [...new Set(a)].filter(x => s.has(handler(x)));
+        };
+
+        // 高级集合交集分析器主类
+        class IntersectionByAnalyzer {
+            constructor() {
+                this.setA = [2.1, 1.2, 3.7, 4.8];
+                this.setB = [2.3, 3.4, 1.9, 4.1];
+                this.handler = Math.floor;
+                this.intersectionResult = [];
+                this.transformedA = [];
+                this.transformedB = [];
+                this.advancedOptions = {
+                    showTransformation: true,
+                    highlightCommon: true,
+                    validateHandler: true
+                };
+
+                this.modal = new Modal();
+                this.notification = new Notification();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.calculateIntersection();
+                this.renderSets();
+                this.updateStats();
+            }
+
+            setupControls() {
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '显示转换过程', checked: true },
+                                { label: '高亮共同元素', checked: true },
+                                { label: '验证转换函数', checked: true }
+                            ],
+                            onChange: (values) => {
+                                this.advancedOptions.showTransformation = values[0];
+                                this.advancedOptions.highlightCommon = values[1];
+                                this.advancedOptions.validateHandler = values[2];
+                                this.updateDisplay();
+                            }
+                        });
+                        
+                        container.appendChild(this.advancedOptionsGroup.container);
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                }
+            }
+
+            setupEventListeners() {
+                // 计算交集按钮
+                document.getElementById('calculate-btn').addEventListener('click', () => {
+                    this.calculateIntersection();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearSets();
+                });
+
+                // 随机集合按钮
+                document.getElementById('random-sets-btn').addEventListener('click', () => {
+                    this.generateRandomSets();
+                });
+
+                // 导出按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportResults();
+                });
+
+                // 比较模式按钮
+                document.getElementById('compare-btn').addEventListener('click', () => {
+                    this.toggleComparisonMode();
+                });
+
+                // 集合输入变化
+                document.getElementById('set-a-input').addEventListener('input', (e) => {
+                    this.parseSetInput(e.target.value, 'A');
+                });
+
+                document.getElementById('set-b-input').addEventListener('input', (e) => {
+                    this.parseSetInput(e.target.value, 'B');
+                });
+
+                // 转换函数输入变化
+                document.getElementById('handler-input').addEventListener('input', (e) => {
+                    this.parseHandler(e.target.value);
+                });
+
+                // 模板点击
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const template = item.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+            }
+
+            parseSetInput(input, setType) {
+                try {
+                    let newSet = input.split(',').map(item => {
+                        let trimmed = item.trim();
+                        
+                        // 尝试转换为数字
+                        const num = parseFloat(trimmed);
+                        if (!isNaN(num)) {
+                            return num;
+                        }
+                        
+                        // 如果转换失败，保持原始字符串
+                        return trimmed;
+                    }).filter(item => item !== '' && item !== null);
+                    
+                    if (setType === 'A') {
+                        this.setA = newSet;
+                    } else {
+                        this.setB = newSet;
+                    }
+                    
+                    this.calculateIntersection();
+                    this.renderSets();
+                    this.updateStats();
+                } catch (error) {
+                    console.warn('集合解析失败:', error);
+                }
+            }
+
+            parseHandler(handlerText) {
+                try {
+                    if (handlerText.trim() === '') {
+                        this.handler = (x) => x;
+                        return;
+                    }
+
+                    // 尝试解析为函数
+                    if (handlerText.includes('Math.')) {
+                        // 数学函数
+                        this.handler = eval(handlerText);
+                    } else if (handlerText.includes('=>')) {
+                        // 箭头函数
+                        this.handler = eval(`(${handlerText})`);
+                    } else if (handlerText.includes('function')) {
+                        // 函数声明
+                        this.handler = eval(handlerText);
+                    } else {
+                        // 简单表达式
+                        this.handler = eval(`(x) => ${handlerText}`);
+                    }
+
+                    this.calculateIntersection();
+                    this.renderSets();
+                    this.updateStats();
+                    
+                    this.notification.success('转换函数更新成功');
+                } catch (error) {
+                    this.notification.error('转换函数解析失败: ' + error.message);
+                    console.warn('转换函数解析失败:', error);
+                }
+            }
+
+            calculateIntersection() {
+                try {
+                    // 应用转换函数
+                    this.transformedA = this.setA.map(this.handler);
+                    this.transformedB = this.setB.map(this.handler);
+                    
+                    // 计算交集
+                    this.intersectionResult = intersectionBy(this.setA, this.setB, this.handler);
+                    
+                    this.renderIntersection();
+                    this.updateTransformation();
+                } catch (error) {
+                    this.notification.error('交集计算失败: ' + error.message);
+                    console.error('交集计算失败:', error);
+                }
+            }
+
+            renderSets() {
+                this.renderSetDisplay('set-a-display', this.setA, 'A');
+                this.renderSetDisplay('set-b-display', this.setB, 'B');
+            }
+
+            renderSetDisplay(containerId, set, setType) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                
+                if (set.length === 0) {
+                    container.innerHTML = '<div style="color: #666; font-style: italic;">空集</div>';
+                    return;
+                }
+                
+                set.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'set-item original';
+                    
+                    // 检查是否为交集元素
+                    if (this.intersectionResult.includes(item)) {
+                        itemElement.classList.add('intersection');
+                    } else {
+                        itemElement.classList.add('unique');
+                    }
+                    
+                    itemElement.textContent = item;
+                    container.appendChild(itemElement);
+                });
+            }
+
+            renderIntersection() {
+                const resultContainer = document.getElementById('intersection-result');
+                const itemsContainer = document.getElementById('intersection-items');
+                const summaryElement = document.getElementById('intersection-summary');
+                
+                if (this.intersectionResult.length === 0) {
+                    resultContainer.style.display = 'none';
+                    return;
+                }
+                
+                resultContainer.style.display = 'block';
+                itemsContainer.innerHTML = '';
+                
+                this.intersectionResult.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'intersection-item';
+                    itemElement.textContent = item;
+                    itemsContainer.appendChild(itemElement);
+                });
+                
+                summaryElement.textContent = `找到 ${this.intersectionResult.length} 个共同元素`;
+            }
+
+            updateTransformation() {
+                if (!this.advancedOptions.showTransformation) {
+                    document.getElementById('transformation-panel').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('transformation-panel').style.display = 'block';
+                document.getElementById('transformed-a').textContent = this.transformedA.join(', ');
+                document.getElementById('transformed-b').textContent = this.transformedB.join(', ');
+            }
+
+            updateStats() {
+                document.getElementById('set-a-size').textContent = this.setA.length;
+                document.getElementById('set-b-size').textContent = this.setB.length;
+                document.getElementById('intersection-size').textContent = this.intersectionResult.length;
+                
+                // 计算并集大小
+                const union = new Set([...this.setA, ...this.setB]);
+                document.getElementById('union-size').textContent = union.size;
+            }
+
+            updateDisplay() {
+                this.updateTransformation();
+            }
+
+            toggleComparisonMode() {
+                const btn = document.getElementById('compare-btn');
+                if (btn.textContent === '比较模式') {
+                    btn.textContent = '退出比较';
+                    btn.classList.add('btn-warning');
+                    this.notification.info('已进入比较模式');
+                } else {
+                    btn.textContent = '比较模式';
+                    btn.classList.remove('btn-warning');
+                    this.notification.info('已退出比较模式');
+                }
+            }
+
+            clearSets() {
+                this.setA = [];
+                this.setB = [];
+                this.intersectionResult = [];
+                this.transformedA = [];
+                this.transformedB = [];
+                
+                document.getElementById('set-a-input').value = '';
+                document.getElementById('set-b-input').value = '';
+                document.getElementById('handler-input').value = '';
+                
+                this.handler = (x) => x;
+                
+                this.renderSets();
+                this.renderIntersection();
+                this.updateTransformation();
+                this.updateStats();
+                
+                this.notification.success('集合已清空');
+            }
+
+            generateRandomSets() {
+                const lengthA = Math.floor(Math.random() * 8) + 3;
+                const lengthB = Math.floor(Math.random() * 8) + 3;
+                
+                this.setA = Array.from({length: lengthA}, () => Math.random() * 10);
+                this.setB = Array.from({length: lengthB}, () => Math.random() * 10);
+                
+                document.getElementById('set-a-input').value = this.setA.map(x => x.toFixed(1)).join(', ');
+                document.getElementById('set-b-input').value = this.setB.map(x => x.toFixed(1)).join(', ');
+                
+                this.calculateIntersection();
+                this.renderSets();
+                this.updateStats();
+                
+                this.notification.success('已生成随机集合');
+            }
+
+            exportResults() {
+                const data = {
+                    setA: this.setA,
+                    setB: this.setB,
+                    handler: this.handler.toString(),
+                    transformedA: this.transformedA,
+                    transformedB: this.transformedB,
+                    intersection: this.intersectionResult,
+                    stats: {
+                        setASize: this.setA.length,
+                        setBSize: this.setB.length,
+                        intersectionSize: this.intersectionResult.length,
+                        unionSize: new Set([...this.setA, ...this.setB]).size
+                    },
+                    exportedAt: new Date().toISOString()
+                };
+
+                const dataStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `intersection-by-analysis-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.notification.success('分析结果导出成功！');
+            }
+
+            loadTemplate(templateName) {
+                const templates = {
+                    numbers: {
+                        setA: [2.1, 1.2, 3.7, 4.8],
+                        setB: [2.3, 3.4, 1.9, 4.1],
+                        handler: 'Math.floor'
+                    },
+                    strings: {
+                        setA: ['apple', 'banana', 'cherry', 'date'],
+                        setB: ['apricot', 'blueberry', 'coconut', 'dragonfruit'],
+                        handler: 'x => x.length'
+                    },
+                    objects: {
+                        setA: [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}, {id: 3, name: 'Charlie'}],
+                        setB: [{id: 2, name: 'David'}, {id: 3, name: 'Eve'}, {id: 4, name: 'Frank'}],
+                        handler: 'x => x.id'
+                    },
+                    custom: {
+                        setA: [1, 2, 3, 4, 5],
+                        setB: [2, 4, 6, 8, 10],
+                        handler: 'x => x % 2 === 0 ? "even" : "odd"'
+                    }
+                };
+
+                const template = templates[templateName];
+                if (template) {
+                    this.setA = [...template.setA];
+                    this.setB = [...template.setB];
+                    
+                    document.getElementById('set-a-input').value = Array.isArray(this.setA[0]) ? 
+                        JSON.stringify(this.setA) : this.setA.join(', ');
+                    document.getElementById('set-b-input').value = Array.isArray(this.setB[0]) ? 
+                        JSON.stringify(this.setB) : this.setB.join(', ');
+                    document.getElementById('handler-input').value = template.handler;
+                    
+                    this.parseHandler(template.handler);
+                    this.calculateIntersection();
+                    this.renderSets();
+                    this.updateStats();
+                    
+                    this.notification.success(`已加载 ${templateName} 模板`);
+                }
+            }
+        }
+
+        // 初始化应用
+        let app;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                app = new IntersectionByAnalyzer();
+            });
+        } else {
+            app = new IntersectionByAnalyzer();
+        }
+    </script>
+</body>
+</html>
