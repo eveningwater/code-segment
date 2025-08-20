@@ -363,7 +363,7 @@
 - [插入排序-2022-09-06](codes/javascript/insertion-sort.md)
 - [求数组交集-2022-09-07](codes/javascript/intersection.md)
 - [求数组交集(根据回调函数)-2022-09-08](codes/javascript/intersection-by.md)
-- [求数组交集(基于函数)-2022-09-09](codes/javascript/intersectionWith.md)
+- [求数组交集(基于函数)-2022-09-09](codes/javascript/intersection-with.md)
 - [反转对象的键值(基于回调函数)-2022-09-10](codes/javascript/invertKeyValues.md)
 - [检查数据类型-2022-09-11](codes/javascript/is.md)
 - [是否是绝对路径-2022-09-12](codes/javascript/isAbsoluteURL.md)
