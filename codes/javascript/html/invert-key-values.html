@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级对象键值反转器 - invertKeyValues</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .input-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .input-section textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            background: white;
+        }
+
+        .handler-section {
+            margin-bottom: 20px;
+        }
+
+        .handler-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .handler-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .handler-section textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            background: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .preview-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .preview-header h3 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .transformation-visualization {
+            margin-bottom: 30px;
+        }
+
+        .object-display {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .object-display:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .object-display h4 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.2rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .object-pairs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .object-pair {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .object-pair:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .object-pair .key {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+
+        .object-pair .arrow {
+            font-size: 1.3rem;
+            animation: pulse 2s infinite;
+        }
+
+        .object-pair .value {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+
+        .transformation-arrow {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 3rem;
+            color: #4facfe;
+            animation: bounce 2s infinite;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .inverted-result {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 4px solid #2196f3;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+        }
+
+        .inverted-result h4 {
+            color: #1976d2;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .inverted-groups {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .inverted-group {
+            background: white;
+            border: 2px solid #2196f3;
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .inverted-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.2);
+        }
+
+        .inverted-group h5 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .group-keys {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .group-key {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .group-key:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .transformation-steps {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.1);
+        }
+
+        .transformation-steps h4 {
+            color: #e65100;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .step-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #ffcc02;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 204, 2, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 204, 2, 0.2);
+        }
+
+        .step-item h5 {
+            color: #f57c00;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .step-content {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            color: #666;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #4facfe;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .template-gallery {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .template-gallery h4 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .template-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .template-item:hover::before {
+            left: 100%;
+        }
+
+        .template-item:hover {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.2);
+        }
+
+        .template-item h5 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .template-item p {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .comparison-mode-toggle {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.1);
+        }
+
+        .comparison-mode-toggle h5 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #4caf50;
+            background: white;
+            color: #4caf50;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn.active {
+            background: #4caf50;
+            color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-display {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            color: #c62828;
+            padding: 18px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336;
+            display: none;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.1);
+            font-weight: 500;
+        }
+
+        .success-display {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            color: #2e7d32;
+            padding: 18px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+            display: none;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.1);
+            font-weight: 500;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .object-display,
+        .inverted-result,
+        .transformation-steps {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 2rem;
+            }
+            
+            .preview-actions {
+                flex-direction: column;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .object-pairs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .step-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mode-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 10px;
+            }
+            
+            .app-header {
+                padding: 20px;
+            }
+            
+            .control-panel,
+            .preview-panel {
+                padding: 15px;
+            }
+            
+            .stats-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🔄 高级对象键值反转器</h1>
+            <p>基于 invertKeyValues 函数的智能数据转换和重组工具</p>
+        </header>
+
+        <main class="main-content">
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>📝 输入对象</h3>
+                    <div class="input-section">
+                        <label>原始对象 (JSON格式):</label>
+                        <textarea id="input-object" placeholder="例如: { a: 1, b: 2, c: 1 }">{ "a": 1, "b": 2, "c": 1, "d": "hello", "e": "world", "f": "hello" }</textarea>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ 转换函数</h3>
+                    <div class="handler-section">
+                        <label>转换函数 (可选，JavaScript代码):</label>
+                        <textarea id="handler-input" placeholder="例如: x => x.toString().toUpperCase()">x => x.toString().toUpperCase()</textarea>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="transform-btn" class="btn btn-primary">执行转换</button>
+                        <button id="clear-btn" class="btn btn-warning">清空</button>
+                        <button id="random-object-btn" class="btn btn-success">随机对象</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🔧 高级选项</h3>
+                    <div id="advanced-options">
+                        <!-- 复选框将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>👁️ 转换可视化</h3>
+                    <div class="preview-actions">
+                        <button id="export-btn" class="btn btn-success">导出结果</button>
+                        <button id="step-mode-btn" class="btn btn-secondary">步骤模式</button>
+                    </div>
+                </div>
+
+                <div class="transformation-visualization">
+                    <div class="object-display">
+                        <h4>📥 原始对象</h4>
+                        <div class="object-pairs" id="original-object-pairs">
+                            <div class="object-pair">
+                                <span class="key">a</span>
+                                <span class="arrow">→</span>
+                                <span class="value">1</span>
+                            </div>
+                            <div class="object-pair">
+                                <span class="key">b</span>
+                                <span class="arrow">→</span>
+                                <span class="value">2</span>
+                            </div>
+                            <div class="object-pair">
+                                <span class="key">c</span>
+                                <span class="arrow">→</span>
+                                <span class="value">1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="transformation-arrow">
+                        🔄
+                    </div>
+
+                    <div class="comparison-mode-toggle">
+                        <h5>🔄 转换模式选择</h5>
+                        <div class="mode-buttons">
+                            <button class="mode-btn active" data-mode="standard">标准模式</button>
+                            <button class="mode-btn" data-mode="detailed">详细模式</button>
+                            <button class="mode-btn" data-mode="step-by-step">逐步模式</button>
+                        </div>
+                    </div>
+
+                    <div class="transformation-steps" id="transformation-steps">
+                        <h4>🔄 转换过程</h4>
+                        <div class="step-list" id="step-list">
+                            <div class="step-item">
+                                <h5>转换函数</h5>
+                                <div class="step-content" id="handler-display">x => x.toString().toUpperCase()</div>
+                            </div>
+                            <div class="step-item">
+                                <h5>转换逻辑</h5>
+                                <div class="step-content" id="transformation-logic">值转字符串并转大写</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inverted-result" id="inverted-result">
+                        <h4>📤 反转结果</h4>
+                        <div class="inverted-groups" id="inverted-groups">
+                            <div class="inverted-group">
+                                <h5>1</h5>
+                                <div class="group-keys">
+                                    <div class="group-key">a</div>
+                                    <div class="group-key">c</div>
+                                </div>
+                            </div>
+                            <div class="inverted-group">
+                                <h5>2</h5>
+                                <div class="group-keys">
+                                    <div class="group-key">b</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="stat-value" id="original-keys">6</div>
+                        <div class="stat-label">原始键数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="unique-values">3</div>
+                        <div class="stat-label">唯一值数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="inverted-groups-count">3</div>
+                        <div class="stat-label">反转组数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="max-group-size">2</div>
+                        <div class="stat-label">最大组大小</div>
+                    </div>
+                </div>
+
+                <div class="template-gallery">
+                    <h4>📋 快速测试模板</h4>
+                    <div class="template-grid">
+                        <div class="template-item" data-template="numbers">
+                            <h5>数字对象</h5>
+                            <p>基础键值反转</p>
+                        </div>
+                        <div class="template-item" data-template="strings">
+                            <h5>字符串对象</h5>
+                            <p>字符串转换</p>
+                        </div>
+                        <div class="template-item" data-template="mixed">
+                            <h5>混合类型</h5>
+                            <p>类型转换处理</p>
+                        </div>
+                        <div class="template-item" data-template="custom">
+                            <h5>自定义转换</h5>
+                            <p>复杂逻辑转换</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="error-display" id="error-display">
+                    <!-- 错误信息将在这里显示 -->
+                </div>
+
+                <div class="success-display" id="success-display">
+                    <!-- 成功信息将在这里显示 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 引入插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+
+    <script>
+        // 核心函数
+        const invertKeyValues = (obj, handler) =>
+            Object.keys(obj).reduce((acc, key) => {
+                const val = handler ? handler(obj[key]) : obj[key];
+                acc[val] = acc[val] || [];
+                acc[val].push(key);
+                return acc;
+            }, {});
+
+        // 高级对象键值反转器主类
+        class InvertKeyValuesAnalyzer {
+            constructor() {
+                this.inputObject = { "a": 1, "b": 2, "c": 1, "d": "hello", "e": "world", "f": "hello" };
+                this.handler = x => x.toString().toUpperCase();
+                this.invertedResult = {};
+                this.transformationMode = 'standard';
+                this.transformationSteps = [];
+                this.advancedOptions = {
+                    showTransformationSteps: true,
+                    highlightDuplicates: true,
+                    countTransformations: true
+                };
+
+                this.modal = new Modal();
+                this.notification = new Notification();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.performTransformation();
+                this.renderOriginalObject();
+                this.updateStats();
+            }
+
+            setupControls() {
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '显示转换步骤', checked: true },
+                                { label: '高亮重复值', checked: true },
+                                { label: '统计转换次数', checked: true }
+                            ],
+                            onChange: (values) => {
+                                this.advancedOptions.showTransformationSteps = values[0];
+                                this.advancedOptions.highlightDuplicates = values[1];
+                                this.advancedOptions.countTransformations = values[2];
+                                this.updateDisplay();
+                                
+                                // 更新全选复选框状态
+                                this.updateAllCheckboxState();
+                            }
+                        });
+                        
+                        container.appendChild(this.advancedOptionsGroup.container);
+                        
+                        // 初始化后更新全选复选框状态
+                        this.updateAllCheckboxState();
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                }
+            }
+
+            setupEventListeners() {
+                // 执行转换按钮
+                document.getElementById('transform-btn').addEventListener('click', () => {
+                    this.performTransformation();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearData();
+                });
+
+                // 随机对象按钮
+                document.getElementById('random-object-btn').addEventListener('click', () => {
+                    this.generateRandomObject();
+                });
+
+                // 导出按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportResults();
+                });
+
+                // 步骤模式按钮
+                document.getElementById('step-mode-btn').addEventListener('click', () => {
+                    this.toggleStepMode();
+                });
+
+                // 输入对象变化
+                document.getElementById('input-object').addEventListener('input', (e) => {
+                    this.parseInputObject(e.target.value);
+                });
+
+                // 转换函数输入变化
+                document.getElementById('handler-input').addEventListener('input', (e) => {
+                    this.parseHandler(e.target.value);
+                });
+
+                // 转换模式切换
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.switchTransformationMode(e.target.dataset.mode);
+                    });
+                });
+
+                // 模板点击
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const template = item.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+            }
+
+            parseInputObject(inputText) {
+                try {
+                    if (inputText.trim() === '') {
+                        this.inputObject = {};
+                        return;
+                    }
+
+                    // 尝试解析JSON
+                    this.inputObject = JSON.parse(inputText);
+                    this.performTransformation();
+                    this.renderOriginalObject();
+                    this.updateStats();
+                    
+                    this.showSuccess('对象解析成功');
+                } catch (error) {
+                    this.showError('JSON解析失败: ' + error.message);
+                    console.warn('对象解析失败:', error);
+                }
+            }
+
+            parseHandler(handlerText) {
+                try {
+                    if (handlerText.trim() === '') {
+                        this.handler = null;
+                        return;
+                    }
+
+                    // 尝试解析为函数
+                    if (handlerText.includes('=>')) {
+                        // 箭头函数
+                        this.handler = eval(`(${handlerText})`);
+                    } else if (handlerText.includes('function')) {
+                        // 函数声明
+                        this.handler = eval(handlerText);
+                    } else {
+                        // 简单表达式
+                        this.handler = eval(`x => ${handlerText}`);
+                    }
+
+                    this.performTransformation();
+                    this.updateTransformationDisplay();
+                    this.updateStats();
+                    
+                    this.showSuccess('转换函数更新成功');
+                } catch (error) {
+                    this.showError('转换函数解析失败: ' + error.message);
+                    console.warn('转换函数解析失败:', error);
+                }
+            }
+
+            performTransformation() {
+                try {
+                    this.transformationSteps = [];
+                    
+                    // 执行转换
+                    this.invertedResult = invertKeyValues(this.inputObject, this.handler);
+                    
+                    this.renderInvertedResult();
+                    this.updateTransformationSteps();
+                    this.updateStats();
+                    
+                    this.showSuccess('转换执行成功');
+                } catch (error) {
+                    this.showError('转换执行失败: ' + error.message);
+                    console.error('转换执行失败:', error);
+                }
+            }
+
+            renderOriginalObject() {
+                const container = document.getElementById('original-object-pairs');
+                container.innerHTML = '';
+                
+                if (Object.keys(this.inputObject).length === 0) {
+                    container.innerHTML = '<div style="color: #666; font-style: italic;">空对象</div>';
+                    return;
+                }
+                
+                Object.entries(this.inputObject).forEach(([key, value]) => {
+                    const pairElement = document.createElement('div');
+                    pairElement.className = 'object-pair';
+                    
+                    pairElement.innerHTML = `
+                        <span class="key">${key}</span>
+                        <span class="arrow">→</span>
+                        <span class="value">${this.formatValue(value)}</span>
+                    `;
+                    
+                    container.appendChild(pairElement);
+                });
+            }
+
+            renderInvertedResult() {
+                const resultContainer = document.getElementById('inverted-result');
+                const groupsContainer = document.getElementById('inverted-groups');
+                
+                if (Object.keys(this.invertedResult).length === 0) {
+                    resultContainer.style.display = 'none';
+                    return;
+                }
+                
+                resultContainer.style.display = 'block';
+                groupsContainer.innerHTML = '';
+                
+                Object.entries(this.invertedResult).forEach(([value, keys]) => {
+                    const groupElement = document.createElement('div');
+                    groupElement.className = 'inverted-group';
+                    
+                    groupElement.innerHTML = `
+                        <h5>${this.formatValue(value)}</h5>
+                        <div class="group-keys">
+                            ${keys.map(key => `<div class="group-key">${key}</div>`).join('')}
+                        </div>
+                    `;
+                    
+                    groupsContainer.appendChild(groupElement);
+                });
+            }
+
+            updateTransformationSteps() {
+                if (!this.advancedOptions.showTransformationSteps) {
+                    document.getElementById('transformation-steps').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('transformation-steps').style.display = 'block';
+                
+                // 更新转换函数显示
+                document.getElementById('handler-display').textContent = 
+                    this.handler ? this.handler.toString() : '无转换函数';
+                
+                // 更新转换逻辑描述
+                const logicElement = document.getElementById('transformation-logic');
+                if (this.handler) {
+                    const handlerStr = this.handler.toString();
+                    if (handlerStr.includes('toString')) {
+                        logicElement.textContent = '值转字符串';
+                    } else if (handlerStr.includes('toUpperCase')) {
+                        logicElement.textContent = '字符串转大写';
+                    } else if (handlerStr.includes('toLowerCase')) {
+                        logicElement.textContent = '字符串转小写';
+                    } else if (handlerStr.includes('Math.floor')) {
+                        logicElement.textContent = '向下取整';
+                    } else if (handlerStr.includes('Math.round')) {
+                        logicElement.textContent = '四舍五入';
+                    } else {
+                        logicElement.textContent = '自定义转换逻辑';
+                    }
+                } else {
+                    logicElement.textContent = '直接键值反转';
+                }
+            }
+
+            updateTransformationDisplay() {
+                this.updateTransformationSteps();
+            }
+
+            updateStats() {
+                const originalKeys = Object.keys(this.inputObject).length;
+                const uniqueValues = Object.keys(this.invertedResult).length;
+                const invertedGroups = Object.keys(this.invertedResult).length;
+                const maxGroupSize = Math.max(...Object.values(this.invertedResult).map(keys => keys.length), 0);
+                
+                document.getElementById('original-keys').textContent = originalKeys;
+                document.getElementById('unique-values').textContent = uniqueValues;
+                document.getElementById('inverted-groups-count').textContent = invertedGroups;
+                document.getElementById('max-group-size').textContent = maxGroupSize;
+            }
+
+            updateDisplay() {
+                this.updateTransformationSteps();
+            }
+
+            switchTransformationMode(mode) {
+                this.transformationMode = mode;
+                
+                // 更新按钮状态
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.mode === mode) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                const modeNames = {
+                    'standard': '标准模式',
+                    'detailed': '详细模式',
+                    'step-by-step': '逐步模式'
+                };
+                
+                this.notification.info(`已切换到${modeNames[mode]}`);
+            }
+
+            toggleStepMode() {
+                const btn = document.getElementById('step-mode-btn');
+                if (btn.textContent === '步骤模式') {
+                    btn.textContent = '退出步骤';
+                    btn.classList.add('btn-warning');
+                    this.switchTransformationMode('step-by-step');
+                } else {
+                    btn.textContent = '步骤模式';
+                    btn.classList.remove('btn-warning');
+                    this.notification.info('已退出步骤模式');
+                }
+            }
+
+            clearData() {
+                this.inputObject = {};
+                this.handler = null;
+                this.invertedResult = {};
+                this.transformationSteps = [];
+                
+                document.getElementById('input-object').value = '';
+                document.getElementById('handler-input').value = '';
+                
+                this.renderOriginalObject();
+                this.renderInvertedResult();
+                this.updateTransformationSteps();
+                this.updateStats();
+                
+                this.notification.success('数据已清空');
+            }
+
+            generateRandomObject() {
+                const keyCount = Math.floor(Math.random() * 8) + 3;
+                const keys = Array.from({length: keyCount}, (_, i) => String.fromCharCode(97 + i));
+                
+                this.inputObject = {};
+                keys.forEach(key => {
+                    const valueType = Math.random();
+                    if (valueType < 0.4) {
+                        this.inputObject[key] = Math.floor(Math.random() * 10);
+                    } else if (valueType < 0.8) {
+                        this.inputObject[key] = ['hello', 'world', 'test', 'demo', 'example'][Math.floor(Math.random() * 5)];
+                    } else {
+                        this.inputObject[key] = Math.random() < 0.5;
+                    }
+                });
+                
+                document.getElementById('input-object').value = JSON.stringify(this.inputObject, null, 2);
+                
+                this.performTransformation();
+                this.renderOriginalObject();
+                this.updateStats();
+                
+                this.notification.success('已生成随机对象');
+            }
+
+            exportResults() {
+                const data = {
+                    inputObject: this.inputObject,
+                    handler: this.handler ? this.handler.toString() : null,
+                    invertedResult: this.invertedResult,
+                    stats: {
+                        originalKeys: Object.keys(this.inputObject).length,
+                        uniqueValues: Object.keys(this.invertedResult).length,
+                        invertedGroups: Object.keys(this.invertedResult).length,
+                        maxGroupSize: Math.max(...Object.values(this.invertedResult).map(keys => keys.length), 0)
+                    },
+                    exportedAt: new Date().toISOString()
+                };
+
+                const dataStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `invert-key-values-analysis-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.notification.success('分析结果导出成功！');
+            }
+
+            loadTemplate(templateName) {
+                const templates = {
+                    numbers: {
+                        object: { "a": 1, "b": 2, "c": 1, "d": 3, "e": 2 },
+                        handler: null
+                    },
+                    strings: {
+                        object: { "name1": "Alice", "name2": "Bob", "name3": "Alice", "name4": "Charlie" },
+                        handler: 'x => x.toString().toUpperCase()'
+                    },
+                    mixed: {
+                        object: { "id1": 1, "id2": "1", "id3": true, "id4": 1, "id5": "true" },
+                        handler: 'x => x.toString().toLowerCase()'
+                    },
+                    custom: {
+                        object: { "score1": 85.6, "score2": 92.3, "score3": 78.9, "score4": 85.6 },
+                        handler: 'x => Math.floor(x)'
+                    }
+                };
+
+                const template = templates[templateName];
+                if (template) {
+                    this.inputObject = { ...template.object };
+                    this.handler = template.handler ? eval(template.handler) : null;
+                    
+                    document.getElementById('input-object').value = JSON.stringify(this.inputObject, null, 2);
+                    document.getElementById('handler-input').value = template.handler || '';
+                    
+                    this.performTransformation();
+                    this.renderOriginalObject();
+                    this.updateStats();
+                    
+                    this.notification.success(`已加载 ${templateName} 模板`);
+                }
+            }
+
+            formatValue(value) {
+                if (typeof value === 'string') {
+                    return `"${value}"`;
+                } else if (typeof value === 'boolean') {
+                    return value ? 'true' : 'false';
+                } else if (value === null) {
+                    return 'null';
+                } else if (value === undefined) {
+                    return 'undefined';
+                } else {
+                    return value.toString();
+                }
+            }
+
+            showError(message) {
+                const errorDisplay = document.getElementById('error-display');
+                errorDisplay.textContent = message;
+                errorDisplay.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorDisplay.style.display = 'none';
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                const successDisplay = document.getElementById('success-display');
+                successDisplay.textContent = message;
+                successDisplay.style.display = 'block';
+                
+                setTimeout(() => {
+                    successDisplay.style.display = 'none';
+                }, 3000);
+            }
+
+            updateAllCheckboxState() {
+                if (this.advancedOptionsGroup && this.advancedOptionsGroup.checkboxes) {
+                    const allChecked = this.advancedOptionsGroup.checkboxes.every(cb => cb.isChecked());
+                    const noneChecked = this.advancedOptionsGroup.checkboxes.every(cb => !cb.isChecked());
+                    
+                    // 更新全选复选框的状态，但不触发onChange事件
+                    if (this.advancedOptionsGroup.allCheckbox) {
+                        // 直接设置状态，避免调用setChecked方法
+                        this.advancedOptionsGroup.allCheckbox.checked = allChecked;
+                        const allCheckboxInput = this.advancedOptionsGroup.allCheckbox.element.querySelector('.checkbox-input');
+                        if (allCheckboxInput) {
+                            allCheckboxInput.checked = allChecked;
+                            allCheckboxInput.indeterminate = !allChecked && !noneChecked;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 初始化应用
+        let app;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                app = new InvertKeyValuesAnalyzer();
+            });
+        } else {
+            app = new InvertKeyValuesAnalyzer();
+        }
+    </script>
+</body>
+</html>

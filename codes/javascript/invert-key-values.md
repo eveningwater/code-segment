@@ -18,6 +18,10 @@ const invertKeyValues = (obj, handler) =>
   }, {});
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/invert-key-values.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -28,8 +32,10 @@ invertKeyValues({ a: 1, b: 2, c: 1 }, value => 'group' + value);
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/invertKeyValues.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/invert-key-values.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/invert-key-values.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/invertKeyValues.html"></iframe>
+<iframe src="codes/javascript/html/invert-key-values.html"></iframe>
