@@ -11,6 +11,10 @@
 const is = (type, val) => ![, null].includes(val) && val.constructor === type;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -30,6 +34,8 @@ is(Boolean, new Boolean(true)); // true
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/is.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/is.html" data-language="html"></div>
 
