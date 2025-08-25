@@ -305,10 +305,20 @@ class DateTimePicker {
 
   parseValue(value) {
     if (!value) return null;
-    // 解析 YYYY-MM-DDTHH:mm 或 YYYY-MM-DD HH:mm 格式
-    const dateStr = value.replace('T', ' ');
-    const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? null : date;
+    
+    // 如果已经是 Date 对象，直接返回
+    if (value instanceof Date) {
+      return value;
+    }
+    
+    // 如果是字符串，解析 YYYY-MM-DDTHH:mm 或 YYYY-MM-DD HH:mm 格式
+    if (typeof value === 'string') {
+      const dateStr = value.replace('T', ' ');
+      const date = new Date(dateStr);
+      return isNaN(date.getTime()) ? null : date;
+    }
+    
+    return null;
   }
 
   formatValue(date) {
@@ -479,7 +489,7 @@ class DateTimePicker {
     this.selectedDate = null;
     this.updateDisplay();
     this.close();
-    this.onChange('');
+    this.onChange(null);
   }
 
   setToday() {
@@ -488,14 +498,18 @@ class DateTimePicker {
     this.renderCalendar();
     this.updateTimeInputs();
     this.updateDisplay();
+    // 触发 onChange 回调
+    if (this.onChange) {
+      this.onChange(this.selectedDate);
+    }
   }
 
   confirm() {
     if (this.selectedDate) {
       this.updateDisplay();
       this.close();
-      const value = this.formatValue(this.selectedDate);
-      this.onChange(value);
+      // 传递 Date 对象而不是格式化的字符串
+      this.onChange(this.selectedDate);
     }
   }
 
@@ -522,7 +536,20 @@ class DateTimePicker {
 
   setValue(value) {
     this.selectedDate = this.parseValue(value);
-    this.updateDisplay();
+    if (this.selectedDate) {
+      this.updateDisplay();
+    } else {
+      // 如果值为 null，清空显示
+      const input = this.element.querySelector(".datetimeInput");
+      if (input) {
+        input.value = '';
+      }
+    }
+    
+    // 触发 onChange 回调
+    if (this.onChange) {
+      this.onChange(this.selectedDate);
+    }
   }
 
   getValue() {

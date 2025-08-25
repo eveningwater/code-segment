@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日期比较与分析工具 - isAfterDate实战</title>
+    
+    <!-- 引入自定义插件 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: white;
+        }
+
+        .result-item.success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .result-item.error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .result-item.warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .result-item .date-info {
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .result-item .details-info {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .result-item .result-info {
+            font-weight: 600;
+        }
+
+        .result-item .result-info.true {
+            color: #48bb78;
+        }
+
+        .result-item .result-info.false {
+            color: #f56565;
+        }
+
+        .stats-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .template-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-item {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .template-item:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .template-item h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .template-item p {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .advanced-options h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .history-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-time {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .history-action {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .clear-history {
+            color: #f56565;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        .clear-history:hover {
+            color: #e53e3e;
+        }
+
+        .date-preview {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .date-preview.after {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .date-preview.before {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .date-preview.equal {
+            border-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .date-analysis {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .date-analysis h4 {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .analysis-item {
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .analysis-value {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .date-input-container {
+            position: relative;
+        }
+
+        .date-input-container input {
+            padding-right: 40px;
+        }
+
+        .date-status-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+        }
+
+        .date-status-icon.after {
+            color: #48bb78;
+        }
+
+        .date-status-icon.before {
+            color: #f56565;
+        }
+
+        .date-status-icon.equal {
+            color: #ed8936;
+        }
+
+        .date-status-icon.loading {
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .calendar-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .calendar-icon:hover {
+            color: #764ba2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 日期比较与分析工具</h1>
+            <p>基于 isAfterDate 函数的强大日期比较系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 输入面板 -->
+            <div class="panel">
+                <h2>📝 日期输入比较</h2>
+                
+                <div class="input-group">
+                    <label for="date-a">第一个日期 (Date A):</label>
+                    <div class="date-input-container">
+                        <div id="date-a-picker"></div>
+                        <div class="calendar-icon">📅</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="date-b">第二个日期 (Date B):</label>
+                    <div class="date-input-container">
+                        <div id="date-b-picker"></div>
+                        <div class="calendar-icon">📅</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="batch-dates">批量日期比较:</label>
+                    <textarea id="batch-dates" rows="4" placeholder="每行一对日期，用逗号分隔&#10;例如:&#10;2023-01-01T00:00,2023-01-02T00:00&#10;2023-12-31T23:59,2023-01-01T00:00"></textarea>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="compare-btn">🔍 比较日期</button>
+                    <button class="btn btn-secondary" id="clear-btn">🗑️ 清空</button>
+                    <button class="btn btn-success" id="batch-compare-btn">📋 批量比较</button>
+                    <button class="btn btn-warning" id="analyze-btn">🔬 深度分析</button>
+                </div>
+
+                <div class="advanced-options">
+                    <h3>⚙️ 高级选项</h3>
+                    <div id="advanced-options"></div>
+                </div>
+            </div>
+
+            <!-- 结果面板 -->
+            <div class="panel">
+                <h2>📊 比较结果</h2>
+                
+                <div class="controls">
+                    <button class="btn btn-warning" id="export-btn">📤 导出结果</button>
+                    <button class="btn btn-danger" id="clear-results-btn">🗑️ 清空结果</button>
+                </div>
+
+                <div id="date-preview" class="date-preview" style="display: none;">
+                    <div id="preview-content"></div>
+                </div>
+
+                <div id="result-display" class="result-display">
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📅</div>
+                        <div>输入两个日期，然后点击比较按钮</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <h2>📈 比较统计</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-comparisons">0</div>
+                    <div class="stat-label">总比较次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="after-count">0</div>
+                    <div class="stat-label">Date A > Date B</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="before-count">0</div>
+                    <div class="stat-label">Date A < Date B</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="equal-count">0</div>
+                    <div class="stat-label">Date A = Date B</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模板面板 -->
+        <div class="template-panel">
+            <h2>📋 常用日期模板</h2>
+            <div class="template-grid">
+                <div class="template-item" data-template="same-day">
+                    <h4>同一天</h4>
+                    <p>比较同一天的不同时间点</p>
+                </div>
+                <div class="template-item" data-template="different-years">
+                    <h4>不同年份</h4>
+                    <p>比较不同年份的相同日期</p>
+                </div>
+                <div class="template-item" data-template="business-days">
+                    <h4>工作日</h4>
+                    <p>比较工作日和周末的日期</p>
+                </div>
+                <div class="template-item" data-template="seasons">
+                    <h4>季节变化</h4>
+                    <p>比较不同季节的日期</p>
+                </div>
+                <div class="template-item" data-template="leap-year">
+                    <h4>闰年</h4>
+                    <p>比较闰年和平年的日期</p>
+                </div>
+                <div class="template-item" data-template="timezones">
+                    <h4>时区差异</h4>
+                    <p>比较不同时区的日期时间</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录面板 -->
+        <div class="history-panel">
+            <h2>📚 比较历史</h2>
+            <div class="controls">
+                <button class="btn btn-secondary" id="load-history-btn">📥 加载历史</button>
+                <span class="clear-history" id="clear-history-btn">清空历史</span>
+            </div>
+            <div id="history-list" class="history-list">
+                <div style="text-align: center; color: #718096; padding: 20px;">
+                    暂无比较历史记录
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入自定义插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 核心 isAfterDate 函数
+        const isAfterDate = (dateA, dateB) => {
+            if (dateA instanceof Date && dateB instanceof Date) {
+                return dateA > dateB;
+            }
+            return false;
+        };
+
+        // 日期比较工具类
+        class DateComparator {
+            constructor() {
+                this.notification = new Notification();
+                this.results = [];
+                this.history = [];
+                this.stats = {
+                    totalComparisons: 0,
+                    afterCount: 0,
+                    beforeCount: 0,
+                    equalCount: 0
+                };
+                
+                this.advancedOptions = {
+                    showDetailedInfo: true,
+                    includeTimeDifference: true,
+                    validateOnInput: false,
+                    autoSaveHistory: true,
+                    showDatePreview: true
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.loadHistory();
+                this.updateStats();
+                this.setDefaultDates();
+            }
+
+            setupControls() {
+                // 初始化日期选择器
+                try {
+                    this.dateAPicker = new DateTimePicker({
+                        container: '#date-a-picker',
+                        onChange: (date) => {
+                            this.dateA = date;
+                            if (this.advancedOptions.validateOnInput) {
+                                this.compareOnInput();
+                            }
+                        }
+                    });
+
+                    this.dateBPicker = new DateTimePicker({
+                        container: '#date-b-picker',
+                        onChange: (date) => {
+                            this.dateB = date;
+                            if (this.advancedOptions.validateOnInput) {
+                                this.compareOnInput();
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.warn('日期选择器插件加载失败，使用默认选项', error);
+                }
+
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '显示详细信息', checked: true },
+                                { label: '包含时间差', checked: true },
+                                { label: '输入时实时比较', checked: false },
+                                { label: '自动保存历史', checked: true },
+                                { label: '显示日期预览', checked: true }
+                            ],
+                            onChange: (values) => {
+                                this.advancedOptions.showDetailedInfo = values[0];
+                                this.advancedOptions.includeTimeDifference = values[1];
+                                this.advancedOptions.validateOnInput = values[2];
+                                this.advancedOptions.autoSaveHistory = values[3];
+                                this.advancedOptions.showDatePreview = values[4];
+                                
+                                // 更新全选复选框状态
+                                this.updateAllCheckboxState();
+                            }
+                        });
+                        
+                        container.appendChild(this.advancedOptionsGroup.container);
+                        
+                        // 初始化后更新全选复选框状态
+                        this.updateAllCheckboxState();
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                }
+            }
+
+            setupEventListeners() {
+                // 比较按钮
+                document.getElementById('compare-btn').addEventListener('click', () => {
+                    this.compareDates();
+                });
+
+                // 批量比较按钮
+                document.getElementById('batch-compare-btn').addEventListener('click', () => {
+                    this.compareBatchDates();
+                });
+
+                // 深度分析按钮
+                document.getElementById('analyze-btn').addEventListener('click', () => {
+                    this.analyzeDates();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearInput();
+                });
+
+                // 导出按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportResults();
+                });
+
+                // 清空结果按钮
+                document.getElementById('clear-results-btn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+
+                // 加载历史按钮
+                document.getElementById('load-history-btn').addEventListener('click', () => {
+                    this.loadHistory();
+                });
+
+                // 清空历史按钮
+                document.getElementById('clear-history-btn').addEventListener('click', () => {
+                    this.clearHistory();
+                });
+
+                // 模板点击
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const template = item.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+
+                // 日期选择器实时比较已在setupControls中设置
+            }
+
+            setDefaultDates() {
+                const now = new Date();
+                const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                
+                if (this.dateAPicker) {
+                    this.dateAPicker.setValue(now);
+                    this.dateA = now;
+                }
+                if (this.dateBPicker) {
+                    this.dateBPicker.setValue(yesterday);
+                    this.dateB = yesterday;
+                }
+            }
+
+
+
+            compareDates() {
+                if (!this.dateA || !this.dateB) {
+                    this.notification.warning('请选择两个日期');
+                    return;
+                }
+
+                const result = this.compareDatePair(this.dateA, this.dateB);
+                this.results.unshift(result);
+                this.updateResultsDisplay();
+                this.updateStats();
+                
+                if (this.advancedOptions.autoSaveHistory) {
+                    this.saveToHistory(result);
+                }
+
+                this.notification.success(`日期比较完成: ${result.isAfter ? '✅ Date A > Date B' : '❌ Date A ≤ Date B'}`);
+            }
+
+            compareBatchDates() {
+                const batchInput = document.getElementById('batch-dates').value.trim();
+                
+                if (!batchInput) {
+                    this.notification.warning('请输入要批量比较的日期');
+                    return;
+                }
+
+                const lines = batchInput.split('\n').filter(line => line.trim());
+                
+                if (lines.length === 0) {
+                    this.notification.warning('没有找到有效的日期对');
+                    return;
+                }
+
+                this.results = [];
+                lines.forEach((line, index) => {
+                    const dates = line.split(',').map(d => d.trim());
+                    if (dates.length === 2) {
+                        const dateA = new Date(dates[0]);
+                        const dateB = new Date(dates[1]);
+                        
+                        if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+                            const result = this.compareDatePair(dateA, dateB);
+                            this.results.push(result);
+                        }
+                    }
+                });
+
+                this.updateResultsDisplay();
+                this.updateStats();
+                
+                if (this.advancedOptions.autoSaveHistory) {
+                    this.results.forEach(result => {
+                        this.saveToHistory(result);
+                    });
+                }
+
+                this.notification.success(`批量比较完成: 共比较 ${this.results.length} 对日期`);
+            }
+
+            compareDatePair(dateA, dateB) {
+                const isAfter = isAfterDate(dateA, dateB);
+                const isBefore = isAfterDate(dateB, dateA);
+                const isEqual = dateA.getTime() === dateB.getTime();
+                
+                let comparison = 'equal';
+                if (isAfter) comparison = 'after';
+                else if (isBefore) comparison = 'before';
+                
+                return {
+                    dateA: dateA,
+                    dateB: dateB,
+                    isAfter: isAfter,
+                    isBefore: isBefore,
+                    isEqual: isEqual,
+                    comparison: comparison,
+                    timeDifference: Math.abs(dateA.getTime() - dateB.getTime()),
+                    timestamp: new Date(),
+                    details: this.getDateDetails(dateA, dateB, isAfter, isBefore, isEqual)
+                };
+            }
+
+            getDateDetails(dateA, dateB, isAfter, isBefore, isEqual) {
+                const details = {
+                    dateAFormatted: dateA.toLocaleString(),
+                    dateBFormatted: dateB.toLocaleString(),
+                    dateAISO: dateA.toISOString(),
+                    dateBISO: dateB.toISOString(),
+                    dateAUnix: dateA.getTime(),
+                    dateBUnix: dateB.getTime()
+                };
+
+                if (this.advancedOptions.includeTimeDifference) {
+                    const diff = Math.abs(dateA.getTime() - dateB.getTime());
+                    details.timeDifference = {
+                        milliseconds: diff,
+                        seconds: Math.floor(diff / 1000),
+                        minutes: Math.floor(diff / (1000 * 60)),
+                        hours: Math.floor(diff / (1000 * 60 * 60)),
+                        days: Math.floor(diff / (1000 * 60 * 60 * 24))
+                    };
+                }
+
+                return details;
+            }
+
+            analyzeDates() {
+                if (!this.dateA || !this.dateB) {
+                    this.notification.warning('请选择两个日期');
+                    return;
+                }
+
+                const result = this.compareDatePair(this.dateA, this.dateB);
+                this.showDateAnalysis(result);
+            }
+
+            showDateAnalysis(result) {
+                const previewContainer = document.getElementById('date-preview');
+                const previewContent = document.getElementById('preview-content');
+                
+                let statusClass = 'equal';
+                let statusIcon = '🔄';
+                
+                if (result.isAfter) {
+                    statusClass = 'after';
+                    statusIcon = '✅';
+                } else if (result.isBefore) {
+                    statusClass = 'before';
+                    statusIcon = '❌';
+                }
+
+                previewContainer.className = `date-preview ${statusClass}`;
+                previewContainer.style.display = 'block';
+
+                let analysisHtml = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>比较结果:</strong> ${statusIcon} ${result.isAfter ? 'Date A > Date B' : result.isBefore ? 'Date A < Date B' : 'Date A = Date B'}
+                    </div>
+                `;
+
+                if (this.advancedOptions.showDetailedInfo) {
+                    analysisHtml += `
+                        <div class="date-analysis">
+                            <h4>🔬 日期深度分析</h4>
+                            <div class="analysis-grid">
+                                <div class="analysis-item">
+                                    <div class="analysis-label">Date A</div>
+                                    <div class="analysis-value">${result.details.dateAFormatted}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">Date B</div>
+                                    <div class="analysis-value">${result.details.dateBFormatted}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">时间差</div>
+                                    <div class="analysis-value">${this.formatTimeDifference(result.timeDifference)}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">Date A Unix时间戳</div>
+                                    <div class="analysis-value">${result.details.dateAUnix}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">Date B Unix时间戳</div>
+                                    <div class="analysis-value">${result.details.dateBUnix}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">Date A ISO格式</div>
+                                    <div class="analysis-value">${result.details.dateAISO}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                previewContent.innerHTML = analysisHtml;
+            }
+
+            formatTimeDifference(milliseconds) {
+                const seconds = Math.floor(milliseconds / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+                
+                if (days > 0) return `${days}天 ${hours % 24}小时`;
+                if (hours > 0) return `${hours}小时 ${minutes % 60}分钟`;
+                if (minutes > 0) return `${minutes}分钟 ${seconds % 60}秒`;
+                return `${seconds}秒`;
+            }
+
+            compareOnInput() {
+                if (!this.dateA || !this.dateB) {
+                    return;
+                }
+
+                const result = this.compareDatePair(this.dateA, this.dateB);
+                this.showDateAnalysis(result);
+            }
+
+            updateResultsDisplay() {
+                const container = document.getElementById('result-display');
+                container.innerHTML = '';
+
+                this.results.forEach((result, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = `result-item ${result.isAfter ? 'success' : 'error'} fade-in`;
+                    
+                    let detailsHtml = '';
+                    if (this.advancedOptions.showDetailedInfo) {
+                        detailsHtml = `
+                            <div class="details-info">
+                                <strong>Date A:</strong> ${result.details.dateAFormatted}<br>
+                                <strong>Date B:</strong> ${result.details.dateBFormatted}<br>
+                                <strong>时间差:</strong> ${this.formatTimeDifference(result.timeDifference)}<br>
+                                <strong>比较时间:</strong> ${result.timestamp.toLocaleString()}
+                            </div>
+                        `;
+                    }
+
+                    resultItem.innerHTML = `
+                        <div class="date-info">
+                            ${result.isAfter ? '✅ Date A > Date B' : result.isBefore ? '❌ Date A < Date B' : '🔄 Date A = Date B'}
+                        </div>
+                        ${detailsHtml}
+                        <div class="result-info ${result.isAfter}">
+                            ${result.isAfter ? 'Date A 在 Date B 之后' : result.isBefore ? 'Date A 在 Date B 之前' : 'Date A 等于 Date B'}
+                        </div>
+                    `;
+
+                    container.appendChild(resultItem);
+                });
+            }
+
+            updateStats() {
+                this.stats.totalComparisons = this.results.length;
+                this.stats.afterCount = this.results.filter(r => r.isAfter).length;
+                this.stats.beforeCount = this.results.filter(r => r.isBefore).length;
+                this.stats.equalCount = this.results.filter(r => r.isEqual).length;
+
+                document.getElementById('total-comparisons').textContent = this.stats.totalComparisons;
+                document.getElementById('after-count').textContent = this.stats.afterCount;
+                document.getElementById('before-count').textContent = this.stats.beforeCount;
+                document.getElementById('equal-count').textContent = this.stats.equalCount;
+            }
+
+            clearInput() {
+                if (this.dateAPicker) {
+                    this.dateAPicker.setValue(null);
+                    this.dateA = null;
+                }
+                if (this.dateBPicker) {
+                    this.dateBPicker.setValue(null);
+                    this.dateB = null;
+                }
+                document.getElementById('batch-dates').value = '';
+                document.getElementById('date-preview').style.display = 'none';
+            }
+
+            clearResults() {
+                this.results = [];
+                this.updateResultsDisplay();
+                this.updateStats();
+                document.getElementById('date-preview').style.display = 'none';
+                this.notification.info('结果已清空');
+            }
+
+            loadTemplate(template) {
+                let dates = [];
+                
+                switch (template) {
+                    case 'same-day':
+                        dates = [
+                            '2023-01-01T09:00:00,2023-01-01T17:00:00',
+                            '2023-01-01T00:00:00,2023-01-01T23:59:59'
+                        ];
+                        break;
+                    case 'different-years':
+                        dates = [
+                            '2023-01-01T00:00:00,2022-01-01T00:00:00',
+                            '2024-12-31T23:59:59,2023-12-31T23:59:59'
+                        ];
+                        break;
+                    case 'business-days':
+                        dates = [
+                            '2023-01-02T09:00:00,2023-01-01T09:00:00',
+                            '2023-01-09T09:00:00,2023-01-07T09:00:00'
+                        ];
+                        break;
+                    case 'seasons':
+                        dates = [
+                            '2023-03-21T00:00:00,2023-12-21T00:00:00',
+                            '2023-06-21T00:00:00,2023-09-21T00:00:00'
+                        ];
+                        break;
+                    case 'leap-year':
+                        dates = [
+                            '2024-02-29T00:00:00,2023-02-28T00:00:00',
+                            '2024-12-31T00:00:00,2023-12-31T00:00:00'
+                        ];
+                        break;
+                    case 'timezones':
+                        dates = [
+                            '2023-01-01T00:00:00+00:00,2023-01-01T08:00:00+08:00',
+                            '2023-01-01T12:00:00-05:00,2023-01-01T18:00:00+01:00'
+                        ];
+                        break;
+                }
+
+                document.getElementById('batch-dates').value = dates.join('\n');
+                this.notification.success(`已加载 ${template} 模板，包含 ${dates.length} 对日期`);
+            }
+
+            exportResults() {
+                if (this.results.length === 0) {
+                    this.notification.warning('没有可导出的结果');
+                    return;
+                }
+
+                const exportData = {
+                    timestamp: new Date().toISOString(),
+                    totalResults: this.results.length,
+                    results: this.results,
+                    stats: this.stats
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `date-comparison-results-${new Date().toISOString().slice(0, 19)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.notification.success('结果已导出');
+            }
+
+            saveToHistory(result) {
+                const historyItem = {
+                    ...result,
+                    action: '日期比较'
+                };
+                
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                
+                this.updateHistoryDisplay();
+                this.saveHistory();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('history-list');
+                
+                if (this.history.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">暂无比较历史记录</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                this.history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item fade-in';
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-info">
+                            <div><strong>${item.isAfter ? 'Date A > Date B' : item.isBefore ? 'Date A < Date B' : 'Date A = Date B'}</strong></div>
+                            <div class="history-time">${item.timestamp.toLocaleString()}</div>
+                        </div>
+                        <div class="history-action">${item.isAfter ? '✅ 之后' : item.isBefore ? '❌ 之前' : '🔄 相等'}</div>
+                    `;
+
+                    container.appendChild(historyItem);
+                });
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('dateComparatorHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('dateComparatorHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved).map(item => ({
+                            ...item,
+                            timestamp: new Date(item.timestamp),
+                            dateA: new Date(item.dateA),
+                            dateB: new Date(item.dateB)
+                        }));
+                        this.updateHistoryDisplay();
+                        this.notification.success('历史记录已加载');
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+
+            clearHistory() {
+                this.history = [];
+                this.updateHistoryDisplay();
+                this.saveHistory();
+                this.notification.info('历史记录已清空');
+            }
+
+            updateAllCheckboxState() {
+                if (this.advancedOptionsGroup && this.advancedOptionsGroup.checkboxes) {
+                    const allChecked = this.advancedOptionsGroup.checkboxes.every(cb => cb.isChecked());
+                    const noneChecked = this.advancedOptionsGroup.checkboxes.every(cb => !cb.isChecked());
+                    
+                    // 更新全选复选框的状态，但不触发onChange事件
+                    if (this.advancedOptionsGroup.allCheckbox) {
+                        // 直接设置状态，避免调用setChecked方法
+                        this.advancedOptionsGroup.allCheckbox.checked = allChecked;
+                        const allCheckboxInput = this.advancedOptionsGroup.allCheckbox.element.querySelector('.checkbox-input');
+                        if (allCheckboxInput) {
+                            allCheckboxInput.checked = allChecked;
+                            allCheckboxInput.indeterminate = !allChecked && !noneChecked;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new DateComparator();
+        });
+    </script>
+</body>
+
+</html>
