@@ -359,7 +359,7 @@
 - [日期比较-2022-09-13](codes/javascript/is-after-date.md)
 - [判断字符是否只包含字母-2022-09-14](codes/javascript/is-alpha.md)
 - [判断字符是否只包含字母和数字-2022-09-15](codes/javascript/is-alpha-numeric.md)
-- [判断变位词-2022-09-16](codes/javascript/isAnagram.md)
+- [判断变位词-2022-09-16](codes/javascript/is-anagram.md)
 - [是否可迭代-2022-09-17](codes/javascript/isArrayLike.md)
 - [是否异步函数-2022-09-18](codes/javascript/isAsyncFunction.md)
 - [日期比较（之前）-2022-09-19](codes/javascript/isBeforeDate.md)
