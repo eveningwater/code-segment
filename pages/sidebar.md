@@ -361,7 +361,7 @@
 - [判断字符是否只包含字母和数字-2022-09-15](codes/javascript/is-alpha-numeric.md)
 - [判断变位词-2022-09-16](codes/javascript/is-anagram.md)
 - [是否可迭代-2022-09-17](codes/javascript/is-array-like.md)
-- [是否异步函数-2022-09-18](codes/javascript/isAsyncFunction.md)
+- [是否异步函数-2022-09-18](codes/javascript/is-async-function.md)
 - [日期比较（之前）-2022-09-19](codes/javascript/isBeforeDate.md)
 - [日期比较（范围之间）-2022-09-20](codes/javascript/isBetweenDates.md)
 - [判断是否是布尔值-2022-09-21](codes/javascript/isBoolean.md)

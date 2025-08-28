@@ -11,6 +11,10 @@ const isAsyncFunction = val =>
   Object.prototype.toString.call(val) === '[object AsyncFunction]';
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-async-function.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,8 +24,10 @@ isAsyncFunction(async function () {}); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isAsyncFunction.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-async-function.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-async-function.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isAsyncFunction.html"></iframe>
+<iframe src="codes/javascript/html/is-async-function.html"></iframe>

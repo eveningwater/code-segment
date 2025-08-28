@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>异步函数检测与分析工具 - isAsyncFunction实战</title>
+    
+    <!-- 引入自定义插件 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: white;
+        }
+
+        .result-item.success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .result-item.error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .result-item.warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .result-item .function-info {
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .result-item .details-info {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .result-item .result-info {
+            font-weight: 600;
+        }
+
+        .result-item .result-info.true {
+            color: #48bb78;
+        }
+
+        .result-item .result-info.false {
+            color: #f56565;
+        }
+
+        .stats-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .template-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-item {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .template-item:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .template-item h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .template-item p {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .advanced-options h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .history-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-time {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .history-action {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .clear-history {
+            color: #f56565;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        .clear-history:hover {
+            color: #e53e3e;
+        }
+
+        .function-preview {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .function-preview.async {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .function-preview.sync {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .function-preview.other {
+            border-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .function-analysis {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .function-analysis h4 {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .analysis-item {
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .analysis-value {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin: 2px;
+        }
+
+        .type-badge.async {
+            background: #48bb78;
+        }
+
+        .type-badge.sync {
+            background: #f56565;
+        }
+
+        .type-badge.arrow {
+            background: #667eea;
+        }
+
+        .type-badge.generator {
+            background: #ed8936;
+        }
+
+        .type-badge.class {
+            background: #9f7aea;
+        }
+
+        .type-badge.method {
+            background: #38b2ac;
+        }
+
+        .type-badge.other {
+            background: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .code-editor {
+            background: #1a202c;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .code-editor .keyword {
+            color: #ff6b6b;
+        }
+
+        .code-editor .string {
+            color: #51cf66;
+        }
+
+        .code-editor .number {
+            color: #74c0fc;
+        }
+
+        .code-editor .comment {
+            color: #868e96;
+        }
+
+        .code-editor .function {
+            color: #fcc419;
+        }
+
+        .code-editor .async {
+            color: #48bb78;
+        }
+
+        .code-editor .await {
+            color: #ed8936;
+        }
+
+        .function-execution {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .execution-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .execution-result {
+            background: #1a202c;
+            color: #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            min-height: 100px;
+            overflow-y: auto;
+        }
+
+        .execution-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .execution-status.running {
+            background: #ed8936;
+            color: white;
+        }
+
+        .execution-status.completed {
+            background: #48bb78;
+            color: white;
+        }
+
+        .execution-status.error {
+            background: #f56565;
+            color: white;
+        }
+
+        .execution-status.pending {
+            background: #718096;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ 异步函数检测与分析工具</h1>
+            <p>基于 isAsyncFunction 函数的强大异步函数检测系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 输入面板 -->
+            <div class="panel">
+                <h2>📝 函数输入检测</h2>
+                
+                <div class="input-group">
+                    <label for="function-type">函数类型:</label>
+                    <div id="function-type"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="custom-function">自定义函数代码:</label>
+                    <textarea id="custom-function" rows="6" placeholder='输入JavaScript函数代码，例如:&#10;async function fetchData() {&#10;  const response = await fetch("/api/data");&#10;  return response.json();&#10;}&#10;或者:&#10;const processData = async (data) => {&#10;  return await data.map(item => item.id);&#10;};'></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="batch-functions">批量函数检测:</label>
+                    <textarea id="batch-functions" rows="4" placeholder='每行一个函数，用逗号分隔类型和代码&#10;例如:&#10;async-function,async function test(){}&#10;sync-function,function test(){}&#10;arrow-async,async () => {}&#10;arrow-sync,() => {}'></textarea>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="detect-btn">🔍 检测函数</button>
+                    <button class="btn btn-secondary" id="clear-btn">🗑️ 清空</button>
+                    <button class="btn btn-success" id="batch-detect-btn">📋 批量检测</button>
+                    <button class="btn btn-warning" id="analyze-btn">🔬 深度分析</button>
+                    <button class="btn btn-danger" id="execute-btn">▶️ 执行函数</button>
+                </div>
+
+                <div class="advanced-options">
+                    <h3>⚙️ 高级选项</h3>
+                    <div id="advanced-options"></div>
+                </div>
+            </div>
+
+            <!-- 结果面板 -->
+            <div class="panel">
+                <h2>📊 检测结果</h2>
+                
+                <div class="controls">
+                    <button class="btn btn-warning" id="export-btn">📤 导出结果</button>
+                    <button class="btn btn-danger" id="clear-results-btn">🗑️ 清空结果</button>
+                </div>
+
+                <div id="function-preview" class="function-preview" style="display: none;">
+                    <div id="preview-content"></div>
+                </div>
+
+                <div id="result-display" class="result-display">
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">⚡</div>
+                        <div>选择函数类型或输入自定义函数，然后点击检测按钮</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <h2>📈 检测统计</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-detections">0</div>
+                    <div class="stat-label">总检测次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="async-function-count">0</div>
+                    <div class="stat-label">异步函数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="sync-function-count">0</div>
+                    <div class="stat-label">同步函数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="other-count">0</div>
+                    <div class="stat-label">其他类型</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模板面板 -->
+        <div class="template-panel">
+            <h2>📋 常用函数模板</h2>
+            <div class="template-grid">
+                <div class="template-item" data-template="async-functions">
+                    <h4>异步函数</h4>
+                    <p>async function、async arrow function</p>
+                </div>
+                <div class="template-item" data-template="sync-functions">
+                    <h4>同步函数</h4>
+                    <p>function、arrow function</p>
+                </div>
+                <div class="template-item" data-template="generators">
+                    <h4>生成器函数</h4>
+                    <p>function*、async function*</p>
+                </div>
+                <div class="template-item" data-template="class-methods">
+                    <h4>类方法</h4>
+                    <p>类中的同步和异步方法</p>
+                </div>
+                <div class="template-item" data-template="object-methods">
+                    <h4>对象方法</h4>
+                    <p>对象字面量中的方法</p>
+                </div>
+                <div class="template-item" data-template="mixed">
+                    <h4>混合类型</h4>
+                    <p>各种类型的函数</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 函数执行面板 -->
+        <div class="function-execution">
+            <h2>▶️ 函数执行测试</h2>
+            <div class="execution-controls">
+                <button class="btn" id="run-function-btn">▶️ 运行函数</button>
+                <button class="btn btn-warning" id="stop-function-btn">⏹️ 停止执行</button>
+                <button class="btn btn-secondary" id="clear-execution-btn">🗑️ 清空结果</button>
+            </div>
+            <div id="execution-result" class="execution-result">
+                <div style="text-align: center; color: #718096; padding: 20px;">
+                    点击"运行函数"按钮开始测试函数执行
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录面板 -->
+        <div class="history-panel">
+            <h2>📚 检测历史</h2>
+            <div class="controls">
+                <button class="btn btn-secondary" id="load-history-btn">📥 加载历史</button>
+                <span class="clear-history" id="clear-history-btn">清空历史</span>
+            </div>
+            <div id="history-list" class="history-list">
+                <div style="text-align: center; color: #718096; padding: 20px;">
+                    暂无检测历史记录
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入自定义插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 核心函数：检测是否为异步函数
+        const isAsyncFunction = val =>
+            Object.prototype.toString.call(val) === '[object AsyncFunction]';
+
+        // 异步函数检测器类
+        class AsyncFunctionDetector {
+            constructor() {
+                this.detectionHistory = [];
+                this.stats = {
+                    total: 0,
+                    async: 0,
+                    sync: 0,
+                    other: 0
+                };
+                this.executionResults = [];
+                this.init();
+            }
+
+            init() {
+                this.initElements();
+                this.initEventListeners();
+                this.initAdvancedOptions();
+                this.initNotification();
+                this.loadHistory();
+                this.updateStats();
+            }
+
+            initElements() {
+                this.functionTypeSelect = document.getElementById('function-type');
+                this.customFunctionTextarea = document.getElementById('custom-function');
+                this.batchFunctionsTextarea = document.getElementById('batch-functions');
+                this.detectBtn = document.getElementById('detect-btn');
+                this.clearBtn = document.getElementById('clear-btn');
+                this.batchDetectBtn = document.getElementById('batch-detect-btn');
+                this.analyzeBtn = document.getElementById('analyze-btn');
+                this.executeBtn = document.getElementById('execute-btn');
+                this.exportBtn = document.getElementById('export-btn');
+                this.clearResultsBtn = document.getElementById('clear-results-btn');
+                this.loadHistoryBtn = document.getElementById('load-history-btn');
+                this.clearHistoryBtn = document.getElementById('clear-history-btn');
+                this.runFunctionBtn = document.getElementById('run-function-btn');
+                this.stopFunctionBtn = document.getElementById('stop-function-btn');
+                this.clearExecutionBtn = document.getElementById('clear-execution-btn');
+                
+                this.resultDisplay = document.getElementById('result-display');
+                this.functionPreview = document.getElementById('function-preview');
+                this.previewContent = document.getElementById('preview-content');
+                this.executionResult = document.getElementById('execution-result');
+                this.historyList = document.getElementById('history-list');
+                
+                this.statsElements = {
+                    total: document.getElementById('total-detections'),
+                    async: document.getElementById('async-function-count'),
+                    sync: document.getElementById('sync-function-count'),
+                    other: document.getElementById('other-count')
+                };
+            }
+
+            initEventListeners() {
+                this.detectBtn.addEventListener('click', () => this.detectFunction());
+                this.clearBtn.addEventListener('click', () => this.clearInputs());
+                this.batchDetectBtn.addEventListener('click', () => this.batchDetect());
+                this.analyzeBtn.addEventListener('click', () => this.analyzeFunction());
+                this.executeBtn.addEventListener('click', () => this.executeFunction());
+                this.exportBtn.addEventListener('click', () => this.exportResults());
+                this.clearResultsBtn.addEventListener('click', () => this.clearResults());
+                this.loadHistoryBtn.addEventListener('click', () => this.loadHistory());
+                this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+                this.runFunctionBtn.addEventListener('click', () => this.runFunction());
+                this.stopFunctionBtn.addEventListener('click', () => this.stopFunction());
+                this.clearExecutionBtn.addEventListener('click', () => this.clearExecution());
+                
+                this.customFunctionTextarea.addEventListener('input', () => this.onCustomFunctionChange());
+                
+                // 模板点击事件
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => this.loadTemplate(item.dataset.template));
+                });
+            }
+
+            initAdvancedOptions() {
+                const advancedOptionsContainer = document.getElementById('advanced-options');
+                
+                const options = [
+                    { id: 'show-function-source', label: '显示函数源码', checked: true },
+                    { id: 'show-function-type', label: '显示函数类型', checked: true },
+                    { id: 'show-execution-time', label: '显示执行时间', checked: false },
+                    { id: 'auto-execute', label: '自动执行检测', checked: false },
+                    { id: 'save-to-history', label: '保存到历史', checked: true },
+                    { id: 'show-advanced-analysis', label: '显示高级分析', checked: false }
+                ];
+
+                // 创建复选框组 - 不传container参数
+                this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                    items: options.map(opt => ({
+                        label: opt.label,
+                        checked: opt.checked,
+                        id: opt.id
+                    })),
+                    onChange: (checkedOptions) => {
+                        console.log('Checkbox group onChange:', checkedOptions);
+                        this.advancedOptions = checkedOptions;
+                        // 更新全选复选框状态
+                        this.updateAllCheckboxState();
+                    }
+                });
+
+                // 手动将复选框组容器添加到DOM
+                advancedOptionsContainer.appendChild(this.advancedOptionsGroup.container);
+
+                this.advancedOptions = options.filter(opt => opt.checked).map(opt => opt.id);
+                
+                // 初始化后立即更新全选复选框状态
+                this.updateAllCheckboxState();
+
+                // 初始化函数类型选择器
+                this.initFunctionTypeSelect();
+            }
+
+            initNotification() {
+                this.notificationInstance = new Notification({
+                    container: document.body,
+                    position: 'top-right',
+                    duration: 5000,
+                    showCloseButton: true,
+                    closeButtonText: '×',
+                    onClose: () => {
+                        console.log('Notification closed');
+                    }
+                });
+            }
+
+            initFunctionTypeSelect() {
+                const options = [
+                    { value: 'async-function', label: '异步函数 async function(){}' },
+                    { value: 'arrow-async', label: '异步箭头函数 async () => {}' },
+                    { value: 'sync-function', label: '同步函数 function(){}' },
+                    { value: 'arrow-sync', label: '同步箭头函数 () => {}' },
+                    { value: 'generator', label: '生成器函数 function*(){}' },
+                    { value: 'async-generator', label: '异步生成器 async function*(){}' },
+                    { value: 'class-method', label: '类方法 method(){}' },
+                    { value: 'async-class-method', label: '异步类方法 async method(){}' },
+                    { value: 'object-method', label: '对象方法 {method(){}}' },
+                    { value: 'async-object-method', label: '异步对象方法 {async method(){}}' },
+                    { value: 'custom', label: '自定义函数' }
+                ];
+
+                this.functionTypeSelect = new Select({
+                    container: document.getElementById('function-type'),
+                    options,
+                    placeholder: '选择函数类型',
+                    onChange: (value) => this.onFunctionTypeChange(value)
+                });
+            }
+
+            updateAllCheckboxState() {
+                if (!this.advancedOptionsGroup || !this.advancedOptionsGroup.checkboxes) return;
+                
+                const allChecked = this.advancedOptionsGroup.checkboxes.every(cb => cb.isChecked());
+                const noneChecked = this.advancedOptionsGroup.checkboxes.every(cb => !cb.isChecked());
+                
+                // 更新全选复选框的状态，但不触发onChange事件
+                if (this.advancedOptionsGroup.allCheckbox) {
+                    // 直接设置状态，避免调用setChecked方法
+                    this.advancedOptionsGroup.allCheckbox.checked = allChecked;
+                    const allCheckboxInput = this.advancedOptionsGroup.allCheckbox.element.querySelector('.checkbox-input');
+                    if (allCheckboxInput) {
+                        allCheckboxInput.checked = allChecked;
+                        allCheckboxInput.indeterminate = !allChecked && !noneChecked;
+                    }
+                }
+            }
+
+            onFunctionTypeChange(selectedType) {
+                if (selectedType === 'custom') {
+                    this.customFunctionTextarea.style.display = 'block';
+                    this.customFunctionTextarea.focus();
+                } else {
+                    this.customFunctionTextarea.style.display = 'none';
+                    this.loadFunctionTemplate(selectedType);
+                }
+            }
+
+            onCustomFunctionChange() {
+                // 实时预览自定义函数
+                const code = this.customFunctionTextarea.value.trim();
+                if (code) {
+                    this.showFunctionPreview(code);
+                } else {
+                    this.hideFunctionPreview();
+                }
+            }
+
+            loadFunctionTemplate(type) {
+                const templates = {
+                    'async-function': 'async function exampleFunction() {\n  try {\n    const result = await someAsyncOperation();\n    return result;\n  } catch (error) {\n    console.error("Error:", error);\n    throw error;\n  }\n}',
+                    'arrow-async': 'const exampleArrowAsync = async (param) => {\n  const response = await fetch(`/api/${param}`);\n  return response.json();\n}',
+                    'sync-function': 'function exampleSyncFunction(param) {\n  let result = 0;\n  for (let i = 0; i < param; i++) {\n    result += i;\n  }\n  return result;\n}',
+                    'arrow-sync': 'const exampleArrowSync = (param) => {\n  return param.map(item => item.id).filter(id => id > 0);\n}',
+                    'generator': 'function* exampleGenerator() {\n  yield 1;\n  yield 2;\n  yield 3;\n}',
+                    'async-generator': 'async function* exampleAsyncGenerator() {\n  for (let i = 0; i < 3; i++) {\n    yield await Promise.resolve(i);\n  }\n}',
+                    'class-method': 'class ExampleClass {\n  exampleMethod() {\n    return "This is a class method";\n  }\n}',
+                    'async-class-method': 'class ExampleClass {\n  async exampleAsyncMethod() {\n    const result = await this.fetchData();\n    return result;\n  }\n}',
+                    'object-method': 'const exampleObject = {\n  method() {\n    return "This is an object method";\n  }\n}',
+                    'async-object-method': 'const exampleObject = {\n  async asyncMethod() {\n    const data = await this.getData();\n    return data;\n  }\n}'
+                };
+
+                if (templates[type]) {
+                    this.customFunctionTextarea.value = templates[type];
+                    this.showFunctionPreview(templates[type]);
+                }
+            }
+
+            loadTemplate(templateName) {
+                const templates = {
+                    'async-functions': [
+                        { type: 'async-function', code: 'async function fetchUserData(id) {\n  const response = await fetch(`/api/users/${id}`);\n  return response.json();\n}' },
+                        { type: 'arrow-async', code: 'const processData = async (data) => {\n  const processed = await Promise.all(\n    data.map(async item => {\n      const result = await processItem(item);\n      return { ...item, processed: result };\n    })\n  );\n  return processed;\n}' }
+                    ],
+                    'sync-functions': [
+                        { type: 'sync-function', code: 'function calculateSum(numbers) {\n  return numbers.reduce((sum, num) => sum + num, 0);\n}' },
+                        { type: 'arrow-sync', code: 'const filterEvenNumbers = (numbers) => {\n  return numbers.filter(num => num % 2 === 0);\n}' }
+                    ],
+                    'generators': [
+                        { type: 'generator', code: 'function* fibonacci() {\n  let [a, b] = [0, 1];\n  while (true) {\n    yield a;\n    [a, b] = [b, a + b];\n  }\n}' },
+                        { type: 'async-generator', code: 'async function* asyncRange(start, end) {\n  for (let i = start; i <= end; i++) {\n    yield await Promise.resolve(i);\n  }\n}' }
+                    ],
+                    'class-methods': [
+                        { type: 'class-method', code: 'class DataProcessor {\n  process(data) {\n    return data.map(item => item.id);\n  }\n}' },
+                        { type: 'async-class-method', code: 'class DataProcessor {\n  async processAsync(data) {\n    const results = [];\n    for (const item of data) {\n      const result = await this.processItem(item);\n      results.push(result);\n    }\n    return results;\n  }\n}' }
+                    ],
+                    'object-methods': [
+                        { type: 'object-method', code: 'const utils = {\n  formatDate(date) {\n    return date.toISOString().split("T")[0];\n  }\n}' },
+                        { type: 'async-object-method', code: 'const api = {\n  async getData(url) {\n    const response = await fetch(url);\n    return response.json();\n  }\n}' }
+                    ],
+                    'mixed': [
+                        { type: 'async-function', code: 'async function main() {\n  const data = await fetchData();\n  return processData(data);\n}' },
+                        { type: 'sync-function', code: 'function processData(data) {\n  return data.filter(item => item.active);\n}' },
+                        { type: 'arrow-async', code: 'const validateUser = async (user) => {\n  const isValid = await checkUserPermissions(user);\n  return isValid && user.age >= 18;\n}' },
+                        { type: 'arrow-sync', code: 'const formatUser = (user) => ({\n  ...user,\n  displayName: `${user.firstName} ${user.lastName}`\n})' }
+                    ]
+                };
+
+                if (templates[templateName]) {
+                    this.batchFunctionsTextarea.value = templates[templateName]
+                        .map(item => `${item.type},${item.code}`)
+                        .join('\n');
+                }
+            }
+
+            detectFunction() {
+                const selectedType = this.functionTypeSelect.getValue();
+                let functionCode = '';
+                let functionObj = null;
+
+                if (selectedType === 'custom') {
+                    functionCode = this.customFunctionTextarea.value.trim();
+                    if (!functionCode) {
+                        this.showNotification('请输入自定义函数代码', 'warning');
+                        return;
+                    }
+                    try {
+                        functionObj = this.createFunctionFromCode(functionCode);
+                    } catch (error) {
+                        this.showNotification(`函数代码解析错误: ${error.message}`, 'error');
+                        return;
+                    }
+                } else {
+                    functionCode = this.customFunctionTextarea.value;
+                    functionObj = this.createFunctionFromCode(functionCode);
+                }
+
+                const result = this.analyzeFunctionObject(functionObj, functionCode);
+                this.displayResult(result);
+                this.updateStats(result.isAsync);
+                this.addToHistory(result);
+                this.showFunctionPreview(functionCode);
+            }
+
+            batchDetect() {
+                const batchText = this.batchFunctionsTextarea.value.trim();
+                if (!batchText) {
+                    this.showNotification('请输入批量函数代码', 'warning');
+                    return;
+                }
+
+                const lines = batchText.split('\n').filter(line => line.trim());
+                const results = [];
+
+                lines.forEach((line, index) => {
+                    const [type, ...codeParts] = line.split(',');
+                    const code = codeParts.join(',').trim();
+                    
+                    if (!code) return;
+
+                    try {
+                        const functionObj = this.createFunctionFromCode(code);
+                        const result = this.analyzeFunctionObject(functionObj, code, type);
+                        results.push(result);
+                        this.updateStats(result.isAsync);
+                    } catch (error) {
+                        results.push({
+                            functionCode: code,
+                            isAsync: false,
+                            type: 'error',
+                            error: error.message,
+                            timestamp: new Date()
+                        });
+                    }
+                });
+
+                this.displayBatchResults(results);
+                results.forEach(result => this.addToHistory(result));
+                this.showNotification(`批量检测完成，共检测 ${results.length} 个函数`, 'success');
+            }
+
+            analyzeFunction() {
+                const selectedType = this.functionTypeSelect.getValue();
+                let functionCode = '';
+
+                if (selectedType === 'custom') {
+                    functionCode = this.customFunctionTextarea.value.trim();
+                } else {
+                    functionCode = this.customFunctionTextarea.value;
+                }
+
+                if (!functionCode) {
+                    this.showNotification('请先输入函数代码', 'warning');
+                    return;
+                }
+
+                try {
+                    const functionObj = this.createFunctionFromCode(functionCode);
+                    const analysis = this.performDeepAnalysis(functionObj, functionCode);
+                    this.displayAnalysis(analysis);
+                } catch (error) {
+                    this.showNotification(`分析失败: ${error.message}`, 'error');
+                }
+            }
+
+            executeFunction() {
+                const selectedType = this.functionTypeSelect.getValue();
+                let functionCode = '';
+
+                if (selectedType === 'custom') {
+                    functionCode = this.customFunctionTextarea.value.trim();
+                } else {
+                    functionCode = this.customFunctionTextarea.value;
+                }
+
+                if (!functionCode) {
+                    this.showNotification('请先输入函数代码', 'warning');
+                    return;
+                }
+
+                try {
+                    const functionObj = this.createFunctionFromCode(functionCode);
+                    if (typeof functionObj === 'function') {
+                        this.runFunctionExecution(functionObj, functionCode);
+                    } else {
+                        this.showNotification('输入的不是有效函数', 'error');
+                    }
+                } catch (error) {
+                    this.showNotification(`函数创建失败: ${error.message}`, 'error');
+                }
+            }
+
+            createFunctionFromCode(code) {
+                // 安全地创建函数对象
+                try {
+                    // 检查代码是否包含函数声明
+                    if (code.includes('async function') || code.includes('async (') || code.includes('async =>')) {
+                        // 异步函数
+                        return new Function('return ' + code)();
+                    } else if (code.includes('function') || code.includes('=>') || code.includes('(')) {
+                        // 同步函数
+                        return new Function('return ' + code)();
+                    } else {
+                        throw new Error('无效的函数代码');
+                    }
+                } catch (error) {
+                    throw new Error(`函数创建失败: ${error.message}`);
+                }
+            }
+
+            analyzeFunctionObject(functionObj, functionCode, expectedType = '') {
+                const isAsync = isAsyncFunction(functionObj);
+                const actualType = this.getFunctionType(functionObj);
+                const functionName = this.getFunctionName(functionCode);
+                const parameterCount = this.getParameterCount(functionCode);
+                const hasReturn = this.hasReturnStatement(functionCode);
+                const complexity = this.calculateComplexity(functionCode);
+
+                return {
+                    functionCode,
+                    functionName,
+                    isAsync,
+                    expectedType,
+                    actualType,
+                    parameterCount,
+                    hasReturn,
+                    complexity,
+                    timestamp: new Date()
+                };
+            }
+
+            getFunctionType(functionObj) {
+                if (isAsyncFunction(functionObj)) {
+                    return 'AsyncFunction';
+                } else if (typeof functionObj === 'function') {
+                    if (functionObj.constructor.name === 'GeneratorFunction') {
+                        return 'GeneratorFunction';
+                    } else if (functionObj.constructor.name === 'AsyncGeneratorFunction') {
+                        return 'AsyncGeneratorFunction';
+                    } else {
+                        return 'Function';
+                    }
+                } else {
+                    return typeof functionObj;
+                }
+            }
+
+            getFunctionName(code) {
+                const match = code.match(/(?:async\s+)?(?:function\s+)?(\w+)\s*\(/);
+                return match ? match[1] : 'anonymous';
+            }
+
+            getParameterCount(code) {
+                const match = code.match(/\(([^)]*)\)/);
+                if (match && match[1].trim()) {
+                    return match[1].split(',').length;
+                }
+                return 0;
+            }
+
+            hasReturnStatement(code) {
+                return /\breturn\b/.test(code);
+            }
+
+            calculateComplexity(code) {
+                let complexity = 1;
+                complexity += (code.match(/\bif\b/g) || []).length;
+                complexity += (code.match(/\bfor\b/g) || []).length;
+                complexity += (code.match(/\bwhile\b/g) || []).length;
+                complexity += (code.match(/\bswitch\b/g) || []).length;
+                complexity += (code.match(/\bcatch\b/g) || []).length;
+                complexity += (code.match(/\bawait\b/g) || []).length;
+                return complexity;
+            }
+
+            performDeepAnalysis(functionObj, functionCode) {
+                const basicAnalysis = this.analyzeFunctionObject(functionObj, functionCode);
+                const prototype = Object.getPrototypeOf(functionObj);
+                const properties = Object.getOwnPropertyNames(functionObj);
+                const descriptors = Object.getOwnPropertyDescriptors(functionObj);
+
+                return {
+                    ...basicAnalysis,
+                    prototype: prototype ? prototype.constructor.name : 'Object',
+                    properties,
+                    descriptors: Object.keys(descriptors),
+                    length: functionObj.length,
+                    toString: functionObj.toString().substring(0, 200) + '...',
+                    isConstructor: functionObj.prototype && functionObj.prototype.constructor === functionObj,
+                    isGenerator: functionObj.constructor.name === 'GeneratorFunction',
+                    isAsyncGenerator: functionObj.constructor.name === 'AsyncGeneratorFunction'
+                };
+            }
+
+            displayResult(result) {
+                const resultItem = document.createElement('div');
+                resultItem.className = `result-item ${result.isAsync ? 'success' : 'error'} fade-in`;
+                
+                const functionInfo = document.createElement('div');
+                functionInfo.className = 'function-info';
+                functionInfo.textContent = `函数: ${result.functionName || 'anonymous'}`;
+                
+                const detailsInfo = document.createElement('div');
+                detailsInfo.className = 'details-info';
+                detailsInfo.innerHTML = `
+                    类型: <span class="type-badge ${result.actualType.toLowerCase()}">${result.actualType}</span>
+                    参数数量: ${result.parameterCount}
+                    复杂度: ${result.complexity}
+                    有返回值: ${result.hasReturn ? '是' : '否'}
+                `;
+                
+                const resultInfo = document.createElement('div');
+                resultInfo.className = `result-info ${result.isAsync ? 'true' : 'false'}`;
+                resultInfo.textContent = `异步函数: ${result.isAsync ? '是' : '否'}`;
+                
+                resultItem.appendChild(functionInfo);
+                resultItem.appendChild(detailsInfo);
+                resultItem.appendChild(resultInfo);
+                
+                this.resultDisplay.appendChild(resultItem);
+                this.resultDisplay.scrollTop = this.resultDisplay.scrollHeight;
+            }
+
+            displayBatchResults(results) {
+                this.clearResults();
+                results.forEach(result => this.displayResult(result));
+            }
+
+            displayAnalysis(analysis) {
+                const analysisContainer = document.createElement('div');
+                analysisContainer.className = 'function-analysis';
+                analysisContainer.innerHTML = `
+                    <h4>🔬 深度分析结果</h4>
+                    <div class="analysis-grid">
+                        <div class="analysis-item">
+                            <div class="analysis-label">函数名称</div>
+                            <div class="analysis-value">${analysis.functionName || 'anonymous'}</div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-label">函数类型</div>
+                            <div class="analysis-value">
+                                <span class="type-badge ${analysis.actualType.toLowerCase()}">${analysis.actualType}</span>
+                            </div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-label">异步函数</div>
+                            <div class="analysis-value">${analysis.isAsync ? '是' : '否'}</div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-label">参数数量</div>
+                            <div class="analysis-value">${analysis.parameterCount}</div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-label">复杂度</div>
+                            <div class="analysis-value">${analysis.complexity}</div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-label">原型</div>
+                            <div class="analysis-value">${analysis.prototype}</div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-label">属性数量</div>
+                            <div class="analysis-value">${analysis.properties.length}</div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-label">构造函数</div>
+                            <div class="analysis-value">${analysis.isConstructor ? '是' : '否'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                this.resultDisplay.appendChild(analysisContainer);
+                this.resultDisplay.scrollTop = this.resultDisplay.scrollHeight;
+            }
+
+            runFunctionExecution(functionObj, functionCode) {
+                const executionId = Date.now();
+                const statusElement = document.createElement('div');
+                statusElement.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>执行函数:</strong> ${this.getFunctionName(functionCode)}
+                        <span class="execution-status running">执行中...</span>
+                    </div>
+                `;
+                
+                this.executionResult.appendChild(statusElement);
+                
+                try {
+                    if (isAsyncFunction(functionObj)) {
+                        // 异步函数执行
+                        this.executeAsyncFunction(functionObj, executionId, statusElement);
+                    } else {
+                        // 同步函数执行
+                        this.executeSyncFunction(functionObj, executionId, statusElement);
+                    }
+                } catch (error) {
+                    statusElement.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>执行函数:</strong> ${this.getFunctionName(functionCode)}
+                            <span class="execution-status error">执行失败</span>
+                        </div>
+                        <div style="color: #f56565; margin-top: 10px;">
+                            错误: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+
+            async executeAsyncFunction(functionObj, executionId, statusElement) {
+                try {
+                    const startTime = performance.now();
+                    const result = await functionObj();
+                    const endTime = performance.now();
+                    const executionTime = (endTime - startTime).toFixed(2);
+                    
+                    statusElement.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>执行函数:</strong> 异步函数
+                            <span class="execution-status completed">执行完成</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <strong>执行时间:</strong> ${executionTime}ms<br>
+                            <strong>返回值:</strong> <pre style="background: #2d3748; padding: 10px; border-radius: 4px; margin-top: 5px;">${JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                    `;
+                } catch (error) {
+                    statusElement.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>执行函数:</strong> 异步函数
+                            <span class="execution-status error">执行失败</span>
+                        </div>
+                        <div style="color: #f56565; margin-top: 10px;">
+                            错误: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+
+            executeSyncFunction(functionObj, executionId, statusElement) {
+                try {
+                    const startTime = performance.now();
+                    const result = functionObj();
+                    const endTime = performance.now();
+                    const executionTime = (endTime - startTime).toFixed(2);
+                    
+                    statusElement.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>执行函数:</strong> 同步函数
+                            <span class="execution-status completed">执行完成</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <strong>执行时间:</strong> ${executionTime}ms<br>
+                            <strong>返回值:</strong> <pre style="background: #2d3748; padding: 10px; border-radius: 4px; margin-top: 5px;">${JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                    `;
+                } catch (error) {
+                    statusElement.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>执行函数:</strong> 同步函数
+                            <span class="execution-status error">执行失败</span>
+                        </div>
+                        <div style="color: #f56565; margin-top: 10px;">
+                            错误: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+
+            showFunctionPreview(code) {
+                if (this.advancedOptions.includes('show-function-source')) {
+                    this.previewContent.innerHTML = `
+                        <div style="margin-bottom: 10px;"><strong>函数源码预览:</strong></div>
+                        <div class="code-editor">
+                            <span class="keyword">${code.replace(/\b(async\s+)?(function|=>|return|await|try|catch|if|for|while|switch|case|default|break|continue|const|let|var)\b/g, '<span class="keyword">$&</span>')}</span>
+                        </div>
+                    `;
+                    this.functionPreview.style.display = 'block';
+                }
+            }
+
+            hideFunctionPreview() {
+                this.functionPreview.style.display = 'none';
+            }
+
+            updateStats(isAsync) {
+                this.stats.total++;
+                if (isAsync) {
+                    this.stats.async++;
+                } else {
+                    this.stats.sync++;
+                }
+                
+                this.statsElements.total.textContent = this.stats.total;
+                this.statsElements.async.textContent = this.stats.async;
+                this.statsElements.sync.textContent = this.stats.sync;
+                this.statsElements.other.textContent = this.stats.other;
+            }
+
+            addToHistory(result) {
+                if (this.advancedOptions.includes('save-to-history')) {
+                    this.detectionHistory.unshift({
+                        ...result,
+                        timestamp: new Date()
+                    });
+                    
+                    // 限制历史记录数量
+                    if (this.detectionHistory.length > 100) {
+                        this.detectionHistory = this.detectionHistory.slice(0, 100);
+                    }
+                    
+                    this.saveHistory();
+                    this.updateHistoryDisplay();
+                }
+            }
+
+            updateHistoryDisplay() {
+                if (this.detectionHistory.length === 0) {
+                    this.historyList.innerHTML = `
+                        <div style="text-align: center; color: #718096; padding: 20px;">
+                            暂无检测历史记录
+                        </div>
+                    `;
+                    return;
+                }
+
+                this.historyList.innerHTML = this.detectionHistory
+                    .slice(0, 20)
+                    .map(item => `
+                        <div class="history-item">
+                            <div class="history-info">
+                                <div><strong>${item.functionName || 'anonymous'}</strong></div>
+                                <div class="history-time">${item.timestamp.toLocaleString()}</div>
+                            </div>
+                            <div class="history-action">
+                                <span class="type-badge ${item.isAsync ? 'async' : 'sync'}">${item.isAsync ? '异步' : '同步'}</span>
+                            </div>
+                        </div>
+                    `)
+                    .join('');
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('asyncFunctionDetectorHistory', JSON.stringify(this.detectionHistory));
+                } catch (error) {
+                    console.error('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('asyncFunctionDetectorHistory');
+                    if (saved) {
+                        this.detectionHistory = JSON.parse(saved).map(item => ({
+                            ...item,
+                            timestamp: new Date(item.timestamp)
+                        }));
+                        this.updateHistoryDisplay();
+                    }
+                } catch (error) {
+                    console.error('加载历史记录失败:', error);
+                }
+            }
+
+            clearHistory() {
+                this.detectionHistory = [];
+                this.saveHistory();
+                this.updateHistoryDisplay();
+                this.showNotification('历史记录已清空', 'success');
+            }
+
+            exportResults() {
+                const results = Array.from(this.resultDisplay.querySelectorAll('.result-item')).map(item => {
+                    const functionInfo = item.querySelector('.function-info').textContent;
+                    const detailsInfo = item.querySelector('.details-info').textContent;
+                    const resultInfo = item.querySelector('.result-info').textContent;
+                    return { functionInfo, detailsInfo, resultInfo };
+                });
+
+                const dataStr = JSON.stringify(results, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `async-function-detection-${new Date().toISOString().slice(0, 19)}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                this.showNotification('结果已导出', 'success');
+            }
+
+            clearResults() {
+                this.resultDisplay.innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">⚡</div>
+                        <div>选择函数类型或输入自定义函数，然后点击检测按钮</div>
+                    </div>
+                `;
+                this.hideFunctionPreview();
+            }
+
+            clearInputs() {
+                this.customFunctionTextarea.value = '';
+                this.batchFunctionsTextarea.value = '';
+                this.functionTypeSelect.setValue('async-function');
+                this.hideFunctionPreview();
+                this.showNotification('输入已清空', 'success');
+            }
+
+            clearExecution() {
+                this.executionResult.innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 20px;">
+                        点击"运行函数"按钮开始测试函数执行
+                    </div>
+                `;
+            }
+
+            stopFunction() {
+                // 在实际应用中，这里可以实现函数执行的中断逻辑
+                this.showNotification('函数执行已停止', 'warning');
+            }
+
+            runFunction() {
+                const selectedType = this.functionTypeSelect.getValue();
+                let functionCode = '';
+
+                if (selectedType === 'custom') {
+                    functionCode = this.customFunctionTextarea.value.trim();
+                } else {
+                    functionCode = this.customFunctionTextarea.value;
+                }
+
+                if (!functionCode) {
+                    this.showNotification('请先输入函数代码', 'warning');
+                    return;
+                }
+
+                try {
+                    const functionObj = this.createFunctionFromCode(functionCode);
+                    if (typeof functionObj === 'function') {
+                        this.runFunctionExecution(functionObj, functionCode);
+                    } else {
+                        this.showNotification('输入的不是有效函数', 'error');
+                    }
+                } catch (error) {
+                    this.showNotification(`函数创建失败: ${error.message}`, 'error');
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.notificationInstance && typeof this.notificationInstance.show === 'function') {
+                    this.notificationInstance.show(message, type);
+                } else {
+                    // 降级到简单的alert
+                    alert(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new AsyncFunctionDetector();
+        });
+    </script>
+</body>
+
+</html>
