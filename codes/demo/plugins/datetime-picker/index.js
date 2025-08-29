@@ -553,7 +553,7 @@ class DateTimePicker {
   }
 
   getValue() {
-    return this.formatValue(this.selectedDate);
+    return this.selectedDate;
   }
 
   mount(container) {

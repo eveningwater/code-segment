@@ -15,6 +15,10 @@ const isBeforeDate = (dateA, dateB) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-before-date.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,8 +27,10 @@ isBeforeDate(new Date(2010, 10, 20), new Date(2010, 10, 21)); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isBeforeDate.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-before-date.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-before-date.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isBeforeDate.html"></iframe>
+<iframe src="codes/javascript/html/is-before-date.html"></iframe>
