@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浏览器环境检测与分析工具 - isBrowser实战</title>
+    
+    <!-- 引入自定义插件 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+        }
+
+        .btn-info {
+            background: #38b2ac;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: white;
+        }
+
+        .result-item.success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .result-item.error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .result-item.warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .env-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .env-status.browser {
+            background: #48bb78;
+            color: white;
+        }
+
+        .env-status.node {
+            background: #ed8936;
+            color: white;
+        }
+
+        .env-status.unknown {
+            background: #718096;
+            color: white;
+        }
+
+        .stats-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f7fafc;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .feature-card h4 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .feature-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .feature-status.available {
+            background: #48bb78;
+            color: white;
+        }
+
+        .feature-status.unavailable {
+            background: #f56565;
+            color: white;
+        }
+
+        .browser-info {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .browser-info.browser-env {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .browser-info.node-env {
+            border-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .advanced-options h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .analysis-item {
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .analysis-value {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .history-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-time {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .clear-history {
+            color: #f56565;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        .clear-history:hover {
+            color: #e53e3e;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 浏览器环境检测与分析工具</h1>
+            <p>基于 isBrowser 函数的强大环境检测系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 环境检测面板 -->
+            <div class="panel">
+                <h2>🔍 环境检测控制</h2>
+                
+                <div class="input-group">
+                    <label for="test-code">自定义检测代码:</label>
+                    <textarea id="test-code" rows="4" placeholder="输入自定义的环境检测代码&#10;例如:&#10;typeof window !== 'undefined'&#10;typeof document !== 'undefined'&#10;typeof navigator !== 'undefined'"></textarea>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="detect-btn">🔍 检测环境</button>
+                    <button class="btn btn-success" id="detailed-analysis-btn">📊 详细分析</button>
+                    <button class="btn btn-info" id="api-test-btn">🧪 API测试</button>
+                    <button class="btn btn-warning" id="export-btn">📤 导出报告</button>
+                    <button class="btn btn-secondary" id="clear-btn">🗑️ 清空</button>
+                </div>
+
+                <div class="advanced-options">
+                    <h3>⚙️ 高级选项</h3>
+                    <div id="advanced-options"></div>
+                </div>
+            </div>
+
+            <!-- 结果面板 -->
+            <div class="panel">
+                <h2>📊 检测结果</h2>
+                
+                <div class="controls">
+                    <button class="btn btn-danger" id="clear-results-btn">🗑️ 清空结果</button>
+                    <button class="btn btn-info" id="copy-results-btn">📋 复制结果</button>
+                </div>
+
+                <div id="browser-info" class="browser-info" style="display: none;">
+                    <div id="env-content"></div>
+                </div>
+
+                <div id="result-display" class="result-display">
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">🌐</div>
+                        <div>点击检测环境按钮开始分析</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 环境统计面板 -->
+        <div class="stats-panel">
+            <h2>📈 环境统计</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-detections">0</div>
+                    <div class="stat-label">总检测次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="browser-detections">0</div>
+                    <div class="stat-label">浏览器环境</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="node-detections">0</div>
+                    <div class="stat-label">Node.js环境</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="api-tests">0</div>
+                    <div class="stat-label">API测试次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="available-apis">0</div>
+                    <div class="stat-label">可用API数量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="performance-score">0</div>
+                    <div class="stat-label">性能评分</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 浏览器特性检测面板 -->
+        <div class="stats-panel">
+            <h2>🧪 浏览器特性检测</h2>
+            <div class="feature-grid" id="feature-grid">
+                <!-- 动态生成特性检测卡片 -->
+            </div>
+        </div>
+
+        <!-- API测试面板 -->
+        <div class="stats-panel" id="api-test-panel" style="display: none;">
+            <h2>🔬 浏览器API测试</h2>
+            <div class="feature-grid" id="api-test-grid">
+                <!-- 动态生成API测试项 -->
+            </div>
+        </div>
+
+        <!-- 历史记录面板 -->
+        <div class="history-panel">
+            <h2>📚 检测历史</h2>
+            <div class="controls">
+                <button class="btn btn-secondary" id="load-history-btn">📥 加载历史</button>
+                <span class="clear-history" id="clear-history-btn">清空历史</span>
+            </div>
+            <div id="history-list" class="history-list">
+                <div style="text-align: center; color: #718096; padding: 20px;">
+                    暂无检测历史记录
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入自定义插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 核心 isBrowser 函数
+        const isBrowser = () => ![typeof window, typeof document].includes('undefined');
+
+        // 浏览器环境检测工具类
+        class BrowserDetector {
+            constructor() {
+                this.notification = new Notification();
+                this.results = [];
+                this.history = [];
+                this.stats = {
+                    totalDetections: 0,
+                    browserDetections: 0,
+                    nodeDetections: 0,
+                    apiTests: 0,
+                    availableApis: 0,
+                    performanceScore: 0
+                };
+                
+                this.advancedOptions = {
+                    showDetailedInfo: true,
+                    includeAPITests: true,
+                    includePerformanceTests: false,
+                    autoSaveHistory: true,
+                    showCodeSnippets: true
+                };
+
+                // 浏览器特性列表
+                this.browserFeatures = [
+                    { name: 'Window对象', test: () => typeof window !== 'undefined', critical: true },
+                    { name: 'Document对象', test: () => typeof document !== 'undefined', critical: true },
+                    { name: 'Navigator对象', test: () => typeof navigator !== 'undefined', critical: false },
+                    { name: 'Location对象', test: () => typeof location !== 'undefined', critical: false },
+                    { name: 'History对象', test: () => typeof history !== 'undefined', critical: false },
+                    { name: 'LocalStorage', test: () => typeof localStorage !== 'undefined', critical: false },
+                    { name: 'SessionStorage', test: () => typeof sessionStorage !== 'undefined', critical: false },
+                    { name: 'Console对象', test: () => typeof console !== 'undefined', critical: false },
+                    { name: 'XMLHttpRequest', test: () => typeof XMLHttpRequest !== 'undefined', critical: false },
+                    { name: 'Fetch API', test: () => typeof fetch !== 'undefined', critical: false },
+                    { name: 'WebSocket', test: () => typeof WebSocket !== 'undefined', critical: false },
+                    { name: 'Geolocation', test: () => navigator && 'geolocation' in navigator, critical: false },
+                    { name: 'Service Worker', test: () => 'serviceWorker' in navigator, critical: false },
+                    { name: 'Web Workers', test: () => typeof Worker !== 'undefined', critical: false },
+                    { name: 'IndexedDB', test: () => typeof indexedDB !== 'undefined', critical: false },
+                    { name: 'Canvas', test: () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            return canvas.getContext && canvas.getContext('2d');
+                        } catch (e) {
+                            return false;
+                        }
+                    }, critical: false },
+                    { name: 'WebGL', test: () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            return canvas.getContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+                        } catch (e) {
+                            return false;
+                        }
+                    }, critical: false },
+                    { name: 'FileReader', test: () => typeof FileReader !== 'undefined', critical: false },
+                    { name: 'Blob', test: () => typeof Blob !== 'undefined', critical: false },
+                    { name: 'FormData', test: () => typeof FormData !== 'undefined', critical: false }
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupEventListeners();
+                this.loadHistory();
+                this.updateStats();
+                this.detectBrowserFeatures();
+                this.performInitialDetection();
+            }
+
+            setupControls() {
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '显示详细信息', checked: true },
+                                { label: '包含API测试', checked: true },
+                                { label: '包含性能测试', checked: false },
+                                { label: '自动保存历史', checked: true },
+                                { label: '显示代码片段', checked: true }
+                            ],
+                            onChange: (values) => {
+                                this.advancedOptions.showDetailedInfo = values[0];
+                                this.advancedOptions.includeAPITests = values[1];
+                                this.advancedOptions.includePerformanceTests = values[2];
+                                this.advancedOptions.autoSaveHistory = values[3];
+                                this.advancedOptions.showCodeSnippets = values[4];
+                            }
+                        });
+                        
+                        container.appendChild(this.advancedOptionsGroup.container);
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                }
+            }
+
+            setupEventListeners() {
+                // 检测环境按钮
+                document.getElementById('detect-btn').addEventListener('click', () => {
+                    this.detectEnvironment();
+                });
+
+                // 详细分析按钮
+                document.getElementById('detailed-analysis-btn').addEventListener('click', () => {
+                    this.performDetailedAnalysis();
+                });
+
+                // API测试按钮
+                document.getElementById('api-test-btn').addEventListener('click', () => {
+                    this.performAPITests();
+                });
+
+                // 导出报告按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportReport();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearInput();
+                });
+
+                // 清空结果按钮
+                document.getElementById('clear-results-btn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+
+                // 复制结果按钮
+                document.getElementById('copy-results-btn').addEventListener('click', () => {
+                    this.copyResults();
+                });
+
+                // 加载历史按钮
+                document.getElementById('load-history-btn').addEventListener('click', () => {
+                    this.loadHistory();
+                });
+
+                // 清空历史按钮
+                document.getElementById('clear-history-btn').addEventListener('click', () => {
+                    this.clearHistory();
+                });
+            }
+
+            performInitialDetection() {
+                // 页面加载时自动检测环境
+                this.detectEnvironment();
+            }
+
+            detectEnvironment() {
+                const testCode = document.getElementById('test-code').value.trim();
+                const startTime = performance.now();
+                
+                // 基础环境检测
+                const isBrowserEnv = isBrowser();
+                const isNodeEnv = this.isNode();
+                
+                // 自定义代码执行
+                let customTestResult = null;
+                let customTestError = null;
+                
+                if (testCode) {
+                    try {
+                        customTestResult = eval(testCode);
+                    } catch (error) {
+                        customTestError = error.message;
+                    }
+                }
+
+                const endTime = performance.now();
+                const executionTime = endTime - startTime;
+
+                const result = {
+                    timestamp: new Date(),
+                    isBrowser: isBrowserEnv,
+                    isNode: isNodeEnv,
+                    executionTime: executionTime,
+                    customCode: testCode,
+                    customResult: customTestResult,
+                    customError: customTestError,
+                    userAgent: navigator ? navigator.userAgent : 'N/A',
+                    platform: navigator ? navigator.platform : 'N/A',
+                    language: navigator ? navigator.language : 'N/A',
+                    cookieEnabled: navigator ? navigator.cookieEnabled : false,
+                    onLine: navigator ? navigator.onLine : false,
+                    details: this.getEnvironmentDetails()
+                };
+
+                this.results.unshift(result);
+                this.updateResultsDisplay();
+                this.updateStats();
+                this.showEnvironmentInfo(result);
+                
+                if (this.advancedOptions.autoSaveHistory) {
+                    this.saveToHistory(result);
+                }
+
+                this.notification.success(`环境检测完成: ${isBrowserEnv ? '🌐 浏览器环境' : '🟢 Node.js环境'}`);
+            }
+
+            isNode() {
+                return typeof process !== 'undefined' && 
+                       process.versions && 
+                       process.versions.node;
+            }
+
+            getEnvironmentDetails() {
+                const details = {
+                    windowDefined: typeof window !== 'undefined',
+                    documentDefined: typeof document !== 'undefined',
+                    navigatorDefined: typeof navigator !== 'undefined',
+                    processDefined: typeof process !== 'undefined',
+                    globalDefined: typeof global !== 'undefined',
+                    moduleDefined: typeof module !== 'undefined',
+                    requireDefined: typeof require !== 'undefined',
+                    exportsDefined: typeof exports !== 'undefined'
+                };
+
+                // 浏览器特定信息
+                if (typeof window !== 'undefined') {
+                    details.windowInnerWidth = window.innerWidth;
+                    details.windowInnerHeight = window.innerHeight;
+                    details.screenWidth = screen ? screen.width : 'N/A';
+                    details.screenHeight = screen ? screen.height : 'N/A';
+                    details.devicePixelRatio = window.devicePixelRatio || 1;
+                }
+
+                // 文档信息
+                if (typeof document !== 'undefined') {
+                    details.documentReady = document.readyState;
+                    details.documentTitle = document.title;
+                    details.documentURL = document.URL;
+                    details.documentDomain = document.domain;
+                }
+
+                return details;
+            }
+
+            showEnvironmentInfo(result) {
+                const infoContainer = document.getElementById('browser-info');
+                const envContent = document.getElementById('env-content');
+                
+                let statusClass = result.isBrowser ? 'browser-env' : 'node-env';
+                let statusIcon = result.isBrowser ? '🌐' : '🟢';
+                let envType = result.isBrowser ? '浏览器环境' : 'Node.js环境';
+
+                infoContainer.className = `browser-info ${statusClass}`;
+                infoContainer.style.display = 'block';
+
+                let infoHtml = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>环境检测结果:</strong> ${statusIcon} ${envType}
+                        <span class="env-status ${result.isBrowser ? 'browser' : 'node'}">${envType}</span>
+                    </div>
+                `;
+
+                if (this.advancedOptions.showDetailedInfo) {
+                    infoHtml += `
+                        <div class="analysis-grid">
+                            <div class="analysis-item">
+                                <div class="analysis-label">执行时间</div>
+                                <div class="analysis-value">${result.executionTime.toFixed(2)}ms</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-label">用户代理</div>
+                                <div class="analysis-value">${result.userAgent.substring(0, 50)}...</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-label">平台</div>
+                                <div class="analysis-value">${result.platform}</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-label">语言</div>
+                                <div class="analysis-value">${result.language}</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-label">在线状态</div>
+                                <div class="analysis-value">${result.onLine ? '在线' : '离线'}</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-label">Cookie启用</div>
+                                <div class="analysis-value">${result.cookieEnabled ? '是' : '否'}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (result.customCode) {
+                        infoHtml += `
+                            <div style="margin-top: 20px;">
+                                <strong>自定义代码结果:</strong><br>
+                                ${result.customError ? 
+                                    `<span style="color: #f56565;">错误: ${result.customError}</span>` : 
+                                    `<span style="color: #48bb78;">结果: ${JSON.stringify(result.customResult)}</span>`
+                                }
+                            </div>
+                        `;
+                    }
+                }
+
+                envContent.innerHTML = infoHtml;
+            }
+
+            detectBrowserFeatures() {
+                const featureGrid = document.getElementById('feature-grid');
+                featureGrid.innerHTML = '';
+
+                let availableCount = 0;
+
+                this.browserFeatures.forEach(feature => {
+                    const isAvailable = feature.test();
+                    if (isAvailable) availableCount++;
+
+                    const featureCard = document.createElement('div');
+                    featureCard.className = 'feature-card fade-in';
+                    
+                    featureCard.innerHTML = `
+                        <h4>
+                            ${feature.name}
+                            <span class="feature-status ${isAvailable ? 'available' : 'unavailable'}">
+                                ${isAvailable ? '可用' : '不可用'}
+                            </span>
+                        </h4>
+                        <p>${this.getFeatureDescription(feature.name)}</p>
+                        ${feature.critical ? '<p style="color: #ed8936; font-size: 11px; margin-top: 5px;">⚠️ 关键特性</p>' : ''}
+                    `;
+
+                    featureGrid.appendChild(featureCard);
+                });
+
+                // 更新可用API统计
+                this.stats.availableApis = availableCount;
+                document.getElementById('available-apis').textContent = availableCount;
+            }
+
+            getFeatureDescription(featureName) {
+                const descriptions = {
+                    'Window对象': '全局窗口对象，浏览器环境的核心',
+                    'Document对象': 'DOM文档对象，用于操作页面元素',
+                    'Navigator对象': '浏览器信息对象，包含用户代理等信息',
+                    'Location对象': '当前页面位置信息',
+                    'History对象': '浏览器历史记录操作',
+                    'LocalStorage': '本地存储API，持久化数据',
+                    'SessionStorage': '会话存储API，临时数据',
+                    'Console对象': '控制台输出，调试工具',
+                    'XMLHttpRequest': '传统的AJAX请求对象',
+                    'Fetch API': '现代的网络请求API',
+                    'WebSocket': '双向通信协议支持',
+                    'Geolocation': '地理位置获取API',
+                    'Service Worker': '离线缓存和后台处理',
+                    'Web Workers': '多线程处理支持',
+                    'IndexedDB': '客户端数据库存储',
+                    'Canvas': '2D图形绘制API',
+                    'WebGL': '3D图形渲染API',
+                    'FileReader': '文件读取API',
+                    'Blob': '二进制数据处理',
+                    'FormData': '表单数据封装'
+                };
+                return descriptions[featureName] || '浏览器特性检测';
+            }
+
+            performDetailedAnalysis() {
+                const analysisResult = {
+                    timestamp: new Date(),
+                    type: 'detailed-analysis',
+                    environment: isBrowser() ? 'browser' : 'node',
+                    performance: this.getPerformanceMetrics(),
+                    memory: this.getMemoryInfo(),
+                    screen: this.getScreenInfo(),
+                    connection: this.getConnectionInfo(),
+                    capabilities: this.getCapabilities()
+                };
+
+                this.showDetailedAnalysis(analysisResult);
+                this.notification.success('详细分析完成');
+            }
+
+            getPerformanceMetrics() {
+                if (typeof performance === 'undefined') return null;
+
+                const timing = performance.timing;
+                if (!timing) return null;
+
+                return {
+                    navigationStart: timing.navigationStart,
+                    loadEventEnd: timing.loadEventEnd,
+                    domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
+                    pageLoad: timing.loadEventEnd - timing.navigationStart,
+                    dnsLookup: timing.domainLookupEnd - timing.domainLookupStart,
+                    tcpConnect: timing.connectEnd - timing.connectStart,
+                    serverResponse: timing.responseEnd - timing.requestStart,
+                    domProcessing: timing.domComplete - timing.domLoading
+                };
+            }
+
+            getMemoryInfo() {
+                if (typeof performance === 'undefined' || !performance.memory) return null;
+
+                return {
+                    usedJSHeapSize: performance.memory.usedJSHeapSize,
+                    totalJSHeapSize: performance.memory.totalJSHeapSize,
+                    jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+                };
+            }
+
+            getScreenInfo() {
+                if (typeof screen === 'undefined') return null;
+
+                return {
+                    width: screen.width,
+                    height: screen.height,
+                    availWidth: screen.availWidth,
+                    availHeight: screen.availHeight,
+                    colorDepth: screen.colorDepth,
+                    pixelDepth: screen.pixelDepth
+                };
+            }
+
+            getConnectionInfo() {
+                if (typeof navigator === 'undefined' || !navigator.connection) return null;
+
+                const conn = navigator.connection;
+                return {
+                    effectiveType: conn.effectiveType,
+                    downlink: conn.downlink,
+                    rtt: conn.rtt,
+                    saveData: conn.saveData
+                };
+            }
+
+            getCapabilities() {
+                const capabilities = {};
+                
+                // 检测各种Web API
+                capabilities.webGL = this.hasWebGL();
+                capabilities.webGL2 = this.hasWebGL2();
+                capabilities.webAssembly = typeof WebAssembly !== 'undefined';
+                capabilities.sharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined';
+                capabilities.bigInt = typeof BigInt !== 'undefined';
+                capabilities.asyncIterator = typeof Symbol !== 'undefined' && Symbol.asyncIterator;
+                capabilities.proxy = typeof Proxy !== 'undefined';
+                capabilities.reflect = typeof Reflect !== 'undefined';
+                capabilities.weakMap = typeof WeakMap !== 'undefined';
+                capabilities.weakSet = typeof WeakSet !== 'undefined';
+                capabilities.map = typeof Map !== 'undefined';
+                capabilities.set = typeof Set !== 'undefined';
+
+                return capabilities;
+            }
+
+            hasWebGL() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    return !!(window.WebGLRenderingContext && canvas.getContext('webgl'));
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            hasWebGL2() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'));
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            showDetailedAnalysis(analysis) {
+                const container = document.getElementById('result-display');
+                const analysisItem = document.createElement('div');
+                analysisItem.className = 'result-item success fade-in';
+                
+                let analysisHtml = `
+                    <div style="font-weight: bold; color: #4a5568; margin-bottom: 10px;">
+                        📊 详细环境分析 - ${analysis.timestamp.toLocaleString()}
+                    </div>
+                `;
+
+                if (analysis.performance) {
+                    analysisHtml += `
+                        <div style="margin-bottom: 15px;">
+                            <strong>性能指标:</strong><br>
+                            页面加载时间: ${analysis.performance.pageLoad}ms<br>
+                            DOM加载时间: ${analysis.performance.domContentLoaded}ms<br>
+                            DNS查询时间: ${analysis.performance.dnsLookup}ms<br>
+                            服务器响应时间: ${analysis.performance.serverResponse}ms
+                        </div>
+                    `;
+                }
+
+                if (analysis.memory) {
+                    analysisHtml += `
+                        <div style="margin-bottom: 15px;">
+                            <strong>内存信息:</strong><br>
+                            已使用堆内存: ${(analysis.memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB<br>
+                            总堆内存: ${(analysis.memory.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB<br>
+                            堆内存限制: ${(analysis.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB
+                        </div>
+                    `;
+                }
+
+                if (analysis.screen) {
+                    analysisHtml += `
+                        <div style="margin-bottom: 15px;">
+                            <strong>屏幕信息:</strong><br>
+                            分辨率: ${analysis.screen.width}x${analysis.screen.height}<br>
+                            可用区域: ${analysis.screen.availWidth}x${analysis.screen.availHeight}<br>
+                            颜色深度: ${analysis.screen.colorDepth}位
+                        </div>
+                    `;
+                }
+
+                if (analysis.capabilities) {
+                    const caps = analysis.capabilities;
+                    analysisHtml += `
+                        <div style="margin-bottom: 15px;">
+                            <strong>浏览器能力:</strong><br>
+                            WebGL: ${caps.webGL ? '✅' : '❌'} | 
+                            WebGL2: ${caps.webGL2 ? '✅' : '❌'} | 
+                            WebAssembly: ${caps.webAssembly ? '✅' : '❌'}<br>
+                            BigInt: ${caps.bigInt ? '✅' : '❌'} | 
+                            Proxy: ${caps.proxy ? '✅' : '❌'} | 
+                            SharedArrayBuffer: ${caps.sharedArrayBuffer ? '✅' : '❌'}
+                        </div>
+                    `;
+                }
+
+                analysisItem.innerHTML = analysisHtml;
+                container.insertBefore(analysisItem, container.firstChild);
+            }
+
+            performAPITests() {
+                const apiTestPanel = document.getElementById('api-test-panel');
+                const apiTestGrid = document.getElementById('api-test-grid');
+                
+                apiTestPanel.style.display = 'block';
+                apiTestGrid.innerHTML = '';
+
+                const apiTests = [
+                    {
+                        name: 'DOM操作',
+                        test: () => {
+                            try {
+                                const div = document.createElement('div');
+                                div.innerHTML = 'test';
+                                return div.textContent === 'test';
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'JSON处理',
+                        test: () => {
+                            try {
+                                const obj = { test: 'value' };
+                                return JSON.parse(JSON.stringify(obj)).test === 'value';
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'Promise支持',
+                        test: () => typeof Promise !== 'undefined'
+                    },
+                    {
+                        name: 'async/await',
+                        test: () => {
+                            try {
+                                eval('(async () => {})');
+                                return true;
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'ES6模块',
+                        test: () => typeof Symbol !== 'undefined'
+                    },
+                    {
+                        name: 'Fetch API',
+                        test: () => typeof fetch !== 'undefined'
+                    }
+                ];
+
+                let passedTests = 0;
+
+                apiTests.forEach(apiTest => {
+                    const testResult = apiTest.test();
+                    if (testResult) passedTests++;
+
+                    const testCard = document.createElement('div');
+                    testCard.className = 'feature-card fade-in';
+                    
+                    testCard.innerHTML = `
+                        <h5>
+                            ${apiTest.name}
+                            <span class="test-result ${testResult ? 'pass' : 'fail'}">
+                                ${testResult ? '通过' : '失败'}
+                            </span>
+                        </h5>
+                        <p>API功能测试结果</p>
+                    `;
+
+                    apiTestGrid.appendChild(testCard);
+                });
+
+                this.stats.apiTests++;
+                document.getElementById('api-tests').textContent = this.stats.apiTests;
+
+                // 计算性能评分
+                const score = Math.round((passedTests / apiTests.length) * 100);
+                this.stats.performanceScore = score;
+                document.getElementById('performance-score').textContent = score;
+
+                this.notification.success(`API测试完成: ${passedTests}/${apiTests.length} 项通过`);
+            }
+
+            updateResultsDisplay() {
+                const container = document.getElementById('result-display');
+                
+                // 如果是第一次检测，清空默认内容
+                if (this.results.length === 1) {
+                    container.innerHTML = '';
+                }
+
+                this.results.slice(0, 10).forEach((result, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = `result-item ${result.isBrowser ? 'success' : 'warning'} fade-in`;
+                    
+                    let detailsHtml = '';
+                    if (this.advancedOptions.showDetailedInfo) {
+                        detailsHtml = `
+                            <div style="color: #718096; font-size: 13px; margin-bottom: 5px;">
+                                <strong>执行时间:</strong> ${result.executionTime.toFixed(2)}ms<br>
+                                <strong>用户代理:</strong> ${result.userAgent.substring(0, 100)}...<br>
+                                <strong>平台:</strong> ${result.platform}<br>
+                                <strong>检测时间:</strong> ${result.timestamp.toLocaleString()}
+                            </div>
+                        `;
+                    }
+
+                    resultItem.innerHTML = `
+                        <div class="env-info">
+                            环境类型: ${result.isBrowser ? '🌐 浏览器环境' : '🟢 Node.js环境'}
+                            <span class="env-status ${result.isBrowser ? 'browser' : 'node'}">
+                                ${result.isBrowser ? 'Browser' : 'Node.js'}
+                            </span>
+                        </div>
+                        ${detailsHtml}
+                        <div class="result-info ${result.isBrowser}">
+                            isBrowser() = ${result.isBrowser}
+                        </div>
+                    `;
+
+                    // 只添加新的结果项，避免重复
+                    if (index === 0) {
+                        container.insertBefore(resultItem, container.firstChild);
+                    }
+                });
+            }
+
+            updateStats() {
+                this.stats.totalDetections = this.results.length;
+                this.stats.browserDetections = this.results.filter(r => r.isBrowser).length;
+                this.stats.nodeDetections = this.results.filter(r => !r.isBrowser).length;
+
+                document.getElementById('total-detections').textContent = this.stats.totalDetections;
+                document.getElementById('browser-detections').textContent = this.stats.browserDetections;
+                document.getElementById('node-detections').textContent = this.stats.nodeDetections;
+            }
+
+            clearInput() {
+                document.getElementById('test-code').value = '';
+                this.notification.info('输入已清空');
+            }
+
+            clearResults() {
+                this.results = [];
+                document.getElementById('result-display').innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">🌐</div>
+                        <div>点击检测环境按钮开始分析</div>
+                    </div>
+                `;
+                document.getElementById('browser-info').style.display = 'none';
+                document.getElementById('api-test-panel').style.display = 'none';
+                this.updateStats();
+                this.notification.info('结果已清空');
+            }
+
+            copyResults() {
+                const results = this.results.map(r => 
+                    `${r.timestamp.toLocaleString()}: ${r.isBrowser ? '浏览器环境' : 'Node.js环境'} (${r.executionTime.toFixed(2)}ms)`
+                ).join('\n');
+                
+                navigator.clipboard.writeText(results).then(() => {
+                    this.notification.success('结果已复制到剪贴板');
+                }).catch(() => {
+                    this.notification.error('复制失败');
+                });
+            }
+
+            exportReport() {
+                const report = {
+                    timestamp: new Date().toISOString(),
+                    summary: {
+                        totalDetections: this.stats.totalDetections,
+                        browserDetections: this.stats.browserDetections,
+                        nodeDetections: this.stats.nodeDetections,
+                        apiTests: this.stats.apiTests,
+                        availableApis: this.stats.availableApis,
+                        performanceScore: this.stats.performanceScore
+                    },
+                    currentEnvironment: {
+                        isBrowser: isBrowser(),
+                        userAgent: navigator ? navigator.userAgent : 'N/A',
+                        platform: navigator ? navigator.platform : 'N/A',
+                        language: navigator ? navigator.language : 'N/A'
+                    },
+                    browserFeatures: this.browserFeatures.map(feature => ({
+                        name: feature.name,
+                        available: feature.test(),
+                        critical: feature.critical
+                    })),
+                    detectionResults: this.results,
+                    generatedBy: 'Browser Environment Detector v1.0'
+                };
+
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `browser-environment-report-${new Date().toISOString().slice(0, 19)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.notification.success('环境报告已导出');
+            }
+
+            saveToHistory(result) {
+                const historyItem = {
+                    ...result,
+                    action: '环境检测'
+                };
+                
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                
+                this.updateHistoryDisplay();
+                this.saveHistory();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('history-list');
+                
+                if (this.history.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">暂无检测历史记录</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                this.history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item fade-in';
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-info">
+                            <div><strong>${item.isBrowser ? '浏览器环境' : 'Node.js环境'}</strong> - ${item.executionTime.toFixed(2)}ms</div>
+                            <div class="history-time">${item.timestamp.toLocaleString()}</div>
+                        </div>
+                        <div class="history-action">
+                            <span class="env-status ${item.isBrowser ? 'browser' : 'node'}">
+                                ${item.isBrowser ? 'Browser' : 'Node.js'}
+                            </span>
+                        </div>
+                    `;
+
+                    container.appendChild(historyItem);
+                });
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('browserDetectorHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('browserDetectorHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved).map(item => ({
+                            ...item,
+                            timestamp: new Date(item.timestamp)
+                        }));
+                        this.updateHistoryDisplay();
+                        this.notification.success('历史记录已加载');
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+
+            clearHistory() {
+                this.history = [];
+                this.updateHistoryDisplay();
+                this.saveHistory();
+                this.notification.info('历史记录已清空');
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new BrowserDetector();
+        });
+    </script>
+</body>
+</html>

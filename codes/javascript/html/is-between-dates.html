@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日期范围检测工具 - isBetweenDates实战</title>
+    
+    <!-- 引入自定义插件 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: white;
+        }
+
+        .result-item.success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .result-item.error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .result-item.warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .result-item .date-info {
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .result-item .details-info {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .result-item .result-info {
+            font-weight: 600;
+        }
+
+        .result-item .result-info.true {
+            color: #48bb78;
+        }
+
+        .result-item .result-info.false {
+            color: #f56565;
+        }
+
+        .stats-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .template-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-item {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .template-item:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .template-item h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .template-item p {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .advanced-options h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .history-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-time {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .history-action {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .clear-history {
+            color: #f56565;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        .clear-history:hover {
+            color: #e53e3e;
+        }
+
+        .date-preview {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .date-preview.in-range {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .date-preview.out-range {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .date-preview.invalid {
+            border-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .date-analysis {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .date-analysis h4 {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .analysis-item {
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .analysis-value {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .date-range-visualizer {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .range-timeline {
+            position: relative;
+            height: 60px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .range-start {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #48bb78;
+            border-radius: 2px;
+        }
+
+        .range-end {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #f56565;
+            border-radius: 2px;
+        }
+
+        .test-date {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .test-date.in-range {
+            background: #48bb78;
+        }
+
+        .test-date.out-range {
+            background: #f56565;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .batch-input {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .batch-input h4 {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .batch-example {
+            background: #e2e8f0;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .date-input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .date-input-wrapper {
+            position: relative;
+        }
+
+        .date-input-wrapper label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .quick-date-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-date-btn {
+            background: #e2e8f0;
+            border: 1px solid #cbd5e0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-date-btn:hover {
+            background: #cbd5e0;
+            border-color: #a0aec0;
+        }
+
+        .quick-date-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 日期范围检测工具</h1>
+            <p>基于 isBetweenDates 函数的智能日期范围检测系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 输入面板 -->
+            <div class="panel">
+                <h2>📝 日期范围设置</h2>
+                
+                <div class="date-input-group">
+                    <div class="date-input-wrapper">
+                        <label for="start-date">开始日期:</label>
+                        <div id="start-date-picker"></div>
+                    </div>
+
+                    <div class="date-input-wrapper">
+                        <label for="end-date">结束日期:</label>
+                        <div id="end-date-picker"></div>
+                    </div>
+                </div>
+
+                <div class="quick-date-buttons">
+                    <button class="quick-date-btn" data-type="today">今天</button>
+                    <button class="quick-date-btn" data-type="yesterday">昨天</button>
+                    <button class="quick-date-btn" data-type="this-week">本周</button>
+                    <button class="quick-date-btn" data-type="last-week">上周</button>
+                    <button class="quick-date-btn" data-type="this-month">本月</button>
+                    <button class="quick-date-btn" data-type="last-month">上月</button>
+                    <button class="quick-date-btn" data-type="this-year">今年</button>
+                    <button class="quick-date-btn" data-type="last-year">去年</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="test-date">测试日期:</label>
+                    <div id="test-date-picker"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="batch-dates">批量日期测试:</label>
+                    <textarea id="batch-dates" rows="4" placeholder="每行一个日期，格式：YYYY-MM-DD HH:mm&#10;例如:&#10;2024-01-15 10:30&#10;2024-02-20 14:45&#10;2024-03-10 09:15"></textarea>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="check-btn">🔍 检测日期</button>
+                    <button class="btn btn-secondary" id="clear-btn">🗑️ 清空</button>
+                    <button class="btn btn-success" id="batch-check-btn">📋 批量检测</button>
+                    <button class="btn btn-warning" id="analyze-btn">🔬 深度分析</button>
+                </div>
+
+                <div class="advanced-options">
+                    <h3>⚙️ 高级选项</h3>
+                    <div id="advanced-options"></div>
+                </div>
+            </div>
+
+            <!-- 结果面板 -->
+            <div class="panel">
+                <h2>📊 检测结果</h2>
+                
+                <div class="controls">
+                    <button class="btn btn-warning" id="export-btn">📤 导出结果</button>
+                    <button class="btn btn-danger" id="clear-results-btn">🗑️ 清空结果</button>
+                </div>
+
+                <div id="date-preview" class="date-preview" style="display: none;">
+                    <div id="preview-content"></div>
+                </div>
+
+                <div id="result-display" class="result-display">
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📅</div>
+                        <div>设置日期范围并输入测试日期，然后点击检测按钮</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <h2>📈 检测统计</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-checks">0</div>
+                    <div class="stat-label">总检测次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="in-range-count">0</div>
+                    <div class="stat-label">范围内日期</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="out-range-count">0</div>
+                    <div class="stat-label">范围外日期</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="invalid-count">0</div>
+                    <div class="stat-label">无效日期</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模板面板 -->
+        <div class="template-panel">
+            <h2>📋 常用日期范围模板</h2>
+            <div class="template-grid">
+                <div class="template-item" data-template="business-hours">
+                    <h4>工作时间</h4>
+                    <p>9:00-18:00 工作日</p>
+                </div>
+                <div class="template-item" data-template="weekend">
+                    <h4>周末时间</h4>
+                    <p>周六周日全天</p>
+                </div>
+                <div class="template-item" data-template="holiday">
+                    <h4>节假日</h4>
+                    <p>春节、国庆等假期</p>
+                </div>
+                <div class="template-item" data-template="season">
+                    <h4>季节范围</h4>
+                    <p>春夏秋冬四季</p>
+                </div>
+                <div class="template-item" data-template="academic">
+                    <h4>学期时间</h4>
+                    <p>学校学期安排</p>
+                </div>
+                <div class="template-item" data-template="custom">
+                    <h4>自定义范围</h4>
+                    <p>用户自定义时间段</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录面板 -->
+        <div class="history-panel">
+            <h2>📚 检测历史</h2>
+            <div class="controls">
+                <button class="btn btn-secondary" id="load-history-btn">📥 加载历史</button>
+                <span class="clear-history" id="clear-history-btn">清空历史</span>
+            </div>
+            <div id="history-list" class="history-list">
+                <div style="text-align: center; color: #718096; padding: 20px;">
+                    暂无检测历史记录
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入自定义插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        // 核心 isBetweenDates 函数
+        const isBetweenDates = (dateStart, dateEnd, date) => {
+            if (dateStart instanceof Date && dateEnd instanceof Date && date instanceof Date) {
+                return date > dateStart && date < dateEnd;
+            }
+            return false;
+        };
+
+        // 日期范围检测工具类
+        class DateRangeDetector {
+            constructor() {
+                this.notification = new Notification();
+                this.results = [];
+                this.history = [];
+                this.stats = {
+                    totalChecks: 0,
+                    inRangeCount: 0,
+                    outRangeCount: 0,
+                    invalidCount: 0
+                };
+                
+                this.advancedOptions = {
+                    showDetailedInfo: true,
+                    includeTimeAnalysis: true,
+                    validateOnInput: false,
+                    autoSaveHistory: true,
+                    showDatePreview: true,
+                    includeRangeVisualization: true,
+                    showDurationCalculation: true,
+                    validateDateOrder: true
+                };
+                
+                this.datePickers = {};
+                this.init();
+            }
+
+            init() {
+                this.setupDatePickers();
+                this.setupControls();
+                this.setupEventListeners();
+                this.loadHistory();
+                this.updateStats();
+            }
+
+            setupDatePickers() {
+                // 初始化开始日期选择器
+                this.datePickers.startDate = new DateTimePicker({
+                    container: document.getElementById('start-date-picker'),
+                    placeholder: '选择开始日期时间',
+                    onChange: (date) => {
+                        this.onDateChange('start', date);
+                    }
+                });
+
+                // 初始化结束日期选择器
+                this.datePickers.endDate = new DateTimePicker({
+                    container: document.getElementById('end-date-picker'),
+                    placeholder: '选择结束日期时间',
+                    onChange: (date) => {
+                        this.onDateChange('end', date);
+                    }
+                });
+
+                // 初始化测试日期选择器
+                this.datePickers.testDate = new DateTimePicker({
+                    container: document.getElementById('test-date-picker'),
+                    placeholder: '选择测试日期时间',
+                    onChange: (date) => {
+                        this.onDateChange('test', date);
+                    }
+                });
+            }
+
+            setupControls() {
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '显示详细信息', checked: true },
+                                { label: '包含时间分析', checked: true },
+                                { label: '输入时实时验证', checked: false },
+                                { label: '自动保存历史', checked: true },
+                                { label: '显示日期预览', checked: true },
+                                { label: '包含范围可视化', checked: true },
+                                { label: '显示时长计算', checked: true },
+                                { label: '验证日期顺序', checked: true }
+                            ],
+                            onChange: (values) => {
+                                this.advancedOptions.showDetailedInfo = values[0];
+                                this.advancedOptions.includeTimeAnalysis = values[1];
+                                this.advancedOptions.validateOnInput = values[2];
+                                this.advancedOptions.autoSaveHistory = values[3];
+                                this.advancedOptions.showDatePreview = values[4];
+                                this.advancedOptions.includeRangeVisualization = values[5];
+                                this.advancedOptions.showDurationCalculation = values[6];
+                                this.advancedOptions.validateDateOrder = values[7];
+                                
+                                this.updateAllCheckboxState();
+                            }
+                        });
+                        
+                        container.appendChild(this.advancedOptionsGroup.container);
+                        this.updateAllCheckboxState();
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                }
+            }
+
+            setupEventListeners() {
+                // 检测按钮
+                document.getElementById('check-btn').addEventListener('click', () => {
+                    this.checkDate();
+                });
+
+                // 批量检测按钮
+                document.getElementById('batch-check-btn').addEventListener('click', () => {
+                    this.checkBatchDates();
+                });
+
+                // 深度分析按钮
+                document.getElementById('analyze-btn').addEventListener('click', () => {
+                    this.analyzeDates();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearInput();
+                });
+
+                // 导出按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportResults();
+                });
+
+                // 清空结果按钮
+                document.getElementById('clear-results-btn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+
+                // 加载历史按钮
+                document.getElementById('load-history-btn').addEventListener('click', () => {
+                    this.loadHistory();
+                });
+
+                // 清空历史按钮
+                document.getElementById('clear-history-btn').addEventListener('click', () => {
+                    this.clearHistory();
+                });
+
+                // 模板点击
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const template = item.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+
+                // 快速日期按钮
+                document.querySelectorAll('.quick-date-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const type = btn.dataset.type;
+                        this.setQuickDate(type);
+                    });
+                });
+            }
+
+            onDateChange(type, date) {
+                if (this.advancedOptions.validateOnInput) {
+                    this.validateDateOrder();
+                }
+            }
+
+            checkDate() {
+                const startDate = this.datePickers.startDate.getValue();
+                const endDate = this.datePickers.endDate.getValue();
+                const testDate = this.datePickers.testDate.getValue();
+                
+                if (!startDate || !endDate || !testDate) {
+                    this.notification.warning('请选择完整的日期范围和测试日期');
+                    return;
+                }
+
+                if (this.advancedOptions.validateDateOrder && startDate >= endDate) {
+                    this.notification.error('开始日期必须早于结束日期');
+                    return;
+                }
+
+                const result = this.checkDateRange(startDate, endDate, testDate);
+                this.results.unshift(result);
+                this.updateResultsDisplay();
+                this.updateStats();
+                
+                if (this.advancedOptions.autoSaveHistory) {
+                    this.saveToHistory(result);
+                }
+
+                this.notification.success(`日期检测完成: ${result.isInRange ? '✅ 在范围内' : '❌ 不在范围内'}`);
+            }
+
+            checkBatchDates() {
+                const startDate = this.datePickers.startDate.getValue();
+                const endDate = this.datePickers.endDate.getValue();
+                const batchInput = document.getElementById('batch-dates').value.trim();
+                
+                if (!startDate || !endDate) {
+                    this.notification.warning('请先设置日期范围');
+                    return;
+                }
+
+                if (!batchInput) {
+                    this.notification.warning('请输入要批量检测的日期');
+                    return;
+                }
+
+                const lines = batchInput.split('\n').filter(line => line.trim() !== '');
+                const dates = [];
+                
+                lines.forEach((line, index) => {
+                    const dateStr = line.trim();
+                    if (dateStr) {
+                        const date = this.parseDate(dateStr);
+                        dates.push({ date: date, original: dateStr, lineNumber: index + 1 });
+                    }
+                });
+                
+                if (dates.length === 0) {
+                    this.notification.warning('没有找到有效的日期');
+                    return;
+                }
+
+                this.results = [];
+                dates.forEach(dateInfo => {
+                    if (dateInfo.date) {
+                        const result = this.checkDateRange(startDate, endDate, dateInfo.date, dateInfo.lineNumber);
+                        this.results.push(result);
+                    } else {
+                        this.results.push({
+                            startDate: startDate,
+                            endDate: endDate,
+                            testDate: null,
+                            originalInput: dateInfo.original,
+                            isInRange: false,
+                            isValid: false,
+                            lineNumber: dateInfo.lineNumber,
+                            timestamp: new Date(),
+                            details: { error: '无效日期格式' }
+                        });
+                    }
+                });
+
+                this.updateResultsDisplay();
+                this.updateStats();
+                
+                if (this.advancedOptions.autoSaveHistory) {
+                    dates.forEach(dateInfo => {
+                        if (dateInfo.date) {
+                            const result = this.checkDateRange(startDate, endDate, dateInfo.date, dateInfo.lineNumber);
+                            this.saveToHistory(result);
+                        }
+                    });
+                }
+
+                this.notification.success(`批量检测完成: 共检测 ${dates.length} 个日期`);
+            }
+
+            checkDateRange(startDate, endDate, testDate, lineNumber = null) {
+                const isValid = testDate instanceof Date && !isNaN(testDate.getTime());
+                const isInRange = isValid ? isBetweenDates(startDate, endDate, testDate) : false;
+                
+                return {
+                    startDate: startDate,
+                    endDate: endDate,
+                    testDate: testDate,
+                    isInRange: isInRange,
+                    isValid: isValid,
+                    lineNumber: lineNumber,
+                    timestamp: new Date(),
+                    details: this.getDateRangeDetails(startDate, endDate, testDate, isInRange, isValid)
+                };
+            }
+
+            getDateRangeDetails(startDate, endDate, testDate, isInRange, isValid) {
+                const details = {
+                    startDateFormatted: this.formatDate(startDate),
+                    endDateFormatted: this.formatDate(endDate),
+                    testDateFormatted: this.formatDate(testDate),
+                    rangeDuration: this.calculateDuration(startDate, endDate),
+                    daysFromStart: isValid ? this.calculateDaysDifference(startDate, testDate) : null,
+                    daysFromEnd: isValid ? this.calculateDaysDifference(testDate, endDate) : null
+                };
+
+                if (this.advancedOptions.includeTimeAnalysis) {
+                    details.timeAnalysis = this.getTimeAnalysis(startDate, endDate, testDate);
+                }
+
+                if (this.advancedOptions.showDurationCalculation) {
+                    details.durationBreakdown = this.getDurationBreakdown(startDate, endDate, testDate);
+                }
+
+                return details;
+            }
+
+            getTimeAnalysis(startDate, endDate, testDate) {
+                if (!testDate || !(testDate instanceof Date)) return null;
+
+                const startHour = startDate.getHours();
+                const endHour = endDate.getHours();
+                const testHour = testDate.getHours();
+
+                return {
+                    startTime: `${startHour}:${String(startDate.getMinutes()).padStart(2, '0')}`,
+                    endTime: `${endHour}:${String(endDate.getMinutes()).padStart(2, '0')}`,
+                    testTime: `${testHour}:${String(testDate.getMinutes()).padStart(2, '0')}`,
+                    isBusinessHours: testHour >= 9 && testHour <= 18,
+                    isWeekend: testDate.getDay() === 0 || testDate.getDay() === 6
+                };
+            }
+
+            getDurationBreakdown(startDate, endDate, testDate) {
+                const totalDuration = this.calculateDuration(startDate, endDate);
+                const testPosition = testDate ? this.calculateDaysDifference(startDate, testDate) : null;
+                
+                return {
+                    totalDays: totalDuration.days,
+                    totalHours: totalDuration.hours,
+                    totalMinutes: totalDuration.minutes,
+                    testPositionPercent: testPosition ? (testPosition / totalDuration.days * 100).toFixed(2) : null,
+                    remainingDays: testPosition ? totalDuration.days - testPosition : null
+                };
+            }
+
+            analyzeDates() {
+                const startDate = this.datePickers.startDate.getValue();
+                const endDate = this.datePickers.endDate.getValue();
+                const testDate = this.datePickers.testDate.getValue();
+                
+                if (!startDate || !endDate || !testDate) {
+                    this.notification.warning('请选择完整的日期范围和测试日期');
+                    return;
+                }
+
+                const result = this.checkDateRange(startDate, endDate, testDate);
+                this.showDateAnalysis(result);
+            }
+
+            showDateAnalysis(result) {
+                const previewContainer = document.getElementById('date-preview');
+                const previewContent = document.getElementById('preview-content');
+                
+                let statusClass = 'out-range';
+                let statusIcon = '❌';
+                
+                if (!result.isValid) {
+                    statusClass = 'invalid';
+                    statusIcon = '⚠️';
+                } else if (result.isInRange) {
+                    statusClass = 'in-range';
+                    statusIcon = '✅';
+                }
+
+                previewContainer.className = `date-preview ${statusClass}`;
+                previewContainer.style.display = 'block';
+
+                let analysisHtml = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>检测结果:</strong> ${statusIcon} ${result.isInRange ? '在范围内' : result.isValid ? '不在范围内' : '无效日期'}
+                    </div>
+                `;
+
+                if (this.advancedOptions.showDetailedInfo) {
+                    analysisHtml += `
+                        <div class="date-analysis">
+                            <h4>🔬 日期深度分析</h4>
+                            <div class="analysis-grid">
+                                <div class="analysis-item">
+                                    <div class="analysis-label">开始日期</div>
+                                    <div class="analysis-value">${result.details.startDateFormatted}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">结束日期</div>
+                                    <div class="analysis-value">${result.details.endDateFormatted}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">测试日期</div>
+                                    <div class="analysis-value">${result.details.testDateFormatted}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">范围时长</div>
+                                    <div class="analysis-value">${result.details.rangeDuration.days} 天 ${result.details.rangeDuration.hours} 小时</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (this.advancedOptions.includeTimeAnalysis && result.details.timeAnalysis) {
+                        analysisHtml += `
+                            <div class="date-analysis" style="margin-top: 20px;">
+                                <h4>⏰ 时间分析</h4>
+                                <div class="analysis-grid">
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">开始时间</div>
+                                        <div class="analysis-value">${result.details.timeAnalysis.startTime}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">结束时间</div>
+                                        <div class="analysis-value">${result.details.timeAnalysis.endTime}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">测试时间</div>
+                                        <div class="analysis-value">${result.details.timeAnalysis.testTime}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">是否工作时间</div>
+                                        <div class="analysis-value">${result.details.timeAnalysis.isBusinessHours ? '是' : '否'}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">是否周末</div>
+                                        <div class="analysis-value">${result.details.timeAnalysis.isWeekend ? '是' : '否'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (this.advancedOptions.showDurationCalculation && result.details.durationBreakdown) {
+                        analysisHtml += `
+                            <div class="date-analysis" style="margin-top: 20px;">
+                                <h4>📊 时长计算</h4>
+                                <div class="analysis-grid">
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">总天数</div>
+                                        <div class="analysis-value">${result.details.durationBreakdown.totalDays} 天</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">总小时数</div>
+                                        <div class="analysis-value">${result.details.durationBreakdown.totalHours} 小时</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">测试位置百分比</div>
+                                        <div class="analysis-value">${result.details.durationBreakdown.testPositionPercent}%</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">剩余天数</div>
+                                        <div class="analysis-value">${result.details.durationBreakdown.remainingDays} 天</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                previewContent.innerHTML = analysisHtml;
+            }
+
+            updateResultsDisplay() {
+                const container = document.getElementById('result-display');
+                container.innerHTML = '';
+
+                this.results.forEach((result, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = `result-item ${result.isInRange ? 'success' : 'error'} fade-in`;
+                    
+                    let detailsHtml = '';
+                    if (this.advancedOptions.showDetailedInfo) {
+                        detailsHtml = `
+                            <div class="details-info">
+                                <strong>范围:</strong> ${result.details.startDateFormatted} 至 ${result.details.endDateFormatted}<br>
+                                <strong>测试日期:</strong> ${result.details.testDateFormatted}<br>
+                                <strong>范围时长:</strong> ${result.details.rangeDuration.days} 天 ${result.details.rangeDuration.hours} 小时<br>
+                                <strong>检测时间:</strong> ${result.timestamp.toLocaleString()}
+                                ${result.lineNumber ? `<br><strong>行号:</strong> ${result.lineNumber}` : ''}
+                            </div>
+                        `;
+                    }
+
+                    resultItem.innerHTML = `
+                        <div class="date-info">
+                            <strong>测试日期:</strong> ${result.details.testDateFormatted || '无效日期'}<br>
+                            <strong>日期范围:</strong> ${result.details.startDateFormatted} - ${result.details.endDateFormatted}
+                        </div>
+                        ${detailsHtml}
+                        <div class="result-info ${result.isInRange}">
+                            ${result.isInRange ? '✅ 在范围内' : result.isValid ? '❌ 不在范围内' : '⚠️ 无效日期'}
+                        </div>
+                    `;
+
+                    container.appendChild(resultItem);
+                });
+            }
+
+            updateStats() {
+                this.stats.totalChecks = this.results.length;
+                this.stats.inRangeCount = this.results.filter(r => r.isInRange).length;
+                this.stats.outRangeCount = this.results.filter(r => !r.isInRange && r.isValid).length;
+                this.stats.invalidCount = this.results.filter(r => !r.isValid).length;
+
+                document.getElementById('total-checks').textContent = this.stats.totalChecks;
+                document.getElementById('in-range-count').textContent = this.stats.inRangeCount;
+                document.getElementById('out-range-count').textContent = this.stats.outRangeCount;
+                document.getElementById('invalid-count').textContent = this.stats.invalidCount;
+            }
+
+            clearInput() {
+                this.datePickers.startDate.setValue(null);
+                this.datePickers.endDate.setValue(null);
+                this.datePickers.testDate.setValue(null);
+                document.getElementById('batch-dates').value = '';
+                document.getElementById('date-preview').style.display = 'none';
+            }
+
+            clearResults() {
+                this.results = [];
+                this.updateResultsDisplay();
+                this.updateStats();
+                document.getElementById('date-preview').style.display = 'none';
+                this.notification.info('结果已清空');
+            }
+
+            setQuickDate(type) {
+                const now = new Date();
+                let startDate, endDate;
+
+                switch (type) {
+                    case 'today':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0);
+                        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59);
+                        break;
+                    case 'yesterday':
+                        const yesterday = new Date(now);
+                        yesterday.setDate(now.getDate() - 1);
+                        startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0);
+                        endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59);
+                        break;
+                    case 'this-week':
+                        const weekStart = new Date(now);
+                        weekStart.setDate(now.getDate() - now.getDay());
+                        const weekEnd = new Date(weekStart);
+                        weekEnd.setDate(weekStart.getDate() + 6);
+                        startDate = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate(), 0, 0);
+                        endDate = new Date(weekEnd.getFullYear(), weekEnd.getMonth(), weekEnd.getDate(), 23, 59);
+                        break;
+                    case 'last-week':
+                        const lastWeekStart = new Date(now);
+                        lastWeekStart.setDate(now.getDate() - now.getDay() - 7);
+                        const lastWeekEnd = new Date(lastWeekStart);
+                        lastWeekEnd.setDate(lastWeekStart.getDate() + 6);
+                        startDate = new Date(lastWeekStart.getFullYear(), lastWeekStart.getMonth(), lastWeekStart.getDate(), 0, 0);
+                        endDate = new Date(lastWeekEnd.getFullYear(), lastWeekEnd.getMonth(), lastWeekEnd.getDate(), 23, 59);
+                        break;
+                    case 'this-month':
+                        startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0);
+                        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59);
+                        break;
+                    case 'last-month':
+                        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0);
+                        endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59);
+                        break;
+                    case 'this-year':
+                        startDate = new Date(now.getFullYear(), 0, 1, 0, 0);
+                        endDate = new Date(now.getFullYear(), 11, 31, 23, 59);
+                        break;
+                    case 'last-year':
+                        startDate = new Date(now.getFullYear() - 1, 0, 1, 0, 0);
+                        endDate = new Date(now.getFullYear() - 1, 11, 31, 23, 59);
+                        break;
+                }
+
+                if (startDate && endDate) {
+                    this.datePickers.startDate.setValue(startDate);
+                    this.datePickers.endDate.setValue(endDate);
+                    this.notification.success(`已设置${type}日期范围`);
+                }
+            }
+
+            loadTemplate(template) {
+                let startDate, endDate;
+                
+                switch (template) {
+                    case 'business-hours':
+                        const today = new Date();
+                        startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 0);
+                        endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 18, 0);
+                        break;
+                    case 'weekend':
+                        const now = new Date();
+                        const saturday = new Date(now);
+                        saturday.setDate(now.getDate() + (6 - now.getDay()));
+                        const sunday = new Date(saturday);
+                        sunday.setDate(saturday.getDate() + 1);
+                        startDate = new Date(saturday.getFullYear(), saturday.getMonth(), saturday.getDate(), 0, 0);
+                        endDate = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate(), 23, 59);
+                        break;
+                    case 'holiday':
+                        const currentYear = new Date().getFullYear();
+                        startDate = new Date(currentYear, 0, 1, 0, 0); // 春节
+                        endDate = new Date(currentYear, 0, 7, 23, 59);
+                        break;
+                    case 'season':
+                        const year = new Date().getFullYear();
+                        startDate = new Date(year, 2, 21, 0, 0); // 春季开始
+                        endDate = new Date(year, 5, 20, 23, 59); // 春季结束
+                        break;
+                    case 'academic':
+                        const academicYear = new Date().getFullYear();
+                        startDate = new Date(academicYear, 8, 1, 0, 0); // 9月1日
+                        endDate = new Date(academicYear + 1, 5, 30, 23, 59); // 次年6月30日
+                        break;
+                    case 'custom':
+                        startDate = new Date();
+                        endDate = new Date();
+                        endDate.setDate(startDate.getDate() + 30); // 30天后
+                        break;
+                }
+
+                if (startDate && endDate) {
+                    this.datePickers.startDate.setValue(startDate);
+                    this.datePickers.endDate.setValue(endDate);
+                    this.notification.success(`已加载 ${template} 模板`);
+                }
+            }
+
+            exportResults() {
+                if (this.results.length === 0) {
+                    this.notification.warning('没有可导出的结果');
+                    return;
+                }
+
+                const exportData = {
+                    timestamp: new Date().toISOString(),
+                    totalResults: this.results.length,
+                    results: this.results,
+                    stats: this.stats
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `date-range-detection-results-${new Date().toISOString().slice(0, 19)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.notification.success('结果已导出');
+            }
+
+            saveToHistory(result) {
+                const historyItem = {
+                    ...result,
+                    action: '日期范围检测'
+                };
+                
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                
+                this.updateHistoryDisplay();
+                this.saveHistory();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('history-list');
+                
+                if (this.history.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">暂无检测历史记录</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                this.history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item fade-in';
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-info">
+                            <div><strong>${item.isInRange ? '在范围内' : '不在范围内'}</strong> - ${item.details.testDateFormatted}</div>
+                            <div class="history-time">${item.timestamp.toLocaleString()}</div>
+                        </div>
+                        <div class="history-action">${item.isInRange ? '✅ 范围内' : '❌ 范围外'}</div>
+                    `;
+
+                    container.appendChild(historyItem);
+                });
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('dateRangeDetectorHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('dateRangeDetectorHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved).map(item => ({
+                            ...item,
+                            timestamp: new Date(item.timestamp),
+                            startDate: new Date(item.startDate),
+                            endDate: new Date(item.endDate),
+                            testDate: item.testDate ? new Date(item.testDate) : null
+                        }));
+                        this.updateHistoryDisplay();
+                        this.notification.success('历史记录已加载');
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+
+            clearHistory() {
+                this.history = [];
+                this.updateHistoryDisplay();
+                this.saveHistory();
+                this.notification.info('历史记录已清空');
+            }
+
+            validateDateOrder() {
+                const startDate = this.datePickers.startDate.getValue();
+                const endDate = this.datePickers.endDate.getValue();
+                
+                if (startDate && endDate && startDate >= endDate) {
+                    this.notification.warning('开始日期应该早于结束日期');
+                }
+            }
+
+            parseDate(dateStr) {
+                if (!dateStr) return null;
+                
+                // 尝试多种日期格式
+                const formats = [
+                    'YYYY-MM-DD HH:mm',
+                    'YYYY-MM-DDTHH:mm',
+                    'YYYY-MM-DD',
+                    'MM/DD/YYYY HH:mm',
+                    'DD/MM/YYYY HH:mm'
+                ];
+                
+                for (let format of formats) {
+                    const date = this.parseDateByFormat(dateStr, format);
+                    if (date && !isNaN(date.getTime())) {
+                        return date;
+                    }
+                }
+                
+                return null;
+            }
+
+            parseDateByFormat(dateStr, format) {
+                try {
+                    if (format === 'YYYY-MM-DD HH:mm') {
+                        return new Date(dateStr.replace(' ', 'T'));
+                    } else if (format === 'YYYY-MM-DDTHH:mm') {
+                        return new Date(dateStr);
+                    } else if (format === 'YYYY-MM-DD') {
+                        return new Date(dateStr + 'T00:00');
+                    } else if (format === 'MM/DD/YYYY HH:mm') {
+                        const [datePart, timePart] = dateStr.split(' ');
+                        const [month, day, year] = datePart.split('/');
+                        return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart || '00:00'}`);
+                    } else if (format === 'DD/MM/YYYY HH:mm') {
+                        const [datePart, timePart] = dateStr.split(' ');
+                        const [day, month, year] = datePart.split('/');
+                        return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart || '00:00'}`);
+                    }
+                } catch (error) {
+                    return null;
+                }
+                return null;
+            }
+
+            formatDate(date) {
+                if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+                    return '无效日期';
+                }
+                
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hour = String(date.getHours()).padStart(2, '0');
+                const minute = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hour}:${minute}`;
+            }
+
+            calculateDuration(startDate, endDate) {
+                const diffMs = endDate.getTime() - startDate.getTime();
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                return {
+                    days: diffDays,
+                    hours: diffHours,
+                    minutes: diffMinutes,
+                    totalMs: diffMs
+                };
+            }
+
+            calculateDaysDifference(date1, date2) {
+                const diffMs = date2.getTime() - date1.getTime();
+                return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            }
+
+            updateAllCheckboxState() {
+                if (this.advancedOptionsGroup && this.advancedOptionsGroup.checkboxes) {
+                    const allChecked = this.advancedOptionsGroup.checkboxes.every(cb => cb.isChecked());
+                    const noneChecked = this.advancedOptionsGroup.checkboxes.every(cb => !cb.isChecked());
+                    
+                    if (this.advancedOptionsGroup.allCheckbox) {
+                        this.advancedOptionsGroup.allCheckbox.checked = allChecked;
+                        const allCheckboxInput = this.advancedOptionsGroup.allCheckbox.element.querySelector('.checkbox-input');
+                        if (allCheckboxInput) {
+                            allCheckboxInput.checked = allChecked;
+                            allCheckboxInput.indeterminate = !allChecked && !noneChecked;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new DateRangeDetector();
+        });
+    </script>
+</body>
+
+</html>

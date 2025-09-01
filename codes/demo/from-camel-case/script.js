@@ -16,7 +16,7 @@ let conversionStats = {
 const elements = {
     inputData: document.getElementById('inputData'),
     outputData: document.getElementById('outputData'),
-    separatorSelect: document.getElementById('separatorSelect'),
+    separatorSelect: null,
     convertBtn: document.getElementById('convertBtn'),
     loadSampleBtn: document.getElementById('loadSampleBtn'),
     clearInputBtn: document.getElementById('clearInputBtn'),
@@ -205,10 +205,15 @@ function handleConversion() {
         showNotification('输入的JSON格式不正确，请检查语法', 'error');
         return;
     }
+    const separator = elements.separatorSelect.getValue();
+    if(!separator.trim()) {
+        showNotification('请选择分隔符', 'error');
+        return;
+    }
     
     try {
         const inputObject = JSON.parse(inputText);
-        const separator = elements.separatorSelect.value;
+        
         const convertedObject = convertObjectKeys(inputObject, separator);
         const formattedOutput = formatJSON(convertedObject);
         
@@ -229,6 +234,7 @@ function handleConversion() {
 function loadSampleData() {
     const formattedSample = formatJSON(sampleData);
     elements.inputData.value = formattedSample;
+    elements.convertBtn.disabled = false;
     showNotification('示例数据已加载');
 }
 
@@ -332,12 +338,6 @@ function initializeEventListeners() {
     elements.downloadBtn.addEventListener('click', downloadResult);
     
     elements.inputData.addEventListener('input', handleInputChange);
-    elements.separatorSelect.addEventListener('change', () => {
-        if (elements.inputData.value.trim()) {
-            handleConversion();
-        }
-    });
-    
     document.addEventListener('keydown', handleKeyboard);
     
     // 初始状态
@@ -346,9 +346,27 @@ function initializeEventListeners() {
     elements.convertBtn.disabled = true;
 }
 
+function initSeparatorSelect() {
+    elements.separatorSelect = new Select({
+        container: '#separatorSelect',
+        options: [
+            { value: '_', label: '下划线 (_)' },
+            { value: '-', label: '连字符 (-)' },
+            { value: '.', label: '点号 (.)' }
+        ],
+        onChange: (value) => {
+            elements.separatorSelect.value = value;
+            if (elements.inputData.value.trim()) {
+                handleConversion();
+            }
+        }
+    });
+}
+
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
+    initSeparatorSelect();
     updateStats();
     
     // 显示欢迎消息
