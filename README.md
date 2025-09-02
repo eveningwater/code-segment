@@ -377,7 +377,7 @@
 - [日期比较（范围之间）-2022-09-20](codes/javascript/is-between-dates.md)
 - [判断是否是布尔值-2022-09-21](codes/javascript/is-boolean.md)
 - [判断是否是浏览器环境-2022-09-22](codes/javascript/is-browser.md)
-- [检查元素是被包含（无论顺序）-2022-09-24](codes/javascript/isContainedIn.md)
+- [检查元素是被包含（无论顺序）-2022-09-24](codes/javascript/is-contained-in.md)
 - [是否可用日期-2022-09-25](codes/javascript/isDateValid.md)
 - [深度冻结对象-2022-09-26](codes/javascript/isDeepFrozen.md)
 - [检查两个对象是否相交（没有共同值）-2022-09-27](codes/javascript/isDisjoint.md)
