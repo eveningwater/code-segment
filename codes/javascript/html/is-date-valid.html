@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日期验证与分析工具 - isDateValid实战</title>
+    
+    <!-- 引入自定义插件 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/date-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input:not(.input-number-input),
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        
+
+        .input-group input:not(.input-number-input):focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+        }
+
+        .btn-info {
+            background: #38b2ac;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: white;
+        }
+
+        .result-item.success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .result-item.error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .result-item.warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .result-item .date-info {
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .result-item .details-info {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .result-item .result-info {
+            font-weight: 600;
+        }
+
+        .result-item .result-info.true {
+            color: #48bb78;
+        }
+
+        .result-item .result-info.false {
+            color: #f56565;
+        }
+
+        .stats-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .date-visualization {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .date-element {
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .date-element:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .date-element.valid {
+            background: #48bb78;
+        }
+
+        .date-element.invalid {
+            background: #f56565;
+        }
+
+        .date-element.warning {
+            background: #ed8936;
+        }
+
+        .date-analysis {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .date-analysis h4 {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .analysis-item {
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .analysis-value {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .template-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-item {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .template-item:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .template-item h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .template-item p {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .advanced-options h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .history-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-time {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .history-action {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .clear-history {
+            color: #f56565;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        .clear-history:hover {
+            color: #e53e3e;
+        }
+
+        .input-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-method {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .input-method:hover {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .input-method.active {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-method h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .input-method p {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .date-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .date-example {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .date-example:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .date-example.valid {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .date-example.invalid {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 日期验证与分析工具</h1>
+            <p>基于 isDateValid 函数的强大日期验证系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 输入面板 -->
+            <div class="panel">
+                <h2>📝 日期输入与验证</h2>
+                
+                <!-- 输入方式选择 -->
+                <div class="input-methods">
+                    <div class="input-method active" data-method="text">
+                        <h4>✏️ 文本输入</h4>
+                        <p>输入日期字符串</p>
+                    </div>
+                    <div class="input-method" data-method="components">
+                        <h4>🔧 组件输入</h4>
+                        <p>分别输入年月日</p>
+                    </div>
+                    <div class="input-method" data-method="examples">
+                        <h4>🎯 快速示例</h4>
+                        <p>选择预设日期示例</p>
+                    </div>
+                </div>
+
+                <!-- 文本输入 -->
+                <div class="input-group" id="text-input-group">
+                    <label for="date-input">日期输入:</label>
+                    <input type="text" id="date-input" placeholder="输入日期，如: 2023-12-25, December 25, 2023, 2023/12/25">
+                </div>
+
+                <!-- 组件输入 -->
+                <div class="input-group" id="components-input-group" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label for="year-input">年份:</label>
+                            <div id="year-input"></div>
+                        </div>
+                        <div>
+                            <label for="month-input">月份:</label>
+                            <div id="month-input"></div>
+                        </div>
+                        <div>
+                            <label for="day-input">日期:</label>
+                            <div id="day-input"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速示例 -->
+                <div class="input-group" id="examples-input-group" style="display: none;">
+                    <label>快速选择示例:</label>
+                    <div class="date-examples">
+                        <div class="date-example valid" data-date="2023-12-25">标准格式</div>
+                        <div class="date-example valid" data-date="December 25, 2023">英文格式</div>
+                        <div class="date-example valid" data-date="2023/12/25">斜杠格式</div>
+                        <div class="date-example invalid" data-date="2023-13-01">无效月份</div>
+                        <div class="date-example invalid" data-date="2023-02-30">无效日期</div>
+                        <div class="date-example invalid" data-date="invalid date">无效字符串</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="validate-btn">🔍 验证日期</button>
+                    <button class="btn btn-success" id="analyze-btn">📊 详细分析</button>
+                    <button class="btn btn-info" id="visualize-btn">👁️ 可视化显示</button>
+                    <button class="btn btn-warning" id="export-btn">📤 导出结果</button>
+                    <button class="btn btn-secondary" id="clear-btn">🗑️ 清空</button>
+                </div>
+
+                <div class="advanced-options">
+                    <h3>⚙️ 高级选项</h3>
+                    <div id="advanced-options"></div>
+                </div>
+            </div>
+
+            <!-- 结果面板 -->
+            <div class="panel">
+                <h2>📊 验证结果</h2>
+                
+                <div class="controls">
+                    <button class="btn btn-danger" id="clear-results-btn">🗑️ 清空结果</button>
+                    <button class="btn btn-info" id="copy-results-btn">📋 复制结果</button>
+                </div>
+
+                <div id="date-visualization" class="date-visualization" style="display: none;">
+                    <!-- 日期可视化将在这里显示 -->
+                </div>
+
+                <div id="result-display" class="result-display">
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📅</div>
+                        <div>输入日期，然后点击验证按钮</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <h2>📈 验证统计</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-validations">0</div>
+                    <div class="stat-label">总验证次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="valid-count">0</div>
+                    <div class="stat-label">有效日期</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="invalid-count">0</div>
+                    <div class="stat-label">无效日期</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="success-rate">0%</div>
+                    <div class="stat-label">验证成功率</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="avg-execution-time">0ms</div>
+                    <div class="stat-label">平均执行时间</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="unique-formats">0</div>
+                    <div class="stat-label">不同格式数</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模板面板 -->
+        <div class="template-panel">
+            <h2>📋 常用日期模板</h2>
+            <div class="template-grid">
+                <div class="template-item" data-template="iso-format">
+                    <h4>ISO格式</h4>
+                    <p>标准ISO 8601日期格式</p>
+                </div>
+                <div class="template-item" data-template="us-format">
+                    <h4>美式格式</h4>
+                    <p>MM/DD/YYYY格式</p>
+                </div>
+                <div class="template-item" data-template="european-format">
+                    <h4>欧式格式</h4>
+                    <p>DD/MM/YYYY格式</p>
+                </div>
+                <div class="template-item" data-template="natural-language">
+                    <h4>自然语言</h4>
+                    <p>英文自然语言日期</p>
+                </div>
+                <div class="template-item" data-template="timestamp">
+                    <h4>时间戳</h4>
+                    <p>Unix时间戳格式</p>
+                </div>
+                <div class="template-item" data-template="edge-cases">
+                    <h4>边界情况</h4>
+                    <p>闰年、边界日期等</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录面板 -->
+        <div class="history-panel">
+            <h2>📚 验证历史</h2>
+            <div class="controls">
+                <button class="btn btn-secondary" id="load-history-btn">📥 加载历史</button>
+                <span class="clear-history" id="clear-history-btn">清空历史</span>
+            </div>
+            <div id="history-list" class="history-list">
+                <div style="text-align: center; color: #718096; padding: 20px;">
+                    暂无验证历史记录
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入自定义插件 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/date-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // 核心 isDateValid 函数
+        const isDateValid = (...val) => !Number.isNaN(new Date(...val).valueOf());
+
+        // 日期验证工具类
+        class DateValidator {
+            constructor() {
+                this.notification = new Notification();
+                this.results = [];
+                this.history = [];
+                this.currentInputMethod = 'text';
+                this.stats = {
+                    totalValidations: 0,
+                    validCount: 0,
+                    invalidCount: 0,
+                    successRate: 0,
+                    avgExecutionTime: 0,
+                    uniqueFormats: 0
+                };
+                
+                this.advancedOptions = {
+                    showDetailedInfo: true,
+                    includeDateAnalysis: true,
+                    showVisualization: true,
+                    autoSaveHistory: true,
+                    showCodeSnippets: true,
+                    strictValidation: false
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.setupInputNumberPlugins();
+                this.setupEventListeners();
+                this.loadHistory();
+                this.updateStats();
+                this.performInitialDemo();
+            }
+
+            setupControls() {
+                // 高级选项复选框
+                try {
+                    const container = document.querySelector('#advanced-options');
+                    if (container) {
+                        this.advancedOptionsGroup = Checkbox.createCheckboxGroup({
+                            items: [
+                                { label: '显示详细信息', checked: true },
+                                { label: '包含日期分析', checked: true },
+                                { label: '显示可视化', checked: true },
+                                { label: '自动保存历史', checked: true },
+                                { label: '显示代码片段', checked: true },
+                                { label: '严格验证模式', checked: false }
+                            ],
+                            onChange: (values) => {
+                                if (values && values.length >= 6) {
+                                    this.advancedOptions.showDetailedInfo = values[0];
+                                    this.advancedOptions.includeDateAnalysis = values[1];
+                                    this.advancedOptions.showVisualization = values[2];
+                                    this.advancedOptions.autoSaveHistory = values[3];
+                                    this.advancedOptions.showCodeSnippets = values[4];
+                                    this.advancedOptions.strictValidation = values[5];
+                                }
+                            }
+                        });
+                        
+                        container.appendChild(this.advancedOptionsGroup.container);
+                        
+                        // 添加样式优化
+                        const style = document.createElement('style');
+                        style.textContent = `
+                            .checkbox-group {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 8px;
+                            }
+                            .checkbox-group .ew-checkbox {
+                                margin-bottom: 5px;
+                            }
+                            .checkbox-group .ew-checkbox:first-child {
+                                border-bottom: 1px solid #e2e8f0;
+                                padding-bottom: 8px;
+                                margin-bottom: 10px;
+                            }
+                            .checkbox-group .ew-checkbox:first-child .checkbox-label {
+                                font-weight: 600;
+                                color: #4a5568;
+                            }
+                        `;
+                        container.appendChild(style);
+                    }
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用默认选项');
+                    this.createFallbackCheckboxes();
+                }
+            }
+
+            createFallbackCheckboxes() {
+                const container = document.querySelector('#advanced-options');
+                if (!container) return;
+
+                const options = [
+                    { key: 'showDetailedInfo', label: '显示详细信息', checked: true },
+                    { key: 'includeDateAnalysis', label: '包含日期分析', checked: true },
+                    { key: 'showVisualization', label: '显示可视化', checked: true },
+                    { key: 'autoSaveHistory', label: '自动保存历史', checked: true },
+                    { key: 'showCodeSnippets', label: '显示代码片段', checked: true },
+                    { key: 'strictValidation', label: '严格验证模式', checked: false }
+                ];
+
+                const groupContainer = document.createElement('div');
+                groupContainer.className = 'fallback-checkbox-group';
+                groupContainer.style.cssText = `
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                `;
+
+                // 全选复选框
+                const allCheckboxContainer = document.createElement('div');
+                allCheckboxContainer.style.cssText = `
+                    border-bottom: 1px solid #e2e8f0;
+                    padding-bottom: 8px;
+                    margin-bottom: 10px;
+                `;
+                
+                const allCheckbox = document.createElement('input');
+                allCheckbox.type = 'checkbox';
+                allCheckbox.id = 'all-options';
+                allCheckbox.checked = true;
+                
+                const allLabel = document.createElement('label');
+                allLabel.htmlFor = 'all-options';
+                allLabel.textContent = '全选';
+                allLabel.style.cssText = `
+                    font-weight: 600;
+                    color: #4a5568;
+                    margin-left: 8px;
+                    cursor: pointer;
+                `;
+                
+                allCheckboxContainer.appendChild(allCheckbox);
+                allCheckboxContainer.appendChild(allLabel);
+                groupContainer.appendChild(allCheckboxContainer);
+
+                // 子复选框
+                options.forEach((option, index) => {
+                    const checkboxContainer = document.createElement('div');
+                    checkboxContainer.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: 5px;
+                    `;
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `option-${index}`;
+                    checkbox.checked = option.checked;
+                    checkbox.className = 'option-checkbox';
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = `option-${index}`;
+                    label.textContent = option.label;
+                    label.style.cssText = `
+                        margin-left: 8px;
+                        cursor: pointer;
+                        color: #4a5568;
+                    `;
+                    
+                    checkboxContainer.appendChild(checkbox);
+                    checkboxContainer.appendChild(label);
+                    groupContainer.appendChild(checkboxContainer);
+                });
+
+                // 全选事件处理
+                allCheckbox.addEventListener('change', () => {
+                    const optionCheckboxes = groupContainer.querySelectorAll('.option-checkbox');
+                    optionCheckboxes.forEach(cb => {
+                        cb.checked = allCheckbox.checked;
+                        cb.indeterminate = false;
+                        this.updateAdvancedOption(cb);
+                    });
+                    allCheckbox.indeterminate = false;
+                });
+
+                // 子复选框事件处理
+                groupContainer.addEventListener('change', (e) => {
+                    if (e.target.classList.contains('option-checkbox')) {
+                        this.updateAdvancedOption(e.target);
+                        this.updateAllCheckboxState();
+                    }
+                });
+
+                container.appendChild(groupContainer);
+            }
+
+            updateAdvancedOption(checkbox) {
+                const index = Array.from(checkbox.parentElement.parentElement.querySelectorAll('.option-checkbox')).indexOf(checkbox);
+                const options = [
+                    'showDetailedInfo',
+                    'includeDateAnalysis', 
+                    'showVisualization',
+                    'autoSaveHistory',
+                    'showCodeSnippets',
+                    'strictValidation'
+                ];
+                
+                if (options[index]) {
+                    this.advancedOptions[options[index]] = checkbox.checked;
+                }
+            }
+
+            updateAllCheckboxState() {
+                const allCheckbox = document.querySelector('#all-options');
+                const optionCheckboxes = document.querySelectorAll('.option-checkbox');
+                
+                if (allCheckbox && optionCheckboxes.length > 0) {
+                    const allChecked = Array.from(optionCheckboxes).every(cb => cb.checked);
+                    const noneChecked = Array.from(optionCheckboxes).every(cb => !cb.checked);
+                    
+                    allCheckbox.checked = allChecked;
+                    allCheckbox.indeterminate = !allChecked && !noneChecked;
+                }
+            }
+
+            setupInputNumberPlugins() {
+                try {
+                    // 年份输入框
+                    this.yearInput = new InputNumber({
+                        container: document.getElementById('year-input'),
+                        value: 2023,
+                        min: 1900,
+                        max: 2100,
+                        step: 1,
+                        placeholder: '2023',
+                        onChange: (value) => {
+                            this.validateComponentsInput();
+                        }
+                    });
+
+                    // 月份输入框
+                    this.monthInput = new InputNumber({
+                        container: document.getElementById('month-input'),
+                        value: 12,
+                        min: 1,
+                        max: 12,
+                        step: 1,
+                        placeholder: '12',
+                        onChange: (value) => {
+                            this.validateComponentsInput();
+                        }
+                    });
+
+                    // 日期输入框
+                    this.dayInput = new InputNumber({
+                        container: document.getElementById('day-input'),
+                        value: 25,
+                        min: 1,
+                        max: 31,
+                        step: 1,
+                        placeholder: '25',
+                        onChange: (value) => {
+                            this.validateComponentsInput();
+                        }
+                    });
+                } catch (error) {
+                    console.warn('InputNumber插件加载失败，使用默认输入框');
+                    this.createFallbackInputs();
+                }
+            }
+
+            createFallbackInputs() {
+                // 创建后备的普通数字输入框
+                const yearContainer = document.getElementById('year-input');
+                const monthContainer = document.getElementById('month-input');
+                const dayContainer = document.getElementById('day-input');
+
+                yearContainer.innerHTML = '<input type="number" id="year-fallback" placeholder="2023" min="1900" max="2100" value="2023">';
+                monthContainer.innerHTML = '<input type="number" id="month-fallback" placeholder="12" min="1" max="12" value="12">';
+                dayContainer.innerHTML = '<input type="number" id="day-fallback" placeholder="25" min="1" max="31" value="25">';
+
+                // 添加事件监听器
+                ['year-fallback', 'month-fallback', 'day-fallback'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => {
+                        this.validateComponentsInput();
+                    });
+                });
+            }
+
+            setupEventListeners() {
+                // 输入方式切换
+                document.querySelectorAll('.input-method').forEach(method => {
+                    method.addEventListener('click', () => {
+                        this.switchInputMethod(method.dataset.method);
+                    });
+                });
+
+                // 验证按钮
+                document.getElementById('validate-btn').addEventListener('click', () => {
+                    this.validateDate();
+                });
+
+                // 详细分析按钮
+                document.getElementById('analyze-btn').addEventListener('click', () => {
+                    this.performDetailedAnalysis();
+                });
+
+                // 可视化按钮
+                document.getElementById('visualize-btn').addEventListener('click', () => {
+                    this.showVisualization();
+                });
+
+                // 导出按钮
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.exportResults();
+                });
+
+                // 清空按钮
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearInput();
+                });
+
+                // 清空结果按钮
+                document.getElementById('clear-results-btn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+
+                // 复制结果按钮
+                document.getElementById('copy-results-btn').addEventListener('click', () => {
+                    this.copyResults();
+                });
+
+                // 加载历史按钮
+                document.getElementById('load-history-btn').addEventListener('click', () => {
+                    this.loadHistory();
+                });
+
+                // 清空历史按钮
+                document.getElementById('clear-history-btn').addEventListener('click', () => {
+                    this.clearHistory();
+                });
+
+                // 模板点击
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const template = item.dataset.template;
+                        this.loadTemplate(template);
+                    });
+                });
+
+                // 快速示例点击
+                document.querySelectorAll('.date-example').forEach(example => {
+                    example.addEventListener('click', () => {
+                        const date = example.dataset.date;
+                        document.getElementById('date-input').value = date;
+                        this.validateDate();
+                    });
+                });
+
+                // 回车键验证
+                document.getElementById('date-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.validateDate();
+                    }
+                });
+
+                // 组件输入变化事件已在setupInputNumberPlugins中设置
+            }
+
+            switchInputMethod(method) {
+                this.currentInputMethod = method;
+                
+                // 更新UI状态
+                document.querySelectorAll('.input-method').forEach(m => {
+                    m.classList.remove('active');
+                });
+                document.querySelector(`[data-method="${method}"]`).classList.add('active');
+                
+                // 显示/隐藏对应的输入组
+                document.getElementById('text-input-group').style.display = method === 'text' ? 'block' : 'none';
+                document.getElementById('components-input-group').style.display = method === 'components' ? 'block' : 'none';
+                document.getElementById('examples-input-group').style.display = method === 'examples' ? 'block' : 'none';
+            }
+
+            performInitialDemo() {
+                // 页面加载时显示初始示例
+                document.getElementById('date-input').value = '2023-12-25';
+                this.validateDate();
+            }
+
+            validateDate() {
+                let dateInput;
+                
+                try {
+                    if (this.currentInputMethod === 'components') {
+                        let year, month, day;
+                        
+                        if (this.yearInput && this.monthInput && this.dayInput) {
+                            // 使用InputNumber插件
+                            year = this.yearInput.getValue();
+                            month = this.monthInput.getValue();
+                            day = this.dayInput.getValue();
+                        } else {
+                            // 使用后备输入框
+                            year = document.getElementById('year-fallback')?.value;
+                            month = document.getElementById('month-fallback')?.value;
+                            day = document.getElementById('day-fallback')?.value;
+                        }
+                        
+                        if (!year || !month || !day) {
+                            this.notification.warning('请输入完整的年月日');
+                            return;
+                        }
+                        
+                        dateInput = [parseInt(year), parseInt(month) - 1, parseInt(day)];
+                    } else {
+                        const input = document.getElementById('date-input').value.trim();
+                        
+                        if (!input) {
+                            this.notification.warning('请输入日期');
+                            return;
+                        }
+                        
+                        dateInput = input;
+                    }
+                } catch (error) {
+                    this.notification.error(`输入解析错误: ${error.message}`);
+                    return;
+                }
+
+                const startTime = performance.now();
+                const isValid = isDateValid(dateInput);
+                const endTime = performance.now();
+                const executionTime = endTime - startTime;
+
+                const result = {
+                    timestamp: new Date(),
+                    input: dateInput,
+                    isValid: isValid,
+                    executionTime: executionTime,
+                    details: this.getDateDetails(dateInput, isValid)
+                };
+
+                this.results.unshift(result);
+                this.updateResultsDisplay();
+                this.updateStats();
+                this.showDateVisualization(result);
+                
+                if (this.advancedOptions.autoSaveHistory) {
+                    this.saveToHistory(result);
+                }
+
+                this.notification.success(`验证完成: ${isValid ? '✅ 有效日期' : '❌ 无效日期'}`);
+            }
+
+            validateComponentsInput() {
+                let year, month, day;
+                
+                if (this.yearInput && this.monthInput && this.dayInput) {
+                    // 使用InputNumber插件
+                    year = this.yearInput.getValue();
+                    month = this.monthInput.getValue();
+                    day = this.dayInput.getValue();
+                } else {
+                    // 使用后备输入框
+                    year = document.getElementById('year-fallback')?.value;
+                    month = document.getElementById('month-fallback')?.value;
+                    day = document.getElementById('day-fallback')?.value;
+                }
+                
+                if (year && month && day) {
+                    this.validateDate();
+                }
+            }
+
+            getDateDetails(input, isValid) {
+                const details = {
+                    inputType: typeof input,
+                    inputString: String(input),
+                    parsedDate: null,
+                    dateComponents: null,
+                    format: this.detectDateFormat(input),
+                    timezone: null
+                };
+
+                if (isValid) {
+                    try {
+                        const date = new Date(input);
+                        details.parsedDate = date;
+                        details.dateComponents = {
+                            year: date.getFullYear(),
+                            month: date.getMonth() + 1,
+                            day: date.getDate(),
+                            dayOfWeek: date.getDay(),
+                            dayOfYear: Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000)
+                        };
+                        details.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    } catch (error) {
+                        details.parseError = error.message;
+                    }
+                }
+
+                if (this.advancedOptions.includeDateAnalysis) {
+                    details.analysis = this.analyzeDate(input, isValid);
+                }
+
+                return details;
+            }
+
+            detectDateFormat(input) {
+                if (typeof input === 'string') {
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) return 'ISO 8601';
+                    if (/^\d{2}\/\d{2}\/\d{4}$/.test(input)) return 'MM/DD/YYYY';
+                    if (/^\d{2}\/\d{2}\/\d{4}$/.test(input)) return 'DD/MM/YYYY';
+                    if (/^\d{4}\/\d{2}\/\d{2}$/.test(input)) return 'YYYY/MM/DD';
+                    if (/^[A-Za-z]+ \d{1,2}, \d{4}$/.test(input)) return 'Natural Language';
+                    if (/^\d+$/.test(input)) return 'Timestamp';
+                } else if (Array.isArray(input)) {
+                    return 'Components Array';
+                }
+                return 'Unknown';
+            }
+
+            analyzeDate(input, isValid) {
+                const analysis = {
+                    isLeapYear: false,
+                    isWeekend: false,
+                    isHoliday: false,
+                    season: null,
+                    age: null,
+                    daysFromNow: null
+                };
+
+                if (isValid) {
+                    try {
+                        const date = new Date(input);
+                        const year = date.getFullYear();
+                        
+                        // 闰年检查
+                        analysis.isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+                        
+                        // 周末检查
+                        analysis.isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                        
+                        // 季节判断
+                        const month = date.getMonth() + 1;
+                        if (month >= 3 && month <= 5) analysis.season = '春季';
+                        else if (month >= 6 && month <= 8) analysis.season = '夏季';
+                        else if (month >= 9 && month <= 11) analysis.season = '秋季';
+                        else analysis.season = '冬季';
+                        
+                        // 年龄计算
+                        const now = new Date();
+                        analysis.age = now.getFullYear() - year;
+                        
+                        // 距离今天的天数
+                        const diffTime = date.getTime() - now.getTime();
+                        analysis.daysFromNow = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    } catch (error) {
+                        analysis.error = error.message;
+                    }
+                }
+
+                return analysis;
+            }
+
+            showDateVisualization(result) {
+                const visualizationDiv = document.getElementById('date-visualization');
+                
+                if (this.advancedOptions.showVisualization) {
+                    visualizationDiv.style.display = 'block';
+                    visualizationDiv.innerHTML = '';
+                    
+                    const dateElement = document.createElement('div');
+                    dateElement.className = `date-element ${result.isValid ? 'valid' : 'invalid'}`;
+                    dateElement.textContent = result.details.inputString;
+                    dateElement.title = `${result.isValid ? '有效' : '无效'}日期 - ${result.details.format}`;
+                    
+                    visualizationDiv.appendChild(dateElement);
+                } else {
+                    visualizationDiv.style.display = 'none';
+                }
+            }
+
+            performDetailedAnalysis() {
+                if (this.results.length === 0) {
+                    this.notification.warning('请先进行日期验证');
+                    return;
+                }
+
+                const latestResult = this.results[0];
+                this.showDetailedAnalysis(latestResult);
+                this.notification.success('详细分析完成');
+            }
+
+            showDetailedAnalysis(result) {
+                const container = document.getElementById('result-display');
+                const analysisItem = document.createElement('div');
+                analysisItem.className = `result-item ${result.isValid ? 'success' : 'error'} fade-in`;
+                
+                let analysisHtml = `
+                    <div style="font-weight: bold; color: #4a5568; margin-bottom: 10px;">
+                        📊 详细日期分析 - ${result.timestamp.toLocaleString()}
+                    </div>
+                `;
+
+                if (this.advancedOptions.showDetailedInfo) {
+                    analysisHtml += `
+                        <div class="date-analysis">
+                            <h4>🔍 日期基本信息</h4>
+                            <div class="analysis-grid">
+                                <div class="analysis-item">
+                                    <div class="analysis-label">输入类型</div>
+                                    <div class="analysis-value">${result.details.inputType}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">输入字符串</div>
+                                    <div class="analysis-value">${result.details.inputString}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">检测格式</div>
+                                    <div class="analysis-value">${result.details.format}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">验证结果</div>
+                                    <div class="analysis-value">${result.isValid ? '✅ 有效' : '❌ 无效'}</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">执行时间</div>
+                                    <div class="analysis-value">${result.executionTime.toFixed(2)}ms</div>
+                                </div>
+                                <div class="analysis-item">
+                                    <div class="analysis-label">时区</div>
+                                    <div class="analysis-value">${result.details.timezone || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (result.isValid && result.details.dateComponents) {
+                        const components = result.details.dateComponents;
+                        analysisHtml += `
+                            <div class="date-analysis" style="margin-top: 20px;">
+                                <h4>📅 日期组件</h4>
+                                <div class="analysis-grid">
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">年份</div>
+                                        <div class="analysis-value">${components.year}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">月份</div>
+                                        <div class="analysis-value">${components.month}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">日期</div>
+                                        <div class="analysis-value">${components.day}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">星期</div>
+                                        <div class="analysis-value">${['日', '一', '二', '三', '四', '五', '六'][components.dayOfWeek]}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">一年中的第几天</div>
+                                        <div class="analysis-value">第 ${components.dayOfYear} 天</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (this.advancedOptions.includeDateAnalysis && result.details.analysis) {
+                        const analysis = result.details.analysis;
+                        analysisHtml += `
+                            <div class="date-analysis" style="margin-top: 20px;">
+                                <h4>📈 日期分析</h4>
+                                <div class="analysis-grid">
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">闰年</div>
+                                        <div class="analysis-value">${analysis.isLeapYear ? '✅ 是' : '❌ 否'}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">周末</div>
+                                        <div class="analysis-value">${analysis.isWeekend ? '✅ 是' : '❌ 否'}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">季节</div>
+                                        <div class="analysis-value">${analysis.season || 'N/A'}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">年龄</div>
+                                        <div class="analysis-value">${analysis.age !== null ? analysis.age + ' 岁' : 'N/A'}</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">距离今天</div>
+                                        <div class="analysis-value">${analysis.daysFromNow !== null ? analysis.daysFromNow + ' 天' : 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (this.advancedOptions.showCodeSnippets) {
+                        analysisHtml += `
+                            <div style="margin-top: 20px; padding: 15px; background: #2d3748; color: #e2e8f0; border-radius: 8px; font-family: monospace;">
+                                <div style="margin-bottom: 10px; color: #48bb78;">// isDateValid 函数实现:</div>
+                                <div>const isDateValid = (...val) => !Number.isNaN(new Date(...val).valueOf());</div>
+                                <div style="margin-top: 10px; color: #48bb78;">// 使用示例:</div>
+                                <div>isDateValid('${result.details.inputString}') // ${result.isValid}</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                analysisItem.innerHTML = analysisHtml;
+                container.insertBefore(analysisItem, container.firstChild);
+            }
+
+            showVisualization() {
+                if (this.results.length === 0) {
+                    this.notification.warning('请先进行日期验证');
+                    return;
+                }
+
+                const latestResult = this.results[0];
+                this.showDateVisualization(latestResult);
+                this.notification.success('可视化显示已更新');
+            }
+
+            updateResultsDisplay() {
+                const container = document.getElementById('result-display');
+                
+                // 如果是第一次验证，清空默认内容
+                if (this.results.length === 1) {
+                    container.innerHTML = '';
+                }
+
+                this.results.slice(0, 10).forEach((result, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = `result-item ${result.isValid ? 'success' : 'error'} fade-in`;
+                    
+                    let detailsHtml = '';
+                    if (this.advancedOptions.showDetailedInfo) {
+                        detailsHtml = `
+                            <div class="details-info">
+                                <strong>输入:</strong> ${result.details.inputString}<br>
+                                <strong>格式:</strong> ${result.details.format}<br>
+                                <strong>执行时间:</strong> ${result.executionTime.toFixed(2)}ms<br>
+                                <strong>验证时间:</strong> ${result.timestamp.toLocaleString()}
+                            </div>
+                        `;
+                    }
+
+                    resultItem.innerHTML = `
+                        <div class="date-info">
+                            日期验证: "${result.details.inputString}" → ${result.isValid ? '✅ 有效' : '❌ 无效'}
+                        </div>
+                        ${detailsHtml}
+                        <div class="result-info ${result.isValid}">
+                            isDateValid(${JSON.stringify(result.input)}) = ${result.isValid}
+                        </div>
+                    `;
+
+                    // 只添加新的结果项，避免重复
+                    if (index === 0) {
+                        container.insertBefore(resultItem, container.firstChild);
+                    }
+                });
+            }
+
+            updateStats() {
+                this.stats.totalValidations = this.results.length;
+                this.stats.validCount = this.results.filter(r => r.isValid).length;
+                this.stats.invalidCount = this.results.filter(r => !r.isValid).length;
+                
+                if (this.results.length > 0) {
+                    this.stats.successRate = Math.round((this.stats.validCount / this.results.length) * 100);
+                    this.stats.avgExecutionTime = Math.round(
+                        this.results.reduce((sum, r) => sum + r.executionTime, 0) / this.results.length
+                    );
+                    
+                    // 计算不同格式数
+                    const formats = new Set(this.results.map(r => r.details.format));
+                    this.stats.uniqueFormats = formats.size;
+                }
+
+                document.getElementById('total-validations').textContent = this.stats.totalValidations;
+                document.getElementById('valid-count').textContent = this.stats.validCount;
+                document.getElementById('invalid-count').textContent = this.stats.invalidCount;
+                document.getElementById('success-rate').textContent = this.stats.successRate + '%';
+                document.getElementById('avg-execution-time').textContent = this.stats.avgExecutionTime + 'ms';
+                document.getElementById('unique-formats').textContent = this.stats.uniqueFormats;
+            }
+
+            clearInput() {
+                document.getElementById('date-input').value = '';
+                
+                if (this.yearInput && this.monthInput && this.dayInput) {
+                    // 使用InputNumber插件
+                    this.yearInput.setValue(2023);
+                    this.monthInput.setValue(12);
+                    this.dayInput.setValue(25);
+                } else {
+                    // 使用后备输入框
+                    const yearFallback = document.getElementById('year-fallback');
+                    const monthFallback = document.getElementById('month-fallback');
+                    const dayFallback = document.getElementById('day-fallback');
+                    
+                    if (yearFallback) yearFallback.value = '2023';
+                    if (monthFallback) monthFallback.value = '12';
+                    if (dayFallback) dayFallback.value = '25';
+                }
+                
+                this.notification.info('输入已清空');
+            }
+
+            clearResults() {
+                this.results = [];
+                document.getElementById('result-display').innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📅</div>
+                        <div>输入日期，然后点击验证按钮</div>
+                    </div>
+                `;
+                document.getElementById('date-visualization').style.display = 'none';
+                this.updateStats();
+                this.notification.info('结果已清空');
+            }
+
+            copyResults() {
+                const results = this.results.map(r => 
+                    `${r.timestamp.toLocaleString()}: "${r.details.inputString}" → ${r.isValid ? '有效' : '无效'}`
+                ).join('\n');
+                
+                navigator.clipboard.writeText(results).then(() => {
+                    this.notification.success('结果已复制到剪贴板');
+                }).catch(() => {
+                    this.notification.error('复制失败');
+                });
+            }
+
+            exportResults() {
+                if (this.results.length === 0) {
+                    this.notification.warning('没有可导出的结果');
+                    return;
+                }
+
+                const exportData = {
+                    timestamp: new Date().toISOString(),
+                    summary: this.stats,
+                    results: this.results,
+                    generatedBy: 'Date Validator v1.0'
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `date-validation-results-${new Date().toISOString().slice(0, 19)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.notification.success('结果已导出');
+            }
+
+            loadTemplate(template) {
+                let dateInput;
+                
+                switch (template) {
+                    case 'iso-format':
+                        dateInput = '2023-12-25';
+                        break;
+                    case 'us-format':
+                        dateInput = '12/25/2023';
+                        break;
+                    case 'european-format':
+                        dateInput = '25/12/2023';
+                        break;
+                    case 'natural-language':
+                        dateInput = 'December 25, 2023';
+                        break;
+                    case 'timestamp':
+                        dateInput = '1703462400000';
+                        break;
+                    case 'edge-cases':
+                        dateInput = '2024-02-29'; // 闰年
+                        break;
+                }
+
+                document.getElementById('date-input').value = dateInput;
+                
+                // 如果是组件输入模式，也更新组件输入框
+                if (this.currentInputMethod === 'components') {
+                    if (this.yearInput && this.monthInput && this.dayInput) {
+                        // 使用InputNumber插件
+                        this.yearInput.setValue(2023);
+                        this.monthInput.setValue(12);
+                        this.dayInput.setValue(25);
+                    } else {
+                        // 使用后备输入框
+                        const yearFallback = document.getElementById('year-fallback');
+                        const monthFallback = document.getElementById('month-fallback');
+                        const dayFallback = document.getElementById('day-fallback');
+                        
+                        if (yearFallback) yearFallback.value = '2023';
+                        if (monthFallback) monthFallback.value = '12';
+                        if (dayFallback) dayFallback.value = '25';
+                    }
+                }
+                
+                this.notification.success(`已加载 ${template} 模板`);
+            }
+
+            saveToHistory(result) {
+                const historyItem = {
+                    ...result,
+                    action: '日期验证'
+                };
+                
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                
+                this.updateHistoryDisplay();
+                this.saveHistory();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('history-list');
+                
+                if (this.history.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">暂无验证历史记录</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                this.history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item fade-in';
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-info">
+                            <div><strong>${item.isValid ? '有效日期' : '无效日期'}</strong> - "${item.details.inputString}"</div>
+                            <div class="history-time">${item.timestamp.toLocaleString()}</div>
+                        </div>
+                        <div class="history-action">${item.isValid ? '✅ 有效' : '❌ 无效'}</div>
+                    `;
+
+                    container.appendChild(historyItem);
+                });
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('dateValidationHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('dateValidationHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved).map(item => ({
+                            ...item,
+                            timestamp: new Date(item.timestamp)
+                        }));
+                        this.updateHistoryDisplay();
+                        this.notification.success('历史记录已加载');
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+
+            clearHistory() {
+                this.history = [];
+                this.updateHistoryDisplay();
+                this.saveHistory();
+                this.notification.info('历史记录已清空');
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new DateValidator();
+        });
+    </script>
+</body>
+</html>
