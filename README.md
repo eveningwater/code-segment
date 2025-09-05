@@ -380,7 +380,7 @@
 - [检查元素是被包含（无论顺序）-2022-09-24](codes/javascript/is-contained-in.md)
 - [是否可用日期-2022-09-25](codes/javascript/is-date-valid.md)
 - [深度冻结对象-2022-09-26](codes/javascript/is-deep-frozen.md)
-- [检查两个对象是否相交（没有共同值）-2022-09-27](codes/javascript/isDisjoint.md)
+- [检查两个对象是否相交（没有共同值）-2022-09-27](codes/javascript/is-disjoint.md)
 - [是否可被整除-2022-09-28](codes/javascript/isDivisible.md)
 - [是否是空对象-2022-09-30](codes/javascript/isEmpty.md)
 - [是否偶数-2022-10-01](codes/javascript/isEven.md)
