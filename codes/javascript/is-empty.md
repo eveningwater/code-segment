@@ -11,6 +11,10 @@ const isEmpty = val => val === null || !(Object.keys(val) || val).length;
 // const isEmpty = obj => Reflect.ownKeys(obj).length === 0 && obj.constructor === Object
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-empty.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,8 +30,10 @@ isEmpty(true); // true - type is not considered a collection
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isEmpty.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-empty.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-empty.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isEmpty.html"></iframe>
+<iframe src="codes/javascript/html/is-empty.html"></iframe>

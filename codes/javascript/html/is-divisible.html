@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>整除检测和数学分析工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .input-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-card h3::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .input-group input.input-number-input {
+            border: none;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .result-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-divisible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-not-divisible {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .detail-card h4 {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .math-visualization {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .math-equation {
+            text-align: center;
+            font-size: 1.5rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .divisible-result {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .not-divisible-result {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .templates-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .template-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .template-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .template-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .template-code {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            color: #495057;
+            overflow-x: auto;
+        }
+
+        .history-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:hover {
+            border-color: #667eea;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-calculation {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .history-result {
+            font-weight: 600;
+        }
+
+        .history-result.divisible {
+            color: #28a745;
+        }
+
+        .history-result.not-divisible {
+            color: #dc3545;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .advanced-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .option-group {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .option-group h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-container label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card h4 {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .batch-results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .batch-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .batch-item:last-child {
+            border-bottom: none;
+        }
+
+        .batch-calculation {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+        }
+
+        .batch-result {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .batch-result.divisible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .batch-result.not-divisible {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-wrap: wrap;
+            }
+
+            .result-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 整除检测和数学分析工具</h1>
+            <p>使用 isDivisible 函数检测数字的整除关系，提供详细的数学分析和可视化</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 输入区域 -->
+            <div class="input-section">
+                <div class="input-card">
+                    <h3>被除数 (Dividend)</h3>
+                    <div class="input-group">
+                        <label for="dividendInput">输入被除数</label>
+                        <div id="dividendInput"></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dividendType">数据类型</label>
+                        <div id="dividendTypeContainer"></div>
+                    </div>
+                </div>
+
+                <div class="input-card">
+                    <h3>除数 (Divisor)</h3>
+                    <div class="input-group">
+                        <label for="divisorInput">输入除数</label>
+                        <div id="divisorInput"></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="divisorType">数据类型</label>
+                        <div id="divisorTypeContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按钮组 -->
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="detector.checkDivisibility()">
+                    🔍 检测整除
+                </button>
+                <button class="btn btn-secondary" onclick="detector.clearInputs()">
+                    🗑️ 清空输入
+                </button>
+                <button class="btn btn-success" onclick="detector.batchCheck()">
+                    📊 批量检测
+                </button>
+                <button class="btn btn-warning" onclick="detector.generateRandom()">
+                    🎲 生成随机数
+                </button>
+            </div>
+
+            <!-- 结果区域 -->
+            <div class="result-section" id="resultSection" style="display: none;">
+                <div class="result-header">
+                    <h2 class="result-title">检测结果</h2>
+                    <span class="result-status" id="resultStatus">等待检测</span>
+                </div>
+                <div class="result-details" id="resultDetails"></div>
+                <div class="math-visualization" id="mathVisualization"></div>
+            </div>
+
+            <!-- 模板区域 -->
+            <div class="templates-section">
+                <h3>📋 预设模板</h3>
+                <p>点击下面的模板快速加载示例数据</p>
+                <div class="templates-grid" id="templatesGrid"></div>
+            </div>
+
+            <!-- 高级选项 -->
+            <div class="advanced-options">
+                <h3>⚙️ 高级选项</h3>
+                <div class="options-grid">
+                    <div class="option-group">
+                        <h4>检测选项</h4>
+                        <div id="detectionOptionsContainer"></div>
+                    </div>
+                    <div class="option-group">
+                        <h4>数据选项</h4>
+                        <div id="dataOptionsContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats-section">
+                <h3>📊 统计信息</h3>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <h4>总检测次数</h4>
+                        <div class="value" id="totalChecks">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>整除次数</h4>
+                        <div class="value" id="divisibleCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>不整除次数</h4>
+                        <div class="value" id="notDivisibleCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>平均商值</h4>
+                        <div class="value" id="avgQuotient">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="history-section">
+                <h3>📜 检测历史</h3>
+                <div class="history-list" id="historyList">
+                    <p style="text-align: center; color: #6c757d; padding: 20px;">暂无检测历史</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // isDivisible 函数实现
+        const isDivisible = (dividend, divisor) => dividend % divisor === 0;
+
+        // 整除检测器类
+        class DivisibleDetector {
+            constructor() {
+                this.currentDividend = 0;
+                this.currentDivisor = 1;
+                this.history = [];
+                this.stats = {
+                    totalChecks: 0,
+                    divisibleCount: 0,
+                    notDivisibleCount: 0,
+                    totalQuotient: 0
+                };
+                this.plugins = {
+                    dividendInput: null,
+                    divisorInput: null,
+                    dividendTypeSelect: null,
+                    divisorTypeSelect: null,
+                    detectionCheckboxes: null,
+                    dataCheckboxes: null
+                };
+                this.templates = [
+                    {
+                        name: '基本整除测试',
+                        description: '测试基本的整除关系',
+                        dividend: 12,
+                        divisor: 3,
+                        typeDividend: 'integer',
+                        typeDivisor: 'integer'
+                    },
+                    {
+                        name: '小数整除测试',
+                        description: '测试小数的整除关系',
+                        dividend: 7.5,
+                        divisor: 2.5,
+                        typeDividend: 'decimal',
+                        typeDivisor: 'decimal'
+                    },
+                    {
+                        name: '负数整除测试',
+                        description: '测试负数的整除关系',
+                        dividend: -15,
+                        divisor: 5,
+                        typeDividend: 'integer',
+                        typeDivisor: 'integer'
+                    },
+                    {
+                        name: '大数整除测试',
+                        description: '测试大数的整除关系',
+                        dividend: 1000000,
+                        divisor: 1000,
+                        typeDividend: 'integer',
+                        typeDivisor: 'integer'
+                    },
+                    {
+                        name: '不整除测试',
+                        description: '测试不整除的情况',
+                        dividend: 13,
+                        divisor: 4,
+                        typeDividend: 'integer',
+                        typeDivisor: 'integer'
+                    },
+                    {
+                        name: '零除数测试',
+                        description: '测试除数为零的情况',
+                        dividend: 10,
+                        divisor: 0,
+                        typeDividend: 'integer',
+                        typeDivisor: 'integer'
+                    }
+                ];
+                this.init();
+            }
+
+            init() {
+                this.loadStats();
+                this.loadHistory();
+                this.displayStats();
+                this.loadTemplates();
+                this.setupPlugins();
+                this.setupEventListeners();
+            }
+
+            setupPlugins() {
+                // 初始化InputNumber插件
+                this.plugins.dividendInput = new InputNumber({
+                    value: 12,
+                    min: -1000000,
+                    max: 1000000,
+                    step: 1,
+                    onChange: (value) => {
+                        this.currentDividend = value;
+                    }
+                });
+                this.plugins.dividendInput.mount(document.getElementById('dividendInput'));
+
+                this.plugins.divisorInput = new InputNumber({
+                    value: 3,
+                    min: -1000000,
+                    max: 1000000,
+                    step: 1,
+                    onChange: (value) => {
+                        this.currentDivisor = value;
+                    }
+                });
+                this.plugins.divisorInput.mount(document.getElementById('divisorInput'));
+
+                // 初始化Select插件
+                this.plugins.dividendTypeSelect = new Select({
+                    container: document.getElementById('dividendTypeContainer'),
+                    options: [
+                        { value: 'integer', text: '整数' },
+                        { value: 'decimal', text: '小数' },
+                        { value: 'auto', text: '自动检测' }
+                    ],
+                    placeholder: '选择数据类型',
+                    value: 'integer',
+                    onChange: (value) => {
+                        this.updateInputNumberSettings('dividend', value);
+                    }
+                });
+
+                this.plugins.divisorTypeSelect = new Select({
+                    container: document.getElementById('divisorTypeContainer'),
+                    options: [
+                        { value: 'integer', text: '整数' },
+                        { value: 'decimal', text: '小数' },
+                        { value: 'auto', text: '自动检测' }
+                    ],
+                    placeholder: '选择数据类型',
+                    value: 'integer',
+                    onChange: (value) => {
+                        this.updateInputNumberSettings('divisor', value);
+                    }
+                });
+
+                // 初始化Checkbox插件组
+                const detectionCheckboxGroup = Checkbox.createCheckboxGroup({
+                    items: [
+                        {
+                            label: '显示详细计算过程',
+                            checked: true,
+                            key: 'showCalculation'
+                        },
+                        {
+                            label: '显示数学公式',
+                            checked: true,
+                            key: 'showFormula'
+                        },
+                        {
+                            label: '显示余数信息',
+                            checked: true,
+                            key: 'showRemainder'
+                        }
+                    ],
+                    onChange: (checkedStates) => {
+                        console.log('检测选项变化:', checkedStates);
+                    }
+                });
+
+                const detectionContainer = document.getElementById('detectionOptionsContainer');
+                detectionContainer.appendChild(detectionCheckboxGroup.container);
+                this.plugins.detectionCheckboxes = detectionCheckboxGroup;
+
+                const dataCheckboxGroup = Checkbox.createCheckboxGroup({
+                    items: [
+                        {
+                            label: '保存检测历史',
+                            checked: true,
+                            key: 'saveHistory'
+                        },
+                        {
+                            label: '自动更新统计',
+                            checked: true,
+                            key: 'autoUpdateStats'
+                        },
+                        {
+                            label: '显示执行时间',
+                            checked: true,
+                            key: 'showExecutionTime'
+                        }
+                    ],
+                    onChange: (checkedStates) => {
+                        console.log('数据选项变化:', checkedStates);
+                    }
+                });
+
+                const dataContainer = document.getElementById('dataOptionsContainer');
+                dataContainer.appendChild(dataCheckboxGroup.container);
+                this.plugins.dataCheckboxes = dataCheckboxGroup;
+            }
+
+            updateInputNumberSettings(type, dataType) {
+                const input = type === 'dividend' ? this.plugins.dividendInput : this.plugins.divisorInput;
+                if (!input) return;
+
+                // InputNumber插件不支持动态修改step，所以这里只是记录设置
+                // 实际应用中可以通过重新创建插件来实现
+                console.log(`更新${type}输入设置为: ${dataType}`);
+            }
+
+            setupEventListeners() {
+                // 输入变化监听已在插件中处理
+            }
+
+            checkDivisibility() {
+                const dividend = this.plugins.dividendInput ? this.plugins.dividendInput.getValue() : 0;
+                const divisor = this.plugins.divisorInput ? this.plugins.divisorInput.getValue() : 1;
+
+                if (divisor === 0) {
+                    this.showMessage('除数不能为零！', 'error');
+                    return;
+                }
+
+                const startTime = performance.now();
+                const isDivisibleResult = isDivisible(dividend, divisor);
+                const endTime = performance.now();
+                const executionTime = endTime - startTime;
+
+                const quotient = dividend / divisor;
+                const remainder = dividend % divisor;
+
+                const result = {
+                    isDivisible: isDivisibleResult,
+                    dividend: dividend,
+                    divisor: divisor,
+                    quotient: quotient,
+                    remainder: remainder,
+                    executionTime: executionTime,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                this.displayResult(result);
+                this.updateStats(result);
+                this.addToHistory(result);
+                this.showMessage(
+                    `检测完成！${dividend} ${isDivisibleResult ? '能被' : '不能被'} ${divisor} 整除`,
+                    isDivisibleResult ? 'success' : 'info'
+                );
+            }
+
+            displayResult(result) {
+                const resultSection = document.getElementById('resultSection');
+                const resultStatus = document.getElementById('resultStatus');
+                const resultDetails = document.getElementById('resultDetails');
+                const mathVisualization = document.getElementById('mathVisualization');
+
+                // 显示结果区域
+                resultSection.style.display = 'block';
+                resultSection.classList.add('fade-in');
+
+                // 更新状态
+                resultStatus.textContent = result.isDivisible ? '整除' : '不整除';
+                resultStatus.className = `result-status ${result.isDivisible ? 'status-divisible' : 'status-not-divisible'}`;
+
+                // 更新详细信息
+                resultDetails.innerHTML = `
+                    <div class="detail-card">
+                        <h4>被除数</h4>
+                        <div class="value">${result.dividend}</div>
+                    </div>
+                    <div class="detail-card">
+                        <h4>除数</h4>
+                        <div class="value">${result.divisor}</div>
+                    </div>
+                    <div class="detail-card">
+                        <h4>商</h4>
+                        <div class="value">${result.quotient.toFixed(6)}</div>
+                    </div>
+                    <div class="detail-card">
+                        <h4>余数</h4>
+                        <div class="value">${result.remainder.toFixed(6)}</div>
+                    </div>
+                    <div class="detail-card">
+                        <h4>执行时间</h4>
+                        <div class="value">${result.executionTime.toFixed(3)}ms</div>
+                    </div>
+                `;
+
+                // 显示数学可视化
+                this.displayMathVisualization(result, mathVisualization);
+            }
+
+            displayMathVisualization(result, container) {
+                const showCalculation = this.plugins.detectionCheckboxes ?
+                    this.plugins.detectionCheckboxes.checkboxes[0].isChecked() : true;
+                const showFormula = this.plugins.detectionCheckboxes ?
+                    this.plugins.detectionCheckboxes.checkboxes[1].isChecked() : true;
+                const showRemainder = this.plugins.detectionCheckboxes ?
+                    this.plugins.detectionCheckboxes.checkboxes[2].isChecked() : true;
+
+                let content = '<h3>数学分析</h3>';
+
+                if (showFormula) {
+                    const equationClass = result.isDivisible ? 'divisible-result' : 'not-divisible-result';
+                    content += `
+                        <div class="math-equation ${equationClass}">
+                            ${result.dividend} ÷ ${result.divisor} = ${result.quotient.toFixed(6)}
+                            ${result.isDivisible ? '✓' : '✗'}
+                        </div>
+                    `;
+                }
+
+                if (showCalculation) {
+                    content += `
+                        <div style="margin: 20px 0;">
+                            <h4>计算过程：</h4>
+                            <div style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                <div>被除数：${result.dividend}</div>
+                                <div>除数：${result.divisor}</div>
+                                <div>商：${result.dividend} ÷ ${result.divisor} = ${result.quotient.toFixed(6)}</div>
+                                ${showRemainder ? `<div>余数：${result.dividend} % ${result.divisor} = ${result.remainder.toFixed(6)}</div>` : ''}
+                                <div>结果：${result.isDivisible ? '整除' : '不整除'}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (showRemainder && !result.isDivisible) {
+                    content += `
+                        <div style="margin: 20px 0;">
+                            <h4>余数分析：</h4>
+                            <div style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffeaa7;">
+                                <div>余数：${result.remainder.toFixed(6)}</div>
+                                <div>余数百分比：${((result.remainder / result.divisor) * 100).toFixed(2)}%</div>
+                                <div>最接近的整数商：${Math.round(result.quotient)}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = content;
+            }
+
+            batchCheck() {
+                const modal = new Modal();
+                modal.show({
+                    title: '批量整除检测',
+                    content: `
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 600;">输入多个计算式（每行一个，格式：被除数,除数）</label>
+                            <textarea id="batchInput" style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: monospace;" placeholder="12,3&#10;15,4&#10;20,5&#10;7,2"></textarea>
+                        </div>
+                        <div style="text-align: right;">
+                            <button onclick="detector.processBatchCheck()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">开始检测</button>
+                        </div>
+                    `,
+                    type: 'alert'
+                });
+            }
+
+            processBatchCheck() {
+                const batchInput = document.getElementById('batchInput');
+                if (!batchInput) return;
+
+                const lines = batchInput.value.trim().split('\n').filter(line => line.trim());
+                if (lines.length === 0) {
+                    this.showMessage('请输入至少一个计算式', 'warning');
+                    return;
+                }
+
+                const results = [];
+                const startTime = performance.now();
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    const parts = line.split(',');
+
+                    if (parts.length !== 2) {
+                        results.push({
+                            calculation: line,
+                            error: '格式错误，应为：被除数,除数'
+                        });
+                        continue;
+                    }
+
+                    const dividend = parseFloat(parts[0]);
+                    const divisor = parseFloat(parts[1]);
+
+                    if (isNaN(dividend) || isNaN(divisor)) {
+                        results.push({
+                            calculation: line,
+                            error: '数字格式错误'
+                        });
+                        continue;
+                    }
+
+                    if (divisor === 0) {
+                        results.push({
+                            calculation: line,
+                            error: '除数不能为零'
+                        });
+                        continue;
+                    }
+
+                    const isDivisibleResult = isDivisible(dividend, divisor);
+                    const quotient = dividend / divisor;
+                    const remainder = dividend % divisor;
+
+                    results.push({
+                        calculation: line,
+                        isDivisible: isDivisibleResult,
+                        dividend: dividend,
+                        divisor: divisor,
+                        quotient: quotient,
+                        remainder: remainder
+                    });
+                }
+
+                const endTime = performance.now();
+                this.displayBatchResults(results, endTime - startTime);
+            }
+
+            displayBatchResults(results, executionTime) {
+                const modal = new Modal();
+                let content = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>批量检测完成！</strong> 共处理 ${results.length} 个计算式，耗时 ${executionTime.toFixed(3)}ms
+                    </div>
+                    <div class="batch-results" style="max-height: 400px; overflow-y: auto;">
+                `;
+
+                results.forEach((result, index) => {
+                    if (result.error) {
+                        content += `
+                            <div class="batch-item" style="color: #dc3545;">
+                                <div class="batch-calculation">${result.calculation}</div>
+                                <div style="color: #dc3545;">${result.error}</div>
+                            </div>
+                        `;
+                    } else {
+                        const resultClass = result.isDivisible ? 'divisible' : 'not-divisible';
+                        content += `
+                            <div class="batch-item">
+                                <div class="batch-calculation">${result.calculation} = ${result.quotient.toFixed(6)}</div>
+                                <div class="batch-result ${resultClass}">${result.isDivisible ? '整除' : '不整除'}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                content += '</div>';
+
+                modal.show({
+                    title: '批量检测结果',
+                    content: content,
+                    type: 'alert'
+                });
+            }
+
+            generateRandom() {
+                const types = ['integer', 'decimal'];
+                const dividendType = types[Math.floor(Math.random() * types.length)];
+                const divisorType = types[Math.floor(Math.random() * types.length)];
+
+                const dividend = this.generateRandomNumber(dividendType, -1000, 1000);
+                const divisor = this.generateRandomNumber(divisorType, -100, 100);
+
+                if (this.plugins.dividendInput) {
+                    this.plugins.dividendInput.setValue(dividend);
+                }
+                if (this.plugins.divisorInput) {
+                    this.plugins.divisorInput.setValue(divisor);
+                }
+                if (this.plugins.dividendTypeSelect) {
+                    this.plugins.dividendTypeSelect.setValue(dividendType);
+                }
+                if (this.plugins.divisorTypeSelect) {
+                    this.plugins.divisorTypeSelect.setValue(divisorType);
+                }
+
+                this.showMessage('已生成随机数', 'success');
+            }
+
+            generateRandomNumber(type, min, max) {
+                if (type === 'integer') {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                } else {
+                    return Math.round((Math.random() * (max - min) + min) * 100) / 100;
+                }
+            }
+
+            updateStats(result) {
+                this.stats.totalChecks++;
+                this.stats.totalQuotient += Math.abs(result.quotient);
+
+                if (result.isDivisible) {
+                    this.stats.divisibleCount++;
+                } else {
+                    this.stats.notDivisibleCount++;
+                }
+
+                this.saveStats();
+                this.displayStats();
+            }
+
+            displayStats() {
+                document.getElementById('totalChecks').textContent = this.stats.totalChecks;
+                document.getElementById('divisibleCount').textContent = this.stats.divisibleCount;
+                document.getElementById('notDivisibleCount').textContent = this.stats.notDivisibleCount;
+
+                const avgQuotient = this.stats.totalChecks > 0
+                    ? Math.round(this.stats.totalQuotient / this.stats.totalChecks * 100) / 100
+                    : 0;
+                document.getElementById('avgQuotient').textContent = avgQuotient;
+            }
+
+            addToHistory(result) {
+                const saveHistory = this.plugins.dataCheckboxes ?
+                    this.plugins.dataCheckboxes.checkboxes[0].isChecked() : true;
+                if (!saveHistory) return;
+
+                this.history.unshift(result);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+
+                this.saveHistory();
+                this.displayHistory();
+            }
+
+            displayHistory() {
+                const historyList = document.getElementById('historyList');
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 20px;">暂无检测历史</p>';
+                    return;
+                }
+
+                historyList.innerHTML = this.history.map((item, index) => `
+                    <div class="history-item" onclick="detector.loadFromHistory(${index})">
+                        <div class="history-info">
+                            <div class="history-calculation">
+                                ${item.dividend} ÷ ${item.divisor} = ${item.quotient.toFixed(6)}
+                            </div>
+                            <div class="history-result ${item.isDivisible ? 'divisible' : 'not-divisible'}">
+                                ${item.isDivisible ? '整除' : '不整除'} (余数: ${item.remainder.toFixed(6)})
+                            </div>
+                        </div>
+                        <div class="history-time">${item.timestamp}</div>
+                    </div>
+                `).join('');
+            }
+
+            loadFromHistory(index) {
+                const item = this.history[index];
+                if (this.plugins.dividendInput) {
+                    this.plugins.dividendInput.setValue(item.dividend);
+                }
+                if (this.plugins.divisorInput) {
+                    this.plugins.divisorInput.setValue(item.divisor);
+                }
+                this.showMessage('已加载历史记录', 'success');
+            }
+
+            loadTemplates() {
+                const templatesGrid = document.getElementById('templatesGrid');
+                templatesGrid.innerHTML = this.templates.map((template, index) => `
+                    <div class="template-card" onclick="detector.loadTemplate(${index})">
+                        <h4>${template.name}</h4>
+                        <p>${template.description}</p>
+                        <div class="template-code">
+                            ${template.dividend} ÷ ${template.divisor}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadTemplate(index) {
+                const template = this.templates[index];
+
+                if (this.plugins.dividendInput) {
+                    this.plugins.dividendInput.setValue(template.dividend);
+                }
+                if (this.plugins.divisorInput) {
+                    this.plugins.divisorInput.setValue(template.divisor);
+                }
+                if (this.plugins.dividendTypeSelect) {
+                    this.plugins.dividendTypeSelect.setValue(template.typeDividend);
+                }
+                if (this.plugins.divisorTypeSelect) {
+                    this.plugins.divisorTypeSelect.setValue(template.typeDivisor);
+                }
+
+                this.showMessage(`已加载模板: ${template.name}`, 'success');
+            }
+
+            clearInputs() {
+                if (this.plugins.dividendInput) {
+                    this.plugins.dividendInput.setValue(0);
+                }
+                if (this.plugins.divisorInput) {
+                    this.plugins.divisorInput.setValue(1);
+                }
+                if (this.plugins.dividendTypeSelect) {
+                    this.plugins.dividendTypeSelect.setValue('integer');
+                }
+                if (this.plugins.divisorTypeSelect) {
+                    this.plugins.divisorTypeSelect.setValue('integer');
+                }
+
+                document.getElementById('resultSection').style.display = 'none';
+                this.showMessage('已清空输入', 'info');
+            }
+
+            showMessage(message, type = 'info') {
+                if (typeof Notification !== 'undefined') {
+                    new Notification({
+                        message: message,
+                        type: type,
+                        duration: 3000
+                    });
+                } else {
+                    alert(message);
+                }
+            }
+
+            saveStats() {
+                localStorage.setItem('divisibleDetector_stats', JSON.stringify(this.stats));
+            }
+
+            loadStats() {
+                const saved = localStorage.getItem('divisibleDetector_stats');
+                if (saved) {
+                    this.stats = { ...this.stats, ...JSON.parse(saved) };
+                }
+            }
+
+            saveHistory() {
+                localStorage.setItem('divisibleDetector_history', JSON.stringify(this.history));
+            }
+
+            loadHistory() {
+                const saved = localStorage.getItem('divisibleDetector_history');
+                if (saved) {
+                    this.history = JSON.parse(saved);
+                    this.displayHistory();
+                }
+            }
+        }
+
+        // 初始化检测器
+        const detector = new DivisibleDetector();
+    </script>
+</body>
+
+</html>
