@@ -373,7 +373,7 @@
 - [是否可被整除-2022-09-28](codes/javascript/is-divisible.md)
 - [是否是空对象-2022-09-30](codes/javascript/is-empty.md)
 - [是否偶数-2022-10-01](codes/javascript/is-even.md)
-- [是否是函数-2022-10-02](codes/javascript/isFunction.md)
+- [是否是函数-2022-10-02](codes/javascript/is-function.md)
 - [是否是生成器函数-2022-10-03](codes/javascript/isGeneratorFunction.md)
 - [是否是合格的日期字符串-2022-10-04](codes/javascript/isISOString.md)
 - [是否是闰年-2022-10-05](codes/javascript/isLeapYear.md)

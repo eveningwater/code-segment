@@ -10,6 +10,10 @@
 const isFunction = val => typeof val === 'function';
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-function.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,8 +23,10 @@ isFunction(x => x); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isFunction.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-function.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-function.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isFunction.html"></iframe>
+<iframe src="codes/javascript/html/is-function.html"></iframe>
