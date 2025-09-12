@@ -11,6 +11,10 @@
 const isLeapYear = year => new Date(year, 1, 29).getMonth() === 1;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-leap-year.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,8 +24,10 @@ isLeapYear(2020); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isLeapYear.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-leap-year.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-leap-year.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isLeapYear.html"></iframe>
+<iframe src="codes/javascript/html/is-leap-year.html"></iframe>

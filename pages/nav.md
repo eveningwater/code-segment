@@ -1,6 +1,7 @@
 * 代码相关
     * [首页](/)
     * [指南](codes/javascript/CSVToArray.md)
+    * [demo示例集合](codes/demo/index.html)
 * 关于我
     * [掘金](https://juejin.im/user/4054654613988718)
     * [segmentfault](https://segmentfault.com/u/xishui_5ac9a340a5484)
