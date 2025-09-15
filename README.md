@@ -389,7 +389,7 @@
 - [是否是合格的日期字符串-2022-10-04](codes/javascript/is-iso-string.md)
 - [是否是闰年-2022-10-05](codes/javascript/is-leap-year.md)
 - [是否启用了本地存储-2022-10-06](codes/javascript/is-local-storage-enabled.md)
-- [是否是小写-2022-10-07](codes/javascript/isLowerCase.md)
+- [是否是小写-2022-10-07](codes/javascript/is-lower-case.md)
 - [是否是负零-2022-10-08](codes/javascript/isNegativeZero.md)
 - [是否是 null 或者 undefined-2022-10-09](codes/javascript/isNil.md)
 - [是否是 null-2022-10-11](codes/javascript/isNull.md)
