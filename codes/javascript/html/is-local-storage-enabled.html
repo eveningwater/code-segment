@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地存储检测和管理工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-section {
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 20px auto;
+            transition: all 0.3s ease;
+        }
+
+        .status-enabled {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-disabled {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .test-section {
+            margin-top: 20px;
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .storage-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .info-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .storage-manager {
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .storage-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .storage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.3s ease;
+        }
+
+        .storage-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .storage-item:last-child {
+            border-bottom: none;
+        }
+
+        .storage-key {
+            font-weight: 600;
+            color: #495057;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .storage-value {
+            color: #6c757d;
+            font-size: 0.9rem;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .storage-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .options-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item label {
+            font-size: 0.9rem;
+            color: #495057;
+            cursor: pointer;
+        }
+
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            53%,
+            80%,
+            100% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            40%,
+            43% {
+                transform: translate3d(0, -8px, 0);
+            }
+
+            70% {
+                transform: translate3d(0, -4px, 0);
+            }
+
+            90% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .storage-item {
+            transition: all 0.3s ease;
+        }
+
+        .storage-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 本地存储检测和管理工具</h1>
+            <p>检测浏览器本地存储支持状态，并提供完整的存储管理功能</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📊 存储状态检测</h2>
+                <div class="status-section">
+                    <div class="status-indicator" id="statusIndicator">
+                        <span id="statusIcon">⏳</span>
+                    </div>
+                    <div class="status-text" id="statusText">检测中...</div>
+                    <div class="status-details" id="statusDetails">正在检测浏览器本地存储支持状态</div>
+                </div>
+
+                <div class="test-section">
+                    <button class="test-button" id="testButton" onclick="window.storageManager?.testStorage()">
+                        重新检测
+                    </button>
+                    <button class="test-button" id="clearButton" onclick="window.storageManager?.clearAllStorage()">
+                        清空存储
+                    </button>
+                    <button class="test-button" id="addTestDataBtn" onclick="testAddData()">
+                        添加测试数据
+                    </button>
+                </div>
+
+                <div class="storage-info" id="storageInfo" style="display: none;">
+                    <div class="info-item">
+                        <span class="info-label">存储类型</span>
+                        <span class="info-value" id="storageType">localStorage</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">支持状态</span>
+                        <span class="info-value" id="supportStatus">未知</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">可用空间</span>
+                        <span class="info-value" id="availableSpace">检测中...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">已用项目</span>
+                        <span class="info-value" id="usedItems">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🛠️ 存储管理</h2>
+                <div class="storage-manager">
+                    <div class="input-group">
+                        <label for="keyInput">键名</label>
+                        <input type="text" id="keyInput" placeholder="输入存储键名">
+                    </div>
+                    <div class="input-group">
+                        <label for="valueInput">值</label>
+                        <textarea id="valueInput" rows="3" placeholder="输入存储值"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary"
+                            onclick="if(window.storageManager) window.storageManager.setItem(); else console.error('storageManager未初始化')">存储</button>
+                        <button class="btn btn-success"
+                            onclick="if(window.storageManager) window.storageManager.getItem(); else console.error('storageManager未初始化')">读取</button>
+                        <button class="btn btn-danger"
+                            onclick="if(window.storageManager) window.storageManager.removeItem(); else console.error('storageManager未初始化')">删除</button>
+                        <button class="btn btn-warning"
+                            onclick="if(window.storageManager) window.storageManager.refreshList(); else console.error('storageManager未初始化')">刷新</button>
+                    </div>
+                </div>
+
+                <div class="storage-list" id="storageList">
+                    <!-- 存储项目列表将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 存储统计</h2>
+            <div class="stats-grid" id="statsGrid">
+                <!-- 统计信息将在这里动态生成 -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">检测选项</div>
+                <div class="checkbox-group" id="checkboxGroup">
+                    <!-- 复选框将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script>
+        // 本地存储检测和管理工具类
+        class LocalStorageManager {
+            constructor() {
+                this.isEnabled = false;
+                this.storageData = {};
+                this.plugins = {};
+                this.stats = {
+                    totalItems: 0,
+                    totalSize: 0,
+                    lastTest: null,
+                    testCount: 0
+                };
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCheckboxes();
+                    this.testStorage();
+
+                    // 添加一些测试数据
+                    this.addTestData();
+
+                    this.refreshList();
+                    this.updateStats();
+                    this.setupEventListeners();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 添加测试数据
+            addTestData() {
+                if (!this.isEnabled) {
+                    this.showError('本地存储不可用，无法添加测试数据');
+                    return;
+                }
+
+                try {
+                    let addedCount = 0;
+                    const testData = [
+                        { key: 'test_key_1', value: '这是一个测试值' },
+                        {
+                            key: 'user_preferences', value: JSON.stringify({
+                                theme: 'dark',
+                                language: 'zh-CN',
+                                notifications: true
+                            })
+                        },
+                        { key: 'sample_data', value: 'Hello World! 这是一个示例数据。' },
+                        { key: 'current_time', value: new Date().toLocaleString() },
+                        { key: 'random_number', value: Math.floor(Math.random() * 1000).toString() },
+                        {
+                            key: 'json_data', value: JSON.stringify({
+                                name: '测试用户',
+                                age: 25,
+                                hobbies: ['编程', '阅读', '音乐']
+                            })
+                        }
+                    ];
+
+                    testData.forEach(({ key, value }) => {
+                        if (!localStorage.getItem(key)) {
+                            localStorage.setItem(key, value);
+                            addedCount++;
+                        }
+                    });
+
+                    if (addedCount > 0) {
+                        this.showSuccess(`成功添加 ${addedCount} 个测试数据`);
+                        this.refreshAndUpdate();
+                        this.showAddTestDataModal(addedCount, testData);
+                    } else {
+                        this.showError('所有测试数据已存在，无需重复添加');
+                    }
+                } catch (error) {
+                    this.showError('添加测试数据失败: ' + error.message);
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'autoRefresh', label: '自动刷新列表', checked: true },
+                    { id: 'showDetails', label: '显示详细信息', checked: true },
+                    { id: 'enableNotifications', label: '启用通知提醒', checked: true },
+                    { id: 'saveHistory', label: '保存检测历史', checked: false }
+                ];
+
+                // 使用自定义checkbox插件
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            console.log('复选框状态变化:', checkedStates);
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options; // 保存选项映射
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    // 降级到原生复选框
+                    options.forEach(option => {
+                        const checkboxItem = document.createElement('div');
+                        checkboxItem.className = 'checkbox-item';
+                        checkboxItem.innerHTML = `
+                            <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                            <label for="${option.id}">${option.label}</label>
+                        `;
+                        checkboxGroup.appendChild(checkboxItem);
+                    });
+                }
+            }
+
+            // 设置事件监听器
+            setupEventListeners() {
+                // 输入框回车事件
+                document.getElementById('keyInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.setItem();
+                    }
+                });
+
+                // 自动刷新
+                setInterval(() => {
+                    if (this.getCheckboxValue('autoRefresh')) {
+                        this.refreshList();
+                        this.updateStats();
+                    }
+                }, 5000);
+            }
+
+            // 检测本地存储是否可用
+            isLocalStorageEnabled() {
+                try {
+                    const key = `__storage__test`;
+                    window.localStorage.setItem(key, 'test');
+                    window.localStorage.removeItem(key);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            // 测试存储功能
+            testStorage() {
+                const startTime = performance.now();
+                this.isEnabled = this.isLocalStorageEnabled();
+                const endTime = performance.now();
+
+                this.updateStatus();
+                this.updateStorageInfo();
+                this.stats.lastTest = new Date();
+                this.stats.testCount++;
+
+                // 显示检测结果通知
+                this.showNotification(
+                    this.isEnabled ? '本地存储可用' : '本地存储不可用',
+                    this.isEnabled ? 'success' : 'error'
+                );
+
+                if (this.getCheckboxValue('saveHistory')) {
+                    this.saveTestHistory({
+                        enabled: this.isEnabled,
+                        testTime: endTime - startTime,
+                        timestamp: this.stats.lastTest
+                    });
+                }
+            }
+
+            // 更新状态显示
+            updateStatus() {
+                const statusIndicator = document.getElementById('statusIndicator');
+                const statusIcon = document.getElementById('statusIcon');
+                const statusText = document.getElementById('statusText');
+                const statusDetails = document.getElementById('statusDetails');
+
+                if (this.isEnabled) {
+                    statusIndicator.className = 'status-indicator status-enabled';
+                    statusIcon.textContent = '✅';
+                    statusText.textContent = '本地存储可用';
+                    statusDetails.textContent = '浏览器支持localStorage，可以正常使用';
+                } else {
+                    statusIndicator.className = 'status-indicator status-disabled';
+                    statusIcon.textContent = '❌';
+                    statusText.textContent = '本地存储不可用';
+                    statusDetails.textContent = '浏览器不支持localStorage或已被禁用';
+                }
+            }
+
+            // 更新存储信息
+            updateStorageInfo() {
+                const storageInfo = document.getElementById('storageInfo');
+                const supportStatus = document.getElementById('supportStatus');
+                const availableSpace = document.getElementById('availableSpace');
+                const usedItems = document.getElementById('usedItems');
+
+                storageInfo.style.display = 'block';
+                supportStatus.textContent = this.isEnabled ? '支持' : '不支持';
+
+                if (this.isEnabled) {
+                    try {
+                        const used = this.getStorageSize();
+                        availableSpace.textContent = `${used} bytes`;
+                        usedItems.textContent = Object.keys(this.storageData).length;
+                    } catch (error) {
+                        availableSpace.textContent = '无法计算';
+                        usedItems.textContent = '0';
+                    }
+                } else {
+                    availableSpace.textContent = '不可用';
+                    usedItems.textContent = '0';
+                }
+            }
+
+            // 获取存储大小
+            getStorageSize() {
+                let total = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        total += localStorage[key].length + key.length;
+                    }
+                }
+                return total;
+            }
+
+            // 存储项目
+            setItem() {
+                if (!this.validateStorage()) return;
+
+                const { key, value } = this.getInputValues();
+                if (!this.validateKey(key)) return;
+
+                try {
+                    localStorage.setItem(key, value);
+                    this.showSuccess(`成功存储: ${key}`);
+                    this.refreshAndUpdate();
+                } catch (error) {
+                    this.showError('存储失败: ' + error.message);
+                }
+            }
+
+            // 读取项目
+            getItem() {
+                if (!this.validateStorage()) return;
+
+                const { key } = this.getInputValues();
+                if (!this.validateKey(key)) return;
+
+                try {
+                    const value = localStorage.getItem(key);
+                    if (value !== null) {
+                        // 添加读取动画效果
+                        this.showReadAnimation(key, value);
+                        this.setInputValues(key, value);
+                        this.showSuccess(`成功读取: ${key}`);
+
+                        // 显示详细读取信息弹窗
+                        this.showReadDetailsModal(key, value);
+                    } else {
+                        this.showError(`键 "${key}" 不存在`);
+                        this.showNotFoundModal(key);
+                    }
+                } catch (error) {
+                    this.showError('读取失败: ' + error.message);
+                }
+            }
+
+            // 删除项目
+            removeItem() {
+                if (!this.validateStorage()) return;
+
+                const { key } = this.getInputValues();
+                if (!this.validateKey(key)) return;
+
+                try {
+                    localStorage.removeItem(key);
+                    this.showSuccess(`成功删除: ${key}`);
+                    this.refreshAndUpdate();
+                } catch (error) {
+                    this.showError('删除失败: ' + error.message);
+                }
+            }
+
+            // 清空所有存储
+            clearAllStorage() {
+                if (!this.validateStorage()) return;
+
+                // 使用自定义模态框替代confirm
+                this.showConfirmModal(
+                    '确认清空存储',
+                    '确定要清空所有本地存储数据吗？此操作不可恢复！',
+                    () => {
+                        try {
+                            localStorage.clear();
+                            this.showSuccess('已清空所有存储数据');
+                            this.refreshAndUpdate();
+                        } catch (error) {
+                            this.showError('清空失败: ' + error.message);
+                        }
+                    }
+                );
+            }
+
+            // 刷新存储列表
+            refreshList() {
+                if (!this.isEnabled) {
+                    document.getElementById('storageList').innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">本地存储不可用</div>';
+                    return;
+                }
+
+                const storageList = document.getElementById('storageList');
+
+                // 添加刷新动画
+                this.showRefreshAnimation();
+
+                this.storageData = {};
+
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        const value = localStorage.getItem(key);
+                        this.storageData[key] = value;
+                    }
+
+                    if (Object.keys(this.storageData).length === 0) {
+                        storageList.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">暂无存储数据</div>';
+                        this.showEmptyListModal();
+                        return;
+                    }
+
+                    const itemsHTML = Object.entries(this.storageData).map(([key, value], index) => `
+                        <div class="storage-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                            <div>
+                                <div class="storage-key">${key}</div>
+                                <div class="storage-value">${this.truncateValue(value)}</div>
+                            </div>
+                            <div class="storage-actions">
+                                <button class="btn btn-primary btn-small" onclick="window.storageManager?.loadItem('${key}')">加载</button>
+                                <button class="btn btn-danger btn-small" onclick="window.storageManager?.deleteItem('${key}')">删除</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    storageList.innerHTML = itemsHTML;
+
+                    // 显示刷新成功提示
+                    this.showRefreshSuccessModal(Object.keys(this.storageData).length);
+                } catch (error) {
+                    storageList.innerHTML = '<div style="padding: 20px; text-align: center; color: #dc2626;">读取存储数据失败</div>';
+                    this.showError('刷新存储列表失败: ' + error.message);
+                }
+            }
+
+            // 加载项目到输入框
+            loadItem(key) {
+                // 先从localStorage重新获取最新数据
+                const value = localStorage.getItem(key);
+                if (value !== null) {
+                    // 添加加载动画效果
+                    this.showLoadAnimation(key, value);
+
+                    this.setInputValues(key, value);
+                    this.showSuccess(`已加载: ${key}`);
+
+                    // 显示加载详情弹窗
+                    this.showLoadDetailsModal(key, value);
+                } else {
+                    this.showError(`键 "${key}" 不存在`);
+                    this.showNotFoundModal(key);
+                }
+            }
+
+            // 删除指定项目
+            deleteItem(key) {
+                this.showConfirmModal(
+                    '确认删除',
+                    `确定要删除 "${key}" 吗？`,
+                    () => {
+                        try {
+                            localStorage.removeItem(key);
+                            this.showSuccess(`已删除: ${key}`);
+                            this.refreshAndUpdate();
+                        } catch (error) {
+                            this.showError('删除失败: ' + error.message);
+                        }
+                    }
+                );
+            }
+
+            // 截断显示值
+            truncateValue(value, maxLength = 50) {
+                if (value.length <= maxLength) return value;
+                return value.substring(0, maxLength) + '...';
+            }
+
+            // 更新统计信息
+            updateStats() {
+                this.stats.totalItems = Object.keys(this.storageData).length;
+                this.stats.totalSize = this.getStorageSize();
+
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalItems}</div>
+                        <div class="stat-label">存储项目</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalSize}</div>
+                        <div class="stat-label">总大小(bytes)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.testCount}</div>
+                        <div class="stat-label">检测次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.isEnabled ? '是' : '否'}</div>
+                        <div class="stat-label">存储可用</div>
+                    </div>
+                `;
+            }
+
+            // 保存检测历史
+            saveTestHistory(testData) {
+                try {
+                    const history = JSON.parse(localStorage.getItem('storageTestHistory') || '[]');
+                    history.push(testData);
+                    if (history.length > 50) {
+                        history.shift(); // 只保留最近50条记录
+                    }
+                    localStorage.setItem('storageTestHistory', JSON.stringify(history));
+                } catch (error) {
+                    console.warn('保存检测历史失败:', error);
+                }
+            }
+
+            // 显示成功消息（使用Notification插件）
+            showSuccess(message) {
+                this.showNotification(message, 'success');
+            }
+
+            // 显示错误消息（使用Notification插件）
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示通知（统一使用Notification插件）
+            showNotification(message, type) {
+                if (this.plugins.notification) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    // 降级到简单的alert（仅在插件未加载时使用）
+                    alert(message);
+                }
+            }
+
+            // 获取输入框值的通用方法
+            getInputValues() {
+                return {
+                    key: document.getElementById('keyInput').value.trim(),
+                    value: document.getElementById('valueInput').value.trim()
+                };
+            }
+
+            // 设置输入框值的通用方法
+            setInputValues(key, value) {
+                document.getElementById('keyInput').value = key || '';
+                document.getElementById('valueInput').value = value || '';
+            }
+
+            // 验证键名的通用方法
+            validateKey(key) {
+                if (!key) {
+                    this.showError('请输入键名');
+                    return false;
+                }
+                return true;
+            }
+
+            // 验证本地存储可用性的通用方法
+            validateStorage() {
+                if (!this.isEnabled) {
+                    this.showError('本地存储不可用，无法执行操作');
+                    return false;
+                }
+                return true;
+            }
+
+            // 刷新列表和统计的通用方法
+            refreshAndUpdate() {
+                this.refreshList();
+                this.updateStats();
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        // 找到对应选项的索引
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+                // 降级到原生复选框
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 显示确认模态框
+            showConfirmModal(title, message, onConfirm) {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: title,
+                        content: `<p style="margin: 0; font-size: 16px;">${message}</p>`,
+                        type: "confirm",
+                        onConfirm: onConfirm,
+                        onCancel: () => {
+                            // 取消操作，不需要做任何事情
+                        }
+                    });
+                } else {
+                    // 降级到原生confirm
+                    if (confirm(message)) {
+                        onConfirm();
+                    }
+                }
+            }
+
+            // 显示读取动画
+            showReadAnimation(key, value) {
+                const keyInput = document.getElementById('keyInput');
+                const valueInput = document.getElementById('valueInput');
+
+                // 添加高亮效果
+                keyInput.style.borderColor = '#10b981';
+                valueInput.style.borderColor = '#10b981';
+
+                // 添加脉冲效果
+                keyInput.style.animation = 'pulse 0.6s ease-in-out';
+                valueInput.style.animation = 'pulse 0.6s ease-in-out';
+
+                setTimeout(() => {
+                    keyInput.style.borderColor = '';
+                    valueInput.style.borderColor = '';
+                    keyInput.style.animation = '';
+                    valueInput.style.animation = '';
+                }, 600);
+            }
+
+            // 显示加载动画
+            showLoadAnimation(key, value) {
+                const keyInput = document.getElementById('keyInput');
+                const valueInput = document.getElementById('valueInput');
+
+                // 添加加载效果
+                keyInput.style.transform = 'scale(1.05)';
+                valueInput.style.transform = 'scale(1.05)';
+                keyInput.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.3)';
+                valueInput.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.3)';
+
+                setTimeout(() => {
+                    keyInput.style.transform = '';
+                    valueInput.style.transform = '';
+                    keyInput.style.boxShadow = '';
+                    valueInput.style.boxShadow = '';
+                }, 500);
+            }
+
+            // 显示刷新动画
+            showRefreshAnimation() {
+                const storageList = document.getElementById('storageList');
+                storageList.style.opacity = '0.5';
+                storageList.style.transform = 'scale(0.98)';
+
+                setTimeout(() => {
+                    storageList.style.opacity = '';
+                    storageList.style.transform = '';
+                }, 300);
+            }
+
+            // 显示读取详情弹窗
+            showReadDetailsModal(key, value) {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '📖 读取详情',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #495057;">键名</h4>
+                                    <code style="background: #e9ecef; padding: 5px 10px; border-radius: 4px; font-size: 14px;">${key}</code>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #495057;">值</h4>
+                                    <div style="background: #e9ecef; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">${value}</div>
+                                </div>
+                                <div style="background: #e8f5e8; padding: 10px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <strong>✅ 读取成功！</strong> 数据已加载到输入框中。
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 显示加载详情弹窗
+            showLoadDetailsModal(key, value) {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🔄 加载详情',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #495057;">已加载的键</h4>
+                                    <code style="background: #e9ecef; padding: 5px 10px; border-radius: 4px; font-size: 14px;">${key}</code>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #495057;">值内容</h4>
+                                    <div style="background: #e9ecef; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">${value}</div>
+                                </div>
+                                <div style="background: #e8f5e8; padding: 10px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <strong>✅ 加载完成！</strong> 数据已填入输入框，可以继续编辑。
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 显示刷新成功弹窗
+            showRefreshSuccessModal(itemCount) {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🔄 刷新完成',
+                        content: `
+                            <div style="padding: 20px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                                <h3 style="margin: 0 0 10px 0; color: #10b981;">刷新成功！</h3>
+                                <p style="margin: 0 0 15px 0; color: #6c757d;">共找到 <strong>${itemCount}</strong> 个存储项目</p>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                    <p style="margin: 0; font-size: 14px; color: #495057;">列表已更新，所有项目都显示在下方</p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 显示空列表弹窗
+            showEmptyListModal() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '📭 存储列表为空',
+                        content: `
+                            <div style="padding: 20px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
+                                <h3 style="margin: 0 0 10px 0; color: #6c757d;">暂无存储数据</h3>
+                                <p style="margin: 0 0 15px 0; color: #6c757d;">当前本地存储中没有数据</p>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                    <p style="margin: 0; font-size: 14px; color: #495057;">💡 提示：可以添加一些测试数据来体验功能</p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 显示未找到弹窗
+            showNotFoundModal(key) {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '❌ 未找到数据',
+                        content: `
+                            <div style="padding: 20px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                                <h3 style="margin: 0 0 10px 0; color: #dc2626;">键不存在</h3>
+                                <p style="margin: 0 0 15px 0; color: #6c757d;">未找到键: <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px;">${key}</code></p>
+                                <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #dc2626;">
+                                    <p style="margin: 0; font-size: 14px; color: #dc2626;">请检查键名是否正确，或先存储一些数据</p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 显示添加测试数据成功弹窗
+            showAddTestDataModal(addedCount, testData) {
+                if (this.plugins.modal) {
+                    const addedItemsHTML = testData.map(({ key, value }) => `
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #10b981;">
+                            <div style="font-weight: 600; color: #495057; margin-bottom: 4px;">
+                                <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 12px;">${key}</code>
+                            </div>
+                            <div style="font-size: 12px; color: #6c757d; font-family: monospace; white-space: pre-wrap; max-height: 60px; overflow: hidden;">${value.length > 50 ? value.substring(0, 50) + '...' : value}</div>
+                        </div>
+                    `).join('');
+
+                    this.plugins.modal.show({
+                        title: '🎉 测试数据添加成功',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #10b981;">成功添加 ${addedCount} 个测试数据</h3>
+                                    <p style="margin: 0; color: #6c757d;">现在可以测试各种存储功能了</p>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #495057;">已添加的数据：</h4>
+                                    <div style="max-height: 200px; overflow-y: auto;">
+                                        ${addedItemsHTML}
+                                    </div>
+                                </div>
+                                
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 现在可以尝试读取、加载、删除这些测试数据来体验功能
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 全局测试函数
+        function testAddData() {
+            // 添加按钮点击效果
+            const btn = document.getElementById('addTestDataBtn');
+            btn.style.transform = 'scale(0.95)';
+            btn.style.backgroundColor = '#5a6fd8';
+
+            setTimeout(() => {
+                btn.style.transform = '';
+                btn.style.backgroundColor = '';
+            }, 150);
+
+            if (window.storageManager) {
+                window.storageManager.addTestData();
+            } else {
+                // 使用全局消息显示函数
+                showGlobalMessage('存储管理器未初始化，请刷新页面重试', 'error');
+            }
+        }
+
+        // 全局消息显示函数（复用类内部的方法）
+        function showGlobalMessage(message, type = 'error') {
+            if (window.storageManager) {
+                if (type === 'error') {
+                    window.storageManager.showError(message);
+                } else {
+                    window.storageManager.showSuccess(message);
+                }
+            } else {
+                // 降级到简单的alert（仅在storageManager未初始化时使用）
+                alert(message);
+            }
+        }
+
+        // 页面加载完成后初始化存储管理器
+        document.addEventListener('DOMContentLoaded', () => {
+            window.storageManager = new LocalStorageManager();
+        });
+    </script>
+</body>
+
+</html>
