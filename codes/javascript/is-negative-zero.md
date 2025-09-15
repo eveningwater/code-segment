@@ -10,6 +10,10 @@
 const isNegativeZero = val => val === 0 && 1 / val === -Infinity;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-negative-zero.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,8 +23,10 @@ isNegativeZero(0); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isNegativeZero.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-negative-zero.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-negative-zero.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isNegativeZero.html"></iframe>
+<iframe src="codes/javascript/html/is-negative-zero.html"></iframe>
