@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>空值检测与验证工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .result-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-true {
+            background: #10b981;
+        }
+
+        .status-false {
+            background: #ef4444;
+        }
+
+        .validation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .validation-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .validation-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .validation-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .validation-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #6c757d;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item label {
+            font-size: 1rem;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .history-section {
+            margin-top: 25px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-text {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #495057;
+            font-size: 0.9rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .validation-item {
+            transition: all 0.3s ease;
+        }
+
+        .validation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .validation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .error-text {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .success-text {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .null-value {
+            background: linear-gradient(120deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #d97706;
+        }
+
+        .undefined-value {
+            background: linear-gradient(120deg, #e0e7ff 0%, #c7d2fe 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #6366f1;
+        }
+
+        .empty-value {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #d97706;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-null {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .type-undefined {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .type-string {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .type-number {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .type-boolean {
+            background: #e0e7ff;
+            color: #7c3aed;
+        }
+
+        .type-object {
+            background: #fce7f3;
+            color: #be185d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 空值检测与验证工具</h1>
+            <p>基于 isNil 函数的智能空值检测工具，支持 null/undefined 检测、类型验证和空值处理</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 值输入与分析</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="valueInput">输入要检测的值</label>
+                        <input type="text" id="valueInput" placeholder="请输入值，支持 null, undefined, 字符串, 数字等...">
+                    </div>
+                    <div class="input-group">
+                        <label for="valueType">选择值类型</label>
+                        <select id="valueType">
+                            <option value="auto">自动检测</option>
+                            <option value="null">null</option>
+                            <option value="undefined">undefined</option>
+                            <option value="string">字符串</option>
+                            <option value="number">数字</option>
+                            <option value="boolean">布尔值</option>
+                            <option value="object">对象</option>
+                            <option value="array">数组</option>
+                        </select>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.nilAnalyzer?.analyzeValue()">
+                            🔍 分析值
+                        </button>
+                        <button class="btn btn-success" onclick="window.nilAnalyzer?.clearInput()">
+                            🗑️ 清空输入
+                        </button>
+                        <button class="btn btn-info" onclick="window.nilAnalyzer?.loadSampleValues()">
+                            📄 加载示例
+                        </button>
+                    </div>
+                </div>
+
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: #495057;">📊 分析结果</h3>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isNilIndicator"></span>
+                            是否为空值 (isNil)
+                        </span>
+                        <span class="result-value" id="isNilResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isNullIndicator"></span>
+                            是否为 null
+                        </span>
+                        <span class="result-value" id="isNullResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isUndefinedIndicator"></span>
+                            是否为 undefined
+                        </span>
+                        <span class="result-value" id="isUndefinedResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isEmptyIndicator"></span>
+                            是否为空值
+                        </span>
+                        <span class="result-value" id="isEmptyResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">值类型</span>
+                        <span class="result-value" id="valueTypeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">原始值</span>
+                        <span class="result-value" id="originalValue">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔍 空值验证</h2>
+                <div class="validation-section">
+                    <div class="button-group">
+                        <button class="btn btn-warning" onclick="window.nilAnalyzer?.validateEmptyValues()">
+                            🔍 验证空值
+                        </button>
+                        <button class="btn btn-info" onclick="window.nilAnalyzer?.compareValues()">
+                            ⚖️ 比较值
+                        </button>
+                        <button class="btn btn-success" onclick="window.nilAnalyzer?.convertValues()">
+                            🔄 转换值
+                        </button>
+                    </div>
+                    <div class="validation-grid" id="validationGrid">
+                        <!-- 验证结果将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 检测统计</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">检测选项</div>
+                <div class="checkbox-group" id="checkboxGroup">
+                    <!-- 复选框将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📚 历史记录</h2>
+            <div class="history-section">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.nilAnalyzer?.refreshHistory()">
+                        🔄 刷新历史
+                    </button>
+                    <button class="btn btn-danger" onclick="window.nilAnalyzer?.clearHistory()">
+                        🗑️ 清空历史
+                    </button>
+                    <button class="btn btn-info" onclick="window.nilAnalyzer?.exportHistory()">
+                        📤 导出历史
+                    </button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script>
+        // 空值分析器类
+        class NilAnalyzer {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.originalResultContent = null;
+                this.stats = {
+                    totalAnalyzes: 0,
+                    totalValidations: 0,
+                    lastAnalyze: null,
+                    nilValuesFound: 0,
+                    nullValuesFound: 0,
+                    undefinedValuesFound: 0
+                };
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCheckboxes();
+                    this.loadHistory();
+                    this.setupEventListeners();
+                    this.saveOriginalContent();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'autoAnalyze', label: '自动分析值', checked: false },
+                    { id: 'saveHistory', label: '保存分析历史', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'enableAnimations', label: '启用动画效果', checked: true },
+                    { id: 'strictMode', label: '严格模式检测', checked: true }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            console.log('复选框状态变化:', checkedStates);
+                            this.handleCheckboxChange(checkedStates);
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 处理复选框变化
+            handleCheckboxChange(checkedStates) {
+                if (this.getCheckboxValue('autoAnalyze')) {
+                    this.analyzeValue();
+                }
+            }
+
+            // 设置事件监听器
+            setupEventListeners() {
+                const valueInput = document.getElementById('valueInput');
+                const valueType = document.getElementById('valueType');
+                
+                if (valueInput) {
+                    valueInput.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoAnalyze')) {
+                            this.analyzeValue();
+                        }
+                    });
+
+                    valueInput.addEventListener('keydown', (e) => {
+                        if (e.ctrlKey && e.key === 'Enter') {
+                            this.analyzeValue();
+                        }
+                    });
+                }
+
+                if (valueType) {
+                    valueType.addEventListener('change', () => {
+                        if (this.getCheckboxValue('autoAnalyze')) {
+                            this.analyzeValue();
+                        }
+                    });
+                }
+            }
+
+            // 核心函数：检查是否为空值
+            isNil(val) {
+                return val === undefined || val === null;
+            }
+
+            // 检查是否为 null
+            isNull(val) {
+                return val === null;
+            }
+
+            // 检查是否为 undefined
+            isUndefined(val) {
+                return val === undefined;
+            }
+
+            // 检查是否为空值（包括空字符串、空数组等）
+            isEmpty(val) {
+                if (this.isNil(val)) return true;
+                if (typeof val === 'string' && val.trim() === '') return true;
+                if (Array.isArray(val) && val.length === 0) return true;
+                if (typeof val === 'object' && Object.keys(val).length === 0) return true;
+                return false;
+            }
+
+            // 分析值
+            analyzeValue() {
+                const valueInput = document.getElementById('valueInput');
+                const valueType = document.getElementById('valueType');
+                
+                if (!valueInput) return;
+
+                const inputValue = valueInput.value.trim();
+                const selectedType = valueType ? valueType.value : 'auto';
+                
+                if (!inputValue && selectedType === 'auto') {
+                    this.hideResults();
+                    return;
+                }
+
+                // 显示加载动画
+                this.showLoadingAnimation();
+
+                requestAnimationFrame(() => {
+                    try {
+                        const parsedValue = this.parseValue(inputValue, selectedType);
+                        const analysis = this.performAnalysis(parsedValue, inputValue);
+                        this.displayResults(analysis);
+                        this.updateStats();
+                        
+                        if (this.getCheckboxValue('saveHistory')) {
+                            this.saveToHistory(inputValue, analysis);
+                        }
+
+                        this.showNotification('值分析完成', 'success');
+                    } catch (error) {
+                        this.showError('值解析失败: ' + error.message);
+                    }
+                });
+            }
+
+            // 解析输入值
+            parseValue(input, type) {
+                // 特殊值处理
+                if (input === 'null') return null;
+                if (input === 'undefined') return undefined;
+                if (input === 'true') return true;
+                if (input === 'false') return false;
+                if (input === 'NaN') return NaN;
+                if (input === 'Infinity') return Infinity;
+                if (input === '-Infinity') return -Infinity;
+                
+                // 根据选择的类型解析
+                switch (type) {
+                    case 'null':
+                        return null;
+                    case 'undefined':
+                        return undefined;
+                    case 'string':
+                        return input;
+                    case 'number':
+                        const num = Number(input);
+                        if (isNaN(num)) throw new Error('无法解析为数字');
+                        return num;
+                    case 'boolean':
+                        if (input === 'true') return true;
+                        if (input === 'false') return false;
+                        throw new Error('无法解析为布尔值');
+                    case 'object':
+                        try {
+                            return JSON.parse(input);
+                        } catch (e) {
+                            return {};
+                        }
+                    case 'array':
+                        try {
+                            const parsed = JSON.parse(input);
+                            return Array.isArray(parsed) ? parsed : [parsed];
+                        } catch (e) {
+                            return input.split(',').map(item => item.trim());
+                        }
+                    case 'auto':
+                    default:
+                        // 尝试自动解析
+                        if (input === '') return '';
+                        if (!isNaN(input) && input !== '') return Number(input);
+                        if (input === 'true' || input === 'false') return input === 'true';
+                        return input;
+                }
+            }
+
+            // 执行值分析
+            performAnalysis(value, originalInput) {
+                return {
+                    value: value,
+                    originalInput: originalInput,
+                    isNil: this.isNil(value),
+                    isNull: this.isNull(value),
+                    isUndefined: this.isUndefined(value),
+                    isEmpty: this.isEmpty(value),
+                    type: typeof value,
+                    isString: typeof value === 'string',
+                    isNumber: typeof value === 'number',
+                    isBoolean: typeof value === 'boolean',
+                    isObject: typeof value === 'object' && value !== null,
+                    isArray: Array.isArray(value),
+                    isFunction: typeof value === 'function',
+                    toString: value !== null && value !== undefined ? value.toString() : String(value),
+                    jsonStringify: this.safeJsonStringify(value),
+                    length: this.getValueLength(value)
+                };
+            }
+
+            // 安全JSON序列化
+            safeJsonStringify(value) {
+                try {
+                    return JSON.stringify(value);
+                } catch (error) {
+                    return '[Circular Reference]';
+                }
+            }
+
+            // 获取值长度
+            getValueLength(value) {
+                if (typeof value === 'string' || Array.isArray(value)) {
+                    return value.length;
+                }
+                if (typeof value === 'object' && value !== null) {
+                    return Object.keys(value).length;
+                }
+                return 0;
+            }
+
+            // 显示分析结果
+            displayResults(analysis) {
+                console.log('开始显示分析结果', analysis);
+                
+                // 先恢复原始内容，然后显示结果区域
+                this.restoreOriginalContent();
+                this.showResults();
+                
+                // 等待DOM更新后再更新内容
+                requestAnimationFrame(() => {
+                    // 更新状态指示器
+                    this.updateStatusIndicator('isNilIndicator', analysis.isNil);
+                    this.updateStatusIndicator('isNullIndicator', analysis.isNull);
+                    this.updateStatusIndicator('isUndefinedIndicator', analysis.isUndefined);
+                    this.updateStatusIndicator('isEmptyIndicator', analysis.isEmpty);
+
+                    // 更新结果值
+                    this.updateElementText('isNilResult', analysis.isNil ? '是' : '否');
+                    this.updateElementText('isNullResult', analysis.isNull ? '是' : '否');
+                    this.updateElementText('isUndefinedResult', analysis.isUndefined ? '是' : '否');
+                    this.updateElementText('isEmptyResult', analysis.isEmpty ? '是' : '否');
+                    this.updateElementText('valueTypeResult', this.getTypeBadge(analysis.type));
+                    this.updateElementText('originalValue', this.formatValue(analysis.originalInput));
+
+                    // 更新统计信息
+                    this.updateStatsDisplay(analysis);
+                });
+            }
+
+            // 获取类型徽章
+            getTypeBadge(type) {
+                const typeMap = {
+                    'null': 'type-null',
+                    'undefined': 'type-undefined',
+                    'string': 'type-string',
+                    'number': 'type-number',
+                    'boolean': 'type-boolean',
+                    'object': 'type-object'
+                };
+                
+                const className = typeMap[type] || 'type-object';
+                return `<span class="type-badge ${className}">${type}</span>`;
+            }
+
+            // 格式化值显示
+            formatValue(value) {
+                if (value === null) return '<span class="null-value">null</span>';
+                if (value === undefined) return '<span class="undefined-value">undefined</span>';
+                if (value === '') return '<span class="empty-value">""</span>';
+                return `<span class="highlight">${value}</span>`;
+            }
+
+            // 安全更新元素文本内容
+            updateElementText(elementId, text) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = text;
+                    console.log(`成功更新元素 ${elementId}:`, text);
+                } else {
+                    console.warn(`元素 ${elementId} 未找到，当前DOM状态:`, {
+                        documentReady: document.readyState,
+                        bodyExists: !!document.body,
+                        elementExists: !!document.querySelector(`#${elementId}`)
+                    });
+                }
+            }
+
+            // 更新状态指示器
+            updateStatusIndicator(elementId, isTrue) {
+                const indicator = document.getElementById(elementId);
+                if (indicator) {
+                    indicator.className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
+                    console.log(`成功更新状态指示器 ${elementId}:`, isTrue);
+                } else {
+                    console.warn(`状态指示器元素 ${elementId} 未找到，当前DOM状态:`, {
+                        documentReady: document.readyState,
+                        bodyExists: !!document.body,
+                        elementExists: !!document.querySelector(`#${elementId}`)
+                    });
+                }
+            }
+
+            // 显示结果区域
+            showResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                    console.log('结果区域已显示');
+                } else {
+                    console.warn('结果区域元素未找到，当前DOM状态:', {
+                        documentReady: document.readyState,
+                        bodyExists: !!document.body,
+                        elementExists: !!document.querySelector('#resultSection')
+                    });
+                }
+            }
+
+            // 隐藏结果区域
+            hideResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'none';
+                } else {
+                    console.warn('结果区域元素未找到');
+                }
+            }
+
+            // 显示加载动画
+            showLoadingAnimation() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    // 保存原始内容
+                    if (!this.originalResultContent) {
+                        this.originalResultContent = resultSection.innerHTML;
+                    }
+                    
+                    resultSection.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div class="loading"></div>
+                            <p style="margin-top: 15px; color: #6c757d;">正在分析值...</p>
+                        </div>
+                    `;
+                    resultSection.style.display = 'block';
+                } else {
+                    console.warn('结果区域元素未找到，无法显示加载动画');
+                }
+            }
+
+            // 恢复原始内容
+            restoreOriginalContent() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection && this.originalResultContent) {
+                    resultSection.innerHTML = this.originalResultContent;
+                    console.log('已恢复原始结果区域内容');
+                }
+            }
+
+            // 保存原始内容
+            saveOriginalContent() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    this.originalResultContent = resultSection.innerHTML;
+                    console.log('已保存原始结果区域内容');
+                }
+            }
+
+            // 更新统计显示
+            updateStatsDisplay(analysis) {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) {
+                    console.warn('统计网格元素未找到');
+                    return;
+                }
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalAnalyzes}</div>
+                        <div class="stat-label">总分析次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.nilValuesFound}</div>
+                        <div class="stat-label">空值检测</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.nullValuesFound}</div>
+                        <div class="stat-label">null值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.undefinedValuesFound}</div>
+                        <div class="stat-label">undefined值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${analysis.length}</div>
+                        <div class="stat-label">值长度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${analysis.type}</div>
+                        <div class="stat-label">值类型</div>
+                    </div>
+                `;
+            }
+
+            // 验证空值
+            validateEmptyValues() {
+                const valueInput = document.getElementById('valueInput');
+                if (!valueInput || !valueInput.value.trim()) {
+                    this.showError('请先输入要验证的值');
+                    return;
+                }
+
+                try {
+                    const value = this.parseValue(valueInput.value.trim());
+                    const validations = this.getEmptyValueValidations(value);
+                    this.displayValidations(validations);
+                    this.showNotification('空值验证完成', 'success');
+                } catch (error) {
+                    this.showError('值解析失败: ' + error.message);
+                }
+            }
+
+            // 获取空值验证结果
+            getEmptyValueValidations(value) {
+                return [
+                    { label: 'isNil 检测', value: this.isNil(value), type: 'isNil' },
+                    { label: 'isNull 检测', value: this.isNull(value), type: 'isNull' },
+                    { label: 'isUndefined 检测', value: this.isUndefined(value), type: 'isUndefined' },
+                    { label: 'isEmpty 检测', value: this.isEmpty(value), type: 'isEmpty' },
+                    { label: '严格相等 null', value: value === null, type: 'strict-null' },
+                    { label: '严格相等 undefined', value: value === undefined, type: 'strict-undefined' },
+                    { label: '== null 检测', value: value == null, type: 'loose-null' },
+                    { label: '!!value 检测', value: !!value, type: 'truthy' }
+                ];
+            }
+
+            // 显示验证结果
+            displayValidations(validations) {
+                const validationGrid = document.getElementById('validationGrid');
+                if (!validationGrid) {
+                    console.warn('验证网格元素未找到');
+                    return;
+                }
+
+                const validationHTML = validations.map((item, index) => `
+                    <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="validation-label">${item.label}</div>
+                        <div class="validation-value ${item.value ? 'success-text' : 'error-text'}">
+                            ${item.value ? '✓ 是' : '✗ 否'}
+                        </div>
+                    </div>
+                `).join('');
+
+                validationGrid.innerHTML = validationHTML;
+            }
+
+            // 比较值
+            compareValues() {
+                const valueInput = document.getElementById('valueInput');
+                if (!valueInput || !valueInput.value.trim()) {
+                    this.showError('请先输入要比较的值');
+                    return;
+                }
+
+                try {
+                    const value = this.parseValue(valueInput.value.trim());
+                    const comparisons = this.getComparisonResults(value);
+                    this.displayComparisons(comparisons);
+                    this.showNotification('值比较完成', 'success');
+                } catch (error) {
+                    this.showError('值解析失败: ' + error.message);
+                }
+            }
+
+            // 获取比较结果
+            getComparisonResults(value) {
+                return [
+                    { label: '与 null 比较', value: value === null, comparison: '=== null' },
+                    { label: '与 undefined 比较', value: value === undefined, comparison: '=== undefined' },
+                    { label: '与 "" 比较', value: value === '', comparison: '=== ""' },
+                    { label: '与 0 比较', value: value === 0, comparison: '=== 0' },
+                    { label: '与 false 比较', value: value === false, comparison: '=== false' },
+                    { label: '== null 比较', value: value == null, comparison: '== null' },
+                    { label: '== undefined 比较', value: value == undefined, comparison: '== undefined' },
+                    { label: '!!value 转换', value: !!value, comparison: '!!value' }
+                ];
+            }
+
+            // 显示比较结果
+            displayComparisons(comparisons) {
+                const validationGrid = document.getElementById('validationGrid');
+                if (!validationGrid) {
+                    console.warn('验证网格元素未找到');
+                    return;
+                }
+
+                const comparisonHTML = comparisons.map((item, index) => `
+                    <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="validation-label">${item.label}</div>
+                        <div class="validation-value">
+                            <span class="special-value">${item.value}</span>
+                            <br><small>${item.comparison}</small>
+                        </div>
+                    </div>
+                `).join('');
+
+                validationGrid.innerHTML = comparisonHTML;
+            }
+
+            // 转换值
+            convertValues() {
+                const valueInput = document.getElementById('valueInput');
+                if (!valueInput || !valueInput.value.trim()) {
+                    this.showError('请先输入要转换的值');
+                    return;
+                }
+
+                try {
+                    const value = this.parseValue(valueInput.value.trim());
+                    const conversions = this.getConversionResults(value);
+                    this.displayConversions(conversions);
+                    this.showNotification('值转换完成', 'success');
+                } catch (error) {
+                    this.showError('值解析失败: ' + error.message);
+                }
+            }
+
+            // 获取转换结果
+            getConversionResults(value) {
+                return [
+                    { label: '字符串表示', value: String(value), type: 'string' },
+                    { label: 'JSON 序列化', value: this.safeJsonStringify(value), type: 'json' },
+                    { label: '布尔值转换', value: !!value, type: 'boolean' },
+                    { label: '数字转换', value: Number(value), type: 'number' },
+                    { label: '类型检测', value: typeof value, type: 'type' },
+                    { label: '构造函数', value: value?.constructor?.name || 'Unknown', type: 'constructor' },
+                    { label: '原型链', value: Object.prototype.toString.call(value), type: 'prototype' },
+                    { label: '可枚举属性', value: Object.keys(value).length, type: 'enumerable' }
+                ];
+            }
+
+            // 显示转换结果
+            displayConversions(conversions) {
+                const validationGrid = document.getElementById('validationGrid');
+                if (!validationGrid) {
+                    console.warn('验证网格元素未找到');
+                    return;
+                }
+
+                const conversionHTML = conversions.map((item, index) => `
+                    <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="validation-label">${item.label}</div>
+                        <div class="validation-value">
+                            <span class="special-value">${item.value}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                validationGrid.innerHTML = conversionHTML;
+            }
+
+            // 清空输入
+            clearInput() {
+                const valueInput = document.getElementById('valueInput');
+                const valueType = document.getElementById('valueType');
+                
+                if (valueInput) {
+                    valueInput.value = '';
+                }
+                if (valueType) {
+                    valueType.value = 'auto';
+                }
+                
+                this.hideResults();
+                this.clearValidationResults();
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 清空验证结果
+            clearValidationResults() {
+                const validationGrid = document.getElementById('validationGrid');
+                if (validationGrid) {
+                    validationGrid.innerHTML = '';
+                } else {
+                    console.warn('验证网格元素未找到');
+                }
+            }
+
+            // 加载示例值
+            loadSampleValues() {
+                const sampleValues = [
+                    'null', 'undefined', '', '0', 'false', 'true',
+                    'hello', '123', '[]', '{}', 'NaN', 'Infinity',
+                    '[1,2,3]', '{"name":"test"}', 'function(){}'
+                ];
+
+                const randomValue = sampleValues[Math.floor(Math.random() * sampleValues.length)];
+                const valueInput = document.getElementById('valueInput');
+                
+                if (valueInput) {
+                    valueInput.value = randomValue;
+                    
+                    if (this.getCheckboxValue('autoAnalyze')) {
+                        this.analyzeValue();
+                    }
+
+                    this.showNotification('示例值已加载', 'success');
+                } else {
+                    this.showError('值输入框未找到');
+                }
+            }
+
+            // 保存到历史记录
+            saveToHistory(input, analysis) {
+                const historyItem = {
+                    id: Date.now(),
+                    input: input,
+                    analysis: analysis,
+                    timestamp: new Date().toLocaleString(),
+                    type: 'analysis'
+                };
+
+                this.history.unshift(historyItem);
+                
+                // 限制历史记录数量
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+            }
+
+            // 刷新历史记录
+            refreshHistory() {
+                const historyList = document.getElementById('historyList');
+                if (!historyList) return;
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">暂无历史记录</div>';
+                    return;
+                }
+
+                const historyHTML = this.history.map((item, index) => `
+                    <div class="history-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="history-text" title="${item.input}">${this.truncateText(item.input, 40)}</div>
+                        <div class="history-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.nilAnalyzer?.loadFromHistory('${item.id}')">加载</button>
+                            <button class="btn btn-danger btn-small" onclick="window.nilAnalyzer?.removeFromHistory('${item.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                historyList.innerHTML = historyHTML;
+            }
+
+            // 从历史记录加载
+            loadFromHistory(id) {
+                const item = this.history.find(h => h.id == id);
+                if (item) {
+                    const valueInput = document.getElementById('valueInput');
+                    if (valueInput) {
+                        valueInput.value = item.input;
+                        if (this.getCheckboxValue('autoAnalyze')) {
+                            this.analyzeValue();
+                        }
+                        this.showNotification('已从历史记录加载', 'success');
+                    } else {
+                        this.showError('值输入框未找到');
+                    }
+                } else {
+                    this.showError('历史记录项未找到');
+                }
+            }
+
+            // 从历史记录删除
+            removeFromHistory(id) {
+                this.history = this.history.filter(h => h.id != id);
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('已从历史记录删除', 'info');
+            }
+
+            // 清空历史记录
+            clearHistory() {
+                this.showConfirmModal(
+                    '确认清空历史',
+                    '确定要清空所有历史记录吗？此操作不可恢复！',
+                    () => {
+                        this.history = [];
+                        this.saveHistoryToStorage();
+                        this.refreshHistory();
+                        this.showNotification('历史记录已清空', 'success');
+                    }
+                );
+            }
+
+            // 导出历史记录
+            exportHistory() {
+                if (this.history.length === 0) {
+                    this.showError('没有历史记录可导出');
+                    return;
+                }
+
+                const exportData = {
+                    exportTime: new Date().toLocaleString(),
+                    totalRecords: this.history.length,
+                    history: this.history
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `nil-analysis-history-${Date.now()}.json`;
+                link.click();
+
+                this.showNotification('历史记录已导出', 'success');
+            }
+
+            // 加载历史记录
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('nilAnalyzerHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved);
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                    this.history = [];
+                }
+            }
+
+            // 保存历史记录到存储
+            saveHistoryToStorage() {
+                try {
+                    localStorage.setItem('nilAnalyzerHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            // 更新统计信息
+            updateStats() {
+                this.stats.totalAnalyzes++;
+                this.stats.lastAnalyze = new Date();
+                
+                // 检查当前值类型
+                const valueInput = document.getElementById('valueInput');
+                if (valueInput && valueInput.value.trim()) {
+                    try {
+                        const value = this.parseValue(valueInput.value.trim());
+                        if (this.isNil(value)) {
+                            this.stats.nilValuesFound++;
+                        }
+                        if (this.isNull(value)) {
+                            this.stats.nullValuesFound++;
+                        }
+                        if (this.isUndefined(value)) {
+                            this.stats.undefinedValuesFound++;
+                        }
+                    } catch (error) {
+                        // 忽略解析错误
+                    }
+                }
+            }
+
+            // 截断文本
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+                
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 显示确认模态框
+            showConfirmModal(title, message, onConfirm) {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: title,
+                        content: `<p style="margin: 0; font-size: 16px;">${message}</p>`,
+                        type: "confirm",
+                        onConfirm: onConfirm,
+                        onCancel: () => {}
+                    });
+                } else {
+                    if (confirm(message)) {
+                        onConfirm();
+                    }
+                }
+            }
+
+            // 显示成功消息
+            showSuccess(message) {
+                this.showNotification(message, 'success');
+            }
+
+            // 显示错误消息
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else if (!this.getCheckboxValue('showNotifications')) {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                } else {
+                    alert(message);
+                }
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用空值检测与验证工具',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能空值检测 (isNil)</li>
+                                        <li>null 和 undefined 识别</li>
+                                        <li>空值验证和比较功能</li>
+                                        <li>值类型转换和分析</li>
+                                        <li>历史记录管理</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 输入值后会自动分析，也可以点击"加载示例"体验功能
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 安全的初始化函数
+        function safeInit() {
+            console.log('开始安全初始化...');
+            
+            // 确保所有必要的元素都存在
+            const requiredElements = [
+                'valueInput', 'valueType', 'resultSection', 'isNilResult', 'isNullResult', 
+                'isUndefinedResult', 'isEmptyResult', 'valueTypeResult', 'originalValue',
+                'statsGrid', 'validationGrid', 'historyList', 'checkboxGroup'
+            ];
+            
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                console.error('缺少必要的DOM元素:', missingElements);
+                console.log('当前DOM状态:', {
+                    readyState: document.readyState,
+                    bodyExists: !!document.body,
+                    allElements: requiredElements.map(id => ({
+                        id,
+                        exists: !!document.getElementById(id)
+                    }))
+                });
+                
+                // 如果还有缺失元素，等待100ms后重试
+                if (document.readyState === 'loading') {
+                    console.log('文档仍在加载，等待100ms后重试...');
+                    setTimeout(safeInit, 100);
+                }
+                return;
+            }
+            
+            console.log('所有必要元素都存在，开始初始化空值分析器...');
+            
+            try {
+                window.nilAnalyzer = new NilAnalyzer();
+                console.log('空值分析器初始化成功');
+            } catch (error) {
+                console.error('初始化空值分析器失败:', error);
+            }
+        }
+
+        // 页面加载完成后初始化空值分析器
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            safeInit();
+        });
+
+        // 如果DOMContentLoaded已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待DOMContentLoaded事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            safeInit();
+        }
+    </script>
+</body>
+
+</html>
