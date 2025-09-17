@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>空值检测与验证工具</title>
+    <title>智能空值检测与数据验证工具</title>
     <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
     <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
     <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
@@ -539,36 +539,139 @@
             background: #fce7f3;
             color: #be185d;
         }
+
+        .batch-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .batch-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        .batch-results {
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .batch-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .batch-item:last-child {
+            border-bottom: none;
+        }
+
+        .batch-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #495057;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .batch-result {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .batch-result.null {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .batch-result.not-null {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 空值检测与验证工具</h1>
-            <p>基于 isNil 函数的智能空值检测工具，支持 null/undefined 检测、类型验证和空值处理</p>
+            <h1>🔍 智能空值检测与数据验证工具</h1>
+            <p>基于 isNull 函数的智能空值检测工具，支持多种检测模式、批量处理和高级验证功能</p>
         </div>
 
         <div class="main-content">
             <div class="card">
                 <h2>📝 值输入与分析</h2>
                 <div class="input-section">
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="single">单值检测</button>
+                        <button class="mode-btn" data-mode="batch">批量检测</button>
+                        <button class="mode-btn" data-mode="advanced">高级模式</button>
+                    </div>
+                    
                     <div class="input-group">
                         <label for="valueInput">输入要检测的值</label>
                         <input type="text" id="valueInput" placeholder="请输入值，支持 null, undefined, 字符串, 数字等...">
                     </div>
+                    
                     <div class="input-group">
                         <label for="valueType">选择值类型</label>
                         <div id="valueTypeContainer"></div>
                     </div>
+                    
                     <div class="button-group">
-                        <button class="btn btn-primary" onclick="window.nilAnalyzer?.analyzeValue()">
+                        <button class="btn btn-primary" onclick="window.nullDetector?.analyzeValue()">
                             🔍 分析值
                         </button>
-                        <button class="btn btn-success" onclick="window.nilAnalyzer?.clearInput()">
+                        <button class="btn btn-success" onclick="window.nullDetector?.clearInput()">
                             🗑️ 清空输入
                         </button>
-                        <button class="btn btn-info" onclick="window.nilAnalyzer?.loadSampleValues()">
+                        <button class="btn btn-info" onclick="window.nullDetector?.loadSampleValues()">
                             📄 加载示例
                         </button>
                     </div>
@@ -578,15 +681,8 @@
                     <h3 style="margin-bottom: 15px; color: #495057;">📊 分析结果</h3>
                     <div class="result-item">
                         <span class="result-label">
-                            <span class="status-indicator" id="isNilIndicator"></span>
-                            是否为空值 (isNil)
-                        </span>
-                        <span class="result-value" id="isNilResult">-</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">
                             <span class="status-indicator" id="isNullIndicator"></span>
-                            是否为 null
+                            是否为 null (isNull)
                         </span>
                         <span class="result-value" id="isNullResult">-</span>
                     </div>
@@ -619,19 +715,43 @@
                 <h2>🔍 空值验证</h2>
                 <div class="validation-section">
                     <div class="button-group">
-                        <button class="btn btn-warning" onclick="window.nilAnalyzer?.validateEmptyValues()">
+                        <button class="btn btn-warning" onclick="window.nullDetector?.validateNullValues()">
                             🔍 验证空值
                         </button>
-                        <button class="btn btn-info" onclick="window.nilAnalyzer?.compareValues()">
+                        <button class="btn btn-info" onclick="window.nullDetector?.compareValues()">
                             ⚖️ 比较值
                         </button>
-                        <button class="btn btn-success" onclick="window.nilAnalyzer?.convertValues()">
+                        <button class="btn btn-success" onclick="window.nullDetector?.convertValues()">
                             🔄 转换值
                         </button>
                     </div>
                     <div class="validation-grid" id="validationGrid">
                         <!-- 验证结果将在这里动态生成 -->
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📦 批量检测</h2>
+            <div class="batch-section">
+                <div class="input-group">
+                    <label for="batchInput">批量输入值（每行一个值）</label>
+                    <textarea id="batchInput" class="batch-input" placeholder="null&#10;undefined&#10;''&#10;0&#10;false&#10;'hello'&#10;123&#10;[]&#10;{}"></textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.nullDetector?.processBatch()">
+                        🔄 批量处理
+                    </button>
+                    <button class="btn btn-warning" onclick="window.nullDetector?.clearBatch()">
+                        🗑️ 清空批量
+                    </button>
+                    <button class="btn btn-info" onclick="window.nullDetector?.loadBatchSamples()">
+                        📄 加载示例
+                    </button>
+                </div>
+                <div class="batch-results" id="batchResults">
+                    <!-- 批量结果将在这里显示 -->
                 </div>
             </div>
         </div>
@@ -659,13 +779,13 @@
             <h2>📚 历史记录</h2>
             <div class="history-section">
                 <div class="button-group">
-                    <button class="btn btn-primary" onclick="window.nilAnalyzer?.refreshHistory()">
+                    <button class="btn btn-primary" onclick="window.nullDetector?.refreshHistory()">
                         🔄 刷新历史
                     </button>
-                    <button class="btn btn-danger" onclick="window.nilAnalyzer?.clearHistory()">
+                    <button class="btn btn-danger" onclick="window.nullDetector?.clearHistory()">
                         🗑️ 清空历史
                     </button>
-                    <button class="btn btn-info" onclick="window.nilAnalyzer?.exportHistory()">
+                    <button class="btn btn-info" onclick="window.nullDetector?.exportHistory()">
                         📤 导出历史
                     </button>
                 </div>
@@ -681,8 +801,11 @@
     <script src="../../demo/plugins/notification/index.js"></script>
     <script src="../../demo/plugins/select/index.js"></script>
     <script>
-        // 空值分析器类
-        class NilAnalyzer {
+        // 核心 isNull 函数
+        const isNull = val => val === null;
+
+        // 空值检测器类
+        class NullDetector {
             constructor() {
                 this.plugins = {};
                 this.history = [];
@@ -691,10 +814,11 @@
                     totalAnalyzes: 0,
                     totalValidations: 0,
                     lastAnalyze: null,
-                    nilValuesFound: 0,
                     nullValuesFound: 0,
-                    undefinedValuesFound: 0
+                    undefinedValuesFound: 0,
+                    emptyValuesFound: 0
                 };
+                this.currentMode = 'single';
                 this.init();
             }
 
@@ -703,6 +827,7 @@
                 try {
                     await this.loadPlugins();
                     this.setupCheckboxes();
+                    this.setupModeSelector();
                     this.loadHistory();
                     this.setupEventListeners();
                     this.saveOriginalContent();
@@ -757,6 +882,25 @@
                 this.plugins.valueTypeSelect.setValue('auto');
             }
 
+            // 核心函数：检查是否为 null
+            isNull(val) {
+                return val === null;
+            }
+
+            // 检查是否为 undefined
+            isUndefined(val) {
+                return val === undefined;
+            }
+
+            // 检查是否为空值（包括空字符串、空数组等）
+            isEmpty(val) {
+                if (this.isNull(val) || this.isUndefined(val)) return true;
+                if (typeof val === 'string' && val.trim() === '') return true;
+                if (Array.isArray(val) && val.length === 0) return true;
+                if (typeof val === 'object' && val !== null && Object.keys(val).length === 0) return true;
+                return false;
+            }
+
             // 设置复选框
             setupCheckboxes() {
                 const checkboxGroup = document.getElementById('checkboxGroup');
@@ -778,7 +922,6 @@
                             checked: option.checked
                         })),
                         onChange: (checkedStates) => {
-                            console.log('复选框状态变化:', checkedStates);
                             this.handleCheckboxChange(checkedStates);
                         }
                     });
@@ -803,6 +946,33 @@
                     `;
                     container.appendChild(checkboxItem);
                 });
+            }
+
+            // 设置模式选择器
+            setupModeSelector() {
+                const modeButtons = document.querySelectorAll('.mode-btn');
+                modeButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        modeButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentMode = btn.dataset.mode;
+                        this.handleModeChange();
+                    });
+                });
+            }
+
+            // 处理模式变化
+            handleModeChange() {
+                const valueInput = document.getElementById('valueInput');
+                const batchSection = document.querySelector('.batch-section');
+                
+                if (this.currentMode === 'batch') {
+                    if (valueInput) valueInput.style.display = 'none';
+                    if (batchSection) batchSection.style.display = 'block';
+                } else {
+                    if (valueInput) valueInput.style.display = 'block';
+                    if (batchSection) batchSection.style.display = 'none';
+                }
             }
 
             // 处理复选框变化
@@ -836,30 +1006,6 @@
                 return this.plugins.valueTypeSelect ? this.plugins.valueTypeSelect.getValue() || 'auto' : 'auto';
             }
 
-            // 核心函数：检查是否为空值
-            isNil(val) {
-                return val === undefined || val === null;
-            }
-
-            // 检查是否为 null
-            isNull(val) {
-                return val === null;
-            }
-
-            // 检查是否为 undefined
-            isUndefined(val) {
-                return val === undefined;
-            }
-
-            // 检查是否为空值（包括空字符串、空数组等）
-            isEmpty(val) {
-                if (this.isNil(val)) return true;
-                if (typeof val === 'string' && val.trim() === '') return true;
-                if (Array.isArray(val) && val.length === 0) return true;
-                if (typeof val === 'object' && Object.keys(val).length === 0) return true;
-                return false;
-            }
-
             // 分析值
             analyzeValue() {
                 const valueInput = document.getElementById('valueInput');
@@ -874,7 +1020,6 @@
                     return;
                 }
 
-                // 显示加载动画
                 this.showLoadingAnimation();
 
                 requestAnimationFrame(() => {
@@ -897,7 +1042,6 @@
 
             // 解析输入值
             parseValue(input, type) {
-                // 特殊值处理
                 if (input === 'null') return null;
                 if (input === 'undefined') return undefined;
                 if (input === 'true') return true;
@@ -906,7 +1050,6 @@
                 if (input === 'Infinity') return Infinity;
                 if (input === '-Infinity') return -Infinity;
                 
-                // 根据选择的类型解析
                 switch (type) {
                     case 'null':
                         return null;
@@ -937,7 +1080,6 @@
                         }
                     case 'auto':
                     default:
-                        // 尝试自动解析
                         if (input === '') return '';
                         if (!isNaN(input) && input !== '') return Number(input);
                         if (input === 'true' || input === 'false') return input === 'true';
@@ -950,7 +1092,6 @@
                 return {
                     value: value,
                     originalInput: originalInput,
-                    isNil: this.isNil(value),
                     isNull: this.isNull(value),
                     isUndefined: this.isUndefined(value),
                     isEmpty: this.isEmpty(value),
@@ -997,22 +1138,19 @@
                 
                 // 等待DOM更新后再更新内容
                 requestAnimationFrame(() => {
-                    // 更新状态指示器
-                    this.updateStatusIndicator('isNilIndicator', analysis.isNil);
+                    console.log('开始更新结果内容');
                     this.updateStatusIndicator('isNullIndicator', analysis.isNull);
                     this.updateStatusIndicator('isUndefinedIndicator', analysis.isUndefined);
                     this.updateStatusIndicator('isEmptyIndicator', analysis.isEmpty);
 
-                    // 更新结果值
-                    this.updateElementText('isNilResult', analysis.isNil ? '是' : '否');
                     this.updateElementText('isNullResult', analysis.isNull ? '是' : '否');
                     this.updateElementText('isUndefinedResult', analysis.isUndefined ? '是' : '否');
                     this.updateElementText('isEmptyResult', analysis.isEmpty ? '是' : '否');
                     this.updateElementText('valueTypeResult', this.getTypeBadge(analysis.type));
                     this.updateElementText('originalValue', this.formatValue(analysis.originalInput));
 
-                    // 更新统计信息
                     this.updateStatsDisplay(analysis);
+                    console.log('结果内容更新完成');
                 });
             }
 
@@ -1046,11 +1184,7 @@
                     element.innerHTML = text;
                     console.log(`成功更新元素 ${elementId}:`, text);
                 } else {
-                    console.warn(`元素 ${elementId} 未找到，当前DOM状态:`, {
-                        documentReady: document.readyState,
-                        bodyExists: !!document.body,
-                        elementExists: !!document.querySelector(`#${elementId}`)
-                    });
+                    console.warn(`元素 ${elementId} 未找到`);
                 }
             }
 
@@ -1059,13 +1193,6 @@
                 const indicator = document.getElementById(elementId);
                 if (indicator) {
                     indicator.className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
-                    console.log(`成功更新状态指示器 ${elementId}:`, isTrue);
-                } else {
-                    console.warn(`状态指示器元素 ${elementId} 未找到，当前DOM状态:`, {
-                        documentReady: document.readyState,
-                        bodyExists: !!document.body,
-                        elementExists: !!document.querySelector(`#${elementId}`)
-                    });
                 }
             }
 
@@ -1075,13 +1202,6 @@
                 if (resultSection) {
                     resultSection.style.display = 'block';
                     resultSection.style.animation = 'slideInUp 0.5s ease-out';
-                    console.log('结果区域已显示');
-                } else {
-                    console.warn('结果区域元素未找到，当前DOM状态:', {
-                        documentReady: document.readyState,
-                        bodyExists: !!document.body,
-                        elementExists: !!document.querySelector('#resultSection')
-                    });
                 }
             }
 
@@ -1090,8 +1210,6 @@
                 const resultSection = document.getElementById('resultSection');
                 if (resultSection) {
                     resultSection.style.display = 'none';
-                } else {
-                    console.warn('结果区域元素未找到');
                 }
             }
 
@@ -1111,8 +1229,6 @@
                         </div>
                     `;
                     resultSection.style.display = 'block';
-                } else {
-                    console.warn('结果区域元素未找到，无法显示加载动画');
                 }
             }
 
@@ -1121,7 +1237,6 @@
                 const resultSection = document.getElementById('resultSection');
                 if (resultSection && this.originalResultContent) {
                     resultSection.innerHTML = this.originalResultContent;
-                    console.log('已恢复原始结果区域内容');
                 }
             }
 
@@ -1130,48 +1245,102 @@
                 const resultSection = document.getElementById('resultSection');
                 if (resultSection) {
                     this.originalResultContent = resultSection.innerHTML;
-                    console.log('已保存原始结果区域内容');
                 }
             }
 
-            // 更新统计显示
-            updateStatsDisplay(analysis) {
-                const statsGrid = document.getElementById('statsGrid');
-                if (!statsGrid) {
-                    console.warn('统计网格元素未找到');
+            // 批量处理
+            processBatch() {
+                const batchInput = document.getElementById('batchInput');
+                if (!batchInput || !batchInput.value.trim()) {
+                    this.showError('请先输入要批量处理的值');
                     return;
                 }
 
-                statsGrid.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-number">${this.stats.totalAnalyzes}</div>
-                        <div class="stat-label">总分析次数</div>
+                const values = batchInput.value.trim().split('\n').filter(line => line.trim());
+                const results = values.map((value, index) => {
+                    try {
+                        const parsedValue = this.parseValue(value.trim(), 'auto');
+                        return {
+                            index: index + 1,
+                            original: value.trim(),
+                            parsed: parsedValue,
+                            isNull: this.isNull(parsedValue),
+                            isUndefined: this.isUndefined(parsedValue),
+                            isEmpty: this.isEmpty(parsedValue),
+                            type: typeof parsedValue
+                        };
+                    } catch (error) {
+                        return {
+                            index: index + 1,
+                            original: value.trim(),
+                            parsed: null,
+                            isNull: false,
+                            isUndefined: false,
+                            isEmpty: false,
+                            type: 'error',
+                            error: error.message
+                        };
+                    }
+                });
+
+                this.displayBatchResults(results);
+                this.showNotification(`批量处理完成，共处理 ${values.length} 个值`, 'success');
+            }
+
+            // 显示批量结果
+            displayBatchResults(results) {
+                const batchResults = document.getElementById('batchResults');
+                if (!batchResults) return;
+
+                const resultsHTML = results.map(result => `
+                    <div class="batch-item">
+                        <div class="batch-value" title="${result.original}">
+                            ${result.index}. ${result.original}
+                        </div>
+                        <div class="batch-result ${result.isNull ? 'null' : 'not-null'}">
+                            ${result.isNull ? 'NULL' : 'NOT NULL'}
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${this.stats.nilValuesFound}</div>
-                        <div class="stat-label">空值检测</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${this.stats.nullValuesFound}</div>
-                        <div class="stat-label">null值</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${this.stats.undefinedValuesFound}</div>
-                        <div class="stat-label">undefined值</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${analysis.length}</div>
-                        <div class="stat-label">值长度</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${analysis.type}</div>
-                        <div class="stat-label">值类型</div>
-                    </div>
-                `;
+                `).join('');
+
+                batchResults.innerHTML = resultsHTML;
+            }
+
+            // 清空批量输入
+            clearBatch() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResults = document.getElementById('batchResults');
+                
+                if (batchInput) batchInput.value = '';
+                if (batchResults) batchResults.innerHTML = '';
+                
+                this.showNotification('批量输入已清空', 'info');
+            }
+
+            // 加载批量示例
+            loadBatchSamples() {
+                const batchInput = document.getElementById('batchInput');
+                if (batchInput) {
+                    batchInput.value = `null
+undefined
+''
+0
+false
+true
+'hello'
+123
+[]
+{}
+NaN
+Infinity
+[1,2,3]
+{"name":"test"}`;
+                    this.showNotification('批量示例已加载', 'success');
+                }
             }
 
             // 验证空值
-            validateEmptyValues() {
+            validateNullValues() {
                 const valueInput = document.getElementById('valueInput');
                 if (!valueInput || !valueInput.value.trim()) {
                     this.showError('请先输入要验证的值');
@@ -1180,7 +1349,7 @@
 
                 try {
                     const value = this.parseValue(valueInput.value.trim());
-                    const validations = this.getEmptyValueValidations(value);
+                    const validations = this.getNullValueValidations(value);
                     this.displayValidations(validations);
                     this.showNotification('空值验证完成', 'success');
                 } catch (error) {
@@ -1189,9 +1358,8 @@
             }
 
             // 获取空值验证结果
-            getEmptyValueValidations(value) {
+            getNullValueValidations(value) {
                 return [
-                    { label: 'isNil 检测', value: this.isNil(value), type: 'isNil' },
                     { label: 'isNull 检测', value: this.isNull(value), type: 'isNull' },
                     { label: 'isUndefined 检测', value: this.isUndefined(value), type: 'isUndefined' },
                     { label: 'isEmpty 检测', value: this.isEmpty(value), type: 'isEmpty' },
@@ -1205,10 +1373,7 @@
             // 显示验证结果
             displayValidations(validations) {
                 const validationGrid = document.getElementById('validationGrid');
-                if (!validationGrid) {
-                    console.warn('验证网格元素未找到');
-                    return;
-                }
+                if (!validationGrid) return;
 
                 const validationHTML = validations.map((item, index) => `
                     <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
@@ -1257,10 +1422,7 @@
             // 显示比较结果
             displayComparisons(comparisons) {
                 const validationGrid = document.getElementById('validationGrid');
-                if (!validationGrid) {
-                    console.warn('验证网格元素未找到');
-                    return;
-                }
+                if (!validationGrid) return;
 
                 const comparisonHTML = comparisons.map((item, index) => `
                     <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
@@ -1310,10 +1472,7 @@
             // 显示转换结果
             displayConversions(conversions) {
                 const validationGrid = document.getElementById('validationGrid');
-                if (!validationGrid) {
-                    console.warn('验证网格元素未找到');
-                    return;
-                }
+                if (!validationGrid) return;
 
                 const conversionHTML = conversions.map((item, index) => `
                     <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
@@ -1331,9 +1490,7 @@
             clearInput() {
                 const valueInput = document.getElementById('valueInput');
                 
-                if (valueInput) {
-                    valueInput.value = '';
-                }
+                if (valueInput) valueInput.value = '';
                 
                 // 重置自定义 select
                 if (this.plugins.valueTypeSelect) {
@@ -1350,8 +1507,6 @@
                 const validationGrid = document.getElementById('validationGrid');
                 if (validationGrid) {
                     validationGrid.innerHTML = '';
-                } else {
-                    console.warn('验证网格元素未找到');
                 }
             }
 
@@ -1379,7 +1534,132 @@
                 }
             }
 
-            // 保存到历史记录
+            // 更新统计信息
+            updateStats() {
+                this.stats.totalAnalyzes++;
+                this.stats.lastAnalyze = new Date();
+                
+                const valueInput = document.getElementById('valueInput');
+                if (valueInput && valueInput.value.trim()) {
+                    try {
+                        const value = this.parseValue(valueInput.value.trim());
+                        if (this.isNull(value)) {
+                            this.stats.nullValuesFound++;
+                        }
+                        if (this.isUndefined(value)) {
+                            this.stats.undefinedValuesFound++;
+                        }
+                        if (this.isEmpty(value)) {
+                            this.stats.emptyValuesFound++;
+                        }
+                    } catch (error) {
+                        // 忽略解析错误
+                    }
+                }
+            }
+
+            // 更新统计显示
+            updateStatsDisplay(analysis) {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalAnalyzes}</div>
+                        <div class="stat-label">总分析次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.nullValuesFound}</div>
+                        <div class="stat-label">null值检测</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.undefinedValuesFound}</div>
+                        <div class="stat-label">undefined值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.emptyValuesFound}</div>
+                        <div class="stat-label">空值检测</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${analysis.length}</div>
+                        <div class="stat-label">值长度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${analysis.type}</div>
+                        <div class="stat-label">值类型</div>
+                    </div>
+                `;
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+                
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else if (!this.getCheckboxValue('showNotifications')) {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                } else {
+                    alert(message);
+                }
+            }
+
+            // 显示错误消息
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用智能空值检测工具',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能 null 值检测 (isNull)</li>
+                                        <li>undefined 和空值识别</li>
+                                        <li>批量处理和验证功能</li>
+                                        <li>值类型转换和分析</li>
+                                        <li>历史记录管理</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 输入值后会自动分析，也可以点击"加载示例"体验功能
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 历史记录相关方法（简化版）
             saveToHistory(input, analysis) {
                 const historyItem = {
                     id: Date.now(),
@@ -1390,17 +1670,13 @@
                 };
 
                 this.history.unshift(historyItem);
-                
-                // 限制历史记录数量
                 if (this.history.length > 50) {
                     this.history = this.history.slice(0, 50);
                 }
-
                 this.saveHistoryToStorage();
                 this.refreshHistory();
             }
 
-            // 刷新历史记录
             refreshHistory() {
                 const historyList = document.getElementById('historyList');
                 if (!historyList) return;
@@ -1414,8 +1690,8 @@
                     <div class="history-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
                         <div class="history-text" title="${item.input}">${this.truncateText(item.input, 40)}</div>
                         <div class="history-actions">
-                            <button class="btn btn-primary btn-small" onclick="window.nilAnalyzer?.loadFromHistory('${item.id}')">加载</button>
-                            <button class="btn btn-danger btn-small" onclick="window.nilAnalyzer?.removeFromHistory('${item.id}')">删除</button>
+                            <button class="btn btn-primary btn-small" onclick="window.nullDetector?.loadFromHistory('${item.id}')">加载</button>
+                            <button class="btn btn-danger btn-small" onclick="window.nullDetector?.removeFromHistory('${item.id}')">删除</button>
                         </div>
                     </div>
                 `).join('');
@@ -1423,7 +1699,6 @@
                 historyList.innerHTML = historyHTML;
             }
 
-            // 从历史记录加载
             loadFromHistory(id) {
                 const item = this.history.find(h => h.id == id);
                 if (item) {
@@ -1450,15 +1725,10 @@
                             this.analyzeValue();
                         }
                         this.showNotification('已从历史记录加载', 'success');
-                    } else {
-                        this.showError('值输入框未找到');
                     }
-                } else {
-                    this.showError('历史记录项未找到');
                 }
             }
 
-            // 从历史记录删除
             removeFromHistory(id) {
                 this.history = this.history.filter(h => h.id != id);
                 this.saveHistoryToStorage();
@@ -1466,21 +1736,13 @@
                 this.showNotification('已从历史记录删除', 'info');
             }
 
-            // 清空历史记录
             clearHistory() {
-                this.showConfirmModal(
-                    '确认清空历史',
-                    '确定要清空所有历史记录吗？此操作不可恢复！',
-                    () => {
-                        this.history = [];
-                        this.saveHistoryToStorage();
-                        this.refreshHistory();
-                        this.showNotification('历史记录已清空', 'success');
-                    }
-                );
+                this.history = [];
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('历史记录已清空', 'success');
             }
 
-            // 导出历史记录
             exportHistory() {
                 if (this.history.length === 0) {
                     this.showError('没有历史记录可导出');
@@ -1498,16 +1760,15 @@
                 
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(dataBlob);
-                link.download = `nil-analysis-history-${Date.now()}.json`;
+                link.download = `null-detection-history-${Date.now()}.json`;
                 link.click();
 
                 this.showNotification('历史记录已导出', 'success');
             }
 
-            // 加载历史记录
             loadHistory() {
                 try {
-                    const saved = localStorage.getItem('nilAnalyzerHistory');
+                    const saved = localStorage.getItem('nullDetectorHistory');
                     if (saved) {
                         this.history = JSON.parse(saved);
                     }
@@ -1517,134 +1778,17 @@
                 }
             }
 
-            // 保存历史记录到存储
             saveHistoryToStorage() {
                 try {
-                    localStorage.setItem('nilAnalyzerHistory', JSON.stringify(this.history));
+                    localStorage.setItem('nullDetectorHistory', JSON.stringify(this.history));
                 } catch (error) {
                     console.warn('保存历史记录失败:', error);
                 }
             }
 
-            // 更新统计信息
-            updateStats() {
-                this.stats.totalAnalyzes++;
-                this.stats.lastAnalyze = new Date();
-                
-                // 检查当前值类型
-                const valueInput = document.getElementById('valueInput');
-                if (valueInput && valueInput.value.trim()) {
-                    try {
-                        const value = this.parseValue(valueInput.value.trim());
-                        if (this.isNil(value)) {
-                            this.stats.nilValuesFound++;
-                        }
-                        if (this.isNull(value)) {
-                            this.stats.nullValuesFound++;
-                        }
-                        if (this.isUndefined(value)) {
-                            this.stats.undefinedValuesFound++;
-                        }
-                    } catch (error) {
-                        // 忽略解析错误
-                    }
-                }
-            }
-
-            // 截断文本
             truncateText(text, maxLength) {
                 if (text.length <= maxLength) return text;
                 return text.substring(0, maxLength) + '...';
-            }
-
-            // 获取复选框值
-            getCheckboxValue(checkboxId) {
-                if (this.plugins.checkboxGroup && this.checkboxOptions) {
-                    try {
-                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
-                        if (optionIndex !== -1) {
-                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
-                            return checkedStates[optionIndex] || false;
-                        }
-                    } catch (error) {
-                        console.warn('获取复选框值失败，使用原生方法:', error);
-                    }
-                }
-                
-                const checkbox = document.getElementById(checkboxId);
-                return checkbox ? checkbox.checked : false;
-            }
-
-            // 显示确认模态框
-            showConfirmModal(title, message, onConfirm) {
-                if (this.plugins.modal) {
-                    this.plugins.modal.show({
-                        title: title,
-                        content: `<p style="margin: 0; font-size: 16px;">${message}</p>`,
-                        type: "confirm",
-                        onConfirm: onConfirm,
-                        onCancel: () => {}
-                    });
-                } else {
-                    if (confirm(message)) {
-                        onConfirm();
-                    }
-                }
-            }
-
-            // 显示成功消息
-            showSuccess(message) {
-                this.showNotification(message, 'success');
-            }
-
-            // 显示错误消息
-            showError(message) {
-                this.showNotification(message, 'error');
-            }
-
-            // 显示通知
-            showNotification(message, type) {
-                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
-                    this.plugins.notification.show(message, type);
-                } else if (!this.getCheckboxValue('showNotifications')) {
-                    console.log(`${type.toUpperCase()}: ${message}`);
-                } else {
-                    alert(message);
-                }
-            }
-
-            // 显示欢迎消息
-            showWelcomeMessage() {
-                if (this.plugins.modal) {
-                    this.plugins.modal.show({
-                        title: '🎉 欢迎使用空值检测与验证工具',
-                        content: `
-                            <div style="padding: 20px;">
-                                <div style="text-align: center; margin-bottom: 20px;">
-                                    <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
-                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
-                                </div>
-                                
-                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
-                                        <li>智能空值检测 (isNil)</li>
-                                        <li>null 和 undefined 识别</li>
-                                        <li>空值验证和比较功能</li>
-                                        <li>值类型转换和分析</li>
-                                        <li>历史记录管理</li>
-                                    </ul>
-                                </div>
-                                
-                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
-                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
-                                        <strong>💡 提示：</strong> 输入值后会自动分析，也可以点击"加载示例"体验功能
-                                    </p>
-                                </div>
-                            </div>
-                        `,
-                        type: "alert"
-                    });
-                }
             }
         }
 
@@ -1652,44 +1796,32 @@
         function safeInit() {
             console.log('开始安全初始化...');
             
-            // 确保所有必要的元素都存在
             const requiredElements = [
-                'valueInput', 'valueTypeContainer', 'resultSection', 'isNilResult', 'isNullResult', 
-                'isUndefinedResult', 'isEmptyResult', 'valueTypeResult', 'originalValue',
+                'valueInput', 'valueTypeContainer', 'resultSection', 'isNullResult', 'isUndefinedResult', 
+                'isEmptyResult', 'valueTypeResult', 'originalValue',
                 'statsGrid', 'validationGrid', 'historyList', 'checkboxGroup'
             ];
             
             const missingElements = requiredElements.filter(id => !document.getElementById(id));
             if (missingElements.length > 0) {
                 console.error('缺少必要的DOM元素:', missingElements);
-                console.log('当前DOM状态:', {
-                    readyState: document.readyState,
-                    bodyExists: !!document.body,
-                    allElements: requiredElements.map(id => ({
-                        id,
-                        exists: !!document.getElementById(id)
-                    }))
-                });
-                
-                // 如果还有缺失元素，等待100ms后重试
                 if (document.readyState === 'loading') {
-                    console.log('文档仍在加载，等待100ms后重试...');
                     setTimeout(safeInit, 100);
                 }
                 return;
             }
             
-            console.log('所有必要元素都存在，开始初始化空值分析器...');
+            console.log('所有必要元素都存在，开始初始化空值检测器...');
             
             try {
-                window.nilAnalyzer = new NilAnalyzer();
-                console.log('空值分析器初始化成功');
+                window.nullDetector = new NullDetector();
+                console.log('空值检测器初始化成功');
             } catch (error) {
-                console.error('初始化空值分析器失败:', error);
+                console.error('初始化空值检测器失败:', error);
             }
         }
 
-        // 页面加载完成后初始化空值分析器
+        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM内容加载完成，开始初始化...');
             safeInit();
@@ -1702,6 +1834,7 @@
             console.log('文档已加载完成，立即执行初始化...');
             safeInit();
         }
+    </script>
     </script>
 </body>
 

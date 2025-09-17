@@ -382,7 +382,7 @@
 - [是否是负零-2022-10-08](codes/javascript/is-negative-zero.md)
 - [是否是 null 或者 undefined-2022-10-09](codes/javascript/is-nil.md)
 - [是否是 node 环境-2022-10-10](codes/javascript/isNode.md)
-- [是否是 null-2022-10-11](codes/javascript/isNull.md)
+- [是否是 null-2022-10-11](codes/javascript/is-null.md)
 - [是否是一个数字-2022-10-12](codes/javascript/isNumber.md)
 - [是否是一个对象-2022-10-13](codes/javascript/isObject.md)
 - [是否是一个对象 2-2022-10-14](codes/javascript/isObjectLike.md)
