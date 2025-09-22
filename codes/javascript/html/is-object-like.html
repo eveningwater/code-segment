@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>isObjectLike</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #6c757d;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .json-editor {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .json-editor:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .result-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-true {
+            background: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-false {
+            background: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .type-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-object {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .type-array {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .type-function {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .type-primitive {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .validation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .validation-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .validation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .validation-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .validation-value {
+            font-size: 14px;
+        }
+
+        .success-text {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .error-text {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .special-value {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .object-analyzer {
+            margin: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .object-tree {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+        }
+
+        .tree-item {
+            margin: 5px 0;
+            padding: 5px 0;
+        }
+
+        .tree-key {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tree-value {
+            color: #2d3748;
+        }
+
+        .tree-type {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .object-value {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .null-value {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .comparison-section {
+            margin: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-section {
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+        }
+
+        .options-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .checkbox-item label {
+            font-weight: 500;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .history-section {
+            margin-top: 20px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-text {
+            flex: 1;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            color: #6c757d;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .loading {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .same {
+            border-left: 4px solid #10b981;
+        }
+
+        .different {
+            border-left: 4px solid #ef4444;
+        }
+
+        .results-visible {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .main-grid {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 对象检测与数据验证工具</h1>
+            <p>基于 isObjectLike 函数的智能对象检测平台，支持对象验证、深度分析、数据比较和类型识别</p>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <h2>📝 对象输入与分析</h2>
+                <div class="input-section">
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="single">单对象检测</button>
+                        <button class="mode-btn" data-mode="comparison">对象比较</button>
+                        <button class="mode-btn" data-mode="batch">批量检测</button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="objectInput">输入要检测的对象</label>
+                        <textarea id="objectInput" class="json-editor" placeholder="请输入 JSON 格式的对象数据...&#10;&#10;示例：&#10;{&#10;  "name": "张三",&#10;  "age": 25,&#10;  "hobbies": ["读书", "游泳"],&#10;  "address": {&#10;    "city": "北京",&#10;    "district": "朝阳区"&#10;  }&#10;}"></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="objectTypeContainer">选择对象类型</label>
+                        <div id="objectTypeContainer"></div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.objectDetector?.analyzeObject()">
+                            🔍 分析对象
+                        </button>
+                        <button class="btn btn-success" onclick="window.objectDetector?.clearInput()">
+                            🗑️ 清空输入
+                        </button>
+                        <button class="btn btn-info" onclick="window.objectDetector?.loadSampleObjects()">
+                            📄 加载示例
+                        </button>
+                    </div>
+                </div>
+
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: #495057;">📊 分析结果</h3>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isObjectLikeIndicator"></span>
+                            是否为对象类型 (isObjectLike)
+                        </span>
+                        <span class="result-value" id="isObjectLikeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isArrayIndicator"></span>
+                            是否为数组
+                        </span>
+                        <span class="result-value" id="isArrayResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isFunctionIndicator"></span>
+                            是否为函数
+                        </span>
+                        <span class="result-value" id="isFunctionResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isNullIndicator"></span>
+                            是否为 null
+                        </span>
+                        <span class="result-value" id="isNullResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">对象类型</span>
+                        <span class="result-value" id="objectTypeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">构造函数</span>
+                        <span class="result-value" id="constructorResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">对象大小</span>
+                        <span class="result-value" id="objectSizeResult">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔍 对象验证</h2>
+                <div class="validation-section">
+                    <div class="button-group">
+                        <button class="btn btn-warning" onclick="window.objectDetector?.validateObjects()">
+                            🔍 验证对象
+                        </button>
+                        <button class="btn btn-info" onclick="window.objectDetector?.deepAnalyze()">
+                            🔬 深度分析
+                        </button>
+                        <button class="btn btn-success" onclick="window.objectDetector?.serializeObject()">
+                            📦 序列化
+                        </button>
+                    </div>
+                    <div class="validation-grid" id="validationGrid">
+                        <!-- 验证结果将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card object-analyzer">
+            <h2>🌳 对象结构树</h2>
+            <div class="object-tree" id="objectTree">
+                <!-- 对象结构树将在这里显示 -->
+            </div>
+        </div>
+
+        <div class="card comparison-section">
+            <h2>⚖️ 对象比较</h2>
+            <div class="comparison-grid">
+                <div class="input-group">
+                    <label for="objectA">对象 A</label>
+                    <textarea id="objectA" class="json-editor" placeholder="输入第一个对象..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="objectB">对象 B</label>
+                    <textarea id="objectB" class="json-editor" placeholder="输入第二个对象..."></textarea>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="window.objectDetector?.compareObjects()">
+                    ⚖️ 比较对象
+                </button>
+                <button class="btn btn-warning" onclick="window.objectDetector?.clearComparison()">
+                    🗑️ 清空比较
+                </button>
+                <button class="btn btn-info" onclick="window.objectDetector?.loadComparisonSamples()">
+                    📄 加载示例
+                </button>
+            </div>
+            <div class="validation-grid" id="comparisonResults">
+                <!-- 比较结果将在这里显示 -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 检测统计</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">检测选项</div>
+                <div class="checkbox-group" id="checkboxGroup">
+                    <!-- 复选框将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📚 历史记录</h2>
+            <div class="history-section">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.objectDetector?.refreshHistory()">
+                        🔄 刷新历史
+                    </button>
+                    <button class="btn btn-danger" onclick="window.objectDetector?.clearHistory()">
+                        🗑️ 清空历史
+                    </button>
+                    <button class="btn btn-info" onclick="window.objectDetector?.exportHistory()">
+                        📤 导出历史
+                    </button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script>
+        // 核心 isObjectLike 函数
+        const isObjectLike = val => val !== null && typeof val === 'object';
+
+        // 对象检测器类
+        class ObjectDetector {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.stats = {
+                    totalAnalyzes: 0,
+                    totalValidations: 0,
+                    lastAnalyze: null,
+                    objectValuesFound: 0,
+                    arrayValuesFound: 0,
+                    functionValuesFound: 0,
+                    nullValuesFound: 0
+                };
+                this.currentMode = 'single';
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCheckboxes();
+                    this.setupSelect();
+                    this.setupModeSelector();
+                    this.loadHistory();
+                    this.setupEventListeners();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置自定义 select
+            setupSelect() {
+                const objectTypeContainer = document.getElementById('objectTypeContainer');
+                if (!objectTypeContainer) return;
+
+                // 清空容器，确保没有重复元素
+                objectTypeContainer.innerHTML = '';
+
+                const selectOptions = [
+                    { value: 'auto', label: '自动检测' },
+                    { value: 'object', label: '对象' },
+                    { value: 'array', label: '数组' },
+                    { value: 'function', label: '函数' },
+                    { value: 'null', label: 'null' },
+                    { value: 'primitive', label: '原始类型' }
+                ];
+
+                // 检查 Select 组件是否可用
+                if (typeof Select !== 'undefined' && Select) {
+                    try {
+                        this.plugins.objectTypeSelect = new Select({
+                            container: objectTypeContainer,
+                            options: selectOptions,
+                            placeholder: '请选择对象类型',
+                            onChange: (value) => {
+                                console.log('选择的对象类型:', value);
+                                if (this.getCheckboxValue('autoAnalyze')) {
+                                    this.analyzeObject();
+                                }
+                            }
+                        });
+                        
+                        this.plugins.objectTypeSelect.setValue('auto');
+                        console.log('自定义Select组件创建成功');
+                    } catch (error) {
+                        console.warn('自定义Select组件创建失败，使用原生select:', error);
+                        this.setupNativeSelect(selectOptions, objectTypeContainer);
+                    }
+                } else {
+                    console.log('Select组件不可用，直接使用原生select');
+                    this.setupNativeSelect(selectOptions, objectTypeContainer);
+                }
+            }
+
+            // 设置原生select
+            setupNativeSelect(options, container) {
+                const select = document.createElement('select');
+                select.className = 'json-editor';
+                select.style.cssText = `
+                    width: 100%;
+                    height: 50px;
+                    padding: 15px;
+                    border: 2px solid #e9ecef;
+                    border-radius: 10px;
+                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                    font-size: 14px;
+                    line-height: 1.5;
+                    background: #fafbfc;
+                    transition: all 0.3s ease;
+                `;
+                
+                // 添加焦点样式
+                select.addEventListener('focus', () => {
+                    select.style.borderColor = '#667eea';
+                    select.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                    select.style.background = 'white';
+                });
+                
+                select.addEventListener('blur', () => {
+                    select.style.borderColor = '#e9ecef';
+                    select.style.boxShadow = 'none';
+                    select.style.background = '#fafbfc';
+                });
+                
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option.value;
+                    optionElement.textContent = option.label;
+                    select.appendChild(optionElement);
+                });
+                
+                select.addEventListener('change', (e) => {
+                    console.log('原生select选择的对象类型:', e.target.value);
+                    if (this.getCheckboxValue('autoAnalyze')) {
+                        this.analyzeObject();
+                    }
+                });
+                
+                container.appendChild(select);
+                this.plugins.objectTypeSelect = {
+                    getValue: () => select.value,
+                    setValue: (value) => { 
+                        select.value = value; 
+                        console.log('原生select设置值:', value);
+                    }
+                };
+                
+                console.log('原生select创建成功');
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                // 清空容器，确保没有重复元素
+                checkboxGroup.innerHTML = '';
+
+                const options = [
+                    { id: 'autoAnalyze', label: '自动分析对象', checked: false },
+                    { id: 'saveHistory', label: '保存分析历史', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'enableAnimations', label: '启用动画效果', checked: true },
+                    { id: 'deepAnalysis', label: '启用深度分析', checked: true }
+                ];
+
+                // 检查 Checkbox 组件是否可用
+                if (typeof Checkbox !== 'undefined' && Checkbox && Checkbox.createCheckboxGroup) {
+                    try {
+                        const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                            items: options.map(option => ({
+                                id: option.id,
+                                label: option.label,
+                                checked: option.checked
+                            })),
+                            onChange: (checkedStates) => {
+                                this.handleCheckboxChange(checkedStates);
+                            }
+                        });
+
+                        checkboxGroup.appendChild(checkboxGroupInstance.container);
+                        this.plugins.checkboxGroup = checkboxGroupInstance;
+                        this.checkboxOptions = options;
+                        console.log('自定义复选框创建成功');
+                    } catch (error) {
+                        console.warn('自定义复选框创建失败，使用原生复选框:', error);
+                        this.setupNativeCheckboxes(options, checkboxGroup);
+                    }
+                } else {
+                    console.log('Checkbox组件不可用，直接使用原生复选框');
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 设置模式选择器
+            setupModeSelector() {
+                const modeButtons = document.querySelectorAll('.mode-btn');
+                modeButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        modeButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentMode = btn.dataset.mode;
+                        this.handleModeChange();
+                    });
+                });
+            }
+
+            // 处理模式变化
+            handleModeChange() {
+                const objectInput = document.getElementById('objectInput');
+                const comparisonSection = document.querySelector('.comparison-section');
+                
+                if (this.currentMode === 'comparison') {
+                    if (comparisonSection) comparisonSection.style.display = 'block';
+                    if (objectInput) objectInput.style.display = 'none';
+                } else {
+                    if (objectInput) objectInput.style.display = 'block';
+                    if (comparisonSection) comparisonSection.style.display = 'none';
+                }
+            }
+
+            // 处理复选框变化
+            handleCheckboxChange(checkedStates) {
+                if (this.getCheckboxValue('autoAnalyze')) {
+                    this.analyzeObject();
+                }
+            }
+
+            // 设置事件监听器
+            setupEventListeners() {
+                const objectInput = document.getElementById('objectInput');
+                
+                if (objectInput) {
+                    objectInput.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoAnalyze')) {
+                            this.analyzeObject();
+                        }
+                    });
+
+                    objectInput.addEventListener('keydown', (e) => {
+                        if (e.ctrlKey && e.key === 'Enter') {
+                            this.analyzeObject();
+                        }
+                    });
+                }
+            }
+
+            // 核心函数：检查是否为对象类型
+            isObjectLike(val) {
+                return val !== null && typeof val === 'object';
+            }
+
+            // 检查是否为数组
+            isArray(val) {
+                return Array.isArray(val);
+            }
+
+            // 检查是否为函数
+            isFunction(val) {
+                return typeof val === 'function';
+            }
+
+            // 检查是否为 null
+            isNull(val) {
+                return val === null;
+            }
+
+            // 获取选中的类型
+            getSelectedType() {
+                return this.plugins.objectTypeSelect ? this.plugins.objectTypeSelect.getValue() || 'auto' : 'auto';
+            }
+
+            // 分析对象
+            analyzeObject() {
+                const objectInput = document.getElementById('objectInput');
+                
+                if (!objectInput) return;
+
+                const inputValue = objectInput.value.trim();
+                const selectedType = this.getSelectedType();
+                
+                if (!inputValue && selectedType === 'auto') {
+                    this.hideResults();
+                    return;
+                }
+
+                this.showLoadingAnimation();
+
+                requestAnimationFrame(() => {
+                    try {
+                        const parsedValue = this.parseValue(inputValue, selectedType);
+                        const analysis = this.performAnalysis(parsedValue, inputValue);
+                        this.displayResults(analysis);
+                        this.updateStats();
+                        
+                        if (this.getCheckboxValue('saveHistory')) {
+                            this.saveToHistory(inputValue, analysis);
+                        }
+
+                        this.showNotification('对象分析完成', 'success');
+                    } catch (error) {
+                        this.showError('对象解析失败: ' + error.message);
+                    }
+                });
+            }
+
+            // 解析输入值
+            parseValue(input, type) {
+                if (input === 'null') return null;
+                if (input === 'undefined') return undefined;
+                if (input === 'true') return true;
+                if (input === 'false') return false;
+                if (input === 'NaN') return NaN;
+                if (input === 'Infinity') return Infinity;
+                if (input === '-Infinity') return -Infinity;
+                
+                switch (type) {
+                    case 'object':
+                        try {
+                            return JSON.parse(input);
+                        } catch (e) {
+                            return {};
+                        }
+                    case 'array':
+                        try {
+                            const parsed = JSON.parse(input);
+                            return Array.isArray(parsed) ? parsed : [parsed];
+                        } catch (e) {
+                            return input.split(',').map(item => item.trim());
+                        }
+                    case 'function':
+                        try {
+                            return new Function('return ' + input)();
+                        } catch (e) {
+                            return function() {};
+                        }
+                    case 'null':
+                        return null;
+                    case 'primitive':
+                        if (!isNaN(input) && input !== '') return Number(input);
+                        if (input === 'true' || input === 'false') return input === 'true';
+                        return input;
+                    case 'auto':
+                    default:
+                        if (input === '') return '';
+                        try {
+                            return JSON.parse(input);
+                        } catch (e) {
+                            if (!isNaN(input) && input !== '') return Number(input);
+                            if (input === 'true' || input === 'false') return input === 'true';
+                            return input;
+                        }
+                }
+            }
+
+            // 执行对象分析
+            performAnalysis(value, originalInput) {
+                return {
+                    value: value,
+                    originalInput: originalInput,
+                    isObjectLike: this.isObjectLike(value),
+                    isArray: this.isArray(value),
+                    isFunction: this.isFunction(value),
+                    isNull: this.isNull(value),
+                    type: typeof value,
+                    isString: typeof value === 'string',
+                    isBoolean: typeof value === 'boolean',
+                    isNumber: typeof value === 'number',
+                    isObject: typeof value === 'object' && value !== null,
+                    constructor: value?.constructor?.name || 'Unknown',
+                    toString: value !== null && value !== undefined ? value.toString() : String(value),
+                    jsonStringify: this.safeJsonStringify(value),
+                    size: this.getObjectSize(value),
+                    depth: this.getObjectDepth(value),
+                    keys: this.getObjectKeys(value)
+                };
+            }
+
+            // 安全JSON序列化
+            safeJsonStringify(value) {
+                try {
+                    return JSON.stringify(value, null, 2);
+                } catch (error) {
+                    return '[Circular Reference or Non-serializable]';
+                }
+            }
+
+            // 获取对象大小
+            getObjectSize(value) {
+                if (typeof value === 'string' || Array.isArray(value)) {
+                    return value.length;
+                }
+                if (typeof value === 'object' && value !== null) {
+                    return Object.keys(value).length;
+                }
+                return 0;
+            }
+
+            // 获取对象深度
+            getObjectDepth(value, currentDepth = 0) {
+                if (typeof value !== 'object' || value === null) {
+                    return currentDepth;
+                }
+                
+                let maxDepth = currentDepth;
+                for (let key in value) {
+                    if (value.hasOwnProperty(key)) {
+                        const depth = this.getObjectDepth(value[key], currentDepth + 1);
+                        maxDepth = Math.max(maxDepth, depth);
+                    }
+                }
+                return maxDepth;
+            }
+
+            // 获取对象键
+            getObjectKeys(value) {
+                if (typeof value === 'object' && value !== null) {
+                    return Object.keys(value);
+                }
+                return [];
+            }
+
+            // 显示分析结果
+            displayResults(analysis) {
+                console.log('开始显示分析结果', analysis);
+                
+                this.showResults();
+                
+                // 使用更长的延迟确保DOM完全渲染
+                setTimeout(() => {
+                    this.updateStatusIndicator('isObjectLikeIndicator', analysis.isObjectLike);
+                    this.updateStatusIndicator('isArrayIndicator', analysis.isArray);
+                    this.updateStatusIndicator('isFunctionIndicator', analysis.isFunction);
+                    this.updateStatusIndicator('isNullIndicator', analysis.isNull);
+
+                    this.updateElementText('isObjectLikeResult', analysis.isObjectLike ? '✓ 是' : '✗ 否');
+                    this.updateElementText('isArrayResult', analysis.isArray ? '✓ 是' : '✗ 否');
+                    this.updateElementText('isFunctionResult', analysis.isFunction ? '✓ 是' : '✗ 否');
+                    this.updateElementText('isNullResult', analysis.isNull ? '✓ 是' : '✗ 否');
+                    this.updateElementText('objectTypeResult', this.getTypeBadge(analysis.type));
+                    this.updateElementText('constructorResult', analysis.constructor);
+                    this.updateElementText('objectSizeResult', analysis.size);
+
+                    this.updateStatsDisplay(analysis);
+                    this.generateObjectTree(analysis.value);
+                }, 200);
+            }
+
+            // 获取类型徽章
+            getTypeBadge(type) {
+                const typeMap = {
+                    'object': 'type-object',
+                    'array': 'type-array',
+                    'function': 'type-function',
+                    'string': 'type-primitive',
+                    'number': 'type-primitive',
+                    'boolean': 'type-primitive'
+                };
+                
+                const className = typeMap[type] || 'type-primitive';
+                return `<span class="type-badge ${className}">${type}</span>`;
+            }
+
+            // 安全更新元素文本内容
+            updateElementText(elementId, text) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = text;
+                    console.log(`成功更新元素 ${elementId}:`, text);
+                } else {
+                    console.warn(`元素 ${elementId} 未找到，尝试延迟更新...`);
+                    // 多次重试机制
+                    this.retryUpdateElement(elementId, text, 0);
+                }
+            }
+
+            // 重试更新元素
+            retryUpdateElement(elementId, text, retryCount) {
+                const maxRetries = 5;
+                const retryDelay = 100 * (retryCount + 1); // 递增延迟
+
+                setTimeout(() => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = text;
+                        console.log(`延迟更新成功 ${elementId} (重试 ${retryCount + 1}):`, text);
+                    } else if (retryCount < maxRetries) {
+                        console.warn(`重试 ${retryCount + 1}/${maxRetries} 失败，继续重试 ${elementId}...`);
+                        this.retryUpdateElement(elementId, text, retryCount + 1);
+                    } else {
+                        console.error(`延迟更新失败，元素 ${elementId} 在 ${maxRetries} 次重试后仍然未找到`);
+                        // 尝试通过其他方式查找元素
+                        this.fallbackUpdateElement(elementId, text);
+                    }
+                }, retryDelay);
+            }
+
+            // 备用更新方法
+            fallbackUpdateElement(elementId, text) {
+                // 尝试通过类名查找
+                const elements = document.querySelectorAll(`[id="${elementId}"]`);
+                if (elements.length > 0) {
+                    elements[0].innerHTML = text;
+                    console.log(`备用方法更新成功 ${elementId}:`, text);
+                    return;
+                }
+
+                // 尝试通过父容器查找
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    const element = resultSection.querySelector(`#${elementId}`);
+                    if (element) {
+                        element.innerHTML = text;
+                        console.log(`通过父容器更新成功 ${elementId}:`, text);
+                        return;
+                    }
+                }
+
+                console.error(`所有方法都失败，无法更新元素 ${elementId}`);
+            }
+
+            // 更新状态指示器
+            updateStatusIndicator(elementId, isTrue) {
+                const indicator = document.getElementById(elementId);
+                if (indicator) {
+                    indicator.className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
+                } else {
+                    console.warn(`状态指示器 ${elementId} 未找到，尝试延迟更新...`);
+                    // 多次重试机制
+                    this.retryUpdateStatusIndicator(elementId, isTrue, 0);
+                }
+            }
+
+            // 重试更新状态指示器
+            retryUpdateStatusIndicator(elementId, isTrue, retryCount) {
+                const maxRetries = 5;
+                const retryDelay = 100 * (retryCount + 1); // 递增延迟
+
+                setTimeout(() => {
+                    const indicator = document.getElementById(elementId);
+                    if (indicator) {
+                        indicator.className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
+                        console.log(`延迟更新状态指示器成功 ${elementId} (重试 ${retryCount + 1})`);
+                    } else if (retryCount < maxRetries) {
+                        console.warn(`重试 ${retryCount + 1}/${maxRetries} 失败，继续重试状态指示器 ${elementId}...`);
+                        this.retryUpdateStatusIndicator(elementId, isTrue, retryCount + 1);
+                    } else {
+                        console.error(`延迟更新失败，状态指示器 ${elementId} 在 ${maxRetries} 次重试后仍然未找到`);
+                        // 尝试通过其他方式查找元素
+                        this.fallbackUpdateStatusIndicator(elementId, isTrue);
+                    }
+                }, retryDelay);
+            }
+
+            // 备用更新状态指示器方法
+            fallbackUpdateStatusIndicator(elementId, isTrue) {
+                // 尝试通过类名查找
+                const elements = document.querySelectorAll(`[id="${elementId}"]`);
+                if (elements.length > 0) {
+                    elements[0].className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
+                    console.log(`备用方法更新状态指示器成功 ${elementId}`);
+                    return;
+                }
+
+                // 尝试通过父容器查找
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    const element = resultSection.querySelector(`#${elementId}`);
+                    if (element) {
+                        element.className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
+                        console.log(`通过父容器更新状态指示器成功 ${elementId}`);
+                        return;
+                    }
+                }
+
+                console.error(`所有方法都失败，无法更新状态指示器 ${elementId}`);
+            }
+
+            // 显示结果区域
+            showResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                    
+                    // 添加结果区域的样式类
+                    resultSection.classList.add('results-visible');
+                    
+                    // 确保所有子元素都存在
+                    this.ensureResultElements();
+                } else {
+                    console.error('resultSection 元素未找到！');
+                }
+            }
+
+            // 确保结果元素存在
+            ensureResultElements() {
+                const resultSection = document.getElementById('resultSection');
+                if (!resultSection) return;
+
+                const requiredElements = [
+                    'isObjectLikeIndicator', 'isArrayIndicator', 'isFunctionIndicator', 'isNullIndicator',
+                    'isObjectLikeResult', 'isArrayResult', 'isFunctionResult', 'isNullResult',
+                    'objectTypeResult', 'constructorResult', 'objectSizeResult'
+                ];
+
+                let needsRecreation = false;
+                requiredElements.forEach(id => {
+                    if (!document.getElementById(id)) {
+                        console.warn(`结果元素 ${id} 不存在，需要重新创建结果区域`);
+                        needsRecreation = true;
+                    }
+                });
+
+                if (needsRecreation) {
+                    console.log('重新创建结果区域...');
+                    this.recreateResultSection();
+                }
+            }
+
+            // 重新创建结果区域
+            recreateResultSection() {
+                const resultSection = document.getElementById('resultSection');
+                if (!resultSection) return;
+
+                resultSection.innerHTML = `
+                    <h3 style="margin-bottom: 15px; color: #495057;">📊 分析结果</h3>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isObjectLikeIndicator"></span>
+                            是否为对象类型 (isObjectLike)
+                        </span>
+                        <span class="result-value" id="isObjectLikeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isArrayIndicator"></span>
+                            是否为数组
+                        </span>
+                        <span class="result-value" id="isArrayResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isFunctionIndicator"></span>
+                            是否为函数
+                        </span>
+                        <span class="result-value" id="isFunctionResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isNullIndicator"></span>
+                            是否为 null
+                        </span>
+                        <span class="result-value" id="isNullResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">对象类型</span>
+                        <span class="result-value" id="objectTypeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">构造函数</span>
+                        <span class="result-value" id="constructorResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">对象大小</span>
+                        <span class="result-value" id="objectSizeResult">-</span>
+                    </div>
+                `;
+                
+                console.log('结果区域重新创建完成');
+            }
+
+            // 隐藏结果区域
+            hideResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'none';
+                }
+            }
+
+            // 显示加载动画
+            showLoadingAnimation() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div class="loading"></div>
+                            <p style="margin-top: 15px; color: #6c757d; font-weight: 500;">正在分析对象...</p>
+                        </div>
+                    `;
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.3s ease-out';
+                }
+            }
+
+            // 生成对象结构树
+            generateObjectTree(obj, depth = 0, key = 'root') {
+                const objectTree = document.getElementById('objectTree');
+                if (!objectTree) return;
+
+                const treeHTML = this.buildTreeHTML(obj, depth, key);
+                objectTree.innerHTML = treeHTML;
+            }
+
+            // 构建树HTML
+            buildTreeHTML(obj, depth = 0, key = 'root') {
+                const indent = '  '.repeat(depth);
+                let html = '';
+
+                if (depth === 0) {
+                    html += `<div class="tree-item" style="margin-left: 0;">
+                        <span class="tree-key">${key}</span>: 
+                        <span class="tree-value">${this.formatTreeValue(obj)}</span>
+                        <span class="tree-type">(${typeof obj})</span>
+                    </div>`;
+                }
+
+                if (this.isObjectLike(obj) && !this.isFunction(obj)) {
+                    if (this.isArray(obj)) {
+                        obj.forEach((item, index) => {
+                            html += `<div class="tree-item" style="margin-left: ${depth * 20}px;">
+                                <span class="tree-key">[${index}]</span>: 
+                                <span class="tree-value">${this.formatTreeValue(item)}</span>
+                                <span class="tree-type">(${typeof item})</span>
+                            </div>`;
+                            
+                            if (this.isObjectLike(item) && depth < 3) {
+                                html += this.buildTreeHTML(item, depth + 1, index);
+                            }
+                        });
+                    } else {
+                        Object.keys(obj).forEach(subKey => {
+                            html += `<div class="tree-item" style="margin-left: ${depth * 20}px;">
+                                <span class="tree-key">${subKey}</span>: 
+                                <span class="tree-value">${this.formatTreeValue(obj[subKey])}</span>
+                                <span class="tree-type">(${typeof obj[subKey]})</span>
+                            </div>`;
+                            
+                            if (this.isObjectLike(obj[subKey]) && depth < 3) {
+                                html += this.buildTreeHTML(obj[subKey], depth + 1, subKey);
+                            }
+                        });
+                    }
+                }
+
+                return html;
+            }
+
+            // 格式化树值显示
+            formatTreeValue(value) {
+                if (value === null) return '<span class="null-value">null</span>';
+                if (value === undefined) return '<span class="null-value">undefined</span>';
+                if (this.isObjectLike(value)) {
+                    if (this.isArray(value)) {
+                        return `<span class="object-value">Array(${value.length})</span>`;
+                    } else if (this.isFunction(value)) {
+                        return '<span class="object-value">function</span>';
+                    } else {
+                        return `<span class="object-value">Object</span>`;
+                    }
+                }
+                if (typeof value === 'string') {
+                    return `"${value}"`;
+                }
+                return String(value);
+            }
+
+            // 验证对象
+            validateObjects() {
+                const objectInput = document.getElementById('objectInput');
+                if (!objectInput || !objectInput.value.trim()) {
+                    this.showError('请先输入要验证的对象');
+                    return;
+                }
+
+                try {
+                    const value = this.parseValue(objectInput.value.trim());
+                    const validations = this.getObjectValidations(value);
+                    this.displayValidations(validations);
+                    this.showNotification('对象验证完成', 'success');
+                } catch (error) {
+                    this.showError('对象解析失败: ' + error.message);
+                }
+            }
+
+            // 获取对象验证结果
+            getObjectValidations(value) {
+                return [
+                    { label: 'isObjectLike 检测', value: this.isObjectLike(value), type: 'isObjectLike' },
+                    { label: 'isArray 检测', value: this.isArray(value), type: 'isArray' },
+                    { label: 'isFunction 检测', value: this.isFunction(value), type: 'isFunction' },
+                    { label: 'isNull 检测', value: this.isNull(value), type: 'isNull' },
+                    { label: '严格相等 null', value: value === null, type: 'strict-null' },
+                    { label: '严格相等 undefined', value: value === undefined, type: 'strict-undefined' },
+                    { label: 'Object.is() 检测', value: Object.is(value, value), type: 'object-is' },
+                    { label: '可序列化检测', value: this.isSerializable(value), type: 'serializable' }
+                ];
+            }
+
+            // 检查是否可序列化
+            isSerializable(value) {
+                try {
+                    JSON.stringify(value);
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            }
+
+            // 显示验证结果
+            displayValidations(validations) {
+                const validationGrid = document.getElementById('validationGrid');
+                if (!validationGrid) return;
+
+                const validationHTML = validations.map((item, index) => `
+                    <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="validation-label">${item.label}</div>
+                        <div class="validation-value ${item.value ? 'success-text' : 'error-text'}">
+                            ${item.value ? '✓ 是' : '✗ 否'}
+                        </div>
+                    </div>
+                `).join('');
+
+                validationGrid.innerHTML = validationHTML;
+            }
+
+            // 深度分析
+            deepAnalyze() {
+                const objectInput = document.getElementById('objectInput');
+                if (!objectInput || !objectInput.value.trim()) {
+                    this.showError('请先输入要分析的对象');
+                    return;
+                }
+
+                try {
+                    const value = this.parseValue(objectInput.value.trim());
+                    const deepAnalysis = this.getDeepAnalysis(value);
+                    this.displayDeepAnalysis(deepAnalysis);
+                    this.showNotification('深度分析完成', 'success');
+                } catch (error) {
+                    this.showError('对象解析失败: ' + error.message);
+                }
+            }
+
+            // 获取深度分析结果
+            getDeepAnalysis(value) {
+                return [
+                    { label: '对象深度', value: this.getObjectDepth(value), type: 'depth' },
+                    { label: '对象大小', value: this.getObjectSize(value), type: 'size' },
+                    { label: '属性数量', value: Object.keys(value || {}).length, type: 'keys' },
+                    { label: '原型链长度', value: this.getPrototypeChainLength(value), type: 'prototype' },
+                    { label: '内存占用估算', value: this.estimateMemoryUsage(value), type: 'memory' },
+                    { label: '循环引用检测', value: this.hasCircularReference(value), type: 'circular' },
+                    { label: '函数数量', value: this.countFunctions(value), type: 'functions' },
+                    { label: '嵌套对象数量', value: this.countNestedObjects(value), type: 'nested' }
+                ];
+            }
+
+            // 获取原型链长度
+            getPrototypeChainLength(value) {
+                let length = 0;
+                let proto = value?.__proto__;
+                while (proto) {
+                    length++;
+                    proto = proto.__proto__;
+                }
+                return length;
+            }
+
+            // 估算内存占用
+            estimateMemoryUsage(value) {
+                try {
+                    const jsonString = JSON.stringify(value);
+                    return Math.round(jsonString.length * 2) + ' bytes';
+                } catch (error) {
+                    return '无法计算';
+                }
+            }
+
+            // 检测循环引用
+            hasCircularReference(value) {
+                const seen = new WeakSet();
+                return this.checkCircular(value, seen);
+            }
+
+            checkCircular(value, seen) {
+                if (typeof value !== 'object' || value === null) return false;
+                if (seen.has(value)) return true;
+                
+                seen.add(value);
+                for (let key in value) {
+                    if (this.checkCircular(value[key], seen)) return true;
+                }
+                seen.delete(value);
+                return false;
+            }
+
+            // 计算函数数量
+            countFunctions(value) {
+                if (typeof value !== 'object' || value === null) return 0;
+                
+                let count = 0;
+                for (let key in value) {
+                    if (typeof value[key] === 'function') count++;
+                    if (this.isObjectLike(value[key])) {
+                        count += this.countFunctions(value[key]);
+                    }
+                }
+                return count;
+            }
+
+            // 计算嵌套对象数量
+            countNestedObjects(value) {
+                if (typeof value !== 'object' || value === null) return 0;
+                
+                let count = 1;
+                for (let key in value) {
+                    if (this.isObjectLike(value[key])) {
+                        count += this.countNestedObjects(value[key]);
+                    }
+                }
+                return count;
+            }
+
+            // 显示深度分析结果
+            displayDeepAnalysis(analysis) {
+                const validationGrid = document.getElementById('validationGrid');
+                if (!validationGrid) return;
+
+                const analysisHTML = analysis.map((item, index) => `
+                    <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="validation-label">${item.label}</div>
+                        <div class="validation-value">
+                            <span class="highlight">${item.value}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                validationGrid.innerHTML = analysisHTML;
+            }
+
+            // 序列化对象
+            serializeObject() {
+                const objectInput = document.getElementById('objectInput');
+                if (!objectInput || !objectInput.value.trim()) {
+                    this.showError('请先输入要序列化的对象');
+                    return;
+                }
+
+                try {
+                    const value = this.parseValue(objectInput.value.trim());
+                    const serializations = this.getSerializations(value);
+                    this.displaySerializations(serializations);
+                    this.showNotification('对象序列化完成', 'success');
+                } catch (error) {
+                    this.showError('对象解析失败: ' + error.message);
+                }
+            }
+
+            // 获取序列化结果
+            getSerializations(value) {
+                return [
+                    { label: 'JSON.stringify', value: this.safeJsonStringify(value), type: 'json' },
+                    { label: 'toString()', value: value?.toString() || String(value), type: 'string' },
+                    { label: 'String()', value: String(value), type: 'string' },
+                    { label: 'valueOf()', value: value?.valueOf?.() || value, type: 'value' },
+                    { label: 'Object.keys()', value: JSON.stringify(Object.keys(value || {})), type: 'keys' },
+                    { label: 'Object.values()', value: JSON.stringify(Object.values(value || {})), type: 'values' },
+                    { label: 'Object.entries()', value: JSON.stringify(Object.entries(value || {})), type: 'entries' }
+                ];
+            }
+
+            // 显示序列化结果
+            displaySerializations(serializations) {
+                const validationGrid = document.getElementById('validationGrid');
+                if (!validationGrid) return;
+
+                const serializationHTML = serializations.map((item, index) => `
+                    <div class="validation-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="validation-label">${item.label}</div>
+                        <div class="validation-value">
+                            <pre style="background: #f8f9fa; padding: 8px; border-radius: 4px; font-size: 0.8rem; max-height: 100px; overflow-y: auto;">${item.value}</pre>
+                        </div>
+                    </div>
+                `).join('');
+
+                validationGrid.innerHTML = serializationHTML;
+            }
+
+            // 比较对象
+            compareObjects() {
+                const objectA = document.getElementById('objectA');
+                const objectB = document.getElementById('objectB');
+                
+                if (!objectA || !objectB || !objectA.value.trim() || !objectB.value.trim()) {
+                    this.showError('请先输入两个要比较的对象');
+                    return;
+                }
+
+                try {
+                    const valueA = this.parseValue(objectA.value.trim());
+                    const valueB = this.parseValue(objectB.value.trim());
+                    const comparison = this.getObjectComparison(valueA, valueB);
+                    this.displayComparison(comparison);
+                    this.showNotification('对象比较完成', 'success');
+                } catch (error) {
+                    this.showError('对象解析失败: ' + error.message);
+                }
+            }
+
+            // 获取对象比较结果
+            getObjectComparison(objA, objB) {
+                return [
+                    { label: '严格相等 (===)', value: objA === objB, comparison: '=== ' },
+                    { label: '宽松相等 (==)', value: objA == objB, comparison: '== ' },
+                    { label: 'Object.is()', value: Object.is(objA, objB), comparison: 'Object.is()' },
+                    { label: '类型相同', value: typeof objA === typeof objB, comparison: 'typeof' },
+                    { label: '构造函数相同', value: objA?.constructor === objB?.constructor, comparison: 'constructor' },
+                    { label: 'JSON 字符串相同', value: JSON.stringify(objA) === JSON.stringify(objB), comparison: 'JSON.stringify' },
+                    { label: '深度相等', value: this.deepEqual(objA, objB), comparison: 'deep equal' },
+                    { label: '原型相同', value: Object.getPrototypeOf(objA) === Object.getPrototypeOf(objB), comparison: 'prototype' }
+                ];
+            }
+
+            // 深度相等比较
+            deepEqual(objA, objB) {
+                if (objA === objB) return true;
+                if (objA == null || objB == null) return objA === objB;
+                if (typeof objA !== typeof objB) return false;
+                if (typeof objA !== 'object') return objA === objB;
+                
+                const keysA = Object.keys(objA);
+                const keysB = Object.keys(objB);
+                
+                if (keysA.length !== keysB.length) return false;
+                
+                for (let key of keysA) {
+                    if (!keysB.includes(key)) return false;
+                    if (!this.deepEqual(objA[key], objB[key])) return false;
+                }
+                
+                return true;
+            }
+
+            // 显示比较结果
+            displayComparison(comparison) {
+                const comparisonResults = document.getElementById('comparisonResults');
+                if (!comparisonResults) return;
+
+                const comparisonHTML = comparison.map((item, index) => `
+                    <div class="validation-item ${item.value ? 'same' : 'different'}" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="validation-label">${item.label}</div>
+                        <div class="validation-value">
+                            <span class="special-value">${item.value ? '✓ 相同' : '✗ 不同'}</span>
+                            <br><small>${item.comparison}</small>
+                        </div>
+                    </div>
+                `).join('');
+
+                comparisonResults.innerHTML = comparisonHTML;
+            }
+
+            // 清空比较
+            clearComparison() {
+                const objectA = document.getElementById('objectA');
+                const objectB = document.getElementById('objectB');
+                const comparisonResults = document.getElementById('comparisonResults');
+                
+                if (objectA) objectA.value = '';
+                if (objectB) objectB.value = '';
+                if (comparisonResults) comparisonResults.innerHTML = '';
+                
+                this.showNotification('比较输入已清空', 'info');
+            }
+
+            // 加载比较示例
+            loadComparisonSamples() {
+                const objectA = document.getElementById('objectA');
+                const objectB = document.getElementById('objectB');
+                
+                if (objectA && objectB) {
+                    objectA.value = JSON.stringify({ name: '张三', age: 25 }, null, 2);
+                    objectB.value = JSON.stringify({ name: '张三', age: 25 }, null, 2);
+                    this.showNotification('比较示例已加载', 'success');
+                }
+            }
+
+            // 清空输入
+            clearInput() {
+                const objectInput = document.getElementById('objectInput');
+                
+                if (objectInput) objectInput.value = '';
+                
+                if (this.plugins.objectTypeSelect) {
+                    this.plugins.objectTypeSelect.setValue('auto');
+                }
+                
+                this.hideResults();
+                this.clearValidationResults();
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 清空验证结果
+            clearValidationResults() {
+                const validationGrid = document.getElementById('validationGrid');
+                const objectTree = document.getElementById('objectTree');
+                
+                if (validationGrid) validationGrid.innerHTML = '';
+                if (objectTree) objectTree.innerHTML = '';
+            }
+
+            // 加载示例对象
+            loadSampleObjects() {
+                const sampleObjects = [
+                    JSON.stringify({ name: '张三', age: 25, hobbies: ['读书', '游泳'], address: { city: '北京', district: '朝阳区' } }, null, 2),
+                    JSON.stringify([1, 2, 3, { nested: true }], null, 2),
+                    JSON.stringify(null, null, 2),
+                    JSON.stringify({ func: function() { return 'hello'; } }, null, 2),
+                    JSON.stringify({ circular: null }, null, 2)
+                ];
+
+                const randomObject = sampleObjects[Math.floor(Math.random() * sampleObjects.length)];
+                const objectInput = document.getElementById('objectInput');
+                
+                if (objectInput) {
+                    objectInput.value = randomObject;
+                    
+                    if (this.getCheckboxValue('autoAnalyze')) {
+                        this.analyzeObject();
+                    }
+
+                    this.showNotification('示例对象已加载', 'success');
+                } else {
+                    this.showError('对象输入框未找到');
+                }
+            }
+
+            // 更新统计信息
+            updateStats() {
+                this.stats.totalAnalyzes++;
+                this.stats.lastAnalyze = new Date();
+                
+                const objectInput = document.getElementById('objectInput');
+                if (objectInput && objectInput.value.trim()) {
+                    try {
+                        const value = this.parseValue(objectInput.value.trim());
+                        if (this.isObjectLike(value)) {
+                            this.stats.objectValuesFound++;
+                        }
+                        if (this.isArray(value)) {
+                            this.stats.arrayValuesFound++;
+                        }
+                        if (this.isFunction(value)) {
+                            this.stats.functionValuesFound++;
+                        }
+                        if (this.isNull(value)) {
+                            this.stats.nullValuesFound++;
+                        }
+                    } catch (error) {
+                        // 忽略解析错误
+                    }
+                }
+            }
+
+            // 更新统计显示
+            updateStatsDisplay(analysis) {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalAnalyzes}</div>
+                        <div class="stat-label">总分析次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.objectValuesFound}</div>
+                        <div class="stat-label">对象值检测</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.arrayValuesFound}</div>
+                        <div class="stat-label">数组值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.functionValuesFound}</div>
+                        <div class="stat-label">函数值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.nullValuesFound}</div>
+                        <div class="stat-label">null值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${analysis.size}</div>
+                        <div class="stat-label">当前对象大小</div>
+                    </div>
+                `;
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+                
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else if (!this.getCheckboxValue('showNotifications')) {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                } else {
+                    // 创建自定义通知
+                    this.createCustomNotification(message, type);
+                }
+            }
+
+            // 创建自定义通知
+            createCustomNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type} fade-in`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6'};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    z-index: 1000;
+                    font-weight: 500;
+                    max-width: 300px;
+                    word-wrap: break-word;
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
+            // 显示错误消息
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用对象检测与数据验证工具',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能对象检测 (isObjectLike)</li>
+                                        <li>深度对象分析和结构树</li>
+                                        <li>对象比较和验证功能</li>
+                                        <li>序列化和反序列化</li>
+                                        <li>历史记录管理</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 输入 JSON 格式的对象数据后会自动分析，也可以点击"加载示例"体验功能
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 历史记录相关方法
+            saveToHistory(input, analysis) {
+                const historyItem = {
+                    id: Date.now(),
+                    input: input,
+                    analysis: analysis,
+                    timestamp: new Date().toLocaleString(),
+                    type: 'analysis'
+                };
+
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+            }
+
+            refreshHistory() {
+                const historyList = document.getElementById('historyList');
+                if (!historyList) return;
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">暂无历史记录</div>';
+                    return;
+                }
+
+                const historyHTML = this.history.map((item, index) => `
+                    <div class="history-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="history-text" title="${item.input}">${this.truncateText(item.input, 50)}</div>
+                        <div class="history-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.objectDetector?.loadFromHistory('${item.id}')">加载</button>
+                            <button class="btn btn-danger btn-small" onclick="window.objectDetector?.removeFromHistory('${item.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                historyList.innerHTML = historyHTML;
+            }
+
+            loadFromHistory(id) {
+                const item = this.history.find(h => h.id == id);
+                if (item) {
+                    const objectInput = document.getElementById('objectInput');
+                    if (objectInput) {
+                        objectInput.value = item.input;
+                        
+                        if (this.plugins.objectTypeSelect && item.analysis && item.analysis.type) {
+                            const typeMapping = {
+                                'object': 'object',
+                                'array': 'array',
+                                'function': 'function',
+                                'null': 'null'
+                            };
+                            
+                            const mappedType = typeMapping[item.analysis.type] || 'auto';
+                            this.plugins.objectTypeSelect.setValue(mappedType);
+                        }
+                        
+                        if (this.getCheckboxValue('autoAnalyze')) {
+                            this.analyzeObject();
+                        }
+                        this.showNotification('已从历史记录加载', 'success');
+                    }
+                }
+            }
+
+            removeFromHistory(id) {
+                this.history = this.history.filter(h => h.id != id);
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('已从历史记录删除', 'info');
+            }
+
+            clearHistory() {
+                this.history = [];
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('历史记录已清空', 'success');
+            }
+
+            exportHistory() {
+                if (this.history.length === 0) {
+                    this.showError('没有历史记录可导出');
+                    return;
+                }
+
+                const exportData = {
+                    exportTime: new Date().toLocaleString(),
+                    totalRecords: this.history.length,
+                    history: this.history
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `object-detection-history-${Date.now()}.json`;
+                link.click();
+
+                this.showNotification('历史记录已导出', 'success');
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('objectDetectorHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved);
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                    this.history = [];
+                }
+            }
+
+            saveHistoryToStorage() {
+                try {
+                    localStorage.setItem('objectDetectorHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+        }
+
+        // 调试函数：检查所有元素
+        function debugElements() {
+            const requiredElements = [
+                'objectInput', 'objectTypeContainer', 'resultSection', 'isObjectLikeResult', 'isArrayResult', 
+                'isFunctionResult', 'isNullResult', 'objectTypeResult', 'constructorResult', 'objectSizeResult',
+                'statsGrid', 'validationGrid', 'objectTree', 'historyList', 'checkboxGroup'
+            ];
+            
+            console.log('=== 元素检查调试信息 ===');
+            console.log('当前DOM状态:', document.readyState);
+            console.log('页面HTML长度:', document.documentElement.innerHTML.length);
+            
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                console.log(`元素 ${id}:`, element ? '✓ 存在' : '✗ 不存在', element);
+            });
+            
+            // 检查resultSection内部结构
+            const resultSection = document.getElementById('resultSection');
+            if (resultSection) {
+                console.log('resultSection内容:', resultSection.innerHTML.substring(0, 200) + '...');
+            }
+        }
+
+        // 安全的初始化函数
+        function safeInit() {
+            console.log('开始安全初始化...');
+            
+            const requiredElements = [
+                'objectInput', 'objectTypeContainer', 'resultSection', 'isObjectLikeResult', 'isArrayResult', 
+                'isFunctionResult', 'isNullResult', 'objectTypeResult', 'constructorResult', 'objectSizeResult',
+                'statsGrid', 'validationGrid', 'objectTree', 'historyList', 'checkboxGroup'
+            ];
+            
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                console.error('缺少必要的DOM元素:', missingElements);
+                debugElements();
+                
+                // 增加重试次数和延迟
+                if (document.readyState === 'loading') {
+                    setTimeout(safeInit, 200);
+                } else {
+                    // 即使DOM加载完成，也再等待一下确保所有元素都渲染完成
+                    setTimeout(safeInit, 100);
+                }
+                return;
+            }
+            
+            console.log('所有必要元素都存在，开始初始化对象检测器...');
+            
+            try {
+                window.objectDetector = new ObjectDetector();
+                console.log('对象检测器初始化成功');
+            } catch (error) {
+                console.error('初始化对象检测器失败:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            // 延迟一点时间确保所有外部CSS都加载完成
+            setTimeout(safeInit, 50);
+        });
+
+        // 如果DOMContentLoaded已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待DOMContentLoaded事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            // 延迟一点时间确保所有外部CSS都加载完成
+            setTimeout(safeInit, 100);
+        }
+
+        // 额外的安全检查，确保在window.onload时也尝试初始化
+        window.addEventListener('load', () => {
+            console.log('所有资源加载完成，进行最终检查...');
+            if (!window.objectDetector) {
+                console.log('对象检测器未初始化，尝试重新初始化...');
+                safeInit();
+            }
+        });
+
+        // 全局调试函数
+        window.debugObjectDetector = function() {
+            console.log('=== 对象检测器调试信息 ===');
+            console.log('对象检测器实例:', window.objectDetector);
+            debugElements();
+            
+            // 检查结果区域状态
+            const resultSection = document.getElementById('resultSection');
+            if (resultSection) {
+                console.log('resultSection 存在:', resultSection);
+                console.log('resultSection 显示状态:', resultSection.style.display);
+                console.log('resultSection 内容长度:', resultSection.innerHTML.length);
+                
+                // 检查所有结果元素
+                const resultElements = [
+                    'isObjectLikeIndicator', 'isArrayIndicator', 'isFunctionIndicator', 'isNullIndicator',
+                    'isObjectLikeResult', 'isArrayResult', 'isFunctionResult', 'isNullResult',
+                    'objectTypeResult', 'constructorResult', 'objectSizeResult'
+                ];
+                
+                resultElements.forEach(id => {
+                    const element = document.getElementById(id);
+                    console.log(`结果元素 ${id}:`, element ? '✓ 存在' : '✗ 不存在', element);
+                });
+            } else {
+                console.error('resultSection 不存在！');
+            }
+            
+            // 测试分析功能
+            if (window.objectDetector) {
+                console.log('测试分析功能...');
+                try {
+                    window.objectDetector.analyzeObject();
+                } catch (error) {
+                    console.error('分析功能测试失败:', error);
+                }
+            }
+        };
+
+        // 强制重新创建结果区域的调试函数
+        window.recreateResults = function() {
+            if (window.objectDetector) {
+                console.log('强制重新创建结果区域...');
+                window.objectDetector.recreateResultSection();
+                console.log('结果区域重新创建完成');
+            } else {
+                console.error('对象检测器未初始化');
+            }
+        };
+    </script>
+</body>
+
+</html>

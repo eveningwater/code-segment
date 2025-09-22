@@ -11,6 +11,10 @@
 const isOdd = num => num % 2 === 1;
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-odd.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,8 +23,10 @@ isOdd(3); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isOdd.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-odd.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-odd.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isOdd.html"></iframe>
+<iframe src="codes/javascript/html/is-odd.html"></iframe>
