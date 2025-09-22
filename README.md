@@ -394,7 +394,7 @@
 - [是否是 null 或者 undefined-2022-10-09](codes/javascript/is-nil.md)
 - [是否是 null-2022-10-11](codes/javascript/is-null.md)
 - [是否是一个数字-2022-10-12](codes/javascript/is-number.md)
-- [是否是一个对象-2022-10-13](codes/javascript/isObject.md)
+- [是否是一个对象-2022-10-13](codes/javascript/is-object.md)
 - [是否是一个对象 2-2022-10-14](codes/javascript/isObjectLike.md)
 - [是否是奇数-2022-10-15](codes/javascript/isOdd.md)
 - [是否是普通对象-2022-10-16](codes/javascript/isPlainObject.md)

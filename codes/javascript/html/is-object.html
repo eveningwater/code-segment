@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能对象检测与分析工具</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(15px);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .result-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-true {
+            background: #10b981;
+        }
+
+        .status-false {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-object {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .type-string {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .type-boolean {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .type-number {
+            background: #fce7f3;
+            color: #be185d;
+        }
+
+        .type-function {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .type-undefined {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 智能对象检测与分析工具</h1>
+            <p>基于 isObject 函数的智能对象检测工具，支持对象验证、深度分析和属性遍历</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 对象输入与分析</h2>
+                <div class="input-group">
+                    <label for="valueInput">输入要检测的值</label>
+                    <input type="text" id="valueInput" placeholder="请输入值，支持对象、数组、字符串、数字等...">
+                </div>
+                
+                <div class="input-group">
+                    <label for="valueType">选择值类型</label>
+                    <div id="valueTypeContainer"></div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="analyzeValue()">
+                        🔍 分析对象
+                    </button>
+                    <button class="btn btn-primary" onclick="clearInput()">
+                        🗑️ 清空输入
+                    </button>
+                    <button class="btn btn-primary" onclick="loadSampleValues()">
+                        📄 加载示例
+                    </button>
+                </div>
+
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: #495057;">📊 分析结果</h3>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isObjectIndicator"></span>
+                            是否为对象 (isObject)
+                        </span>
+                        <span class="result-value" id="isObjectResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isArrayIndicator"></span>
+                            是否为数组
+                        </span>
+                        <span class="result-value" id="isArrayResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isNullIndicator"></span>
+                            是否为 null
+                        </span>
+                        <span class="result-value" id="isNullResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="isFunctionIndicator"></span>
+                            是否为函数
+                        </span>
+                        <span class="result-value" id="isFunctionResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">数据类型</span>
+                        <span class="result-value" id="valueTypeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">原始值</span>
+                        <span class="result-value" id="originalValue">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔍 对象验证</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="validateObjects()">
+                        🔍 验证对象
+                    </button>
+                    <button class="btn btn-primary" onclick="compareObjects()">
+                        ⚖️ 比较对象
+                    </button>
+                    <button class="btn btn-primary" onclick="cloneObject()">
+                        📋 克隆对象
+                    </button>
+                </div>
+                <div id="validationGrid">
+                    <!-- 验证结果将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script>
+        // 核心 isObject 函数
+        const isObject = obj => obj === Object(obj);
+
+        // 全局变量
+        let valueTypeSelect = null;
+
+        // 初始化函数
+        function init() {
+            try {
+                // 初始化自定义 select
+                const valueTypeContainer = document.getElementById('valueTypeContainer');
+                if (valueTypeContainer) {
+                    const selectOptions = [
+                        { value: 'auto', label: '自动检测' },
+                        { value: 'object', label: '对象' },
+                        { value: 'array', label: '数组' },
+                        { value: 'string', label: '字符串' },
+                        { value: 'number', label: '数字' },
+                        { value: 'boolean', label: '布尔值' },
+                        { value: 'function', label: '函数' }
+                    ];
+
+                    valueTypeSelect = new Select({
+                        container: valueTypeContainer,
+                        options: selectOptions,
+                        placeholder: '请选择值类型'
+                    });
+                    
+                    valueTypeSelect.setValue('auto');
+                }
+
+                // 显示欢迎消息
+                showWelcomeMessage();
+                
+                console.log('对象检测工具初始化成功');
+            } catch (error) {
+                console.error('初始化失败:', error);
+            }
+        }
+
+        // 分析值
+        function analyzeValue() {
+            const valueInput = document.getElementById('valueInput');
+            if (!valueInput) return;
+
+            const inputValue = valueInput.value.trim();
+            if (!inputValue) {
+                hideResults();
+                return;
+            }
+
+            try {
+                const parsedValue = parseValue(inputValue);
+                const analysis = performAnalysis(parsedValue, inputValue);
+                displayResults(analysis);
+                showNotification('对象分析完成', 'success');
+            } catch (error) {
+                showError('值解析失败: ' + error.message);
+            }
+        }
+
+        // 解析输入值
+        function parseValue(input) {
+            if (input === 'null') return null;
+            if (input === 'undefined') return undefined;
+            if (input === 'true') return true;
+            if (input === 'false') return false;
+            
+            try {
+                return JSON.parse(input);
+            } catch (e) {
+                if (!isNaN(input) && input !== '') return Number(input);
+                return input;
+            }
+        }
+
+        // 执行值分析
+        function performAnalysis(value, originalInput) {
+            return {
+                value: value,
+                originalInput: originalInput,
+                isObject: isObject(value),
+                isArray: Array.isArray(value),
+                isNull: value === null,
+                isFunction: typeof value === 'function',
+                type: typeof value,
+                constructor: value?.constructor?.name || 'Unknown'
+            };
+        }
+
+        // 显示分析结果
+        function displayResults(analysis) {
+            showResults();
+            
+            requestAnimationFrame(() => {
+                updateStatusIndicator('isObjectIndicator', analysis.isObject);
+                updateStatusIndicator('isArrayIndicator', analysis.isArray);
+                updateStatusIndicator('isNullIndicator', analysis.isNull);
+                updateStatusIndicator('isFunctionIndicator', analysis.isFunction);
+
+                updateElementText('isObjectResult', analysis.isObject ? '是' : '否');
+                updateElementText('isArrayResult', analysis.isArray ? '是' : '否');
+                updateElementText('isNullResult', analysis.isNull ? '是' : '否');
+                updateElementText('isFunctionResult', analysis.isFunction ? '是' : '否');
+                updateElementText('valueTypeResult', getTypeBadge(analysis.type));
+                updateElementText('originalValue', formatValue(analysis.originalInput));
+            });
+        }
+
+        // 辅助函数
+        function getTypeBadge(type) {
+            const typeMap = {
+                'object': 'type-object',
+                'string': 'type-string',
+                'boolean': 'type-boolean',
+                'number': 'type-number',
+                'function': 'type-function',
+                'undefined': 'type-undefined'
+            };
+            
+            const className = typeMap[type] || 'type-object';
+            return `<span class="type-badge ${className}">${type}</span>`;
+        }
+
+        function formatValue(value) {
+            if (value === null) return '<span class="highlight">null</span>';
+            if (value === undefined) return '<span class="highlight">undefined</span>';
+            if (value === '') return '<span class="highlight">""</span>';
+            if (isObject(value)) {
+                return '<span class="highlight">' + truncateString(JSON.stringify(value), 50) + '</span>';
+            }
+            return `<span class="highlight">${truncateString(value, 50)}</span>`;
+        }
+
+        function truncateString(str, maxLength) {
+            if (str.length <= maxLength) return str;
+            return str.substring(0, maxLength) + '...';
+        }
+
+        function updateElementText(elementId, text) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = text;
+            }
+        }
+
+        function updateStatusIndicator(elementId, isTrue) {
+            const indicator = document.getElementById(elementId);
+            if (indicator) {
+                indicator.className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
+            }
+        }
+
+        function showResults() {
+            const resultSection = document.getElementById('resultSection');
+            if (resultSection) {
+                resultSection.style.display = 'block';
+            }
+        }
+
+        function hideResults() {
+            const resultSection = document.getElementById('resultSection');
+            if (resultSection) {
+                resultSection.style.display = 'none';
+            }
+        }
+
+        // 验证对象
+        function validateObjects() {
+            const valueInput = document.getElementById('valueInput');
+            if (!valueInput || !valueInput.value.trim()) {
+                showError('请先输入要验证的值');
+                return;
+            }
+
+            try {
+                const value = parseValue(valueInput.value.trim());
+                const validations = [
+                    { label: 'isObject 检测', value: isObject(value) },
+                    { label: 'isArray 检测', value: Array.isArray(value) },
+                    { label: 'isNull 检测', value: value === null },
+                    { label: 'isFunction 检测', value: typeof value === 'function' },
+                    { label: 'typeof 检测', value: typeof value },
+                    { label: 'constructor 检测', value: value?.constructor?.name || 'Unknown' }
+                ];
+                
+                displayValidations(validations);
+                showNotification('对象验证完成', 'success');
+            } catch (error) {
+                showError('值解析失败: ' + error.message);
+            }
+        }
+
+        function displayValidations(validations) {
+            const validationGrid = document.getElementById('validationGrid');
+            if (!validationGrid) return;
+
+            const validationHTML = validations.map(item => `
+                <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; margin: 10px 0; text-align: center;">
+                    <div style="font-weight: 600; color: #495057; margin-bottom: 8px;">${item.label}</div>
+                    <div style="color: #6c757d; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem;">
+                        ${typeof item.value === 'boolean' ? (item.value ? '✓ 是' : '✗ 否') : item.value}
+                    </div>
+                </div>
+            `).join('');
+
+            validationGrid.innerHTML = validationHTML;
+        }
+
+        // 比较对象
+        function compareObjects() {
+            const valueInput = document.getElementById('valueInput');
+            if (!valueInput || !valueInput.value.trim()) {
+                showError('请先输入要比较的值');
+                return;
+            }
+
+            try {
+                const value = parseValue(valueInput.value.trim());
+                const comparisons = [
+                    { label: '与 {} 比较', value: JSON.stringify(value) === JSON.stringify({}) },
+                    { label: '与 [] 比较', value: JSON.stringify(value) === JSON.stringify([]) },
+                    { label: '与 null 比较', value: value === null },
+                    { label: '与 undefined 比较', value: value === undefined },
+                    { label: '严格相等检测', value: value === value },
+                    { label: 'Object.is 检测', value: Object.is(value, value) }
+                ];
+                
+                displayComparisons(comparisons);
+                showNotification('对象比较完成', 'success');
+            } catch (error) {
+                showError('值解析失败: ' + error.message);
+            }
+        }
+
+        function displayComparisons(comparisons) {
+            const validationGrid = document.getElementById('validationGrid');
+            if (!validationGrid) return;
+
+            const comparisonHTML = comparisons.map(item => `
+                <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; margin: 10px 0; text-align: center;">
+                    <div style="font-weight: 600; color: #495057; margin-bottom: 8px;">${item.label}</div>
+                    <div style="color: #6c757d; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem;">
+                        ${item.value ? '✓ 是' : '✗ 否'}
+                    </div>
+                </div>
+            `).join('');
+
+            validationGrid.innerHTML = comparisonHTML;
+        }
+
+        // 克隆对象
+        function cloneObject() {
+            const valueInput = document.getElementById('valueInput');
+            if (!valueInput || !valueInput.value.trim()) {
+                showError('请先输入要克隆的值');
+                return;
+            }
+
+            try {
+                const value = parseValue(valueInput.value.trim());
+                const cloned = typeof value === 'object' && value !== null ? 
+                    JSON.parse(JSON.stringify(value)) : value;
+                
+                displayCloneResult(value, cloned);
+                showNotification('对象克隆完成', 'success');
+            } catch (error) {
+                showError('对象克隆失败: ' + error.message);
+            }
+        }
+
+        function displayCloneResult(original, cloned) {
+            const validationGrid = document.getElementById('validationGrid');
+            if (!validationGrid) return;
+
+            const cloneHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px;">
+                        <div style="font-weight: 600; color: #495057; margin-bottom: 8px;">原始对象</div>
+                        <div style="color: #6c757d; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem; word-break: break-all;">
+                            ${JSON.stringify(original, null, 2)}
+                        </div>
+                    </div>
+                    <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px;">
+                        <div style="font-weight: 600; color: #495057; margin-bottom: 8px;">克隆对象</div>
+                        <div style="color: #6c757d; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.9rem; word-break: break-all;">
+                            ${JSON.stringify(cloned, null, 2)}
+                        </div>
+                    </div>
+                </div>
+                <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; margin: 10px 0; text-align: center;">
+                    <div style="font-weight: 600; color: #495057; margin-bottom: 8px;">克隆验证</div>
+                    <div style="color: #059669; font-weight: 600;">✓ 克隆成功</div>
+                    <div style="color: #6c757d; font-size: 0.9rem;">引用不同: ${original !== cloned ? '是' : '否'}</div>
+                </div>
+            `;
+
+            validationGrid.innerHTML = cloneHTML;
+        }
+
+        // 清空输入
+        function clearInput() {
+            const valueInput = document.getElementById('valueInput');
+            if (valueInput) valueInput.value = '';
+            
+            if (valueTypeSelect) {
+                valueTypeSelect.setValue('auto');
+            }
+            
+            hideResults();
+            clearValidationResults();
+            showNotification('输入已清空', 'info');
+        }
+
+        function clearValidationResults() {
+            const validationGrid = document.getElementById('validationGrid');
+            if (validationGrid) {
+                validationGrid.innerHTML = '';
+            }
+        }
+
+        // 加载示例值
+        function loadSampleValues() {
+            const sampleValues = [
+                '{"name": "张三", "age": 25, "city": "北京"}',
+                '[1, 2, 3, 4, 5]',
+                '"hello world"',
+                '123',
+                'true',
+                'false',
+                'null',
+                'undefined',
+                '{"users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]}',
+                '[]',
+                '{}'
+            ];
+
+            const randomValue = sampleValues[Math.floor(Math.random() * sampleValues.length)];
+            const valueInput = document.getElementById('valueInput');
+            
+            if (valueInput) {
+                valueInput.value = randomValue;
+                showNotification('示例值已加载', 'success');
+            } else {
+                showError('值输入框未找到');
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type) {
+            try {
+                if (window.Notification) {
+                    new Notification().show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            } catch (error) {
+                console.log(`${type.toUpperCase()}: ${message}`);
+            }
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        // 显示欢迎消息
+        function showWelcomeMessage() {
+            try {
+                if (window.Modal) {
+                    new Modal().show({
+                        title: '🎉 欢迎使用智能对象检测工具',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能对象检测 (isObject)</li>
+                                        <li>深度对象分析和浏览</li>
+                                        <li>对象比较和克隆</li>
+                                        <li>多种验证功能</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 输入对象后点击"分析对象"按钮，也可以点击"加载示例"体验功能
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            } catch (error) {
+                console.log('欢迎消息显示失败:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            init();
+        });
+
+        // 如果DOMContentLoaded已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待DOMContentLoaded事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            init();
+        }
+
+        // 测试 isObject 函数
+        console.log('isObject 函数测试:');
+        console.log('isObject([1, 2, 3]):', isObject([1, 2, 3])); // true
+        console.log('isObject({}):', isObject({})); // true
+        console.log('isObject(null):', isObject(null)); // false
+        console.log('isObject(undefined):', isObject(undefined)); // false
+        console.log('isObject("hello"):', isObject("hello")); // false
+        console.log('isObject(123):', isObject(123)); // false
+    </script>
+</body>
+
+</html>
