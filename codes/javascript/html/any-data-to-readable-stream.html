@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流数据转换器 - anyDataToReadableStream</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .result-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-true {
+            background: #10b981;
+        }
+
+        .status-false {
+            background: #ef4444;
+        }
+
+        .stream-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .data-type-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .data-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .data-type-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .data-type-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .data-type-item.selected {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        .data-type-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .data-type-name {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .data-type-desc {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .stream-monitor {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stream-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .history-section {
+            margin-top: 25px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-text {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #495057;
+            font-size: 0.9rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .error-text {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .success-text {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-string {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .type-object {
+            background: #fce7f3;
+            color: #be185d;
+        }
+
+        .type-array {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .type-number {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .type-boolean {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .type-other {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item label {
+            font-size: 1rem;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .stream-visualization {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stream-chunk {
+            display: inline-block;
+            background: #4a5568;
+            color: #e2e8f0;
+            padding: 2px 6px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            animation: streamFlow 2s ease-in-out infinite;
+        }
+
+        @keyframes streamFlow {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .stream-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .data-type-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 流数据转换器</h1>
+            <p>基于 anyDataToReadableStream 函数的智能流数据处理平台，支持多种数据类型的流转换、监控和可视化</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 数据输入与转换</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="dataInput">输入要转换的数据</label>
+                        <textarea id="dataInput" placeholder='请输入数据，例如: "Hello World" 或 {"name": "test"} 或 [1,2,3] 等...'
+                            rows="4"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="dataTypeSelect">选择数据类型</label>
+                        <div id="dataTypeSelectContainer"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.streamConverter?.convertData()">
+                            🔄 转换数据
+                        </button>
+                        <button class="btn btn-success" onclick="window.streamConverter?.clearInput()">
+                            🗑️ 清空输入
+                        </button>
+                        <button class="btn btn-info" onclick="window.streamConverter?.loadSampleData()">
+                            📄 加载示例
+                        </button>
+                        <button class="btn btn-warning" onclick="window.streamConverter?.startStreamVisualization()">
+                            🎬 开始流可视化
+                        </button>
+                    </div>
+                </div>
+
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: #495057;">📊 转换结果</h3>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="conversionStatusIndicator"></span>
+                            转换状态
+                        </span>
+                        <span class="result-value" id="conversionStatus">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">数据类型</span>
+                        <span class="result-value" id="dataTypeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">流大小</span>
+                        <span class="result-value" id="streamSizeResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">编码方式</span>
+                        <span class="result-value" id="encodingResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">处理时间</span>
+                        <span class="result-value" id="processingTimeResult">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 数据类型选择</h2>
+                <div class="data-type-section">
+                    <div class="data-type-grid" id="dataTypeGrid">
+                        <!-- 数据类型选项将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 流监控与统计</h2>
+            <div class="stream-monitor">
+                <div class="stream-stats" id="streamStats">
+                    <!-- 统计信息将在这里动态生成 -->
+                </div>
+                <div class="stream-visualization" id="streamVisualization">
+                    <div style="text-align: center; color: #6c757d;">
+                        流数据可视化将在这里显示...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">转换选项</div>
+                <div class="checkbox-group" id="checkboxGroup">
+                    <!-- 复选框将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📚 转换历史</h2>
+            <div class="history-section">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.streamConverter?.refreshHistory()">
+                        🔄 刷新历史
+                    </button>
+                    <button class="btn btn-danger" onclick="window.streamConverter?.clearHistory()">
+                        🗑️ 清空历史
+                    </button>
+                    <button class="btn btn-info" onclick="window.streamConverter?.exportHistory()">
+                        📤 导出历史
+                    </button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script>
+        // 核心 anyDataToReadableStream 函数
+        const anyDataToReadableStream = (d) => {
+            const encoder = new TextEncoder();
+
+            // 创建同步流的通用函数
+            const createSyncStream = (data) => {
+                return new ReadableStream({
+                    start(controller) {
+                        controller.enqueue(data);
+                        controller.close();
+                    }
+                });
+            };
+
+            // 创建异步流的通用函数
+            const createAsyncStream = (asyncFn) => {
+                return new ReadableStream({
+                    async start(controller) {
+                        try {
+                            const data = await asyncFn();
+                            controller.enqueue(data);
+                            controller.close();
+                        } catch (error) {
+                            controller.error(error);
+                        }
+                    }
+                });
+            };
+
+            // 处理 null 和 undefined
+            if (d === null || d === undefined) {
+                return createSyncStream(encoder.encode('null'));
+            }
+
+            // 处理字符串
+            if (typeof d === 'string') {
+                return createSyncStream(encoder.encode(d));
+            }
+
+            // 处理 ArrayBuffer
+            if (d instanceof ArrayBuffer) {
+                return createSyncStream(new Uint8Array(d));
+            }
+
+            // 处理 Uint8Array
+            if (d instanceof Uint8Array) {
+                return createSyncStream(d);
+            }
+
+            // 处理 Blob（异步）
+            if (d instanceof Blob) {
+                return createAsyncStream(async () => {
+                    const arrayBuffer = await d.arrayBuffer();
+                    return new Uint8Array(arrayBuffer);
+                });
+            }
+
+            // 处理其他类型（对象、数组、数字、布尔值等）
+            try {
+                const jsonString = JSON.stringify(d);
+                return createSyncStream(encoder.encode(jsonString));
+            } catch (error) {
+                // 处理循环引用等 JSON.stringify 失败的情况
+                const errorMessage = `[Circular Reference: ${d.constructor?.name || 'Object'}]`;
+                return createSyncStream(encoder.encode(errorMessage));
+            }
+        };
+
+        // 流数据转换器类
+        class StreamConverter {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.originalResultContent = null;
+                this.stats = {
+                    totalConversions: 0,
+                    stringConversions: 0,
+                    objectConversions: 0,
+                    arrayConversions: 0,
+                    numberConversions: 0,
+                    booleanConversions: 0,
+                    blobConversions: 0,
+                    bufferConversions: 0,
+                    lastConversion: null,
+                    totalBytesProcessed: 0,
+                    averageProcessingTime: 0
+                };
+                this.selectedDataType = 'auto';
+                this.isVisualizing = false;
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupDataTypes();
+                    this.setupSelect();
+                    this.setupCheckboxes();
+                    this.setupEventListeners();
+                    this.loadHistory();
+                    this.updateStats(); // 初始化时只更新显示，不传递result参数
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    // 插件加载失败，静默处理
+                }
+            }
+
+            // 设置数据类型选项
+            setupDataTypes() {
+                const dataTypeGrid = document.getElementById('dataTypeGrid');
+                if (!dataTypeGrid) return;
+
+                const dataTypes = [
+                    { id: 'string', name: '字符串', icon: '📝', desc: '文本数据', color: 'type-string' },
+                    { id: 'object', name: '对象', icon: '📦', desc: 'JSON对象', color: 'type-object' },
+                    { id: 'array', name: '数组', icon: '📋', desc: '数组数据', color: 'type-array' },
+                    { id: 'number', name: '数字', icon: '🔢', desc: '数值数据', color: 'type-number' },
+                    { id: 'boolean', name: '布尔值', icon: '✅', desc: '真/假值', color: 'type-boolean' },
+                    { id: 'blob', name: 'Blob', icon: '🗂️', desc: '二进制数据', color: 'type-other' },
+                    { id: 'buffer', name: 'Buffer', icon: '💾', desc: '缓冲区数据', color: 'type-other' },
+                    { id: 'auto', name: '自动检测', icon: '🤖', desc: '智能识别', color: 'type-other' }
+                ];
+
+                dataTypeGrid.innerHTML = dataTypes.map(type => `
+                    <div class="data-type-item" data-type="${type.id}" onclick="window.streamConverter?.selectDataType('${type.id}')">
+                        <div class="data-type-icon">${type.icon}</div>
+                        <div class="data-type-name">${type.name}</div>
+                        <div class="data-type-desc">${type.desc}</div>
+                    </div>
+                `).join('');
+
+                // 默认选择自动检测
+                this.selectDataType('auto');
+            }
+
+            // 选择数据类型
+            selectDataType(type) {
+                this.selectedDataType = type;
+
+                // 更新UI
+                document.querySelectorAll('.data-type-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+
+                const selectedItem = document.querySelector(`[data-type="${type}"]`);
+                if (selectedItem) {
+                    selectedItem.classList.add('selected');
+                }
+
+                // 更新select插件
+                if (this.plugins.dataTypeSelect) {
+                    this.plugins.dataTypeSelect.setValue(type);
+                }
+
+                this.showNotification(`已选择数据类型: ${type}`, 'info');
+            }
+
+            // 设置自定义 select
+            setupSelect() {
+                const dataTypeSelectContainer = document.getElementById('dataTypeSelectContainer');
+                if (!dataTypeSelectContainer) return;
+
+                const selectOptions = [
+                    { value: 'auto', label: '自动检测' },
+                    { value: 'string', label: '字符串' },
+                    { value: 'object', label: '对象' },
+                    { value: 'array', label: '数组' },
+                    { value: 'number', label: '数字' },
+                    { value: 'boolean', label: '布尔值' },
+                    { value: 'blob', label: 'Blob' },
+                    { value: 'buffer', label: 'Buffer' }
+                ];
+
+                this.plugins.dataTypeSelect = new Select({
+                    container: dataTypeSelectContainer,
+                    options: selectOptions,
+                    placeholder: '请选择数据类型',
+                    onChange: (value) => {
+                        this.selectedDataType = value;
+                        this.selectDataType(value);
+                        if (this.getCheckboxValue('autoConvert')) {
+                            this.convertData();
+                        }
+                    }
+                });
+
+                this.plugins.dataTypeSelect.setValue('auto');
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'autoConvert', label: '自动转换', checked: false },
+                    { id: 'saveHistory', label: '保存转换历史', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'enableVisualization', label: '启用流可视化', checked: true },
+                    { id: 'showStats', label: '显示统计信息', checked: true }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            this.handleCheckboxChange(checkedStates);
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 处理复选框变化
+            handleCheckboxChange(checkedStates) {
+                if (this.getCheckboxValue('autoConvert')) {
+                    this.convertData();
+                }
+            }
+
+            // 设置事件监听器
+            setupEventListeners() {
+                const dataInput = document.getElementById('dataInput');
+
+                if (dataInput) {
+                    dataInput.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoConvert')) {
+                            this.convertData();
+                        }
+                    });
+
+                    dataInput.addEventListener('keydown', (e) => {
+                        if (e.ctrlKey && e.key === 'Enter') {
+                            this.convertData();
+                        }
+                    });
+                }
+            }
+
+            // 转换数据
+            async convertData() {
+                const dataInput = document.getElementById('dataInput');
+
+                if (!dataInput) return;
+
+                const inputValue = dataInput.value.trim();
+
+                if (!inputValue) {
+                    this.hideResults();
+                    return;
+                }
+
+                this.showLoadingAnimation();
+
+                const startTime = performance.now();
+
+                try {
+                    const parsedData = this.parseInputData(inputValue, this.selectedDataType);
+                    const stream = anyDataToReadableStream(parsedData);
+                    const result = await this.analyzeStream(stream, parsedData);
+
+                    const endTime = performance.now();
+                    const processingTime = endTime - startTime;
+
+                    this.displayResults(result, processingTime);
+                    this.updateStats(result, processingTime);
+
+                    if (this.getCheckboxValue('saveHistory')) {
+                        this.saveToHistory(inputValue, result, processingTime);
+                    }
+
+                    if (this.getCheckboxValue('enableVisualization')) {
+                        this.startStreamVisualization(stream);
+                    }
+
+                    this.showNotification('数据转换完成', 'success');
+                } catch (error) {
+                    this.restoreOriginalContent();
+                    this.hideResults();
+                    this.showError('数据转换失败: ' + error.message);
+                }
+            }
+
+            // 解析输入数据
+            parseInputData(input, type) {
+                if (input === 'null') return null;
+                if (input === 'undefined') return undefined;
+                if (input === 'true') return true;
+                if (input === 'false') return false;
+                if (input === 'NaN') return NaN;
+                if (input === 'Infinity') return Infinity;
+                if (input === '-Infinity') return -Infinity;
+
+                switch (type) {
+                    case 'string':
+                        return input;
+                    case 'object':
+                        try {
+                            return JSON.parse(input);
+                        } catch (e) {
+                            return { value: input };
+                        }
+                    case 'array':
+                        try {
+                            const parsed = JSON.parse(input);
+                            return Array.isArray(parsed) ? parsed : [parsed];
+                        } catch (e) {
+                            return input.split(',').map(item => item.trim());
+                        }
+                    case 'number':
+                        const num = Number(input);
+                        if (isNaN(num)) throw new Error('无法解析为数字');
+                        return num;
+                    case 'boolean':
+                        if (input === 'true') return true;
+                        if (input === 'false') return false;
+                        throw new Error('无法解析为布尔值');
+                    case 'blob':
+                        return new Blob([input], { type: 'text/plain' });
+                    case 'buffer':
+                        return new TextEncoder().encode(input).buffer;
+                    case 'auto':
+                    default:
+                        if (input === '') return '';
+                        if (!isNaN(input) && input !== '') return Number(input);
+                        if (input === 'true' || input === 'false') return input === 'true';
+                        try {
+                            return JSON.parse(input);
+                        } catch (e) {
+                            return input;
+                        }
+                }
+            }
+
+            // 分析流
+            async analyzeStream(stream, originalData) {
+                const reader = stream.getReader();
+                const chunks = [];
+                let totalBytes = 0;
+
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        chunks.push(value);
+                        totalBytes += value.length;
+                    }
+                } finally {
+                    reader.releaseLock();
+                }
+
+                return {
+                    success: true,
+                    dataType: typeof originalData,
+                    isArray: Array.isArray(originalData),
+                    isObject: originalData !== null && typeof originalData === 'object',
+                    isString: typeof originalData === 'string',
+                    isNumber: typeof originalData === 'number',
+                    isBoolean: typeof originalData === 'boolean',
+                    isBlob: originalData instanceof Blob,
+                    isArrayBuffer: originalData instanceof ArrayBuffer,
+                    isUint8Array: originalData instanceof Uint8Array,
+                    totalBytes: totalBytes,
+                    chunkCount: chunks.length,
+                    encoding: 'UTF-8',
+                    originalData: originalData,
+                    chunks: chunks
+                };
+            }
+
+            // 显示结果
+            displayResults(result, processingTime) {
+                // 先恢复原始内容
+                this.restoreOriginalContent();
+                // 再显示结果区域
+                this.showResults();
+
+                // 使用 setTimeout 确保 DOM 更新完成后再更新内容
+                setTimeout(() => {
+                    this.updateElementText('conversionStatus', result.success ? '成功' : '失败');
+                    this.updateElementText('dataTypeResult', this.getTypeBadge(result.dataType));
+                    this.updateElementText('streamSizeResult', `${result.totalBytes} 字节`);
+                    this.updateElementText('encodingResult', result.encoding);
+                    this.updateElementText('processingTimeResult', `${processingTime.toFixed(2)}ms`);
+
+                    this.updateStatusIndicator('conversionStatusIndicator', result.success);
+                }, 50);
+            }
+
+            // 获取类型徽章
+            getTypeBadge(type) {
+                const typeMap = {
+                    'string': 'type-string',
+                    'object': 'type-object',
+                    'array': 'type-array',
+                    'number': 'type-number',
+                    'boolean': 'type-boolean',
+                    'function': 'type-other'
+                };
+
+                const className = typeMap[type] || 'type-other';
+                return `<span class="type-badge ${className}">${type}</span>`;
+            }
+
+            // 更新元素文本
+            updateElementText(elementId, text) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = text;
+                }
+            }
+
+            // 更新状态指示器
+            updateStatusIndicator(elementId, isTrue) {
+                const indicator = document.getElementById(elementId);
+                if (indicator) {
+                    indicator.className = `status-indicator ${isTrue ? 'status-true' : 'status-false'}`;
+                }
+            }
+
+            // 恢复原始内容
+            restoreOriginalContent() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection && !this.originalResultContent) {
+                    this.originalResultContent = resultSection.innerHTML;
+                }
+                if (resultSection && this.originalResultContent) {
+                    resultSection.innerHTML = this.originalResultContent;
+                }
+            }
+
+            // 显示结果区域
+            showResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                }
+            }
+
+            // 隐藏结果区域
+            hideResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'none';
+                }
+            }
+
+            // 显示加载动画
+            showLoadingAnimation() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    // 保存原始内容（如果还没有保存）
+                    if (!this.originalResultContent) {
+                        this.originalResultContent = resultSection.innerHTML;
+                    }
+                    
+                    resultSection.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div class="loading"></div>
+                            <p style="margin-top: 15px; color: #6c757d;">正在转换数据...</p>
+                        </div>
+                    `;
+                    resultSection.style.display = 'block';
+                }
+            }
+
+            // 开始流可视化
+            async startStreamVisualization(stream) {
+                if (this.isVisualizing) return;
+
+                // 如果没有传入stream，尝试从当前输入创建
+                if (!stream) {
+                    const dataInput = document.getElementById('dataInput');
+                    if (!dataInput || !dataInput.value.trim()) {
+                        this.showError('请先输入数据');
+                        return;
+                    }
+
+                    try {
+                        const parsedData = this.parseInputData(dataInput.value.trim(), this.selectedDataType);
+                        stream = anyDataToReadableStream(parsedData);
+                    } catch (error) {
+                        this.showError('无法创建流: ' + error.message);
+                        return;
+                    }
+                }
+
+                this.isVisualizing = true;
+                const visualization = document.getElementById('streamVisualization');
+                if (!visualization) return;
+
+                visualization.innerHTML = '<div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>';
+
+                const reader = stream.getReader();
+                const chunks = [];
+                let totalBytes = 0;
+
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        chunks.push(value);
+                        totalBytes += value.length;
+
+                        // 更新可视化
+                        this.updateStreamVisualization(chunks, totalBytes);
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                } finally {
+                    reader.releaseLock();
+                    this.isVisualizing = false;
+                }
+            }
+
+            // 更新流可视化
+            updateStreamVisualization(chunks, totalBytes) {
+                const visualization = document.getElementById('streamVisualization');
+                if (!visualization) return;
+
+                const progressFill = visualization.querySelector('.progress-fill');
+                if (progressFill) {
+                    progressFill.style.width = '100%';
+                }
+
+                const chunksHtml = chunks.map((chunk, index) => {
+                    const chunkText = new TextDecoder().decode(chunk).substring(0, 10);
+                    return `<span class="stream-chunk" title="Chunk ${index + 1}: ${chunkText}...">${chunk.length}B</span>`;
+                }).join('');
+
+                visualization.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>流数据可视化</strong> - 总大小: ${totalBytes} 字节, 块数: ${chunks.length}
+                    </div>
+                    <div style="margin-bottom: 10px;">${chunksHtml}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                `;
+            }
+
+            // 更新统计信息
+            updateStats(result, processingTime) {
+                // 如果没有result参数，只更新显示，不更新统计数据
+                if (!result) {
+                    this.updateStatsDisplay();
+                    return;
+                }
+
+                this.stats.totalConversions++;
+                this.stats.lastConversion = new Date();
+                this.stats.totalBytesProcessed += result.totalBytes;
+                this.stats.averageProcessingTime = (this.stats.averageProcessingTime + processingTime) / 2;
+
+                if (result.isString) this.stats.stringConversions++;
+                if (result.isObject) this.stats.objectConversions++;
+                if (result.isArray) this.stats.arrayConversions++;
+                if (result.isNumber) this.stats.numberConversions++;
+                if (result.isBoolean) this.stats.booleanConversions++;
+                if (result.isBlob) this.stats.blobConversions++;
+                if (result.isArrayBuffer) this.stats.bufferConversions++;
+
+                this.updateStatsDisplay();
+            }
+
+            // 更新统计显示
+            updateStatsDisplay() {
+                const streamStats = document.getElementById('streamStats');
+                if (!streamStats) return;
+
+                streamStats.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalConversions}</div>
+                        <div class="stat-label">总转换次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalBytesProcessed}</div>
+                        <div class="stat-label">总字节数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.stringConversions}</div>
+                        <div class="stat-label">字符串转换</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.objectConversions}</div>
+                        <div class="stat-label">对象转换</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.arrayConversions}</div>
+                        <div class="stat-label">数组转换</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.averageProcessingTime.toFixed(2)}ms</div>
+                        <div class="stat-label">平均处理时间</div>
+                    </div>
+                `;
+            }
+
+            // 清空输入
+            clearInput() {
+                const dataInput = document.getElementById('dataInput');
+
+                if (dataInput) dataInput.value = '';
+
+                if (this.plugins.dataTypeSelect) {
+                    this.plugins.dataTypeSelect.setValue('auto');
+                }
+
+                this.selectDataType('auto');
+                this.hideResults();
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 加载示例数据
+            loadSampleData() {
+                const sampleData = [
+                    '"Hello World"',
+                    '{"name": "test", "value": 123}',
+                    '[1, 2, 3, 4, 5]',
+                    '42',
+                    'true',
+                    'null',
+                    'undefined',
+                    'new Date().toISOString()',
+                    '{"nested": {"deep": {"value": 42}}}',
+                    '[{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]'
+                ];
+
+                const randomData = sampleData[Math.floor(Math.random() * sampleData.length)];
+                const dataInput = document.getElementById('dataInput');
+
+                if (dataInput) {
+                    dataInput.value = randomData;
+
+                    if (this.getCheckboxValue('autoConvert')) {
+                        this.convertData();
+                    }
+
+                    this.showNotification('示例数据已加载', 'success');
+                } else {
+                    this.showError('数据输入框未找到');
+                }
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        // 获取复选框值失败，使用原生方法
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else if (!this.getCheckboxValue('showNotifications')) {
+                    // 静默处理，不显示通知
+                } else {
+                    alert(message);
+                }
+            }
+
+            // 显示错误消息
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🌊 欢迎使用流数据转换器',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🌊</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>支持多种数据类型的流转换</li>
+                                        <li>实时流数据可视化</li>
+                                        <li>智能数据类型检测</li>
+                                        <li>转换统计和历史记录</li>
+                                        <li>高性能异步处理</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 输入数据后会自动转换，也可以体验流可视化和统计功能
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 历史记录相关方法
+            saveToHistory(input, result, processingTime) {
+                const historyItem = {
+                    id: Date.now(),
+                    input: input,
+                    result: result,
+                    processingTime: processingTime,
+                    timestamp: new Date().toLocaleString(),
+                    type: 'conversion'
+                };
+
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+            }
+
+            refreshHistory() {
+                const historyList = document.getElementById('historyList');
+                if (!historyList) return;
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">暂无转换历史</div>';
+                    return;
+                }
+
+                const historyHTML = this.history.map((item, index) => `
+                    <div class="history-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="history-text" title="${item.input}">${this.truncateText(item.input, 40)}</div>
+                        <div class="history-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.streamConverter?.loadFromHistory('${item.id}')">加载</button>
+                            <button class="btn btn-danger btn-small" onclick="window.streamConverter?.removeFromHistory('${item.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                historyList.innerHTML = historyHTML;
+            }
+
+            loadFromHistory(id) {
+                const item = this.history.find(h => h.id == id);
+                if (item) {
+                    const dataInput = document.getElementById('dataInput');
+                    if (dataInput) {
+                        dataInput.value = item.input;
+
+                        if (this.getCheckboxValue('autoConvert')) {
+                            this.convertData();
+                        }
+                        this.showNotification('已从历史记录加载', 'success');
+                    }
+                }
+            }
+
+            removeFromHistory(id) {
+                this.history = this.history.filter(h => h.id != id);
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('已从历史记录删除', 'info');
+            }
+
+            clearHistory() {
+                this.history = [];
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('历史记录已清空', 'success');
+            }
+
+            exportHistory() {
+                if (this.history.length === 0) {
+                    this.showError('没有历史记录可导出');
+                    return;
+                }
+
+                const exportData = {
+                    exportTime: new Date().toLocaleString(),
+                    totalRecords: this.history.length,
+                    stats: this.stats,
+                    history: this.history
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `stream-converter-history-${Date.now()}.json`;
+                link.click();
+
+                this.showNotification('历史记录已导出', 'success');
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('streamConverterHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved);
+                    }
+                } catch (error) {
+                    this.history = [];
+                }
+            }
+
+            saveHistoryToStorage() {
+                try {
+                    localStorage.setItem('streamConverterHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    // 保存历史记录失败，静默处理
+                }
+            }
+
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+        }
+
+        // 安全的初始化函数
+        function safeInit() {
+            const requiredElements = [
+                'dataInput', 'dataTypeSelectContainer', 'resultSection', 'conversionStatus',
+                'dataTypeResult', 'streamSizeResult', 'encodingResult', 'processingTimeResult',
+                'streamStats', 'dataTypeGrid', 'streamVisualization', 'historyList', 'checkboxGroup'
+            ];
+
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                if (document.readyState === 'loading') {
+                    setTimeout(safeInit, 100);
+                }
+                return;
+            }
+
+            try {
+                window.streamConverter = new StreamConverter();
+            } catch (error) {
+                // 初始化失败，静默处理
+            }
+        }
+
+        // 统一的初始化函数
+        function initializeApp() {
+            safeInit();
+        }
+
+        // 页面加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+
+</html>
