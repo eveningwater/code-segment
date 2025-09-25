@@ -387,7 +387,7 @@
 - [是否是一个对象 2-2022-10-14](codes/javascript/is-object-like.md)
 - [是否是奇数-2022-10-15](codes/javascript/is-odd.md)
 - [是否是普通对象-2022-10-16](codes/javascript/is-plain-object.md)
-- [是否是 10 的幂-2022-10-17](codes/javascript/isPowerOfTen.md)
+- [是否是 10 的幂-2022-10-17](codes/javascript/is-power-of-ten.md)
 - [是否是 2 的幂-2022-10-18](codes/javascript/isPowerOfTwo.md)
 - [是否是质（素）数-2022-10-19](codes/javascript/isPrime.md)
 - [是否是原始数据-2022-10-20](codes/javascript/isPrimitive.md)
