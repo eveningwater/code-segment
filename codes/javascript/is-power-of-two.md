@@ -11,6 +11,10 @@
 const isPowerOfTwo = n => !!n && (n & (n - 1)) === 0;
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-power-of-two.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,8 +25,10 @@ isPowerOfTwo(8); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isPowerOfTwo.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-power-of-two.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-power-of-two.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isPowerOfTwo.html"></iframe>
+<iframe src="codes/javascript/html/is-power-of-two.html"></iframe>
