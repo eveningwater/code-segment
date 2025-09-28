@@ -5,107 +5,725 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON 验证器</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
     <style>
-        /* 通用布局 */
-        body {
-            font-family: 'Arial', sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f4f7fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             color: #333;
+            line-height: 1.6;
         }
 
         .container {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
             text-align: center;
-        }
-
-        h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        p {
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            resize: none;
-            transition: border-color 0.3s ease;
-        }
-
-        textarea:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        button.btn {
-            background-color: #007bff;
+            margin-bottom: 40px;
             color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
-        button.btn:hover {
-            background-color: #0056b3;
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            padding: 10px;
-            border-radius: 6px;
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .json-editor {
+            position: relative;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
             transition: all 0.3s ease;
         }
 
-        .result.valid {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .json-editor.focused {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .result.invalid {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .json-editor.valid {
+            border-color: #10b981;
+        }
+
+        .json-editor.invalid {
+            border-color: #ef4444;
+        }
+
+        .editor-toolbar {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6c757d;
+        }
+
+        .status-indicator.valid {
+            background: #10b981;
+        }
+
+        .status-indicator.invalid {
+            background: #ef4444;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .json-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 20px;
+            border: none;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #ffffff;
+            resize: vertical;
+            outline: none;
+        }
+
+        .json-textarea::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .result-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .validation-result {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .validation-result.valid {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .validation-result.invalid {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .error-details {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .history-section {
+            margin-top: 25px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-text {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #495057;
+            font-size: 0.9rem;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item label {
+            font-size: 1rem;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .batch-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .batch-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .batch-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .batch-result {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .error-text {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .success-text {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .json-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>JSON 验证器</h1>
-        <p>请输入一个 JSON 字符串：</p>
-        <textarea id="jsonInput" placeholder='请输入 JSON 格式的字符串...' rows="6" cols="50"></textarea><br><br>
-        <button onclick="validateJSON()" class="btn">验证 JSON</button>
+        <div class="header">
+            <h1>🔍 JSON 智能验证器与格式化工具</h1>
+            <p>基于 isValidJSON 函数的专业 JSON 验证平台，支持实时验证、格式化、批量处理、历史记录和高级分析功能</p>
+        </div>
 
-        <div id="result" class="result"></div>
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 JSON 编辑器</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="jsonInput">输入 JSON 字符串</label>
+                        <div class="json-editor" id="jsonEditor">
+                            <div class="editor-toolbar">
+                                <div class="editor-status">
+                                    <span class="status-indicator" id="statusIndicator"></span>
+                                    <span id="editorStatus">准备就绪</span>
+                                </div>
+                                <div class="editor-actions">
+                                    <button class="btn-icon" onclick="window.jsonValidator?.formatJSON()" title="格式化">🎨</button>
+                                    <button class="btn-icon" onclick="window.jsonValidator?.compressJSON()" title="压缩">📦</button>
+                                    <button class="btn-icon" onclick="window.jsonValidator?.clearInput()" title="清空">🗑️</button>
+                                </div>
+                            </div>
+                            <textarea id="jsonInput" class="json-textarea" placeholder='请输入 JSON 格式的字符串...&#10;例如:&#10;{&#10;  "name": "张三",&#10;  "age": 25,&#10;  "hobbies": ["读书", "编程", "旅行"]&#10;}'></textarea>
+                        </div>
+    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.jsonValidator?.validateJSON()">
+                            🔍 验证 JSON
+                        </button>
+                        <button class="btn btn-success" onclick="window.jsonValidator?.formatJSON()">
+                            🎨 格式化
+                        </button>
+                        <button class="btn btn-warning" onclick="window.jsonValidator?.loadSample()">
+                            📄 加载示例
+                        </button>
+                        <button class="btn btn-info" onclick="window.jsonValidator?.exportJSON()">
+                            📤 导出
+                        </button>
+                    </div>
+                </div>
+
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: #495057;">📊 验证结果</h3>
+                    <div class="validation-result" id="validationResult">
+                        <!-- 验证结果将在这里显示 -->
+                    </div>
+                    <div class="error-details" id="errorDetails" style="display: none;">
+                        <h4 style="margin-bottom: 10px; color: #dc2626;">❌ 错误详情</h4>
+                        <div class="error-message" id="errorMessage"></div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">JSON 类型</span>
+                        <span class="result-value" id="jsonType">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">键值对数量</span>
+                        <span class="result-value" id="keyCount">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">嵌套层级</span>
+                        <span class="result-value" id="nestingLevel">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">文件大小</span>
+                        <span class="result-value" id="fileSize">-</span>
     </div>
 
+                    <div class="json-preview" id="jsonPreview" style="display: none;">
+                        <!-- JSON 预览将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 批量验证器</h2>
+                <div class="batch-section">
+                    <div class="input-group">
+                        <label for="batchInput">输入多个 JSON 字符串（每行一个）</label>
+                        <textarea id="batchInput" class="batch-input" placeholder="请输入多个 JSON 字符串，每行一个，例如:&#10;{&quot;name&quot;: &quot;张三&quot;}&#10;{&quot;age&quot;: 25}&#10;{&quot;hobbies&quot;: [&quot;读书&quot;, &quot;编程&quot;]}&#10;[1, 2, 3, 4, 5]&#10;&quot;Hello World&quot;"></textarea>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.jsonValidator?.validateBatch()">
+                            🔍 批量验证
+                        </button>
+                        <button class="btn btn-warning" onclick="window.jsonValidator?.generateSampleBatch()">
+                            🎲 生成示例
+                        </button>
+                        <button class="btn btn-danger" onclick="window.jsonValidator?.clearBatch()">
+                            🗑️ 清空批量
+                        </button>
+                    </div>
+                    
+                    <div class="batch-result" id="batchResult">
+                        批量验证结果将在这里显示...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 验证统计</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">验证选项</div>
+                <div class="checkbox-group" id="checkboxGroup">
+                    <!-- 复选框将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📚 验证历史</h2>
+            <div class="history-section">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.jsonValidator?.refreshHistory()">
+                        🔄 刷新历史
+                    </button>
+                    <button class="btn btn-danger" onclick="window.jsonValidator?.clearHistory()">
+                        🗑️ 清空历史
+                    </button>
+                    <button class="btn btn-info" onclick="window.jsonValidator?.exportHistory()">
+                        📤 导出历史
+                    </button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入自定义插件 -->
+  
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
     <script>
-        // JSON 验证函数
+        // 核心 JSON 验证函数
         const isValidJSON = val => {
             try {
                 const res = JSON.parse(val);
@@ -116,18 +734,979 @@
             }
         };
 
-        // 验证用户输入的 JSON
-        function validateJSON() {
-            const input = document.getElementById('jsonInput').value;
-            const resultDiv = document.getElementById('result');
-
-            if (isValidJSON(input)) {
-                resultDiv.textContent = "有效 JSON";
-                resultDiv.className = 'result valid';
-            } else {
-                resultDiv.textContent = "无效 JSON";
-                resultDiv.className = 'result invalid';
+        // JSON 验证器类
+        class JSONValidator {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.stats = {
+                    totalValidations: 0,
+                    validJSONCount: 0,
+                    invalidJSONCount: 0,
+                    batchValidations: 0,
+                    formatOperations: 0,
+                    lastValidation: null
+                };
+                this.init();
             }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCheckboxes();
+                    this.setupEventListeners();
+                    this.loadHistory();
+                    this.updateStatsDisplay();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'autoValidate', label: '实时自动验证', checked: true },
+                    { id: 'saveHistory', label: '保存验证历史', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'enableAnimations', label: '启用动画效果', checked: true },
+                    { id: 'strictMode', label: '严格模式验证', checked: false },
+                    { id: 'autoFormat', label: '自动格式化', checked: false }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            this.handleCheckboxChange(checkedStates);
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 处理复选框变化
+            handleCheckboxChange(checkedStates) {
+                if (this.getCheckboxValue('autoValidate')) {
+                    this.validateJSON();
+                }
+            }
+
+            // 设置事件监听器
+            setupEventListeners() {
+                const jsonInput = document.getElementById('jsonInput');
+                const jsonEditor = document.getElementById('jsonEditor');
+                
+                if (jsonInput) {
+                    jsonInput.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoValidate')) {
+                            this.validateJSON();
+                        }
+                        this.updateEditorStatus();
+                    });
+
+                    jsonInput.addEventListener('focus', () => {
+                        jsonEditor.classList.add('focused');
+                    });
+
+                    jsonInput.addEventListener('blur', () => {
+                        jsonEditor.classList.remove('focused');
+                    });
+
+                    jsonInput.addEventListener('keydown', (e) => {
+                        if (e.ctrlKey && e.key === 'Enter') {
+                            this.validateJSON();
+                        }
+                    });
+                }
+            }
+
+            // 更新编辑器状态
+            updateEditorStatus() {
+                const jsonInput = document.getElementById('jsonInput');
+                const statusIndicator = document.getElementById('statusIndicator');
+                const editorStatus = document.getElementById('editorStatus');
+                const jsonEditor = document.getElementById('jsonEditor');
+
+                if (!jsonInput || !statusIndicator || !editorStatus || !jsonEditor) return;
+
+                const input = jsonInput.value.trim();
+                
+                if (!input) {
+                    statusIndicator.className = 'status-indicator';
+                    editorStatus.textContent = '准备就绪';
+                    jsonEditor.classList.remove('valid', 'invalid');
+                    return;
+                }
+
+                const isValid = isValidJSON(input);
+                statusIndicator.className = `status-indicator ${isValid ? 'valid' : 'invalid'}`;
+                editorStatus.textContent = isValid ? '有效 JSON' : '无效 JSON';
+                jsonEditor.classList.remove('valid', 'invalid');
+                jsonEditor.classList.add(isValid ? 'valid' : 'invalid');
+            }
+
+            // 验证 JSON
+            validateJSON() {
+                const jsonInput = document.getElementById('jsonInput');
+                const resultSection = document.getElementById('resultSection');
+                
+                if (!jsonInput) return;
+
+                const input = jsonInput.value.trim();
+                
+                if (!input) {
+                    this.hideResults();
+                    return;
+                }
+
+                this.showLoadingAnimation();
+
+                requestAnimationFrame(() => {
+                    try {
+                        const validationResult = this.performValidation(input);
+                        this.displayValidationResults(validationResult);
+                        this.updateStats();
+                        
+                        if (this.getCheckboxValue('saveHistory')) {
+                            this.saveToHistory(input, validationResult, 'single');
+                        }
+
+                        this.showNotification('JSON 验证完成', 'success');
+                    } catch (error) {
+                        this.showError('验证失败: ' + error.message);
+                    }
+                });
+            }
+
+            // 执行验证
+            performValidation(input) {
+                const isValid = isValidJSON(input);
+                let parsedData = null;
+                let errorMessage = '';
+                let analysis = {};
+
+                if (isValid) {
+                    try {
+                        parsedData = JSON.parse(input);
+                        analysis = this.analyzeJSON(parsedData);
+                        this.stats.validJSONCount++;
+                    } catch (error) {
+                        errorMessage = error.message;
+                        this.stats.invalidJSONCount++;
+                    }
+            } else {
+                    errorMessage = this.getJSONError(input);
+                    this.stats.invalidJSONCount++;
+                }
+
+                return {
+                    isValid,
+                    input,
+                    parsedData,
+                    errorMessage,
+                    analysis
+                };
+            }
+
+            // 获取 JSON 错误信息
+            getJSONError(input) {
+                try {
+                    JSON.parse(input);
+                } catch (error) {
+                    return error.message;
+                }
+                return '未知错误';
+            }
+
+            // 分析 JSON 结构
+            analyzeJSON(data) {
+                const type = Array.isArray(data) ? 'array' : typeof data;
+                const keyCount = this.getKeyCount(data);
+                const nestingLevel = this.getNestingLevel(data);
+                const fileSize = JSON.stringify(data).length;
+
+                return {
+                    type,
+                    keyCount,
+                    nestingLevel,
+                    fileSize,
+                    hasNestedObjects: this.hasNestedObjects(data),
+                    hasArrays: this.hasArrays(data),
+                    dataTypes: this.getDataTypes(data)
+                };
+            }
+
+            // 获取键值对数量
+            getKeyCount(data) {
+                if (Array.isArray(data)) {
+                    return data.length;
+                } else if (typeof data === 'object' && data !== null) {
+                    return Object.keys(data).length;
+                }
+                return 0;
+            }
+
+            // 获取嵌套层级
+            getNestingLevel(data, level = 0) {
+                if (typeof data !== 'object' || data === null) {
+                    return level;
+                }
+
+                if (Array.isArray(data)) {
+                    if (data.length === 0) return level;
+                    return Math.max(...data.map(item => this.getNestingLevel(item, level + 1)));
+                }
+
+                const keys = Object.keys(data);
+                if (keys.length === 0) return level;
+                
+                return Math.max(...keys.map(key => this.getNestingLevel(data[key], level + 1)));
+            }
+
+            // 检查是否有嵌套对象
+            hasNestedObjects(data) {
+                if (typeof data !== 'object' || data === null) return false;
+                
+                for (const value of Object.values(data)) {
+                    if (typeof value === 'object' && value !== null) return true;
+                }
+                return false;
+            }
+
+            // 检查是否有数组
+            hasArrays(data) {
+                if (Array.isArray(data)) return true;
+                if (typeof data !== 'object' || data === null) return false;
+                
+                for (const value of Object.values(data)) {
+                    if (this.hasArrays(value)) return true;
+                }
+                return false;
+            }
+
+            // 获取数据类型
+            getDataTypes(data) {
+                const types = new Set();
+                
+                const traverse = (obj) => {
+                    if (Array.isArray(obj)) {
+                        types.add('array');
+                        obj.forEach(traverse);
+                    } else if (typeof obj === 'object' && obj !== null) {
+                        types.add('object');
+                        Object.values(obj).forEach(traverse);
+                    } else {
+                        types.add(typeof obj);
+                    }
+                };
+
+                traverse(data);
+                return Array.from(types);
+            }
+
+            // 显示验证结果
+            displayValidationResults(result) {
+                // 先恢复原始结果内容
+                this.restoreOriginalResultContent();
+                this.showResults();
+                
+                requestAnimationFrame(() => {
+                    this.updateValidationResult(result);
+                    this.updateAnalysisResults(result.analysis);
+                    this.updateJSONPreview(result);
+                });
+            }
+
+            // 更新验证结果
+            updateValidationResult(result) {
+                const validationResult = document.getElementById('validationResult');
+                const errorDetails = document.getElementById('errorDetails');
+                const errorMessage = document.getElementById('errorMessage');
+
+                if (!validationResult) return;
+
+                if (result.isValid) {
+                    validationResult.className = 'validation-result valid';
+                    validationResult.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">✅</span>
+                            <span>JSON 格式有效</span>
+                        </div>
+                    `;
+                    errorDetails.style.display = 'none';
+                } else {
+                    validationResult.className = 'validation-result invalid';
+                    validationResult.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">❌</span>
+                            <span>JSON 格式无效</span>
+                        </div>
+                    `;
+                    errorDetails.style.display = 'block';
+                    if (errorMessage) {
+                        errorMessage.textContent = result.errorMessage;
+                    }
+                }
+            }
+
+            // 更新分析结果
+            updateAnalysisResults(analysis) {
+                this.updateElementText('jsonType', analysis.type || '-');
+                this.updateElementText('keyCount', analysis.keyCount || '-');
+                this.updateElementText('nestingLevel', analysis.nestingLevel || '-');
+                this.updateElementText('fileSize', analysis.fileSize ? `${analysis.fileSize} 字节` : '-');
+            }
+
+            // 更新 JSON 预览
+            updateJSONPreview(result) {
+                const jsonPreview = document.getElementById('jsonPreview');
+                if (!jsonPreview) return;
+
+                if (result.isValid && result.parsedData) {
+                    jsonPreview.textContent = JSON.stringify(result.parsedData, null, 2);
+                    jsonPreview.style.display = 'block';
+                } else {
+                    jsonPreview.style.display = 'none';
+                }
+            }
+
+            // 格式化 JSON
+            formatJSON() {
+                const jsonInput = document.getElementById('jsonInput');
+                if (!jsonInput) return;
+
+                const input = jsonInput.value.trim();
+                if (!input) {
+                    this.showError('请输入 JSON 字符串');
+                    return;
+                }
+
+                if (!isValidJSON(input)) {
+                    this.showError('JSON 格式无效，无法格式化');
+                    return;
+                }
+
+                try {
+                    const parsed = JSON.parse(input);
+                    const formatted = JSON.stringify(parsed, null, 2);
+                    jsonInput.value = formatted;
+                    this.stats.formatOperations++;
+                    this.updateStats();
+                    this.showNotification('JSON 格式化完成', 'success');
+                } catch (error) {
+                    this.showError('格式化失败: ' + error.message);
+                }
+            }
+
+            // 压缩 JSON
+            compressJSON() {
+                const jsonInput = document.getElementById('jsonInput');
+                if (!jsonInput) return;
+
+                const input = jsonInput.value.trim();
+                if (!input) {
+                    this.showError('请输入 JSON 字符串');
+                    return;
+                }
+
+                if (!isValidJSON(input)) {
+                    this.showError('JSON 格式无效，无法压缩');
+                    return;
+                }
+
+                try {
+                    const parsed = JSON.parse(input);
+                    const compressed = JSON.stringify(parsed);
+                    jsonInput.value = compressed;
+                    this.stats.formatOperations++;
+                    this.updateStats();
+                    this.showNotification('JSON 压缩完成', 'success');
+                } catch (error) {
+                    this.showError('压缩失败: ' + error.message);
+                }
+            }
+
+            // 加载示例
+            loadSample() {
+                const samples = [
+                    {
+                        name: "用户信息",
+                        json: `{
+  "name": "张三",
+  "age": 25,
+  "email": "zhangsan@example.com",
+  "hobbies": ["读书", "编程", "旅行"],
+  "address": {
+    "city": "北京",
+    "district": "朝阳区"
+  },
+  "isActive": true
+}`
+                    },
+                    {
+                        name: "产品列表",
+                        json: `[
+  {
+    "id": 1,
+    "name": "笔记本电脑",
+    "price": 5999.99,
+    "category": "电子产品",
+    "inStock": true
+  },
+  {
+    "id": 2,
+    "name": "无线鼠标",
+    "price": 199.99,
+    "category": "配件",
+    "inStock": false
+  }
+]`
+                    },
+                    {
+                        name: "API 响应",
+                        json: `{
+  "status": "success",
+  "code": 200,
+  "data": {
+    "users": [
+      {"id": 1, "name": "Alice"},
+      {"id": 2, "name": "Bob"}
+    ],
+    "pagination": {
+      "page": 1,
+      "total": 2,
+      "perPage": 10
+    }
+  },
+  "message": "获取用户列表成功"
+}`
+                    }
+                ];
+
+                const randomSample = samples[Math.floor(Math.random() * samples.length)];
+                const jsonInput = document.getElementById('jsonInput');
+                
+                if (jsonInput) {
+                    jsonInput.value = randomSample.json;
+                    
+                    if (this.getCheckboxValue('autoValidate')) {
+                        this.validateJSON();
+                    }
+
+                    this.showNotification(`已加载示例: ${randomSample.name}`, 'success');
+                }
+            }
+
+            // 导出 JSON
+            exportJSON() {
+                const jsonInput = document.getElementById('jsonInput');
+                if (!jsonInput) return;
+
+                const input = jsonInput.value.trim();
+                if (!input) {
+                    this.showError('没有内容可导出');
+                    return;
+                }
+
+                const blob = new Blob([input], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `json-export-${Date.now()}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                this.showNotification('JSON 已导出', 'success');
+            }
+
+            // 批量验证
+            validateBatch() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResult = document.getElementById('batchResult');
+                
+                if (!batchInput || !batchResult) return;
+
+                const inputValue = batchInput.value.trim();
+                if (!inputValue) {
+                    this.hideBatchResults();
+                    return;
+                }
+
+                try {
+                    const jsonStrings = inputValue.split('\n').map(line => line.trim()).filter(line => line);
+                    const results = jsonStrings.map((jsonStr, index) => {
+                        const validationResult = this.performValidation(jsonStr);
+                        return { index, input: jsonStr, ...validationResult };
+                    });
+
+                    this.displayBatchResults(results);
+                    this.stats.batchValidations++;
+                    this.updateStats();
+                    this.showNotification('批量验证完成', 'success');
+                } catch (error) {
+                    this.showError('批量验证失败: ' + error.message);
+                }
+            }
+
+            // 显示批量验证结果
+            displayBatchResults(results) {
+                const batchResult = document.getElementById('batchResult');
+                if (!batchResult) return;
+
+                const resultsHTML = results.map(result => {
+                    const statusIcon = result.isValid ? '✅' : '❌';
+                    const statusClass = result.isValid ? 'success-text' : 'error-text';
+                    const preview = result.isValid ? 
+                        JSON.stringify(result.parsedData, null, 2).substring(0, 100) + '...' : 
+                        result.errorMessage;
+
+                    return `
+                        <div style="margin-bottom: 15px; padding: 15px; background: ${result.isValid ? '#f0f9ff' : '#fef2f2'}; border-radius: 8px; border-left: 4px solid ${result.isValid ? '#10b981' : '#ef4444'};">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-weight: 600;">${statusIcon} #${result.index + 1}</span>
+                                <span class="${statusClass}" style="font-size: 0.9rem;">${result.isValid ? '有效' : '无效'}</span>
+                            </div>
+                            <div style="font-family: 'Monaco', 'Menlo', monospace; font-size: 0.85rem; color: #6b7280; max-height: 100px; overflow-y: auto;">
+                                ${preview}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                batchResult.innerHTML = resultsHTML;
+                batchResult.style.display = 'block';
+            }
+
+            // 生成示例批量数据
+            generateSampleBatch() {
+                const batchInput = document.getElementById('batchInput');
+                if (!batchInput) return;
+
+                const samples = [
+                    '{"name": "张三", "age": 25}',
+                    '{"product": "笔记本", "price": 5999}',
+                    '["苹果", "香蕉", "橙子"]',
+                    '{"user": {"id": 1, "name": "Alice"}}',
+                    '{"status": "success", "data": [1, 2, 3]}',
+                    '{"error": "invalid json", "missing": }', // 故意错误
+                    'null',
+                    'true',
+                    '123',
+                    '"Hello World"'
+                ];
+
+                batchInput.value = samples.join('\n');
+                
+                if (this.getCheckboxValue('autoValidate')) {
+                    this.validateBatch();
+                }
+
+                this.showNotification('示例批量数据已生成', 'success');
+            }
+
+            // 清空批量输入
+            clearBatch() {
+                const batchInput = document.getElementById('batchInput');
+                if (batchInput) {
+                    batchInput.value = '';
+                }
+                this.hideBatchResults();
+                this.showNotification('批量输入已清空', 'info');
+            }
+
+            // 隐藏批量结果
+            hideBatchResults() {
+                const batchResult = document.getElementById('batchResult');
+                if (batchResult) {
+                    batchResult.style.display = 'none';
+                }
+            }
+
+            // 清空输入
+            clearInput() {
+                const jsonInput = document.getElementById('jsonInput');
+                if (jsonInput) {
+                    jsonInput.value = '';
+                }
+                this.hideResults();
+                this.updateEditorStatus();
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 更新统计信息
+            updateStats() {
+                this.stats.totalValidations++;
+                this.stats.lastValidation = new Date();
+                this.updateStatsDisplay();
+            }
+
+            // 更新统计显示
+            updateStatsDisplay() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalValidations}</div>
+                        <div class="stat-label">总验证次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.validJSONCount}</div>
+                        <div class="stat-label">有效 JSON</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.invalidJSONCount}</div>
+                        <div class="stat-label">无效 JSON</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.batchValidations}</div>
+                        <div class="stat-label">批量验证</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.formatOperations}</div>
+                        <div class="stat-label">格式化操作</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.history.length}</div>
+                        <div class="stat-label">历史记录</div>
+                    </div>
+                `;
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+                
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else if (!this.getCheckboxValue('showNotifications')) {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                } else {
+                    alert(message);
+                }
+            }
+
+            // 显示错误消息
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用 JSON 智能验证器',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>实时 JSON 验证和语法检查</li>
+                                        <li>智能格式化和压缩功能</li>
+                                        <li>批量 JSON 验证处理</li>
+                                        <li>详细的错误信息和定位</li>
+                                        <li>验证历史记录和统计分析</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 输入 JSON 后会自动验证，也可以体验批量验证、格式化和历史记录功能
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 历史记录相关方法
+            saveToHistory(input, validationResult, type) {
+                const historyItem = {
+                    id: Date.now(),
+                    input: input,
+                    isValid: validationResult.isValid,
+                    type: type,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+            }
+
+            refreshHistory() {
+                const historyList = document.getElementById('historyList');
+                if (!historyList) return;
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">暂无历史记录</div>';
+                    return;
+                }
+
+                const historyHTML = this.history.map((item, index) => `
+                    <div class="history-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both;">
+                        <div class="history-text" title="${item.input}">
+                            <span style="margin-right: 8px;">${item.isValid ? '✅' : '❌'}</span>
+                            ${this.truncateText(item.input, 40)}
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.jsonValidator?.loadFromHistory('${item.id}')">加载</button>
+                            <button class="btn btn-danger btn-small" onclick="window.jsonValidator?.removeFromHistory('${item.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                historyList.innerHTML = historyHTML;
+            }
+
+            loadFromHistory(id) {
+                const item = this.history.find(h => h.id == id);
+                if (item) {
+                    const jsonInput = document.getElementById('jsonInput');
+                    if (jsonInput) {
+                        jsonInput.value = item.input;
+                        
+                        if (this.getCheckboxValue('autoValidate')) {
+                            this.validateJSON();
+                        }
+                        this.showNotification('已从历史记录加载', 'success');
+                    }
+                }
+            }
+
+            removeFromHistory(id) {
+                this.history = this.history.filter(h => h.id != id);
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('已从历史记录删除', 'info');
+            }
+
+            clearHistory() {
+                this.history = [];
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.showNotification('历史记录已清空', 'success');
+            }
+
+            exportHistory() {
+                if (this.history.length === 0) {
+                    this.showError('没有历史记录可导出');
+                    return;
+                }
+
+                const exportData = {
+                    exportTime: new Date().toLocaleString(),
+                    totalRecords: this.history.length,
+                    history: this.history
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `json-validation-history-${Date.now()}.json`;
+                link.click();
+
+                this.showNotification('历史记录已导出', 'success');
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('jsonValidatorHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved);
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                    this.history = [];
+                }
+            }
+
+            saveHistoryToStorage() {
+                try {
+                    localStorage.setItem('jsonValidatorHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+
+            // 安全更新元素文本内容
+            updateElementText(elementId, text) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = text;
+                    console.log(`成功更新元素 ${elementId}:`, text);
+                } else {
+                    console.warn(`元素 ${elementId} 未找到，可能DOM还未完全加载`);
+                    // 如果元素不存在，延迟重试
+                    setTimeout(() => {
+                        const retryElement = document.getElementById(elementId);
+                        if (retryElement) {
+                            retryElement.textContent = text;
+                            console.log(`延迟更新元素 ${elementId}:`, text);
+                        }
+                    }, 100);
+                }
+            }
+
+            // 显示结果区域
+            showResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                }
+            }
+
+            // 隐藏结果区域
+            hideResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'none';
+                }
+            }
+
+            // 显示加载动画
+            showLoadingAnimation() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    // 保存原始内容，避免丢失必要的DOM元素
+                    if (!this.originalResultContent) {
+                        this.originalResultContent = resultSection.innerHTML;
+                    }
+                    
+                    resultSection.innerHTML = `
+                        <h3 style="margin-bottom: 15px; color: #495057;">📊 验证结果</h3>
+                        <div style="text-align: center; padding: 40px;">
+                            <div class="loading"></div>
+                            <p style="margin-top: 15px; color: #6c757d;">正在验证 JSON...</p>
+                        </div>
+                    `;
+                    resultSection.style.display = 'block';
+                }
+            }
+
+            // 恢复原始结果内容
+            restoreOriginalResultContent() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection && this.originalResultContent) {
+                    resultSection.innerHTML = this.originalResultContent;
+                }
+            }
+        }
+
+        // 安全的初始化函数
+        function safeInit() {
+            console.log('开始安全初始化...');
+            
+            const requiredElements = [
+                'jsonInput', 'jsonEditor', 'resultSection', 'validationResult',
+                'jsonType', 'keyCount', 'nestingLevel', 'fileSize',
+                'statsGrid', 'batchInput', 'batchResult', 'historyList', 'checkboxGroup'
+            ];
+            
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                console.error('缺少必要的DOM元素:', missingElements);
+                if (document.readyState === 'loading') {
+                    setTimeout(safeInit, 100);
+                }
+                return;
+            }
+            
+            console.log('所有必要元素都存在，开始初始化JSON验证器...');
+            
+            try {
+                window.jsonValidator = new JSONValidator();
+                console.log('JSON验证器初始化成功');
+            } catch (error) {
+                console.error('初始化JSON验证器失败:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            safeInit();
+        });
+
+        // 如果DOMContentLoaded已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待DOMContentLoaded事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            safeInit();
         }
     </script>
 </body>
