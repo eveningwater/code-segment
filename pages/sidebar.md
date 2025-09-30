@@ -390,7 +390,7 @@
 - [是否是 10 的幂-2022-10-17](codes/javascript/is-power-of-ten.md)
 - [是否是 2 的幂-2022-10-18](codes/javascript/is-power-of-two.md)
 - [是否是质（素）数-2022-10-19](codes/javascript/is-prime.md)
-- [是否是原始数据-2022-10-20](codes/javascript/isPrimitive.md)
+- [是否是原始数据-2022-10-20](codes/javascript/is-primitive.md)
 - [是否是一个期约-2022-10-21](codes/javascript/isPromiseLike.md)
 - [是否是相同的日期-2022-10-23](codes/javascript/isSameDate.md)
 - [是否是同源 url-2022-10-24](codes/javascript/isSameOrigin.md)
