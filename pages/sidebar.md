@@ -395,7 +395,7 @@
 - [是否是相同的日期-2022-10-23](codes/javascript/is-same-date.md)
 - [是否是同源 url-2022-10-24](codes/javascript/is-same-origin.md)
 - [是否支持会话存储-2022-10-25](codes/javascript/is-session-storage-enabled.md)
-- [数值数组是否排序-2022-10-26](codes/javascript/isSorted.md)
+- [数值数组是否排序-2022-10-26](codes/javascript/is-sorted.md)
 - [是否是字符串-2022-10-28](codes/javascript/isString.md)
 - [是否是 symbol-2022-10-29](codes/javascript/isSymbol.md)
 - [是否是未初始化值-2022-10-31](codes/javascript/isUndefined.md)
