@@ -20,6 +20,10 @@ const isSessionStorageEnabled = () => {
 };
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-session-storage-enabled.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -28,8 +32,10 @@ isSessionStorageEnabled(); // true, if sessionStorage is accessible
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isSessionStorageEnabled.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-session-storage-enabled.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-session-storage-enabled.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isSessionStorageEnabled.html"></iframe>
+<iframe src="codes/javascript/html/is-session-storage-enabled.html"></iframe>
