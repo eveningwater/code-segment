@@ -408,7 +408,7 @@
 - [是否支持会话存储-2022-10-25](codes/javascript/is-session-storage-enabled.md)
 - [数值数组是否排序-2022-10-26](codes/javascript/is-sorted.md)
 - [是否是字符串-2022-10-28](codes/javascript/is-string.md)
-- [是否是 symbol-2022-10-29](codes/javascript/isSymbol.md)
+- [是否是 symbol-2022-10-29](codes/javascript/is-symbol.md)
 - [是否是未初始化值-2022-10-31](codes/javascript/isUndefined.md)
 - [是否是大写字母-2022-11-01](codes/javascript/isUpperCase.md)
 - [是否是合格的 JSON 数据结构-2022-11-02](codes/javascript/is-valid-json.md)

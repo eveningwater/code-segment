@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbol 类型分析与应用平台 - isSymbol</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .type-status {
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .type-symbol {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .type-not-symbol {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .type-status h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .type-status p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-symbol {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-string {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-number {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-boolean {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .badge-object {
+            background: #fce7f3;
+            color: #be185d;
+        }
+
+        .code-block {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #282c34;
+            border-radius: 8px;
+        }
+
+        .code-block pre code {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .hljs {
+            background: #282c34;
+            padding: 0;
+        }
+
+        .symbol-list {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .symbol-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #f59e0b;
+            transition: all 0.3s ease;
+        }
+
+        .symbol-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .symbol-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .symbol-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .symbol-desc {
+            font-weight: 600;
+            color: #495057;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .symbol-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .well-known-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .well-known-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .well-known-card:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .well-known-name {
+            font-weight: 600;
+            color: #d97706;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .well-known-desc {
+            font-size: 0.85rem;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .well-known-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Symbol 类型分析与应用平台</h1>
+            <p>基于 isSymbol 函数的智能 Symbol 检测工具，支持 Symbol 创建、全局注册、Well-known Symbols 和批量分析</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：Symbol 创建和检测 -->
+            <div class="card">
+                <h2>🔍 Symbol 检测器</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="symbolDesc">Symbol 描述 (Description)</label>
+                        <input type="text" id="symbolDesc" placeholder="请输入 Symbol 描述，例如: mySymbol">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="createType">创建方式</label>
+                        <div id="createTypeSelect"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.symbolChecker?.createAndCheck()">
+                            ⚡ 创建并检测
+                        </button>
+                        <button class="btn btn-success" onclick="window.symbolChecker?.checkExisting()">
+                            🔍 检测现有值
+                        </button>
+                        <button class="btn btn-info" onclick="window.symbolChecker?.loadSample()">
+                            📄 加载示例
+                        </button>
+                        <button class="btn btn-warning" onclick="window.symbolChecker?.clearInput()">
+                            🗑️ 清空
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 检测结果 -->
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <div class="type-status" id="typeStatus">
+                        <h3>状态</h3>
+                        <p>描述</p>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin-bottom: 10px; color: #495057;">Symbol 信息</h4>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: 0.9rem;">
+                            <span style="font-weight: 600;">描述:</span>
+                            <span id="symbolDescription" style="font-family: 'Monaco', 'Menlo', monospace;">-</span>
+                            
+                            <span style="font-weight: 600;">toString():</span>
+                            <span id="symbolToString" style="font-family: 'Monaco', 'Menlo', monospace;">-</span>
+                            
+                            <span style="font-weight: 600;">类型:</span>
+                            <span id="symbolType">-</span>
+                            
+                            <span style="font-weight: 600;">isSymbol 返回:</span>
+                            <span id="isSymbolResult">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：已创建的 Symbols -->
+            <div class="card">
+                <h2>📋 已创建的 Symbols</h2>
+                <div class="symbol-list" id="symbolList">
+                    <!-- Symbol 列表将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 全局 Symbol 注册表 -->
+        <div class="card">
+            <h2>🌐 全局 Symbol 注册表</h2>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="globalKey">全局键名</label>
+                    <input type="text" id="globalKey" placeholder="请输入全局 Symbol 键名">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.symbolChecker?.createGlobalSymbol()">
+                        🌐 创建全局 Symbol
+                    </button>
+                    <button class="btn btn-success" onclick="window.symbolChecker?.getGlobalSymbol()">
+                        🔍 获取全局 Symbol
+                    </button>
+                    <button class="btn btn-info" onclick="window.symbolChecker?.getKeyFor()">
+                        🔑 获取 Symbol Key
+                    </button>
+                    <button class="btn btn-warning" onclick="window.symbolChecker?.showGlobalInfo()">
+                        📖 全局注册表说明
+                    </button>
+                </div>
+
+                <div class="code-block" id="globalResult" style="display: none;">
+                    <pre><code class="language-javascript"><!-- 全局 Symbol 结果 --></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Well-known Symbols -->
+        <div class="card">
+            <h2>⭐ Well-known Symbols</h2>
+            <p style="color: #6c757d; margin-bottom: 20px;">JavaScript 内置的特殊 Symbol，用于定义对象的默认行为</p>
+            <div class="well-known-grid" id="wellKnownGrid">
+                <!-- Well-known Symbols 将动态生成 -->
+            </div>
+        </div>
+
+        <!-- Symbol 作为对象属性 -->
+        <div class="card">
+            <h2>🔑 Symbol 作为对象属性键</h2>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="propKey">属性 Symbol 描述</label>
+                    <input type="text" id="propKey" placeholder="请输入 Symbol 描述">
+                </div>
+
+                <div class="input-group">
+                    <label for="propValue">属性值</label>
+                    <input type="text" id="propValue" placeholder="请输入属性值">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.symbolChecker?.addSymbolProperty()">
+                        ➕ 添加属性
+                    </button>
+                    <button class="btn btn-info" onclick="window.symbolChecker?.showObjectDemo()">
+                        📖 查看对象
+                    </button>
+                    <button class="btn btn-danger" onclick="window.symbolChecker?.clearObject()">
+                        🗑️ 清空对象
+                    </button>
+                </div>
+
+                <div class="code-block" id="objectResult" style="display: none;">
+                    <pre><code class="language-javascript"><!-- 对象结果 --></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量检测 -->
+        <div class="card">
+            <h2>📊 批量类型检测</h2>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="batchInput">批量值输入（每行一个）</label>
+                    <textarea id="batchInput" placeholder="请输入多个值，每行一个，例如:
+Symbol('test')
+'string'
+123
+true" rows="6"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.symbolChecker?.batchCheck()">
+                        🔍 批量检测
+                    </button>
+                    <button class="btn btn-success" onclick="window.symbolChecker?.generateTestValues()">
+                        🎲 生成测试数据
+                    </button>
+                    <button class="btn btn-danger" onclick="window.symbolChecker?.clearBatch()">
+                        🗑️ 清空
+                    </button>
+                </div>
+            </div>
+
+            <div class="code-block" id="batchResult" style="display: none;">
+                <pre><code class="language-plaintext"><!-- 批量检测结果 --></code></pre>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 高级选项 -->
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">显示选项</div>
+                <div id="checkboxGroup">
+                    <!-- 复选框将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2>📖 Symbol 说明</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">isSymbol 函数</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const isSymbol = val => typeof val === 'symbol';</code></pre>
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">Symbol 特性</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>唯一性：</strong>每个 Symbol 都是唯一的，即使描述相同</li>
+                    <li><strong>不可变：</strong>Symbol 值创建后不能被修改</li>
+                    <li><strong>隐藏性：</strong>Symbol 属性不会出现在 for...in 循环中</li>
+                    <li><strong>全局注册：</strong>可以通过 Symbol.for() 创建全局共享的 Symbol</li>
+                    <li><strong>内置 Symbols：</strong>JavaScript 提供多个 Well-known Symbols</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">常见用途</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li>创建对象的唯一属性键，避免命名冲突</li>
+                    <li>定义对象的元编程行为（如 Symbol.iterator）</li>
+                    <li>实现私有属性（虽然不是真正的私有）</li>
+                    <li>创建常量枚举值</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 核心 isSymbol 函数
+        const isSymbol = val => typeof val === 'symbol';
+
+        // Symbol 检测器类
+        class SymbolChecker {
+            constructor() {
+                this.plugins = {};
+                this.symbols = []; // 存储创建的 Symbol 引用
+                this.testObject = {}; // 用于演示 Symbol 作为属性键
+                this.stats = {
+                    totalChecks: 0,
+                    symbolCount: 0,
+                    otherTypes: 0,
+                    globalSymbols: 0,
+                    objectProperties: 0
+                };
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupSelects();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.renderWellKnownSymbols();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 初始化代码高亮
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    console.log('Highlight.js 初始化完成');
+                } else {
+                    console.warn('Highlight.js 未加载');
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置下拉框
+            setupSelects() {
+                // 创建方式选择
+                const createTypeSelect = document.getElementById('createTypeSelect');
+                if (createTypeSelect) {
+                    const typeOptions = [
+                        { value: 'normal', label: 'Symbol() - 普通创建' },
+                        { value: 'global', label: 'Symbol.for() - 全局创建' }
+                    ];
+
+                    this.plugins.createTypeSelect = new Select({
+                        container: createTypeSelect,
+                        options: typeOptions,
+                        placeholder: '选择创建方式',
+                        onChange: (value) => {
+                            console.log('选择的创建方式:', value);
+                        }
+                    });
+
+                    this.plugins.createTypeSelect.setValue('normal');
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'autoRefresh', label: '自动刷新列表', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'showDetails', label: '显示详细信息', checked: true },
+                    { id: 'trackSymbols', label: '追踪创建的 Symbols', checked: true }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            console.log('复选框状态变化:', checkedStates);
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.style.marginBottom = '10px';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}" style="margin-left: 8px; cursor: pointer;">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 创建并检测 Symbol
+            createAndCheck() {
+                const symbolDesc = document.getElementById('symbolDesc');
+                if (!symbolDesc) return;
+
+                const description = symbolDesc.value.trim() || 'mySymbol';
+                const createType = this.plugins.createTypeSelect?.getValue() || 'normal';
+
+                try {
+                    let symbol;
+                    let creationCode;
+
+                    if (createType === 'global') {
+                        symbol = Symbol.for(description);
+                        creationCode = `Symbol.for('${description}')`;
+                        this.stats.globalSymbols++;
+                    } else {
+                        symbol = Symbol(description);
+                        creationCode = `Symbol('${description}')`;
+                    }
+
+                    // 检测是否为 Symbol
+                    const result = isSymbol(symbol);
+
+                    // 保存 Symbol 引用
+                    if (this.getCheckboxValue('trackSymbols')) {
+                        this.symbols.push({
+                            symbol,
+                            description,
+                            createType,
+                            creationCode,
+                            createdAt: new Date().toLocaleTimeString()
+                        });
+                        this.refreshSymbolList();
+                    }
+
+                    this.stats.totalChecks++;
+                    if (result) this.stats.symbolCount++;
+
+                    this.displayResult(symbol, result, description, creationCode);
+                    this.updateStats();
+
+                    this.showNotification('Symbol 已创建并检测', 'success');
+                } catch (error) {
+                    this.showError('创建失败: ' + error.message);
+                }
+            }
+
+            // 检测现有值
+            checkExisting() {
+                // 创建一个测试 Symbol 用于演示
+                const testSymbol = Symbol('test');
+                const result = isSymbol(testSymbol);
+
+                this.stats.totalChecks++;
+                if (result) this.stats.symbolCount++;
+                else this.stats.otherTypes++;
+
+                this.displayResult(testSymbol, result, 'test', 'Symbol("test")');
+                this.updateStats();
+
+                this.showNotification('检测完成', 'success');
+            }
+
+            // 显示检测结果
+            displayResult(symbol, isSymbolVal, description, code) {
+                const resultSection = document.getElementById('resultSection');
+                const typeStatus = document.getElementById('typeStatus');
+                const symbolDescription = document.getElementById('symbolDescription');
+                const symbolToString = document.getElementById('symbolToString');
+                const symbolType = document.getElementById('symbolType');
+                const isSymbolResult = document.getElementById('isSymbolResult');
+
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                }
+
+                if (typeStatus) {
+                    if (isSymbolVal) {
+                        typeStatus.className = 'type-status type-symbol';
+                        typeStatus.innerHTML = `
+                            <h3>⚡ 是 Symbol</h3>
+                            <p>isSymbol() 返回 true，该值是 Symbol 类型</p>
+                        `;
+                    } else {
+                        typeStatus.className = 'type-status type-not-symbol';
+                        typeStatus.innerHTML = `
+                            <h3>❌ 不是 Symbol</h3>
+                            <p>isSymbol() 返回 false，该值不是 Symbol 类型</p>
+                        `;
+                    }
+                }
+
+                if (symbolDescription) {
+                    symbolDescription.textContent = description || '无描述';
+                }
+
+                if (symbolToString) {
+                    symbolToString.textContent = String(symbol);
+                }
+
+                if (symbolType) {
+                    const badge = this.getTypeBadge(typeof symbol);
+                    symbolType.innerHTML = badge;
+                }
+
+                if (isSymbolResult) {
+                    const resultBadge = isSymbolVal ? 
+                        '<span class="badge badge-symbol">true</span>' : 
+                        '<span class="badge badge-object">false</span>';
+                    isSymbolResult.innerHTML = resultBadge;
+                }
+            }
+
+            // 获取类型徽章
+            getTypeBadge(type) {
+                const badges = {
+                    'symbol': '<span class="badge badge-symbol">Symbol</span>',
+                    'string': '<span class="badge badge-string">String</span>',
+                    'number': '<span class="badge badge-number">Number</span>',
+                    'boolean': '<span class="badge badge-boolean">Boolean</span>',
+                    'object': '<span class="badge badge-object">Object</span>'
+                };
+                return badges[type] || `<span class="badge">${type}</span>`;
+            }
+
+            // 刷新 Symbol 列表
+            refreshSymbolList() {
+                const symbolList = document.getElementById('symbolList');
+                if (!symbolList) return;
+
+                if (this.symbols.length === 0) {
+                    symbolList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #6c757d;">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">⚡</div>
+                            <p>暂无创建的 Symbol</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                this.symbols.forEach((item, index) => {
+                    html += `
+                        <div class="symbol-item" style="animation: slideInUp 0.3s ease-out ${index * 0.05}s both;">
+                            <div class="symbol-header">
+                                <span class="symbol-desc">Symbol(${item.description})</span>
+                                <span class="badge badge-symbol">#${index + 1}</span>
+                            </div>
+                            <div class="symbol-info">
+                                <strong>创建方式:</strong> ${item.createType === 'global' ? 'Symbol.for()' : 'Symbol()'}
+                            </div>
+                            <div class="symbol-info">
+                                <strong>创建代码:</strong> ${item.creationCode}
+                            </div>
+                            <div class="symbol-info">
+                                <strong>toString():</strong> ${String(item.symbol)}
+                            </div>
+                            <div class="symbol-info">
+                                <strong>创建时间:</strong> ${item.createdAt}
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <button class="btn btn-info btn-small" onclick="window.symbolChecker?.compareSymbol(${index})">
+                                    🔍 比较唯一性
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                symbolList.innerHTML = html;
+            }
+
+            // 比较 Symbol 唯一性
+            compareSymbol(index) {
+                if (index >= this.symbols.length) return;
+
+                const item = this.symbols[index];
+                const newSymbol = Symbol(item.description);
+                const isSame = item.symbol === newSymbol;
+
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '⚡ Symbol 唯一性演示',
+                        content: `
+                            <div style="padding: 20px;">
+                                <h3 style="color: #667eea; margin-bottom: 15px;">比较结果</h3>
+                                
+                                <div class="code-block">
+                                    <pre><code class="language-javascript">const sym1 = ${item.creationCode};
+const sym2 = Symbol('${item.description}');
+console.log(sym1 === sym2); // ${isSame}</code></pre>
+                                </div>
+
+                                <div style="background: ${isSame ? '#d1fae5' : '#fee2e2'}; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid ${isSame ? '#10b981' : '#ef4444'};">
+                                    <p style="margin: 0; color: ${isSame ? '#059669' : '#dc2626'};">
+                                        ${isSame ? '✅ 两个 Symbol 相同（来自全局注册表）' : '❌ 两个 Symbol 不同（即使描述相同，每个 Symbol 都是唯一的）'}
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+
+                    // 应用代码高亮
+                    setTimeout(() => {
+                        if (window.hljs) {
+                            document.querySelectorAll('.modal pre code').forEach((block) => {
+                                hljs.highlightElement(block);
+                            });
+                        }
+                    }, 100);
+                }
+            }
+
+            // 创建全局 Symbol
+            createGlobalSymbol() {
+                const globalKey = document.getElementById('globalKey');
+                const globalResult = document.getElementById('globalResult');
+
+                if (!globalKey || !globalResult) return;
+
+                const key = globalKey.value.trim();
+                if (!key) {
+                    this.showError('请输入全局键名');
+                    return;
+                }
+
+                try {
+                    const symbol = Symbol.for(key);
+                    const code = `const sym = Symbol.for('${key}');\nconsole.log(sym); // ${String(symbol)}\nconsole.log(isSymbol(sym)); // ${isSymbol(symbol)}`;
+
+                    globalResult.innerHTML = `<pre><code class="language-javascript">${this.escapeHtml(code)}</code></pre>`;
+                    globalResult.style.display = 'block';
+
+                    if (window.hljs) {
+                        const codeBlock = globalResult.querySelector('code');
+                        if (codeBlock) hljs.highlightElement(codeBlock);
+                    }
+
+                    this.showNotification('全局 Symbol 已创建', 'success');
+                } catch (error) {
+                    this.showError('创建失败: ' + error.message);
+                }
+            }
+
+            // 获取全局 Symbol
+            getGlobalSymbol() {
+                const globalKey = document.getElementById('globalKey');
+                const globalResult = document.getElementById('globalResult');
+
+                if (!globalKey || !globalResult) return;
+
+                const key = globalKey.value.trim();
+                if (!key) {
+                    this.showError('请输入全局键名');
+                    return;
+                }
+
+                try {
+                    const symbol = Symbol.for(key);
+                    const code = `const sym = Symbol.for('${key}');\n// 多次调用 Symbol.for() 返回相同的 Symbol\nconst sym2 = Symbol.for('${key}');\nconsole.log(sym === sym2); // true`;
+
+                    globalResult.innerHTML = `<pre><code class="language-javascript">${this.escapeHtml(code)}</code></pre>`;
+                    globalResult.style.display = 'block';
+
+                    if (window.hljs) {
+                        const codeBlock = globalResult.querySelector('code');
+                        if (codeBlock) hljs.highlightElement(codeBlock);
+                    }
+
+                    this.showNotification('已获取全局 Symbol', 'success');
+                } catch (error) {
+                    this.showError('获取失败: ' + error.message);
+                }
+            }
+
+            // 获取 Symbol 的 Key
+            getKeyFor() {
+                const globalKey = document.getElementById('globalKey');
+                const globalResult = document.getElementById('globalResult');
+
+                if (!globalKey || !globalResult) return;
+
+                const key = globalKey.value.trim();
+                if (!key) {
+                    this.showError('请输入全局键名');
+                    return;
+                }
+
+                try {
+                    const symbol = Symbol.for(key);
+                    const retrievedKey = Symbol.keyFor(symbol);
+                    const code = `const sym = Symbol.for('${key}');\nconst key = Symbol.keyFor(sym);\nconsole.log(key); // '${retrievedKey}'`;
+
+                    globalResult.innerHTML = `<pre><code class="language-javascript">${this.escapeHtml(code)}</code></pre>`;
+                    globalResult.style.display = 'block';
+
+                    if (window.hljs) {
+                        const codeBlock = globalResult.querySelector('code');
+                        if (codeBlock) hljs.highlightElement(codeBlock);
+                    }
+
+                    this.showNotification('已获取 Symbol Key', 'success');
+                } catch (error) {
+                    this.showError('获取失败: ' + error.message);
+                }
+            }
+
+            // 显示全局注册表说明
+            showGlobalInfo() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🌐 全局 Symbol 注册表说明',
+                        content: `
+                            <div style="padding: 20px;">
+                                <h3 style="color: #667eea; margin-bottom: 15px;">Symbol.for() 与 Symbol.keyFor()</h3>
+                                
+                                <div class="code-block">
+                                    <pre><code class="language-javascript">// Symbol.for() 创建或获取全局 Symbol
+const sym1 = Symbol.for('myKey');
+const sym2 = Symbol.for('myKey');
+console.log(sym1 === sym2); // true
+
+// Symbol.keyFor() 获取全局 Symbol 的键名
+const key = Symbol.keyFor(sym1);
+console.log(key); // 'myKey'
+
+// 普通 Symbol 无法获取键名
+const normalSym = Symbol('test');
+console.log(Symbol.keyFor(normalSym)); // undefined</code></pre>
+                                </div>
+
+                                <h3 style="color: #667eea; margin: 20px 0 15px 0;">区别对比</h3>
+                                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                                    <li><strong>Symbol():</strong> 每次创建新的唯一 Symbol</li>
+                                    <li><strong>Symbol.for():</strong> 在全局注册表中查找或创建 Symbol</li>
+                                    <li><strong>Symbol.keyFor():</strong> 获取全局 Symbol 的键名</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+
+                    setTimeout(() => {
+                        if (window.hljs) {
+                            document.querySelectorAll('.modal pre code').forEach((block) => {
+                                hljs.highlightElement(block);
+                            });
+                        }
+                    }, 100);
+                }
+            }
+
+            // 渲染 Well-known Symbols
+            renderWellKnownSymbols() {
+                const wellKnownGrid = document.getElementById('wellKnownGrid');
+                if (!wellKnownGrid) return;
+
+                const wellKnownSymbols = [
+                    { name: 'Symbol.iterator', desc: '对象的默认迭代器' },
+                    { name: 'Symbol.toStringTag', desc: 'Object.prototype.toString 使用的字符串' },
+                    { name: 'Symbol.hasInstance', desc: 'instanceof 运算符使用的方法' },
+                    { name: 'Symbol.toPrimitive', desc: '对象转换为原始值的方法' },
+                    { name: 'Symbol.asyncIterator', desc: '对象的默认异步迭代器' },
+                    { name: 'Symbol.match', desc: 'String.prototype.match 使用的方法' },
+                    { name: 'Symbol.replace', desc: 'String.prototype.replace 使用的方法' },
+                    { name: 'Symbol.search', desc: 'String.prototype.search 使用的方法' },
+                    { name: 'Symbol.split', desc: 'String.prototype.split 使用的方法' },
+                    { name: 'Symbol.species', desc: '创建派生对象的构造函数' }
+                ];
+
+                let html = '';
+                wellKnownSymbols.forEach((item, index) => {
+                    html += `
+                        <div class="well-known-card" onclick="window.symbolChecker?.showSymbolDetail('${item.name}')" style="animation: fadeIn 0.5s ease-out ${index * 0.05}s both;">
+                            <div class="well-known-name">${item.name}</div>
+                            <div class="well-known-desc">${item.desc}</div>
+                        </div>
+                    `;
+                });
+
+                wellKnownGrid.innerHTML = html;
+            }
+
+            // 显示 Symbol 详情
+            showSymbolDetail(symbolName) {
+                if (!this.plugins.modal) return;
+
+                const examples = {
+                    'Symbol.iterator': `const arr = [1, 2, 3];
+for (const value of arr) {
+    console.log(value); // 使用 Symbol.iterator
+}`,
+                    'Symbol.toStringTag': `const obj = {
+    [Symbol.toStringTag]: 'MyObject'
+};
+console.log(obj.toString()); // [object MyObject]`,
+                    'Symbol.hasInstance': `class MyClass {
+    static [Symbol.hasInstance](instance) {
+        return true;
+    }
+}
+console.log({} instanceof MyClass); // true`,
+                    'Symbol.toPrimitive': `const obj = {
+    [Symbol.toPrimitive](hint) {
+        return hint === 'number' ? 42 : 'hello';
+    }
+};
+console.log(+obj); // 42`,
+                    'Symbol.asyncIterator': `const asyncIterable = {
+    async *[Symbol.asyncIterator]() {
+        yield 1;
+        yield 2;
+    }
+};`,
+                    'Symbol.match': `const re = /test/;
+console.log('test'.match(re)); // 使用 Symbol.match`,
+                    'Symbol.replace': `const re = /test/;
+console.log('test'.replace(re, 'TEST')); // 使用 Symbol.replace`,
+                    'Symbol.search': `const re = /test/;
+console.log('test'.search(re)); // 使用 Symbol.search`,
+                    'Symbol.split': `const re = /,/;
+console.log('a,b,c'.split(re)); // 使用 Symbol.split`,
+                    'Symbol.species': `class MyArray extends Array {
+    static get [Symbol.species]() {
+        return Array;
+    }
+}`
+                };
+
+                const example = examples[symbolName] || '// 示例代码';
+
+                this.plugins.modal.show({
+                    title: `⭐ ${symbolName}`,
+                    content: `
+                        <div style="padding: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 15px;">使用示例</h3>
+                            
+                            <div class="code-block">
+                                <pre><code class="language-javascript">${this.escapeHtml(example)}</code></pre>
+                            </div>
+                        </div>
+                    `,
+                    type: "alert"
+                });
+
+                setTimeout(() => {
+                    if (window.hljs) {
+                        document.querySelectorAll('.modal pre code').forEach((block) => {
+                            hljs.highlightElement(block);
+                        });
+                    }
+                }, 100);
+            }
+
+            // 转义 HTML
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // 添加 Symbol 属性
+            addSymbolProperty() {
+                const propKey = document.getElementById('propKey');
+                const propValue = document.getElementById('propValue');
+                const objectResult = document.getElementById('objectResult');
+
+                if (!propKey || !propValue || !objectResult) return;
+
+                const keyDesc = propKey.value.trim() || 'property';
+                const value = propValue.value.trim() || 'value';
+
+                try {
+                    const symbolKey = Symbol(keyDesc);
+                    this.testObject[symbolKey] = value;
+                    this.stats.objectProperties++;
+
+                    this.showObjectDemo();
+                    this.updateStats();
+
+                    this.showNotification('Symbol 属性已添加', 'success');
+                } catch (error) {
+                    this.showError('添加失败: ' + error.message);
+                }
+            }
+
+            // 显示对象演示
+            showObjectDemo() {
+                const objectResult = document.getElementById('objectResult');
+                if (!objectResult) return;
+
+                const symbolKeys = Object.getOwnPropertySymbols(this.testObject);
+                
+                let code = '// 使用 Symbol 作为对象属性键\nconst obj = {};\n\n';
+                
+                symbolKeys.forEach((sym, index) => {
+                    const desc = sym.description || 'unknown';
+                    const value = this.testObject[sym];
+                    code += `const sym${index + 1} = Symbol('${desc}');\n`;
+                    code += `obj[sym${index + 1}] = '${value}';\n\n`;
+                });
+
+                code += `// Symbol 属性不会出现在 for...in 中\n`;
+                code += `for (const key in obj) {\n`;
+                code += `    console.log(key); // 不会输出 Symbol 属性\n`;
+                code += `}\n\n`;
+                
+                code += `// 使用 Object.getOwnPropertySymbols() 获取 Symbol 属性\n`;
+                code += `const symbols = Object.getOwnPropertySymbols(obj);\n`;
+                code += `console.log(symbols.length); // ${symbolKeys.length}`;
+
+                objectResult.innerHTML = `<pre><code class="language-javascript">${this.escapeHtml(code)}</code></pre>`;
+                objectResult.style.display = 'block';
+
+                if (window.hljs) {
+                    const codeBlock = objectResult.querySelector('code');
+                    if (codeBlock) hljs.highlightElement(codeBlock);
+                }
+            }
+
+            // 清空对象
+            clearObject() {
+                this.testObject = {};
+                this.stats.objectProperties = 0;
+
+                const objectResult = document.getElementById('objectResult');
+                if (objectResult) {
+                    objectResult.style.display = 'none';
+                }
+
+                this.updateStats();
+                this.showNotification('对象已清空', 'info');
+            }
+
+            // 批量检测
+            batchCheck() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResult = document.getElementById('batchResult');
+
+                if (!batchInput || !batchResult) return;
+
+                const lines = batchInput.value.split('\n').filter(line => line.trim() !== '');
+
+                if (lines.length === 0) {
+                    this.showError('请输入要检测的值');
+                    return;
+                }
+
+                const results = [];
+                
+                lines.forEach((line, index) => {
+                    try {
+                        let value;
+                        let code = line.trim();
+
+                        // 尝试解析输入
+                        if (code.startsWith('Symbol(') || code.startsWith('Symbol.for(')) {
+                            // 评估 Symbol 表达式
+                            value = eval(code);
+                        } else {
+                            // 其他类型
+                            try {
+                                value = eval(code);
+                            } catch (e) {
+                                value = code; // 作为字符串
+                            }
+                        }
+
+                        const result = isSymbol(value);
+                        const type = typeof value;
+
+                        results.push({
+                            index: index + 1,
+                            input: line,
+                            isSymbol: result,
+                            type,
+                            success: true
+                        });
+                    } catch (error) {
+                        results.push({
+                            index: index + 1,
+                            input: line,
+                            error: error.message,
+                            success: false
+                        });
+                    }
+                });
+
+                this.displayBatchResults(results);
+                this.stats.totalChecks += results.length;
+                this.updateStats();
+                this.showNotification(`批量检测完成，共检测 ${results.length} 个值`, 'success');
+            }
+
+            // 显示批量检测结果
+            displayBatchResults(results) {
+                const batchResult = document.getElementById('batchResult');
+                if (!batchResult) return;
+
+                const symbolCount = results.filter(r => r.success && r.isSymbol).length;
+                const otherCount = results.filter(r => r.success && !r.isSymbol).length;
+                const errorCount = results.filter(r => !r.success).length;
+
+                let output = `批量检测汇总:\n`;
+                output += `总值数: ${results.length}\n`;
+                output += `Symbol: ${symbolCount} | 其他类型: ${otherCount} | 错误: ${errorCount}\n`;
+                output += `\n${'='.repeat(60)}\n\n`;
+
+                results.forEach(result => {
+                    if (result.success) {
+                        output += `#${result.index}: ${result.input}\n`;
+                        output += `  类型: ${result.type}\n`;
+                        output += `  isSymbol: ${result.isSymbol}\n\n`;
+                    } else {
+                        output += `#${result.index}: ${result.input}\n`;
+                        output += `  错误: ${result.error}\n\n`;
+                    }
+                });
+
+                batchResult.innerHTML = `<pre><code class="language-plaintext">${this.escapeHtml(output)}</code></pre>`;
+                batchResult.style.display = 'block';
+
+                if (window.hljs) {
+                    const codeBlock = batchResult.querySelector('code');
+                    if (codeBlock) hljs.highlightElement(codeBlock);
+                }
+            }
+
+            // 生成测试值
+            generateTestValues() {
+                const batchInput = document.getElementById('batchInput');
+                if (!batchInput) return;
+
+                const testValues = [
+                    "Symbol('test')",
+                    "Symbol.for('global')",
+                    "'string'",
+                    "123",
+                    "true",
+                    "null",
+                    "undefined",
+                    "Symbol.iterator"
+                ];
+
+                batchInput.value = testValues.join('\n');
+                this.showNotification('测试数据已生成', 'success');
+            }
+
+            // 清空批量输入
+            clearBatch() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResult = document.getElementById('batchResult');
+
+                if (batchInput) batchInput.value = '';
+                if (batchResult) batchResult.style.display = 'none';
+
+                this.showNotification('批量输入已清空', 'info');
+            }
+
+            // 加载示例
+            loadSample() {
+                const samples = [
+                    'mySymbol',
+                    'uniqueId',
+                    'privateKey',
+                    'customIterator',
+                    'hiddenProperty'
+                ];
+
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                const symbolDesc = document.getElementById('symbolDesc');
+
+                if (symbolDesc) {
+                    symbolDesc.value = sample;
+                }
+
+                this.showNotification('示例已加载', 'success');
+            }
+
+            // 清空输入
+            clearInput() {
+                const symbolDesc = document.getElementById('symbolDesc');
+                const resultSection = document.getElementById('resultSection');
+
+                if (symbolDesc) symbolDesc.value = '';
+                if (resultSection) resultSection.style.display = 'none';
+
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalChecks}</div>
+                        <div class="stat-label">总检测次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.symbolCount}</div>
+                        <div class="stat-label">Symbol 类型</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.otherTypes}</div>
+                        <div class="stat-label">其他类型</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.symbols.length}</div>
+                        <div class="stat-label">已创建 Symbol</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.globalSymbols}</div>
+                        <div class="stat-label">全局 Symbol</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.objectProperties}</div>
+                        <div class="stat-label">对象属性</div>
+                    </div>
+                `;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            // 显示错误
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用 Symbol 类型分析与应用平台',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">⚡</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能 Symbol 类型检测 (isSymbol)</li>
+                                        <li>Symbol 创建和管理</li>
+                                        <li>全局 Symbol 注册表演示</li>
+                                        <li>Well-known Symbols 展示</li>
+                                        <li>Symbol 作为对象属性键</li>
+                                        <li>Symbol 唯一性验证</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> Symbol 是 ES6 引入的原始数据类型，每个 Symbol 都是唯一的
+                                    </p>
+                                </div>
+
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                                    <p style="margin: 0; font-size: 14px; color: #d97706;">
+                                        <strong>⚡ 特性：</strong> 即使描述相同，每次 Symbol() 都会创建不同的 Symbol
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            window.symbolChecker = new SymbolChecker();
+            console.log('Symbol 类型分析与应用平台初始化完成');
+        });
+
+        // 如果 DOMContentLoaded 已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            window.symbolChecker = new SymbolChecker();
+        }
+    </script>
+</body>
+
+</html>
