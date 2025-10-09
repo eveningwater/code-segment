@@ -11,6 +11,11 @@ const isSameOrigin = (origin, destination) =>
   origin.protocol === destination.protocol && origin.host === destination.host;
 ```
 
+
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-same-origin.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,8 +28,10 @@ isSameOrigin(origin, other); // false
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isSameOrigin.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-same-origin.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-same-origin.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isSameOrigin.html"></iframe>
+<iframe src="codes/javascript/html/is-same-origin.html"></iframe>

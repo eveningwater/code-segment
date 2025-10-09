@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨域请求安全检测平台 - isSameOrigin</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .result-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-same {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .status-different {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        .status-warning {
+            background: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+        }
+
+        .url-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .url-parts {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .url-part-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .url-part-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #667eea;
+            word-break: break-all;
+        }
+
+        .comparison-result {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .comparison-result h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .comparison-result p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-same {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-different {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-secure {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-insecure {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-section {
+            margin-top: 25px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-text {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #495057;
+            font-size: 0.9rem;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .security-level {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .security-bar {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .security-fill {
+            height: 100%;
+            transition: width 0.5s ease, background 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .security-high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .security-medium {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .security-low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .cors-simulator {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .cors-result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .url-list {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .url-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s ease;
+        }
+
+        .url-list-item:hover {
+            background: #f8f9fa;
+        }
+
+        .url-list-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 跨域请求安全检测平台</h1>
+            <p>基于 isSameOrigin 函数的智能 URL 同源检测工具，支持单个检测、批量检测、安全分析、CORS 模拟和历史记录</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：单个 URL 对比检测器 -->
+            <div class="card">
+                <h2>🔍 URL 同源检测器</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="originUrl">源 URL (Origin)</label>
+                        <input type="text" id="originUrl" placeholder="请输入源 URL，例如: https://example.com">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="destinationUrl">目标 URL (Destination)</label>
+                        <input type="text" id="destinationUrl" placeholder="请输入目标 URL，例如: https://example.com/path">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="urlTypeSelect">URL 类型</label>
+                        <div id="urlTypeSelect"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.originChecker?.checkOrigin()">
+                            🔍 检测同源
+                        </button>
+                        <button class="btn btn-success" onclick="window.originChecker?.loadSampleUrls()">
+                            📄 加载示例
+                        </button>
+                        <button class="btn btn-warning" onclick="window.originChecker?.swapUrls()">
+                            🔄 交换 URL
+                        </button>
+                        <button class="btn btn-danger" onclick="window.originChecker?.clearInputs()">
+                            🗑️ 清空输入
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 检测结果 -->
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: #495057;">📊 检测结果</h3>
+                    <div class="comparison-result" id="comparisonResult">
+                        <h3>✅ 同源</h3>
+                        <p>这两个 URL 来自相同的源</p>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">
+                            <span class="status-indicator" id="sameOriginIndicator"></span>
+                            是否同源 (isSameOrigin)
+                        </span>
+                        <span class="result-value" id="sameOriginResult">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">协议匹配</span>
+                        <span class="result-value" id="protocolMatch">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">主机匹配</span>
+                        <span class="result-value" id="hostMatch">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">端口匹配</span>
+                        <span class="result-value" id="portMatch">-</span>
+                    </div>
+
+                    <!-- 安全等级 -->
+                    <div class="security-level">
+                        <span style="font-weight: 600; color: #495057; min-width: 80px;">安全等级:</span>
+                        <div class="security-bar">
+                            <div class="security-fill" id="securityFill" style="width: 0%;"></div>
+                        </div>
+                        <span id="securityLabel" style="font-weight: 600; min-width: 60px;">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：URL 解析详情 -->
+            <div class="card">
+                <h2>🔎 URL 解析详情</h2>
+                
+                <!-- Origin URL 详情 -->
+                <div class="input-section">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: #667eea;">源 URL</h3>
+                    <div class="url-parts" id="originParts" style="display: none;">
+                        <span class="url-part-label">完整 URL:</span>
+                        <span class="url-part-value" id="originHref">-</span>
+                        
+                        <span class="url-part-label">协议:</span>
+                        <span class="url-part-value" id="originProtocol">-</span>
+                        
+                        <span class="url-part-label">主机:</span>
+                        <span class="url-part-value" id="originHost">-</span>
+                        
+                        <span class="url-part-label">主机名:</span>
+                        <span class="url-part-value" id="originHostname">-</span>
+                        
+                        <span class="url-part-label">端口:</span>
+                        <span class="url-part-value" id="originPort">-</span>
+                        
+                        <span class="url-part-label">路径:</span>
+                        <span class="url-part-value" id="originPathname">-</span>
+                        
+                        <span class="url-part-label">查询参数:</span>
+                        <span class="url-part-value" id="originSearch">-</span>
+                        
+                        <span class="url-part-label">哈希:</span>
+                        <span class="url-part-value" id="originHash">-</span>
+                    </div>
+                </div>
+
+                <!-- Destination URL 详情 -->
+                <div class="input-section">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: #764ba2;">目标 URL</h3>
+                    <div class="url-parts" id="destinationParts" style="display: none;">
+                        <span class="url-part-label">完整 URL:</span>
+                        <span class="url-part-value" id="destinationHref">-</span>
+                        
+                        <span class="url-part-label">协议:</span>
+                        <span class="url-part-value" id="destinationProtocol">-</span>
+                        
+                        <span class="url-part-label">主机:</span>
+                        <span class="url-part-value" id="destinationHost">-</span>
+                        
+                        <span class="url-part-label">主机名:</span>
+                        <span class="url-part-value" id="destinationHostname">-</span>
+                        
+                        <span class="url-part-label">端口:</span>
+                        <span class="url-part-value" id="destinationPort">-</span>
+                        
+                        <span class="url-part-label">路径:</span>
+                        <span class="url-part-value" id="destinationPathname">-</span>
+                        
+                        <span class="url-part-label">查询参数:</span>
+                        <span class="url-part-value" id="destinationSearch">-</span>
+                        
+                        <span class="url-part-label">哈希:</span>
+                        <span class="url-part-value" id="destinationHash">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量检测器 -->
+        <div class="card">
+            <h2>📊 批量 URL 同源检测</h2>
+            <div class="input-section">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="input-group">
+                        <label for="batchOrigin">批量源 URL（每行一个）</label>
+                        <textarea id="batchOrigin" placeholder="请输入多个源 URL，每行一个" rows="8"></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="batchDestination">批量目标 URL（每行一个）</label>
+                        <textarea id="batchDestination" placeholder="请输入多个目标 URL，每行一个" rows="8"></textarea>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.originChecker?.batchCheck()">
+                        🔍 批量检测
+                    </button>
+                    <button class="btn btn-warning" onclick="window.originChecker?.generateTestUrls()">
+                        🎲 生成测试 URL
+                    </button>
+                    <button class="btn btn-danger" onclick="window.originChecker?.clearBatch()">
+                        🗑️ 清空批量
+                    </button>
+                </div>
+            </div>
+
+            <div class="url-display" id="batchResult" style="display: none;">
+                批量检测结果将在这里显示...
+            </div>
+        </div>
+
+        <!-- CORS 模拟器 -->
+        <div class="card">
+            <h2>🌐 CORS 跨域配置模拟器</h2>
+            <div class="cors-simulator">
+                <div class="input-group">
+                    <label for="corsOrigin">当前页面 Origin</label>
+                    <input type="text" id="corsOrigin" placeholder="例如: https://myapp.com">
+                </div>
+
+                <div class="input-group">
+                    <label for="corsTarget">目标 API URL</label>
+                    <input type="text" id="corsTarget" placeholder="例如: https://api.example.com/data">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.originChecker?.simulateCors()">
+                        🔍 模拟 CORS 请求
+                    </button>
+                    <button class="btn btn-info" onclick="window.originChecker?.showCorsHelp()">
+                        📖 CORS 帮助
+                    </button>
+                </div>
+
+                <div class="cors-result" id="corsResult" style="display: none;">
+                    <!-- CORS 模拟结果 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📈 检测统计</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将通过 JS 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 高级选项 -->
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">检测选项</div>
+                <div class="checkbox-group" id="checkboxGroup">
+                    <!-- 复选框将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="card">
+            <h2>📚 检测历史记录</h2>
+            <div class="history-section">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.originChecker?.refreshHistory()">
+                        🔄 刷新历史
+                    </button>
+                    <button class="btn btn-danger" onclick="window.originChecker?.clearHistory()">
+                        🗑️ 清空历史
+                    </button>
+                    <button class="btn btn-info" onclick="window.originChecker?.exportHistory()">
+                        📤 导出历史
+                    </button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录将通过 JS 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 常见场景示例 -->
+        <div class="card">
+            <h2>💡 常见场景示例</h2>
+            <div class="url-list" id="scenarioList">
+                <!-- 示例场景将通过 JS 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script>
+        // 核心 isSameOrigin 函数
+        const isSameOrigin = (origin, destination) =>
+            origin.protocol === destination.protocol && origin.host === destination.host;
+
+        // URL 同源检测器类
+        class OriginChecker {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.stats = {
+                    totalChecks: 0,
+                    sameOriginCount: 0,
+                    differentOriginCount: 0,
+                    batchChecks: 0,
+                    corsSimulations: 0,
+                    lastCheck: null
+                };
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupSelect();
+                    this.setupCheckboxes();
+                    this.setupEventListeners();
+                    this.loadHistory();
+                    this.updateStatsDisplay();
+                    this.renderScenarios();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置 Select 下拉框
+            setupSelect() {
+                const urlTypeSelect = document.getElementById('urlTypeSelect');
+                if (!urlTypeSelect) return;
+
+                const selectOptions = [
+                    { value: 'web', label: 'Web URL (http/https)' },
+                    { value: 'api', label: 'API 接口' },
+                    { value: 'cdn', label: 'CDN 资源' },
+                    { value: 'websocket', label: 'WebSocket' },
+                    { value: 'custom', label: '自定义' }
+                ];
+
+                this.plugins.urlTypeSelect = new Select({
+                    container: urlTypeSelect,
+                    options: selectOptions,
+                    placeholder: '请选择 URL 类型',
+                    onChange: (value) => {
+                        console.log('选择的 URL 类型:', value);
+                    }
+                });
+
+                this.plugins.urlTypeSelect.setValue('web');
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'autoCheck', label: '自动检测同源', checked: false },
+                    { id: 'saveHistory', label: '保存检测历史', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'strictMode', label: '严格模式（包含端口检测）', checked: true },
+                    { id: 'showDetails', label: '显示详细解析', checked: true }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            this.handleCheckboxChange(checkedStates);
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 处理复选框变化
+            handleCheckboxChange(checkedStates) {
+                if (this.getCheckboxValue('autoCheck')) {
+                    this.checkOrigin();
+                }
+            }
+
+            // 设置事件监听器
+            setupEventListeners() {
+                const originUrl = document.getElementById('originUrl');
+                const destinationUrl = document.getElementById('destinationUrl');
+
+                if (originUrl) {
+                    originUrl.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoCheck')) {
+                            this.checkOrigin();
+                        }
+                    });
+                }
+
+                if (destinationUrl) {
+                    destinationUrl.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoCheck')) {
+                            this.checkOrigin();
+                        }
+                    });
+                }
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 核心函数：检查是否同源
+            isSameOrigin(origin, destination) {
+                return origin.protocol === destination.protocol && origin.host === destination.host;
+            }
+
+            // 检查同源（主方法）
+            checkOrigin() {
+                const originUrlInput = document.getElementById('originUrl');
+                const destinationUrlInput = document.getElementById('destinationUrl');
+
+                if (!originUrlInput || !destinationUrlInput) return;
+
+                const originUrlStr = originUrlInput.value.trim();
+                const destinationUrlStr = destinationUrlInput.value.trim();
+
+                if (!originUrlStr || !destinationUrlStr) {
+                    this.hideResults();
+                    return;
+                }
+
+                try {
+                    const originUrl = new URL(originUrlStr);
+                    const destinationUrl = new URL(destinationUrlStr);
+
+                    const result = this.isSameOrigin(originUrl, destinationUrl);
+                    const analysis = this.analyzeOrigins(originUrl, destinationUrl, result);
+
+                    this.displayResults(analysis);
+                    this.displayUrlDetails(originUrl, destinationUrl);
+                    this.updateStats(result);
+
+                    if (this.getCheckboxValue('saveHistory')) {
+                        this.saveToHistory(originUrlStr, destinationUrlStr, result);
+                    }
+
+                    this.showNotification('同源检测完成', 'success');
+                } catch (error) {
+                    this.showError('URL 解析失败: ' + error.message);
+                }
+            }
+
+            // 分析同源情况
+            analyzeOrigins(origin, destination, isSame) {
+                const protocolMatch = origin.protocol === destination.protocol;
+                const hostMatch = origin.host === destination.host;
+                const hostnameMatch = origin.hostname === destination.hostname;
+                const portMatch = origin.port === destination.port;
+
+                // 计算安全等级
+                let securityLevel = 'low';
+                let securityScore = 0;
+
+                if (isSame) {
+                    securityScore = 100;
+                    securityLevel = 'high';
+                } else if (hostnameMatch && !portMatch) {
+                    securityScore = 50;
+                    securityLevel = 'medium';
+                } else {
+                    securityScore = 0;
+                    securityLevel = 'low';
+                }
+
+                // 检查协议安全性
+                const isSecureProtocol = origin.protocol === 'https:';
+
+                return {
+                    isSameOrigin: isSame,
+                    protocolMatch,
+                    hostMatch,
+                    hostnameMatch,
+                    portMatch,
+                    securityLevel,
+                    securityScore,
+                    isSecureProtocol,
+                    origin,
+                    destination
+                };
+            }
+
+            // 显示检测结果
+            displayResults(analysis) {
+                const resultSection = document.getElementById('resultSection');
+                const comparisonResult = document.getElementById('comparisonResult');
+                const sameOriginIndicator = document.getElementById('sameOriginIndicator');
+                const sameOriginResult = document.getElementById('sameOriginResult');
+                const protocolMatch = document.getElementById('protocolMatch');
+                const hostMatch = document.getElementById('hostMatch');
+                const portMatch = document.getElementById('portMatch');
+                const securityFill = document.getElementById('securityFill');
+                const securityLabel = document.getElementById('securityLabel');
+
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                }
+
+                // 更新比较结果
+                if (comparisonResult) {
+                    if (analysis.isSameOrigin) {
+                        comparisonResult.innerHTML = `
+                            <h3>✅ 同源</h3>
+                            <p>这两个 URL 来自相同的源，可以自由通信</p>
+                        `;
+                        comparisonResult.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    } else {
+                        comparisonResult.innerHTML = `
+                            <h3>❌ 不同源</h3>
+                            <p>这两个 URL 来自不同的源，可能受到同源策略限制</p>
+                        `;
+                        comparisonResult.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    }
+                }
+
+                // 更新状态指示器
+                if (sameOriginIndicator) {
+                    sameOriginIndicator.className = `status-indicator ${analysis.isSameOrigin ? 'status-same' : 'status-different'}`;
+                }
+
+                // 更新结果徽章
+                if (sameOriginResult) {
+                    const badge = this.createBadge(analysis.isSameOrigin ? '是' : '否', 
+                        analysis.isSameOrigin ? 'same' : 'different');
+                    sameOriginResult.innerHTML = badge;
+                }
+
+                // 更新匹配状态
+                if (protocolMatch) {
+                    protocolMatch.innerHTML = this.createMatchResult(analysis.protocolMatch, 
+                        `${analysis.origin.protocol} vs ${analysis.destination.protocol}`);
+                }
+
+                if (hostMatch) {
+                    hostMatch.innerHTML = this.createMatchResult(analysis.hostMatch, 
+                        `${analysis.origin.host} vs ${analysis.destination.host}`);
+                }
+
+                if (portMatch) {
+                    const originPort = analysis.origin.port || '默认';
+                    const destPort = analysis.destination.port || '默认';
+                    portMatch.innerHTML = this.createMatchResult(analysis.portMatch, 
+                        `${originPort} vs ${destPort}`);
+                }
+
+                // 更新安全等级
+                if (securityFill && securityLabel) {
+                    securityFill.style.width = `${analysis.securityScore}%`;
+                    securityFill.className = `security-fill security-${analysis.securityLevel}`;
+                    
+                    const levelText = {
+                        'high': '高',
+                        'medium': '中',
+                        'low': '低'
+                    };
+                    securityLabel.textContent = levelText[analysis.securityLevel] || '-';
+                }
+            }
+
+            // 创建徽章
+            createBadge(text, type) {
+                return `<span class="badge badge-${type}">${text}</span>`;
+            }
+
+            // 创建匹配结果
+            createMatchResult(isMatch, text) {
+                const icon = isMatch ? '✅' : '❌';
+                const color = isMatch ? '#10b981' : '#ef4444';
+                return `<span style="color: ${color}">${icon} ${text}</span>`;
+            }
+
+            // 显示 URL 详情
+            displayUrlDetails(originUrl, destinationUrl) {
+                if (!this.getCheckboxValue('showDetails')) return;
+
+                // 显示源 URL 详情
+                const originParts = document.getElementById('originParts');
+                if (originParts) {
+                    originParts.style.display = 'grid';
+                    this.updateUrlPart('originHref', originUrl.href);
+                    this.updateUrlPart('originProtocol', originUrl.protocol);
+                    this.updateUrlPart('originHost', originUrl.host);
+                    this.updateUrlPart('originHostname', originUrl.hostname);
+                    this.updateUrlPart('originPort', originUrl.port || '默认');
+                    this.updateUrlPart('originPathname', originUrl.pathname);
+                    this.updateUrlPart('originSearch', originUrl.search || '无');
+                    this.updateUrlPart('originHash', originUrl.hash || '无');
+                }
+
+                // 显示目标 URL 详情
+                const destinationParts = document.getElementById('destinationParts');
+                if (destinationParts) {
+                    destinationParts.style.display = 'grid';
+                    this.updateUrlPart('destinationHref', destinationUrl.href);
+                    this.updateUrlPart('destinationProtocol', destinationUrl.protocol);
+                    this.updateUrlPart('destinationHost', destinationUrl.host);
+                    this.updateUrlPart('destinationHostname', destinationUrl.hostname);
+                    this.updateUrlPart('destinationPort', destinationUrl.port || '默认');
+                    this.updateUrlPart('destinationPathname', destinationUrl.pathname);
+                    this.updateUrlPart('destinationSearch', destinationUrl.search || '无');
+                    this.updateUrlPart('destinationHash', destinationUrl.hash || '无');
+                }
+            }
+
+            // 更新 URL 部分
+            updateUrlPart(elementId, value) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = value;
+                }
+            }
+
+            // 隐藏结果
+            hideResults() {
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    resultSection.style.display = 'none';
+                }
+
+                const originParts = document.getElementById('originParts');
+                const destinationParts = document.getElementById('destinationParts');
+                if (originParts) originParts.style.display = 'none';
+                if (destinationParts) destinationParts.style.display = 'none';
+            }
+
+            // 批量检测
+            batchCheck() {
+                const batchOrigin = document.getElementById('batchOrigin');
+                const batchDestination = document.getElementById('batchDestination');
+                const batchResult = document.getElementById('batchResult');
+
+                if (!batchOrigin || !batchDestination || !batchResult) return;
+
+                const originUrls = batchOrigin.value.trim().split('\n').filter(url => url.trim());
+                const destinationUrls = batchDestination.value.trim().split('\n').filter(url => url.trim());
+
+                if (originUrls.length === 0 || destinationUrls.length === 0) {
+                    this.showError('请输入要检测的 URL');
+                    return;
+                }
+
+                const results = [];
+                const maxLen = Math.max(originUrls.length, destinationUrls.length);
+
+                for (let i = 0; i < maxLen; i++) {
+                    const originUrlStr = originUrls[i % originUrls.length];
+                    const destUrlStr = destinationUrls[i % destinationUrls.length];
+
+                    try {
+                        const originUrl = new URL(originUrlStr.trim());
+                        const destUrl = new URL(destUrlStr.trim());
+                        const isSame = this.isSameOrigin(originUrl, destUrl);
+
+                        results.push({
+                            index: i + 1,
+                            origin: originUrlStr,
+                            destination: destUrlStr,
+                            isSameOrigin: isSame,
+                            originUrl,
+                            destUrl,
+                            success: true
+                        });
+                    } catch (error) {
+                        results.push({
+                            index: i + 1,
+                            origin: originUrlStr,
+                            destination: destUrlStr,
+                            error: error.message,
+                            success: false
+                        });
+                    }
+                }
+
+                this.displayBatchResults(results);
+                this.stats.batchChecks++;
+                this.updateStatsDisplay();
+                this.showNotification(`批量检测完成，共检测 ${results.length} 组 URL`, 'success');
+            }
+
+            // 显示批量检测结果
+            displayBatchResults(results) {
+                const batchResult = document.getElementById('batchResult');
+                if (!batchResult) return;
+
+                const successCount = results.filter(r => r.success && r.isSameOrigin).length;
+                const failCount = results.filter(r => r.success && !r.isSameOrigin).length;
+                const errorCount = results.filter(r => !r.success).length;
+
+                let html = `
+                    <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">📊 批量检测汇总</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;">${successCount}</div>
+                                <div style="font-size: 0.9rem; color: #6c757d;">同源</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #ef4444;">${failCount}</div>
+                                <div style="font-size: 0.9rem; color: #6c757d;">不同源</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">${errorCount}</div>
+                                <div style="font-size: 0.9rem; color: #6c757d;">解析失败</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                results.forEach(result => {
+                    if (result.success) {
+                        const badge = result.isSameOrigin ? 
+                            '<span class="badge badge-same">同源</span>' : 
+                            '<span class="badge badge-different">不同源</span>';
+
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid ${result.isSameOrigin ? '#10b981' : '#ef4444'};">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span style="font-weight: 600; color: #495057;">#${result.index}</span>
+                                    ${badge}
+                                </div>
+                                <div style="margin-bottom: 5px;">
+                                    <span style="color: #6c757d; font-size: 0.9rem;">源: </span>
+                                    <span style="font-family: 'Monaco', 'Menlo', monospace; font-size: 0.85rem; word-break: break-all;">${result.origin}</span>
+                                </div>
+                                <div>
+                                    <span style="color: #6c757d; font-size: 0.9rem;">目标: </span>
+                                    <span style="font-family: 'Monaco', 'Menlo', monospace; font-size: 0.85rem; word-break: break-all;">${result.destination}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 15px; background: #fee2e2; border-radius: 8px; border-left: 4px solid #ef4444;">
+                                <div style="font-weight: 600; color: #dc2626; margin-bottom: 10px;">#${result.index} - 解析失败</div>
+                                <div style="margin-bottom: 5px; color: #495057; font-size: 0.9rem;">源: ${result.origin}</div>
+                                <div style="margin-bottom: 5px; color: #495057; font-size: 0.9rem;">目标: ${result.destination}</div>
+                                <div style="color: #dc2626; font-size: 0.85rem;">错误: ${result.error}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                batchResult.innerHTML = html;
+                batchResult.style.display = 'block';
+            }
+
+            // 生成测试 URL
+            generateTestUrls() {
+                const batchOrigin = document.getElementById('batchOrigin');
+                const batchDestination = document.getElementById('batchDestination');
+
+                if (!batchOrigin || !batchDestination) return;
+
+                const testCases = [
+                    {
+                        origin: 'https://example.com',
+                        destination: 'https://example.com/api/users'
+                    },
+                    {
+                        origin: 'https://example.com:443',
+                        destination: 'https://example.com'
+                    },
+                    {
+                        origin: 'http://example.com',
+                        destination: 'https://example.com'
+                    },
+                    {
+                        origin: 'https://api.example.com',
+                        destination: 'https://example.com'
+                    },
+                    {
+                        origin: 'https://example.com:8080',
+                        destination: 'https://example.com:9090'
+                    }
+                ];
+
+                batchOrigin.value = testCases.map(t => t.origin).join('\n');
+                batchDestination.value = testCases.map(t => t.destination).join('\n');
+
+                this.showNotification('测试 URL 已生成', 'success');
+            }
+
+            // 清空批量输入
+            clearBatch() {
+                const batchOrigin = document.getElementById('batchOrigin');
+                const batchDestination = document.getElementById('batchDestination');
+                const batchResult = document.getElementById('batchResult');
+
+                if (batchOrigin) batchOrigin.value = '';
+                if (batchDestination) batchDestination.value = '';
+                if (batchResult) batchResult.style.display = 'none';
+
+                this.showNotification('批量输入已清空', 'info');
+            }
+
+            // CORS 模拟
+            simulateCors() {
+                const corsOrigin = document.getElementById('corsOrigin');
+                const corsTarget = document.getElementById('corsTarget');
+                const corsResult = document.getElementById('corsResult');
+
+                if (!corsOrigin || !corsTarget || !corsResult) return;
+
+                const originStr = corsOrigin.value.trim();
+                const targetStr = corsTarget.value.trim();
+
+                if (!originStr || !targetStr) {
+                    this.showError('请输入完整的 Origin 和目标 URL');
+                    return;
+                }
+
+                try {
+                    const originUrl = new URL(originStr);
+                    const targetUrl = new URL(targetStr);
+
+                    const isSame = this.isSameOrigin(originUrl, targetUrl);
+                    const analysis = this.analyzeCorsRequest(originUrl, targetUrl, isSame);
+
+                    this.displayCorsResults(analysis);
+                    this.stats.corsSimulations++;
+                    this.updateStatsDisplay();
+                    this.showNotification('CORS 模拟完成', 'success');
+                } catch (error) {
+                    this.showError('URL 解析失败: ' + error.message);
+                }
+            }
+
+            // 分析 CORS 请求
+            analyzeCorsRequest(origin, target, isSame) {
+                const needsCors = !isSame;
+                const isSimpleRequest = this.isSimpleRequest(target);
+                const requiresPreflight = needsCors && !isSimpleRequest;
+
+                return {
+                    origin,
+                    target,
+                    isSameOrigin: isSame,
+                    needsCors,
+                    isSimpleRequest,
+                    requiresPreflight,
+                    recommendations: this.getCorsRecommendations(needsCors, requiresPreflight)
+                };
+            }
+
+            // 判断是否为简单请求
+            isSimpleRequest(url) {
+                // 简化判断：实际应该根据请求方法和头部判断
+                return true; // 默认返回 true
+            }
+
+            // 获取 CORS 建议
+            getCorsRecommendations(needsCors, requiresPreflight) {
+                const recommendations = [];
+
+                if (needsCors) {
+                    recommendations.push({
+                        title: '服务器需要配置 CORS',
+                        description: '目标服务器需要在响应头中添加 Access-Control-Allow-Origin',
+                        code: 'Access-Control-Allow-Origin: https://your-origin.com'
+                    });
+
+                    if (requiresPreflight) {
+                        recommendations.push({
+                            title: '需要处理预检请求',
+                            description: '服务器需要响应 OPTIONS 请求',
+                            code: 'Access-Control-Allow-Methods: GET, POST, PUT, DELETE\nAccess-Control-Allow-Headers: Content-Type'
+                        });
+                    }
+
+                    recommendations.push({
+                        title: '考虑使用代理',
+                        description: '如果无法修改目标服务器，可以在后端设置代理转发请求',
+                        code: '后端代理 → 目标 API'
+                    });
+                } else {
+                    recommendations.push({
+                        title: '同源请求',
+                        description: '无需 CORS 配置，可以直接请求',
+                        code: '✅ 可以自由通信'
+                    });
+                }
+
+                return recommendations;
+            }
+
+            // 显示 CORS 结果
+            displayCorsResults(analysis) {
+                const corsResult = document.getElementById('corsResult');
+                if (!corsResult) return;
+
+                const statusColor = analysis.isSameOrigin ? '#10b981' : '#ef4444';
+                const statusText = analysis.isSameOrigin ? '✅ 同源请求' : '⚠️ 跨域请求';
+
+                let html = `
+                    <div style="padding: 15px; background: ${analysis.isSameOrigin ? '#d1fae5' : '#fee2e2'}; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="font-size: 1.2rem; font-weight: 600; color: ${statusColor}; margin-bottom: 10px;">
+                            ${statusText}
+                        </div>
+                        <div style="color: #495057; font-size: 0.9rem;">
+                            ${analysis.isSameOrigin ? 
+                                '该请求为同源请求，不会被浏览器的同源策略阻止。' : 
+                                '该请求为跨域请求，可能会被浏览器的同源策略阻止，需要服务器配置 CORS。'}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-weight: 600; margin-bottom: 10px; color: #495057;">📋 请求详情</div>
+                        <div style="background: white; padding: 12px; border-radius: 6px; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.85rem;">
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #6c757d;">Origin:</span> 
+                                <span style="color: #667eea;">${analysis.origin.origin}</span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <span style="color: #6c757d;">Target:</span> 
+                                <span style="color: #667eea;">${analysis.target.origin}</span>
+                            </div>
+                            <div>
+                                <span style="color: #6c757d;">需要 CORS:</span> 
+                                <span style="color: ${analysis.needsCors ? '#ef4444' : '#10b981'};">
+                                    ${analysis.needsCors ? '是' : '否'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 10px; color: #495057;">💡 配置建议</div>
+                        ${analysis.recommendations.map(rec => `
+                            <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #667eea;">
+                                <div style="font-weight: 600; color: #495057; margin-bottom: 5px;">${rec.title}</div>
+                                <div style="color: #6c757d; font-size: 0.9rem; margin-bottom: 8px;">${rec.description}</div>
+                                <div style="background: #2d3748; color: #e2e8f0; padding: 10px; border-radius: 6px; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.8rem; white-space: pre-wrap;">
+                                    ${rec.code}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                corsResult.innerHTML = html;
+                corsResult.style.display = 'block';
+            }
+
+            // 显示 CORS 帮助
+            showCorsHelp() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '📖 CORS 跨域资源共享帮助',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="margin-bottom: 20px;">
+                                    <h3 style="color: #667eea; margin-bottom: 10px;">什么是 CORS？</h3>
+                                    <p style="color: #495057; line-height: 1.6;">
+                                        CORS（Cross-Origin Resource Sharing）是一种机制，它使用额外的 HTTP 头来告诉浏览器，
+                                        让运行在一个源上的 Web 应用被准许访问来自不同源服务器上的指定资源。
+                                    </p>
+                                </div>
+
+                                <div style="margin-bottom: 20px;">
+                                    <h3 style="color: #667eea; margin-bottom: 10px;">什么是同源？</h3>
+                                    <p style="color: #495057; line-height: 1.6;">
+                                        如果两个 URL 的协议、主机和端口都相同，则这两个 URL 是同源的。
+                                    </p>
+                                    <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-top: 10px; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.85rem;">
+                                        https://example.com:443/page1 ✅ 同源<br>
+                                        https://example.com:443/page2<br><br>
+                                        http://example.com ❌ 不同源（协议不同）<br>
+                                        https://api.example.com ❌ 不同源（主机不同）<br>
+                                        https://example.com:8080 ❌ 不同源（端口不同）
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 20px;">
+                                    <h3 style="color: #667eea; margin-bottom: 10px;">常见解决方案</h3>
+                                    <ul style="color: #495057; padding-left: 20px;">
+                                        <li style="margin-bottom: 8px;">服务器配置 CORS 响应头</li>
+                                        <li style="margin-bottom: 8px;">使用代理服务器转发请求</li>
+                                        <li style="margin-bottom: 8px;">JSONP（仅支持 GET 请求）</li>
+                                        <li style="margin-bottom: 8px;">WebSocket（不受同源策略限制）</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+
+            // 加载示例 URL
+            loadSampleUrls() {
+                const originUrl = document.getElementById('originUrl');
+                const destinationUrl = document.getElementById('destinationUrl');
+
+                if (!originUrl || !destinationUrl) return;
+
+                const samples = [
+                    {
+                        origin: 'https://eveningwater.com/my-web-projects/',
+                        destination: 'https://eveningwater.com/my-web-projects/home/'
+                    },
+                    {
+                        origin: 'https://eveningwater.com',
+                        destination: 'https://developer.mozilla.org'
+                    },
+                    {
+                        origin: 'https://api.github.com',
+                        destination: 'https://github.com'
+                    },
+                    {
+                        origin: 'http://localhost:3000',
+                        destination: 'http://localhost:3000/api'
+                    }
+                ];
+
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                originUrl.value = sample.origin;
+                destinationUrl.value = sample.destination;
+
+                if (this.getCheckboxValue('autoCheck')) {
+                    this.checkOrigin();
+                }
+
+                this.showNotification('示例 URL 已加载', 'success');
+            }
+
+            // 交换 URL
+            swapUrls() {
+                const originUrl = document.getElementById('originUrl');
+                const destinationUrl = document.getElementById('destinationUrl');
+
+                if (!originUrl || !destinationUrl) return;
+
+                const temp = originUrl.value;
+                originUrl.value = destinationUrl.value;
+                destinationUrl.value = temp;
+
+                if (this.getCheckboxValue('autoCheck')) {
+                    this.checkOrigin();
+                }
+
+                this.showNotification('URL 已交换', 'success');
+            }
+
+            // 清空输入
+            clearInputs() {
+                const originUrl = document.getElementById('originUrl');
+                const destinationUrl = document.getElementById('destinationUrl');
+
+                if (originUrl) originUrl.value = '';
+                if (destinationUrl) destinationUrl.value = '';
+
+                this.hideResults();
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 更新统计信息
+            updateStats(isSame) {
+                this.stats.totalChecks++;
+                this.stats.lastCheck = new Date();
+
+                if (isSame) {
+                    this.stats.sameOriginCount++;
+                } else {
+                    this.stats.differentOriginCount++;
+                }
+
+                this.updateStatsDisplay();
+            }
+
+            // 更新统计显示
+            updateStatsDisplay() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalChecks}</div>
+                        <div class="stat-label">总检测次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.sameOriginCount}</div>
+                        <div class="stat-label">同源</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.differentOriginCount}</div>
+                        <div class="stat-label">不同源</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.batchChecks}</div>
+                        <div class="stat-label">批量检测</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.corsSimulations}</div>
+                        <div class="stat-label">CORS 模拟</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.history.length}</div>
+                        <div class="stat-label">历史记录</div>
+                    </div>
+                `;
+            }
+
+            // 保存到历史记录
+            saveToHistory(origin, destination, isSame) {
+                const historyItem = {
+                    id: Date.now(),
+                    origin,
+                    destination,
+                    isSameOrigin: isSame,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+            }
+
+            // 刷新历史记录
+            refreshHistory() {
+                const historyList = document.getElementById('historyList');
+                if (!historyList) return;
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">暂无历史记录</div>';
+                    return;
+                }
+
+                const historyHTML = this.history.map((item, index) => `
+                    <div class="history-item" style="animation: slideInUp 0.3s ease-out ${index * 0.05}s both;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 5px;">
+                                ${item.timestamp}
+                            </div>
+                            <div class="history-text" title="${item.origin}">
+                                ${item.origin}
+                            </div>
+                            <div class="history-text" title="${item.destination}" style="color: #764ba2;">
+                                → ${item.destination}
+                            </div>
+                            <div style="margin-top: 5px;">
+                                ${item.isSameOrigin ? 
+                                    '<span class="badge badge-same">同源</span>' : 
+                                    '<span class="badge badge-different">不同源</span>'}
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-primary btn-small" onclick="window.originChecker?.loadFromHistory('${item.id}')">加载</button>
+                            <button class="btn btn-danger btn-small" onclick="window.originChecker?.removeFromHistory('${item.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                historyList.innerHTML = historyHTML;
+            }
+
+            // 从历史记录加载
+            loadFromHistory(id) {
+                const item = this.history.find(h => h.id == id);
+                if (!item) return;
+
+                const originUrl = document.getElementById('originUrl');
+                const destinationUrl = document.getElementById('destinationUrl');
+
+                if (originUrl) originUrl.value = item.origin;
+                if (destinationUrl) destinationUrl.value = item.destination;
+
+                if (this.getCheckboxValue('autoCheck')) {
+                    this.checkOrigin();
+                }
+
+                this.showNotification('已从历史记录加载', 'success');
+            }
+
+            // 从历史记录删除
+            removeFromHistory(id) {
+                this.history = this.history.filter(h => h.id != id);
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.updateStatsDisplay();
+                this.showNotification('已从历史记录删除', 'info');
+            }
+
+            // 清空历史记录
+            clearHistory() {
+                this.history = [];
+                this.saveHistoryToStorage();
+                this.refreshHistory();
+                this.updateStatsDisplay();
+                this.showNotification('历史记录已清空', 'success');
+            }
+
+            // 导出历史记录
+            exportHistory() {
+                if (this.history.length === 0) {
+                    this.showError('没有历史记录可导出');
+                    return;
+                }
+
+                const exportData = {
+                    exportTime: new Date().toLocaleString(),
+                    totalRecords: this.history.length,
+                    history: this.history
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `origin-check-history-${Date.now()}.json`;
+                link.click();
+
+                this.showNotification('历史记录已导出', 'success');
+            }
+
+            // 加载历史记录
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('originCheckerHistory');
+                    if (saved) {
+                        this.history = JSON.parse(saved);
+                        this.refreshHistory();
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                    this.history = [];
+                }
+            }
+
+            // 保存历史记录到 localStorage
+            saveHistoryToStorage() {
+                try {
+                    localStorage.setItem('originCheckerHistory', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            // 渲染场景示例
+            renderScenarios() {
+                const scenarioList = document.getElementById('scenarioList');
+                if (!scenarioList) return;
+
+                const scenarios = [
+                    {
+                        title: '✅ 同源 - 相同域名不同路径',
+                        origin: 'https://example.com/page1',
+                        destination: 'https://example.com/page2',
+                        isSame: true
+                    },
+                    {
+                        title: '✅ 同源 - 显式端口与默认端口',
+                        origin: 'https://example.com:443',
+                        destination: 'https://example.com',
+                        isSame: true
+                    },
+                    {
+                        title: '❌ 不同源 - 协议不同',
+                        origin: 'http://example.com',
+                        destination: 'https://example.com',
+                        isSame: false
+                    },
+                    {
+                        title: '❌ 不同源 - 子域名不同',
+                        origin: 'https://api.example.com',
+                        destination: 'https://example.com',
+                        isSame: false
+                    },
+                    {
+                        title: '❌ 不同源 - 端口不同',
+                        origin: 'https://example.com:8080',
+                        destination: 'https://example.com:9090',
+                        isSame: false
+                    },
+                    {
+                        title: '✅ 同源 - localhost 开发环境',
+                        origin: 'http://localhost:3000',
+                        destination: 'http://localhost:3000/api',
+                        isSame: true
+                    }
+                ];
+
+                const scenariosHTML = scenarios.map((scenario, index) => `
+                    <div class="url-list-item" style="animation: slideInUp 0.3s ease-out ${index * 0.05}s both;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #495057; margin-bottom: 8px;">
+                                ${scenario.title}
+                            </div>
+                            <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 4px; font-family: 'Monaco', 'Menlo', monospace;">
+                                源: ${scenario.origin}
+                            </div>
+                            <div style="font-size: 0.85rem; color: #6c757d; font-family: 'Monaco', 'Menlo', monospace;">
+                                目标: ${scenario.destination}
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-small" onclick="window.originChecker?.loadScenario('${scenario.origin}', '${scenario.destination}')">
+                            测试
+                        </button>
+                    </div>
+                `).join('');
+
+                scenarioList.innerHTML = scenariosHTML;
+            }
+
+            // 加载场景
+            loadScenario(origin, destination) {
+                const originUrl = document.getElementById('originUrl');
+                const destinationUrl = document.getElementById('destinationUrl');
+
+                if (originUrl) originUrl.value = origin;
+                if (destinationUrl) destinationUrl.value = destination;
+
+                this.checkOrigin();
+                this.showNotification('场景已加载并检测', 'success');
+
+                // 滚动到结果区域
+                setTimeout(() => {
+                    const resultSection = document.getElementById('resultSection');
+                    if (resultSection) {
+                        resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 100);
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            // 显示错误
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用跨域请求安全检测平台',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔒</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能 URL 同源检测 (isSameOrigin)</li>
+                                        <li>详细的 URL 解析和对比</li>
+                                        <li>批量 URL 检测</li>
+                                        <li>CORS 跨域配置模拟</li>
+                                        <li>安全等级评估</li>
+                                        <li>历史记录和统计分析</li>
+                                        <li>常见场景示例</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 输入两个 URL 即可检测是否同源，系统会自动分析协议、主机和端口
+                                    </p>
+                                </div>
+
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                                    <p style="margin: 0; font-size: 14px; color: #d97706;">
+                                        <strong>🔔 同源策略：</strong> 浏览器的安全机制，限制不同源之间的资源访问
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            window.originChecker = new OriginChecker();
+            console.log('跨域请求安全检测平台初始化完成');
+        });
+
+        // 如果 DOMContentLoaded 已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            window.originChecker = new OriginChecker();
+        }
+    </script>
+</body>
+
+</html>
