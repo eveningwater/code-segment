@@ -10,6 +10,10 @@
 const isString = val => typeof val === 'string';
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-string.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -18,8 +22,10 @@ isString('10'); // true
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/javascript/html/isString.html" data-language="html"></div>
+以下是一个实战<a href="codes/javascript/html/is-string.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/is-string.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/html/isString.html"></iframe>
+<iframe src="codes/javascript/html/is-string.html"></iframe>
