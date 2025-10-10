@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undefined 检测与调试平台 - isUndefined</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .type-status {
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .type-undefined {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+
+        .type-defined {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .type-status h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .type-status p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-undefined {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .badge-defined {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-null {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .code-block {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #282c34;
+            border-radius: 8px;
+        }
+
+        .code-block pre code {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .hljs {
+            background: #282c34;
+            padding: 0;
+        }
+
+        .object-inspector {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .property-item {
+            display: grid;
+            grid-template-columns: 200px 1fr auto;
+            gap: 15px;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+        }
+
+        .property-item:last-child {
+            border-bottom: none;
+        }
+
+        .property-key {
+            font-weight: 600;
+            color: #495057;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .property-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .scenario-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .scenario-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .scenario-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .scenario-desc {
+            font-size: 0.9rem;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .scenario-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .property-item {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Undefined 检测与调试平台</h1>
+            <p>基于 isUndefined 函数的智能 Undefined 检测工具，支持变量检测、对象属性分析、函数返回值检测和调试场景演示</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：Undefined 检测 -->
+            <div class="card">
+                <h2>🔍 Undefined 检测器</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="testValue">测试值</label>
+                        <input type="text" id="testValue" placeholder="请输入要测试的值，例如: undefined, null, ''">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="testType">测试类型</label>
+                        <div id="testTypeSelect"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.undefinedChecker?.checkValue()">
+                            🔍 检测值
+                        </button>
+                        <button class="btn btn-success" onclick="window.undefinedChecker?.testUndefined()">
+                            ⚠️ 测试 undefined
+                        </button>
+                        <button class="btn btn-info" onclick="window.undefinedChecker?.loadSample()">
+                            📄 加载示例
+                        </button>
+                        <button class="btn btn-warning" onclick="window.undefinedChecker?.clearInput()">
+                            🗑️ 清空
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 检测结果 -->
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <div class="type-status" id="typeStatus">
+                        <h3>状态</h3>
+                        <p>描述</p>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin-bottom: 10px; color: #495057;">检测信息</h4>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: 0.9rem;">
+                            <span style="font-weight: 600;">输入值:</span>
+                            <span id="inputValue" style="font-family: 'Monaco', 'Menlo', monospace;">-</span>
+                            
+                            <span style="font-weight: 600;">类型:</span>
+                            <span id="valueType">-</span>
+                            
+                            <span style="font-weight: 600;">isUndefined 返回:</span>
+                            <span id="isUndefinedResult">-</span>
+                            
+                            <span style="font-weight: 600;">与 null 比较:</span>
+                            <span id="nullComparison">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：对象属性检测 -->
+            <div class="card">
+                <h2>📦 对象属性检测</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="objectJson">对象 JSON</label>
+                        <textarea id="objectJson" placeholder='请输入 JSON 对象，例如:
+{
+  "name": "张三",
+  "age": undefined,
+  "city": null
+}' rows="6"></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.undefinedChecker?.inspectObject()">
+                            🔍 检查对象
+                        </button>
+                        <button class="btn btn-success" onclick="window.undefinedChecker?.loadObjectSample()">
+                            📄 加载示例
+                        </button>
+                    </div>
+                </div>
+
+                <div class="object-inspector" id="objectInspector" style="display: none;">
+                    <!-- 对象检查结果 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 函数返回值检测 -->
+        <div class="card">
+            <h2>⚙️ 函数返回值检测</h2>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="functionCode">函数代码</label>
+                    <textarea id="functionCode" placeholder="请输入函数代码，例如:
+function test() {
+  // 没有 return 语句
+}" rows="6"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.undefinedChecker?.testFunction()">
+                        🔍 执行并检测
+                    </button>
+                    <button class="btn btn-success" onclick="window.undefinedChecker?.loadFunctionSample()">
+                        📄 加载示例
+                    </button>
+                </div>
+
+                <div class="code-block" id="functionResult" style="display: none;">
+                    <pre><code class="language-javascript"><!-- 函数执行结果 --></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Undefined 场景演示 -->
+        <div class="card">
+            <h2>💡 常见 Undefined 场景</h2>
+            <div class="scenario-grid" id="scenarioGrid">
+                <!-- 场景将动态生成 -->
+            </div>
+        </div>
+
+        <!-- 批量检测 -->
+        <div class="card">
+            <h2>📊 批量 Undefined 检测</h2>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="batchInput">批量值输入（每行一个）</label>
+                    <textarea id="batchInput" placeholder="请输入多个值，每行一个，例如:
+undefined
+null
+''
+0
+false
+NaN" rows="8"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.undefinedChecker?.batchCheck()">
+                        🔍 批量检测
+                    </button>
+                    <button class="btn btn-success" onclick="window.undefinedChecker?.generateTestValues()">
+                        🎲 生成测试数据
+                    </button>
+                    <button class="btn btn-danger" onclick="window.undefinedChecker?.clearBatch()">
+                        🗑️ 清空
+                    </button>
+                </div>
+            </div>
+
+            <div class="code-block" id="batchResult" style="display: none;">
+                <pre><code class="language-plaintext"><!-- 批量检测结果 --></code></pre>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 高级选项 -->
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">显示选项</div>
+                <div id="checkboxGroup">
+                    <!-- 复选框将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">isUndefined 函数</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const isUndefined = val => val === undefined;</code></pre>
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">Undefined 出现场景</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>未声明的变量：</strong>访问未声明的变量会抛出错误</li>
+                    <li><strong>声明但未赋值：</strong>let x; // x 为 undefined</li>
+                    <li><strong>对象不存在的属性：</strong>obj.nonExist // undefined</li>
+                    <li><strong>函数无返回值：</strong>没有 return 或 return 后没有值</li>
+                    <li><strong>函数参数未传递：</strong>调用时未提供的参数</li>
+                    <li><strong>void 运算符：</strong>void 0 返回 undefined</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">Undefined vs Null</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">// undefined: 变量未初始化或不存在
+let x;
+console.log(x); // undefined
+
+// null: 明确表示"无值"
+let y = null;
+console.log(y); // null
+
+// 比较
+console.log(undefined == null);  // true (宽松相等)
+console.log(undefined === null); // false (严格相等)</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 核心 isUndefined 函数
+        const isUndefined = val => val === undefined;
+
+        // Undefined 检测器类
+        class UndefinedChecker {
+            constructor() {
+                this.plugins = {};
+                this.stats = {
+                    totalChecks: 0,
+                    undefinedCount: 0,
+                    definedCount: 0,
+                    nullCount: 0,
+                    objectChecks: 0,
+                    functionChecks: 0
+                };
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupSelects();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.renderScenarios();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 初始化代码高亮
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    console.log('Highlight.js 初始化完成');
+                } else {
+                    console.warn('Highlight.js 未加载');
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置下拉框
+            setupSelects() {
+                const testTypeSelect = document.getElementById('testTypeSelect');
+                if (testTypeSelect) {
+                    const typeOptions = [
+                        { value: 'auto', label: '自动解析' },
+                        { value: 'undefined', label: 'Undefined' },
+                        { value: 'null', label: 'Null' },
+                        { value: 'empty', label: '空字符串' },
+                        { value: 'zero', label: '数字 0' },
+                        { value: 'false', label: 'Boolean false' }
+                    ];
+
+                    this.plugins.testTypeSelect = new Select({
+                        container: testTypeSelect,
+                        options: typeOptions,
+                        placeholder: '选择测试类型',
+                        onChange: (value) => {
+                            console.log('选择的测试类型:', value);
+                        }
+                    });
+
+                    this.plugins.testTypeSelect.setValue('auto');
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'strictMode', label: '严格模式（使用 ===）', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'showComparison', label: '显示与 null 比较', checked: true },
+                    { id: 'trackHistory', label: '追踪检测历史', checked: true }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            console.log('复选框状态变化:', checkedStates);
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.style.marginBottom = '10px';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}" style="margin-left: 8px; cursor: pointer;">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 解析测试值
+            parseTestValue(input, type) {
+                if (type === 'undefined') return undefined;
+                if (type === 'null') return null;
+                if (type === 'empty') return '';
+                if (type === 'zero') return 0;
+                if (type === 'false') return false;
+                
+                // 自动解析
+                const trimmed = input.trim();
+                if (trimmed === 'undefined') return undefined;
+                if (trimmed === 'null') return null;
+                if (trimmed === '') return '';
+                if (trimmed === '0') return 0;
+                if (trimmed === 'false') return false;
+                if (trimmed === 'true') return true;
+                if (!isNaN(trimmed) && trimmed !== '') return parseFloat(trimmed);
+                
+                return input;
+            }
+
+            // 检测值
+            checkValue() {
+                const testValue = document.getElementById('testValue');
+                if (!testValue) return;
+
+                const input = testValue.value;
+                const testType = this.plugins.testTypeSelect?.getValue() || 'auto';
+
+                try {
+                    const value = this.parseTestValue(input, testType);
+                    const result = isUndefined(value);
+
+                    this.stats.totalChecks++;
+                    if (result) this.stats.undefinedCount++;
+                    else this.stats.definedCount++;
+                    
+                    if (value === null) this.stats.nullCount++;
+
+                    this.displayResult(value, result, input);
+                    this.updateStats();
+
+                    this.showNotification('检测完成', 'success');
+                } catch (error) {
+                    this.showError('检测失败: ' + error.message);
+                }
+            }
+
+            // 测试 undefined
+            testUndefined() {
+                const value = undefined;
+                const result = isUndefined(value);
+
+                this.stats.totalChecks++;
+                this.stats.undefinedCount++;
+
+                this.displayResult(value, result, 'undefined');
+                this.updateStats();
+
+                this.showNotification('undefined 测试完成', 'success');
+            }
+
+            // 显示检测结果
+            displayResult(value, isUndef, originalInput) {
+                const resultSection = document.getElementById('resultSection');
+                const typeStatus = document.getElementById('typeStatus');
+                const inputValue = document.getElementById('inputValue');
+                const valueType = document.getElementById('valueType');
+                const isUndefinedResult = document.getElementById('isUndefinedResult');
+                const nullComparison = document.getElementById('nullComparison');
+
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                }
+
+                if (typeStatus) {
+                    if (isUndef) {
+                        typeStatus.className = 'type-status type-undefined';
+                        typeStatus.innerHTML = `
+                            <h3>⚠️ 是 Undefined</h3>
+                            <p>isUndefined() 返回 true，该值为 undefined</p>
+                        `;
+                    } else {
+                        typeStatus.className = 'type-status type-defined';
+                        typeStatus.innerHTML = `
+                            <h3>✅ 已定义</h3>
+                            <p>isUndefined() 返回 false，该值不是 undefined</p>
+                        `;
+                    }
+                }
+
+                if (inputValue) {
+                    inputValue.textContent = originalInput || String(value);
+                }
+
+                if (valueType) {
+                    const type = value === null ? 'null' : typeof value;
+                    valueType.innerHTML = this.getTypeBadge(type);
+                }
+
+                if (isUndefinedResult) {
+                    const badge = isUndef ? 
+                        '<span class="badge badge-undefined">true</span>' : 
+                        '<span class="badge badge-defined">false</span>';
+                    isUndefinedResult.innerHTML = badge;
+                }
+
+                if (nullComparison && this.getCheckboxValue('showComparison')) {
+                    const looseEqual = value == null;
+                    const strictEqual = value === null;
+                    nullComparison.innerHTML = `宽松相等(==): ${looseEqual} | 严格相等(===): ${strictEqual}`;
+                }
+            }
+
+            // 获取类型徽章
+            getTypeBadge(type) {
+                const badges = {
+                    'undefined': '<span class="badge badge-undefined">Undefined</span>',
+                    'null': '<span class="badge badge-null">Null</span>',
+                    'string': '<span class="badge" style="background: #d1fae5; color: #059669;">String</span>',
+                    'number': '<span class="badge" style="background: #dbeafe; color: #1d4ed8;">Number</span>',
+                    'boolean': '<span class="badge" style="background: #f3e8ff; color: #7c3aed;">Boolean</span>'
+                };
+                return badges[type] || `<span class="badge">${type}</span>`;
+            }
+
+            // 检查对象
+            inspectObject() {
+                const objectJson = document.getElementById('objectJson');
+                const objectInspector = document.getElementById('objectInspector');
+
+                if (!objectJson || !objectInspector) return;
+
+                const jsonStr = objectJson.value.trim();
+                if (!jsonStr) {
+                    this.showError('请输入 JSON 对象');
+                    return;
+                }
+
+                try {
+                    // 使用自定义的 JSON 解析来支持 undefined
+                    const obj = eval('(' + jsonStr + ')');
+                    
+                    let html = '<h4 style="margin-bottom: 15px; color: #495057;">对象属性检查</h4>';
+                    
+                    const allKeys = Object.keys(obj);
+                    const undefinedProps = [];
+                    const nullProps = [];
+                    const definedProps = [];
+
+                    allKeys.forEach(key => {
+                        const value = obj[key];
+                        if (isUndefined(value)) {
+                            undefinedProps.push(key);
+                        } else if (value === null) {
+                            nullProps.push(key);
+                        } else {
+                            definedProps.push(key);
+                        }
+
+                        html += `
+                            <div class="property-item">
+                                <span class="property-key">${key}</span>
+                                <span class="property-value">${this.formatValue(value)}</span>
+                                ${this.getTypeBadge(value === null ? 'null' : typeof value)}
+                            </div>
+                        `;
+                    });
+
+                    // 添加统计摘要
+                    html = `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
+                                <div>
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #6b7280;">${undefinedProps.length}</div>
+                                    <div style="font-size: 0.85rem; color: #6c757d;">Undefined</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #ef4444;">${nullProps.length}</div>
+                                    <div style="font-size: 0.85rem; color: #6c757d;">Null</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;">${definedProps.length}</div>
+                                    <div style="font-size: 0.85rem; color: #6c757d;">已定义</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` + html;
+
+                    objectInspector.innerHTML = html;
+                    objectInspector.style.display = 'block';
+
+                    this.stats.objectChecks++;
+                    this.updateStats();
+
+                    this.showNotification('对象检查完成', 'success');
+                } catch (error) {
+                    this.showError('对象解析失败: ' + error.message);
+                }
+            }
+
+            // 格式化值
+            formatValue(value) {
+                if (value === undefined) return '<span style="color: #6b7280; font-style: italic;">undefined</span>';
+                if (value === null) return '<span style="color: #ef4444; font-style: italic;">null</span>';
+                if (typeof value === 'string') return `"${value}"`;
+                return String(value);
+            }
+
+            // 转义 HTML
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // 测试函数
+            testFunction() {
+                const functionCode = document.getElementById('functionCode');
+                const functionResult = document.getElementById('functionResult');
+
+                if (!functionCode || !functionResult) return;
+
+                const code = functionCode.value.trim();
+                if (!code) {
+                    this.showError('请输入函数代码');
+                    return;
+                }
+
+                try {
+                    // 评估函数
+                    const func = eval('(' + code + ')');
+                    
+                    if (typeof func !== 'function') {
+                        throw new Error('输入的代码不是一个函数');
+                    }
+
+                    // 执行函数
+                    const returnValue = func();
+                    const isUndef = isUndefined(returnValue);
+
+                    const output = `// 函数代码
+${code}
+
+// 执行结果
+const result = func();
+console.log(result); // ${returnValue === undefined ? 'undefined' : returnValue}
+console.log(isUndefined(result)); // ${isUndef}
+
+// 说明: ${isUndef ? '函数没有返回值或返回 undefined' : '函数有明确的返回值'}`;
+
+                    functionResult.innerHTML = `<pre><code class="language-javascript">${this.escapeHtml(output)}</code></pre>`;
+                    functionResult.style.display = 'block';
+
+                    if (window.hljs) {
+                        const codeBlock = functionResult.querySelector('code');
+                        if (codeBlock) hljs.highlightElement(codeBlock);
+                    }
+
+                    this.stats.functionChecks++;
+                    this.updateStats();
+
+                    this.showNotification('函数测试完成', 'success');
+                } catch (error) {
+                    this.showError('函数执行失败: ' + error.message);
+                }
+            }
+
+            // 加载函数示例
+            loadFunctionSample() {
+                const samples = [
+                    `function noReturn() {
+  console.log('没有返回值');
+}`,
+                    `function emptyReturn() {
+  return;
+}`,
+                    `function returnValue() {
+  return 'Hello';
+}`,
+                    `function returnUndefined() {
+  return undefined;
+}`
+                ];
+
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                const functionCode = document.getElementById('functionCode');
+
+                if (functionCode) {
+                    functionCode.value = sample;
+                }
+
+                this.showNotification('示例已加载', 'success');
+            }
+
+            // 渲染场景演示
+            renderScenarios() {
+                const scenarioGrid = document.getElementById('scenarioGrid');
+                if (!scenarioGrid) return;
+
+                const scenarios = [
+                    {
+                        title: '未初始化的变量',
+                        desc: '声明但未赋值的变量',
+                        code: 'let x;\nconsole.log(isUndefined(x)); // true'
+                    },
+                    {
+                        title: '对象不存在的属性',
+                        desc: '访问对象上不存在的属性',
+                        code: 'const obj = { a: 1 };\nconsole.log(isUndefined(obj.b)); // true'
+                    },
+                    {
+                        title: '函数无返回值',
+                        desc: '没有 return 语句的函数',
+                        code: 'function f() {}\nconsole.log(isUndefined(f())); // true'
+                    },
+                    {
+                        title: '数组越界访问',
+                        desc: '访问数组中不存在的索引',
+                        code: 'const arr = [1, 2];\nconsole.log(isUndefined(arr[5])); // true'
+                    },
+                    {
+                        title: '函数参数未传递',
+                        desc: '调用函数时未提供参数',
+                        code: 'function f(x) { return x; }\nconsole.log(isUndefined(f())); // true'
+                    },
+                    {
+                        title: 'void 运算符',
+                        desc: 'void 总是返回 undefined',
+                        code: 'console.log(isUndefined(void 0)); // true'
+                    }
+                ];
+
+                let html = '';
+                scenarios.forEach((scenario, index) => {
+                    html += `
+                        <div class="scenario-card" onclick="window.undefinedChecker?.showScenario(${index})" style="animation: slideInUp 0.3s ease-out ${index * 0.05}s both;">
+                            <div class="scenario-title">${scenario.title}</div>
+                            <div class="scenario-desc">${scenario.desc}</div>
+                        </div>
+                    `;
+                });
+
+                scenarioGrid.innerHTML = html;
+                this.scenarios = scenarios;
+            }
+
+            // 显示场景详情
+            showScenario(index) {
+                if (!this.scenarios || index >= this.scenarios.length) return;
+
+                const scenario = this.scenarios[index];
+
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: `💡 ${scenario.title}`,
+                        content: `
+                            <div style="padding: 20px;">
+                                <p style="color: #495057; margin-bottom: 15px; line-height: 1.6;">
+                                    ${scenario.desc}
+                                </p>
+                                
+                                <div class="code-block">
+                                    <pre><code class="language-javascript">${this.escapeHtml(scenario.code)}</code></pre>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+
+                    setTimeout(() => {
+                        if (window.hljs) {
+                            document.querySelectorAll('.modal pre code').forEach((block) => {
+                                hljs.highlightElement(block);
+                            });
+                        }
+                    }, 100);
+                }
+            }
+
+            // 批量检测
+            batchCheck() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResult = document.getElementById('batchResult');
+
+                if (!batchInput || !batchResult) return;
+
+                const lines = batchInput.value.split('\n').filter(line => line.trim() !== '');
+
+                if (lines.length === 0) {
+                    this.showError('请输入要检测的值');
+                    return;
+                }
+
+                const results = lines.map((line, index) => {
+                    try {
+                        let value;
+                        const trimmed = line.trim();
+
+                        // 解析输入
+                        if (trimmed === 'undefined') {
+                            value = undefined;
+                        } else if (trimmed === 'null') {
+                            value = null;
+                        } else {
+                            try {
+                                value = eval(trimmed);
+                            } catch (e) {
+                                value = trimmed;
+                            }
+                        }
+
+                        const result = isUndefined(value);
+                        const type = value === null ? 'null' : typeof value;
+
+                        return {
+                            index: index + 1,
+                            input: line,
+                            isUndefined: result,
+                            type,
+                            value,
+                            success: true
+                        };
+                    } catch (error) {
+                        return {
+                            index: index + 1,
+                            input: line,
+                            error: error.message,
+                            success: false
+                        };
+                    }
+                });
+
+                this.displayBatchResults(results);
+                this.updateStats();
+                this.showNotification(`批量检测完成，共检测 ${results.length} 个值`, 'success');
+            }
+
+            // 显示批量检测结果
+            displayBatchResults(results) {
+                const batchResult = document.getElementById('batchResult');
+                if (!batchResult) return;
+
+                const undefinedCount = results.filter(r => r.success && r.isUndefined).length;
+                const definedCount = results.filter(r => r.success && !r.isUndefined).length;
+                const errorCount = results.filter(r => !r.success).length;
+
+                let output = `批量检测汇总:\n`;
+                output += `总值数: ${results.length}\n`;
+                output += `Undefined: ${undefinedCount} | 已定义: ${definedCount} | 错误: ${errorCount}\n`;
+                output += `\n${'='.repeat(60)}\n\n`;
+
+                results.forEach(result => {
+                    if (result.success) {
+                        output += `#${result.index}: ${result.input}\n`;
+                        output += `  类型: ${result.type}\n`;
+                        output += `  isUndefined: ${result.isUndefined}\n`;
+                        output += `  值: ${result.value === undefined ? 'undefined' : result.value === null ? 'null' : result.value}\n\n`;
+                    } else {
+                        output += `#${result.index}: ${result.input}\n`;
+                        output += `  错误: ${result.error}\n\n`;
+                    }
+                });
+
+                batchResult.innerHTML = `<pre><code class="language-plaintext">${this.escapeHtml(output)}</code></pre>`;
+                batchResult.style.display = 'block';
+
+                if (window.hljs) {
+                    const codeBlock = batchResult.querySelector('code');
+                    if (codeBlock) hljs.highlightElement(codeBlock);
+                }
+            }
+
+            // 生成测试值
+            generateTestValues() {
+                const batchInput = document.getElementById('batchInput');
+                if (!batchInput) return;
+
+                const testValues = [
+                    'undefined',
+                    'null',
+                    "''",
+                    '0',
+                    'false',
+                    'NaN',
+                    '[]',
+                    '{}',
+                    'void 0'
+                ];
+
+                batchInput.value = testValues.join('\n');
+                this.showNotification('测试数据已生成', 'success');
+            }
+
+            // 清空批量输入
+            clearBatch() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResult = document.getElementById('batchResult');
+
+                if (batchInput) batchInput.value = '';
+                if (batchResult) batchResult.style.display = 'none';
+
+                this.showNotification('批量输入已清空', 'info');
+            }
+
+            // 加载示例
+            loadSample() {
+                const samples = [
+                    { value: 'undefined', type: 'undefined' },
+                    { value: 'null', type: 'null' },
+                    { value: '', type: 'empty' },
+                    { value: '0', type: 'zero' },
+                    { value: 'false', type: 'false' }
+                ];
+
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                const testValue = document.getElementById('testValue');
+
+                if (testValue) {
+                    testValue.value = sample.value;
+                }
+
+                if (this.plugins.testTypeSelect) {
+                    this.plugins.testTypeSelect.setValue('auto');
+                }
+
+                this.showNotification('示例已加载', 'success');
+            }
+
+            // 加载对象示例
+            loadObjectSample() {
+                const samples = [
+                    `{
+  "name": "张三",
+  "age": undefined,
+  "city": null,
+  "email": ""
+}`,
+                    `{
+  "id": 1,
+  "value": undefined,
+  "data": null
+}`,
+                    `{
+  "a": 1,
+  "b": undefined,
+  "c": 2,
+  "d": undefined
+}`
+                ];
+
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                const objectJson = document.getElementById('objectJson');
+
+                if (objectJson) {
+                    objectJson.value = sample;
+                }
+
+                this.showNotification('示例已加载', 'success');
+            }
+
+            // 清空输入
+            clearInput() {
+                const testValue = document.getElementById('testValue');
+                const resultSection = document.getElementById('resultSection');
+
+                if (testValue) testValue.value = '';
+                if (resultSection) resultSection.style.display = 'none';
+
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalChecks}</div>
+                        <div class="stat-label">总检测次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.undefinedCount}</div>
+                        <div class="stat-label">Undefined</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.definedCount}</div>
+                        <div class="stat-label">已定义</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.nullCount}</div>
+                        <div class="stat-label">Null</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.objectChecks}</div>
+                        <div class="stat-label">对象检查</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.functionChecks}</div>
+                        <div class="stat-label">函数检测</div>
+                    </div>
+                `;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            // 显示错误
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用 Undefined 检测与调试平台',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能 Undefined 检测 (isUndefined)</li>
+                                        <li>对象属性 Undefined 分析</li>
+                                        <li>函数返回值检测</li>
+                                        <li>常见 Undefined 场景演示</li>
+                                        <li>批量值检测</li>
+                                        <li>Undefined vs Null 比较</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> undefined 表示变量未初始化或不存在
+                                    </p>
+                                </div>
+
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                                    <p style="margin: 0; font-size: 14px; color: #d97706;">
+                                        <strong>⚠️ 注意：</strong> undefined == null 为 true，但 undefined === null 为 false
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            window.undefinedChecker = new UndefinedChecker();
+            console.log('Undefined 检测与调试平台初始化完成');
+        });
+
+        // 如果 DOMContentLoaded 已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            window.undefinedChecker = new UndefinedChecker();
+        }
+    </script>
+</body>
+
+</html>
