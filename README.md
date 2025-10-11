@@ -410,7 +410,7 @@
 - [是否是字符串-2022-10-28](codes/javascript/is-string.md)
 - [是否是 symbol-2022-10-29](codes/javascript/is-symbol.md)
 - [是否是未初始化值-2022-10-31](codes/javascript/is-undefined.md)
-- [是否是大写字母-2022-11-01](codes/javascript/isUpperCase.md)
+- [是否是大写字母-2022-11-01](codes/javascript/is-upper-case.md)
 - [是否是合格的 JSON 数据结构-2022-11-02](codes/javascript/is-valid-json.md)
 - [是否是工作日-2022-11-03](codes/javascript/isWeekday.md)
 - [是否是周末-2022-11-04](codes/javascript/isWeekend.md)
