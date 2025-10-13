@@ -11,6 +11,10 @@
 const isWeekend = (d = new Date()) => d.getDay() % 6 === 0;
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/is-weekend.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -18,6 +22,8 @@ isWeekend(); // true (if current date is 2022-11-05)
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/is-weekend.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/isWeekend.html" data-language="html"></div>
 

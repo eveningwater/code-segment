@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作日检测与日历管理平台 - isWeekday</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .today-banner {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .today-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .today-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .icon-weekday {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .icon-weekend {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .today-text h2 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .today-text p {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .day-status {
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .status-weekday {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .status-weekend {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .day-status h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .day-status p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .day-weekday {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .day-weekend {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .day-today {
+            border: 3px solid #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .day-other-month {
+            opacity: 0.3;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-weekday {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-weekend {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .code-block {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #282c34;
+            border-radius: 8px;
+        }
+
+        .code-block pre code {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .hljs {
+            background: #282c34;
+            padding: 0;
+        }
+
+        .date-range-result {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .today-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .calendar-grid {
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 工作日检测与日历管理平台</h1>
+            <p>基于 isWeekday 函数的智能工作日检测工具，支持日期选择、日历可视化、工作日统计和批量分析</p>
+        </div>
+
+        <!-- 今日状态横幅 -->
+        <div class="today-banner">
+            <div class="today-info">
+                <div class="today-icon" id="todayIcon">
+                    💼
+                </div>
+                <div class="today-text">
+                    <h2 id="todayTitle">检测中...</h2>
+                    <p id="todayDesc">正在检测今天是否为工作日</p>
+                </div>
+            </div>
+            <div>
+                <span class="badge" id="todayBadge" style="font-size: 1rem; padding: 8px 16px;">检测中...</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：日期检测器 -->
+            <div class="card">
+                <h2>🔍 工作日检测器</h2>
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="dateInput">选择日期</label>
+                        <input type="date" id="dateInput">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="dateDisplay">或使用日期选择器</label>
+                        <div id="datePickerContainer"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="window.weekdayChecker?.checkDate()">
+                            🔍 检测日期
+                        </button>
+                        <button class="btn btn-success" onclick="window.weekdayChecker?.checkToday()">
+                            📅 检测今天
+                        </button>
+                        <button class="btn btn-info" onclick="window.weekdayChecker?.checkTomorrow()">
+                            ➡️ 检测明天
+                        </button>
+                        <button class="btn btn-warning" onclick="window.weekdayChecker?.clearInput()">
+                            🗑️ 清空
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 检测结果 -->
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <div class="day-status" id="dayStatus">
+                        <h3>状态</h3>
+                        <p>描述</p>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin-bottom: 10px; color: #495057;">日期信息</h4>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: 0.9rem;">
+                            <span style="font-weight: 600;">日期:</span>
+                            <span id="selectedDate">-</span>
+                            
+                            <span style="font-weight: 600;">星期:</span>
+                            <span id="dayOfWeek">-</span>
+                            
+                            <span style="font-weight: 600;">isWeekday 返回:</span>
+                            <span id="isWeekdayResult">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：月历视图 -->
+            <div class="card">
+                <h2>📆 月历视图</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <button class="btn btn-info btn-small" onclick="window.weekdayChecker?.prevMonth()">
+                        ◀ 上月
+                    </button>
+                    <h3 id="calendarTitle" style="color: #495057;">2025年1月</h3>
+                    <button class="btn btn-info btn-small" onclick="window.weekdayChecker?.nextMonth()">
+                        下月 ▶
+                    </button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- 日历将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 日期范围分析 -->
+        <div class="card">
+            <h2>📊 日期范围工作日分析</h2>
+            <div class="input-section">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="input-group">
+                        <label for="startDate">开始日期</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="input-group">
+                        <label for="endDate">结束日期</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.weekdayChecker?.analyzeRange()">
+                        📊 分析范围
+                    </button>
+                    <button class="btn btn-success" onclick="window.weekdayChecker?.setThisWeek()">
+                        📅 本周
+                    </button>
+                    <button class="btn btn-info" onclick="window.weekdayChecker?.setThisMonth()">
+                        📅 本月
+                    </button>
+                    <button class="btn btn-warning" onclick="window.weekdayChecker?.setThisYear()">
+                        📅 本年
+                    </button>
+                </div>
+
+                <div class="date-range-result" id="rangeResult" style="display: none;">
+                    <!-- 范围分析结果 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量日期检测 -->
+        <div class="card">
+            <h2>📊 批量日期检测</h2>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="batchInput">批量日期输入（每行一个，格式：YYYY-MM-DD）</label>
+                    <textarea id="batchInput" placeholder="请输入多个日期，每行一个，例如:
+2025-01-13
+2025-01-14
+2025-01-15" rows="6"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="window.weekdayChecker?.batchCheck()">
+                        🔍 批量检测
+                    </button>
+                    <button class="btn btn-success" onclick="window.weekdayChecker?.generateTestDates()">
+                        🎲 生成测试日期
+                    </button>
+                    <button class="btn btn-danger" onclick="window.weekdayChecker?.clearBatch()">
+                        🗑️ 清空
+                    </button>
+                </div>
+            </div>
+
+            <div class="code-block" id="batchResult" style="display: none;">
+                <pre><code class="language-plaintext"><!-- 批量检测结果 --></code></pre>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 高级选项 -->
+        <div class="card">
+            <h2>⚙️ 高级选项</h2>
+            <div class="advanced-options">
+                <div class="options-title">显示选项</div>
+                <div id="checkboxGroup">
+                    <!-- 复选框将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">isWeekday 函数</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const isWeekday = (d = new Date()) => d.getDay() % 6 !== 0;</code></pre>
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">函数原理</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li><code>getDay()</code> 返回 0-6，其中 0 = 周日，6 = 周六</li>
+                    <li>工作日（周一到周五）的 getDay() 返回 1-5</li>
+                    <li><code>getDay() % 6 !== 0</code> 用于排除周日(0)和周六(6)</li>
+                    <li>返回 <code>true</code> 表示是工作日</li>
+                    <li>返回 <code>false</code> 表示是周末</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">功能特性</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li>✅ 智能工作日检测 (isWeekday)</li>
+                    <li>📅 可视化月历展示</li>
+                    <li>📊 日期范围工作日统计</li>
+                    <li>📈 批量日期检测</li>
+                    <li>📉 详细统计信息</li>
+                    <li>🎨 日期选择器支持</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 核心 isWeekday 函数
+        const isWeekday = (d = new Date()) => d.getDay() % 6 !== 0;
+
+        // 工作日检测器类
+        class WeekdayChecker {
+            constructor() {
+                this.plugins = {};
+                this.currentDate = new Date();
+                this.calendarDate = new Date();
+                this.stats = {
+                    totalChecks: 0,
+                    weekdayCount: 0,
+                    weekendCount: 0,
+                    rangeAnalyses: 0
+                };
+                this.dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+                this.monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
+                                   '七月', '八月', '九月', '十月', '十一月', '十二月'];
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateTodayBanner();
+                    this.renderCalendar();
+                    this.setupDateInput();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 初始化代码高亮
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    console.log('Highlight.js 初始化完成');
+                } else {
+                    console.warn('Highlight.js 未加载');
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'showCalendar', label: '显示月历', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'highlightToday', label: '高亮今天', checked: true },
+                    { id: 'autoCheck', label: '自动检测', checked: false }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            console.log('复选框状态变化:', checkedStates);
+                            if (this.getCheckboxValue('showCalendar')) {
+                                this.renderCalendar();
+                            }
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.style.marginBottom = '10px';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}" style="margin-left: 8px; cursor: pointer;">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 设置日期输入
+            setupDateInput() {
+                // 初始化 DateTimePicker
+                const container = document.getElementById('datePickerContainer');
+                if (container) {
+                    try {
+                        this.plugins.datePicker = new DateTimePicker({
+                            container: container,
+                            value: new Date(),
+                            format: 'YYYY-MM-DD',
+                            onChange: (date) => {
+                                console.log('选择的日期:', date);
+                                this.selectedDate = date;
+                                // 自动检测（如果开启）
+                                if (this.getCheckboxValue('autoCheck')) {
+                                    this.checkDate();
+                                }
+                            }
+                        });
+                    } catch (error) {
+                        console.warn('DatePicker 初始化失败，使用原生 input:', error);
+                        container.innerHTML = `<input type="date" id="dateInput" value="${this.formatDate(new Date())}" style="width: 100%; padding: 15px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 1rem;">`;
+                    }
+                }
+
+                // 设置日期范围
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+                if (startDate && endDate) {
+                    const today = new Date();
+                    startDate.value = this.formatDate(today);
+                    const nextWeek = new Date(today);
+                    nextWeek.setDate(today.getDate() + 7);
+                    endDate.value = this.formatDate(nextWeek);
+                }
+            }
+
+            // 格式化日期为 YYYY-MM-DD
+            formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            // 格式化日期为显示格式
+            formatDisplayDate(date) {
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                const dayName = this.dayNames[date.getDay()];
+                return `${year}年${month}月${day}日 ${dayName}`;
+            }
+
+            // 转义 HTML
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // 更新今日横幅
+            updateTodayBanner() {
+                const today = new Date();
+                const isWorkday = isWeekday(today);
+                const todayIcon = document.getElementById('todayIcon');
+                const todayTitle = document.getElementById('todayTitle');
+                const todayDesc = document.getElementById('todayDesc');
+                const todayBadge = document.getElementById('todayBadge');
+
+                const dayName = this.dayNames[today.getDay()];
+                const dateStr = this.formatDisplayDate(today);
+
+                if (isWorkday) {
+                    if (todayIcon) {
+                        todayIcon.className = 'today-icon icon-weekday';
+                        todayIcon.textContent = '💼';
+                    }
+                    if (todayTitle) todayTitle.textContent = `今天是工作日`;
+                    if (todayDesc) todayDesc.textContent = dateStr;
+                    if (todayBadge) {
+                        todayBadge.className = 'badge badge-weekday';
+                        todayBadge.textContent = '工作日';
+                    }
+                } else {
+                    if (todayIcon) {
+                        todayIcon.className = 'today-icon icon-weekend';
+                        todayIcon.textContent = '🎉';
+                    }
+                    if (todayTitle) todayTitle.textContent = `今天是周末`;
+                    if (todayDesc) todayDesc.textContent = dateStr;
+                    if (todayBadge) {
+                        todayBadge.className = 'badge badge-weekend';
+                        todayBadge.textContent = '周末';
+                    }
+                }
+            }
+
+            // 检测日期
+            checkDate() {
+                let date = null;
+                
+                // 优先从 datepicker 获取日期
+                if (this.plugins.datePicker) {
+                    try {
+                        date = this.plugins.datePicker.getValue();
+                    } catch (error) {
+                        console.warn('从 DatePicker 获取日期失败:', error);
+                    }
+                }
+                
+                // 如果 datepicker 不可用，尝试从原生 input 获取
+                if (!date) {
+                    const dateInput = document.getElementById('dateInput');
+                    if (dateInput && dateInput.value) {
+                        date = new Date(dateInput.value + 'T00:00:00');
+                    }
+                }
+                
+                if (!date || isNaN(date.getTime())) {
+                    this.showError('请选择日期');
+                    return;
+                }
+
+                try {
+                    this.displayDateResult(date);
+                } catch (error) {
+                    this.showError('日期格式错误: ' + error.message);
+                }
+            }
+
+            // 检测今天
+            checkToday() {
+                const today = new Date();
+                
+                // 设置 datepicker 的值
+                if (this.plugins.datePicker) {
+                    try {
+                        this.plugins.datePicker.setValue(today);
+                    } catch (error) {
+                        console.warn('设置 DatePicker 值失败:', error);
+                    }
+                }
+                
+                // 兼容原生 input
+                const dateInput = document.getElementById('dateInput');
+                if (dateInput) {
+                    dateInput.value = this.formatDate(today);
+                }
+                
+                this.displayDateResult(today);
+            }
+
+            // 检测明天
+            checkTomorrow() {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                // 设置 datepicker 的值
+                if (this.plugins.datePicker) {
+                    try {
+                        this.plugins.datePicker.setValue(tomorrow);
+                    } catch (error) {
+                        console.warn('设置 DatePicker 值失败:', error);
+                    }
+                }
+                
+                // 兼容原生 input
+                const dateInput = document.getElementById('dateInput');
+                if (dateInput) {
+                    dateInput.value = this.formatDate(tomorrow);
+                }
+                
+                this.displayDateResult(tomorrow);
+            }
+
+            // 显示日期结果
+            displayDateResult(date) {
+                const result = isWeekday(date);
+                const resultSection = document.getElementById('resultSection');
+                const dayStatus = document.getElementById('dayStatus');
+                const selectedDate = document.getElementById('selectedDate');
+                const dayOfWeek = document.getElementById('dayOfWeek');
+                const isWeekdayResult = document.getElementById('isWeekdayResult');
+
+                this.stats.totalChecks++;
+                if (result) {
+                    this.stats.weekdayCount++;
+                } else {
+                    this.stats.weekendCount++;
+                }
+
+                if (resultSection) {
+                    resultSection.style.display = 'block';
+                    resultSection.style.animation = 'slideInUp 0.5s ease-out';
+                }
+
+                if (dayStatus) {
+                    if (result) {
+                        dayStatus.className = 'day-status status-weekday';
+                        dayStatus.innerHTML = `
+                            <h3>💼 工作日</h3>
+                            <p>isWeekday() 返回 true，这是工作日（周一至周五）</p>
+                        `;
+                    } else {
+                        dayStatus.className = 'day-status status-weekend';
+                        dayStatus.innerHTML = `
+                            <h3>🎉 周末</h3>
+                            <p>isWeekday() 返回 false，这是周末（周六或周日）</p>
+                        `;
+                    }
+                }
+
+                if (selectedDate) selectedDate.textContent = this.formatDisplayDate(date);
+                if (dayOfWeek) {
+                    const dayName = this.dayNames[date.getDay()];
+                    dayOfWeek.innerHTML = `${dayName} <span class="badge ${result ? 'badge-weekday' : 'badge-weekend'}">${result ? '工作日' : '周末'}</span>`;
+                }
+                if (isWeekdayResult) {
+                    const badge = result ? 
+                        '<span class="badge badge-weekday">true</span>' : 
+                        '<span class="badge badge-weekend">false</span>';
+                    isWeekdayResult.innerHTML = badge;
+                }
+
+                this.updateStats();
+                this.showNotification('检测完成', 'success');
+            }
+
+            // 渲染日历
+            renderCalendar() {
+                const calendarGrid = document.getElementById('calendarGrid');
+                const calendarTitle = document.getElementById('calendarTitle');
+
+                if (!calendarGrid) return;
+
+                const year = this.calendarDate.getFullYear();
+                const month = this.calendarDate.getMonth();
+
+                if (calendarTitle) {
+                    calendarTitle.textContent = `${year}年${month + 1}月`;
+                }
+
+                // 获取当月第一天和最后一天
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                
+                // 获取当月第一天是星期几（0-6）
+                const firstDayOfWeek = firstDay.getDay();
+
+                // 获取上个月的最后几天
+                const prevMonthLastDay = new Date(year, month, 0);
+                const prevMonthDays = prevMonthLastDay.getDate();
+
+                let html = '';
+
+                // 添加星期标题
+                const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+                weekDays.forEach(day => {
+                    html += `<div class="calendar-header">${day}</div>`;
+                });
+
+                // 添加上个月的日期（灰色显示）
+                for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                    const day = prevMonthDays - i;
+                    const date = new Date(year, month - 1, day);
+                    const isWorkday = isWeekday(date);
+                    html += `
+                        <div class="calendar-day day-other-month ${isWorkday ? 'day-weekday' : 'day-weekend'}" 
+                             onclick="window.weekdayChecker?.showDayInfo(${year}, ${month - 1}, ${day})">
+                            ${day}
+                        </div>
+                    `;
+                }
+
+                // 添加当月日期
+                const today = new Date();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const isWorkday = isWeekday(date);
+                    const isToday = date.toDateString() === today.toDateString() && this.getCheckboxValue('highlightToday');
+                    
+                    html += `
+                        <div class="calendar-day ${isWorkday ? 'day-weekday' : 'day-weekend'} ${isToday ? 'day-today' : ''}" 
+                             onclick="window.weekdayChecker?.showDayInfo(${year}, ${month}, ${day})"
+                             title="${year}-${month + 1}-${day} ${isWorkday ? '工作日' : '周末'}">
+                            ${day}
+                        </div>
+                    `;
+                }
+
+                // 添加下个月的日期（补足到42格）
+                const totalCells = 49; // 7天 x 7行（包含标题）
+                const filledCells = 7 + firstDayOfWeek + daysInMonth;
+                const remainingCells = totalCells - filledCells;
+
+                for (let day = 1; day <= remainingCells; day++) {
+                    const date = new Date(year, month + 1, day);
+                    const isWorkday = isWeekday(date);
+                    html += `
+                        <div class="calendar-day day-other-month ${isWorkday ? 'day-weekday' : 'day-weekend'}" 
+                             onclick="window.weekdayChecker?.showDayInfo(${year}, ${month + 1}, ${day})">
+                            ${day}
+                        </div>
+                    `;
+                }
+
+                calendarGrid.innerHTML = html;
+            }
+
+            // 显示日期详情
+            showDayInfo(year, month, day) {
+                const date = new Date(year, month, day);
+                const isWorkday = isWeekday(date);
+                const dayName = this.dayNames[date.getDay()];
+
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: `📅 ${year}年${month + 1}月${day}日`,
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="background: ${isWorkday ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #f59e0b, #d97706)'}; 
+                                            color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                                    <h2 style="margin: 0; font-size: 1.5rem;">${isWorkday ? '💼 工作日' : '🎉 周末'}</h2>
+                                    <p style="margin: 10px 0 0 0; opacity: 0.9;">${dayName}</p>
+                                </div>
+                                
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px;">
+                                        <strong>日期:</strong> <span>${this.formatDisplayDate(date)}</span>
+                                        <strong>类型:</strong> <span>${isWorkday ? '工作日' : '周末'}</span>
+                                        <strong>getDay():</strong> <span>${date.getDay()}</span>
+                                        <strong>isWeekday():</strong> <span>${isWorkday}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="code-block" style="margin-top: 15px;">
+                                    <pre><code class="language-javascript">const date = new Date('${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}');
+console.log(date.getDay()); // ${date.getDay()}
+console.log(isWeekday(date)); // ${isWorkday}</code></pre>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+
+                    setTimeout(() => {
+                        if (window.hljs) {
+                            document.querySelectorAll('.modal pre code').forEach((block) => {
+                                hljs.highlightElement(block);
+                            });
+                        }
+                    }, 100);
+                }
+            }
+
+            // 上一月
+            prevMonth() {
+                this.calendarDate.setMonth(this.calendarDate.getMonth() - 1);
+                this.renderCalendar();
+            }
+
+            // 下一月
+            nextMonth() {
+                this.calendarDate.setMonth(this.calendarDate.getMonth() + 1);
+                this.renderCalendar();
+            }
+
+            // 分析日期范围
+            analyzeRange() {
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+                const rangeResult = document.getElementById('rangeResult');
+
+                if (!startDate || !endDate || !rangeResult) return;
+
+                if (!startDate.value || !endDate.value) {
+                    this.showError('请选择开始和结束日期');
+                    return;
+                }
+
+                try {
+                    const start = new Date(startDate.value + 'T00:00:00');
+                    const end = new Date(endDate.value + 'T00:00:00');
+
+                    if (start > end) {
+                        this.showError('开始日期不能晚于结束日期');
+                        return;
+                    }
+
+                    let weekdayCount = 0;
+                    let weekendCount = 0;
+                    const dates = [];
+
+                    // 遍历日期范围
+                    const current = new Date(start);
+                    while (current <= end) {
+                        const isWorkday = isWeekday(current);
+                        if (isWorkday) {
+                            weekdayCount++;
+                        } else {
+                            weekendCount++;
+                        }
+                        dates.push({
+                            date: new Date(current),
+                            isWorkday
+                        });
+                        current.setDate(current.getDate() + 1);
+                    }
+
+                    const totalDays = weekdayCount + weekendCount;
+                    const weekdayPercentage = ((weekdayCount / totalDays) * 100).toFixed(1);
+                    const weekendPercentage = ((weekendCount / totalDays) * 100).toFixed(1);
+
+                    let html = `
+                        <h4 style="margin-bottom: 15px; color: #495057;">分析结果</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.8rem; font-weight: 700; color: #667eea;">${totalDays}</div>
+                                <div style="font-size: 0.9rem; color: #6c757d;">总天数</div>
+                            </div>
+                            <div style="background: #d1fae5; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.8rem; font-weight: 700; color: #059669;">${weekdayCount}</div>
+                                <div style="font-size: 0.9rem; color: #059669;">工作日 (${weekdayPercentage}%)</div>
+                            </div>
+                            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.8rem; font-weight: 700; color: #d97706;">${weekendCount}</div>
+                                <div style="font-size: 0.9rem; color: #d97706;">周末 (${weekendPercentage}%)</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <h5 style="margin-bottom: 10px; color: #495057;">日期详情（前10天）</h5>
+                            <div style="max-height: 200px; overflow-y: auto;">
+                    `;
+
+                    dates.slice(0, 10).forEach(item => {
+                        const dateStr = this.formatDisplayDate(item.date);
+                        html += `
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e9ecef;">
+                                <span>${dateStr}</span>
+                                <span class="badge ${item.isWorkday ? 'badge-weekday' : 'badge-weekend'}">
+                                    ${item.isWorkday ? '工作日' : '周末'}
+                                </span>
+                            </div>
+                        `;
+                    });
+
+                    if (dates.length > 10) {
+                        html += `<div style="text-align: center; padding: 10px; color: #6c757d;">... 还有 ${dates.length - 10} 天</div>`;
+                    }
+
+                    html += `</div></div>`;
+
+                    rangeResult.innerHTML = html;
+                    rangeResult.style.display = 'block';
+
+                    this.stats.rangeAnalyses++;
+                    this.updateStats();
+                    this.showNotification('范围分析完成', 'success');
+                } catch (error) {
+                    this.showError('分析失败: ' + error.message);
+                }
+            }
+
+            // 设置本周
+            setThisWeek() {
+                const today = new Date();
+                const dayOfWeek = today.getDay();
+                const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 周一开始
+
+                const monday = new Date(today);
+                monday.setDate(today.getDate() + diff);
+
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+
+                if (startDate) startDate.value = this.formatDate(monday);
+                if (endDate) endDate.value = this.formatDate(sunday);
+
+                this.showNotification('已设置为本周', 'info');
+            }
+
+            // 设置本月
+            setThisMonth() {
+                const today = new Date();
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+
+                if (startDate) startDate.value = this.formatDate(firstDay);
+                if (endDate) endDate.value = this.formatDate(lastDay);
+
+                this.showNotification('已设置为本月', 'info');
+            }
+
+            // 设置本年
+            setThisYear() {
+                const today = new Date();
+                const firstDay = new Date(today.getFullYear(), 0, 1);
+                const lastDay = new Date(today.getFullYear(), 11, 31);
+
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+
+                if (startDate) startDate.value = this.formatDate(firstDay);
+                if (endDate) endDate.value = this.formatDate(lastDay);
+
+                this.showNotification('已设置为本年', 'info');
+            }
+
+            // 批量检测
+            batchCheck() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResult = document.getElementById('batchResult');
+
+                if (!batchInput || !batchResult) return;
+
+                const lines = batchInput.value.split('\n').filter(line => line.trim() !== '');
+
+                if (lines.length === 0) {
+                    this.showError('请输入要检测的日期');
+                    return;
+                }
+
+                const results = lines.map((line, index) => {
+                    try {
+                        const dateStr = line.trim();
+                        const date = new Date(dateStr + 'T00:00:00');
+                        
+                        if (isNaN(date.getTime())) {
+                            throw new Error('无效的日期格式');
+                        }
+
+                        const isWorkday = isWeekday(date);
+                        const dayName = this.dayNames[date.getDay()];
+
+                        return {
+                            index: index + 1,
+                            input: dateStr,
+                            date: this.formatDisplayDate(date),
+                            dayName,
+                            isWeekday: isWorkday,
+                            success: true
+                        };
+                    } catch (error) {
+                        return {
+                            index: index + 1,
+                            input: line.trim(),
+                            error: error.message,
+                            success: false
+                        };
+                    }
+                });
+
+                this.displayBatchResults(results);
+                this.updateStats();
+                this.showNotification(`批量检测完成，共检测 ${results.length} 个日期`, 'success');
+            }
+
+            // 显示批量检测结果
+            displayBatchResults(results) {
+                const batchResult = document.getElementById('batchResult');
+                if (!batchResult) return;
+
+                const weekdayCount = results.filter(r => r.success && r.isWeekday).length;
+                const weekendCount = results.filter(r => r.success && !r.isWeekday).length;
+                const errorCount = results.filter(r => !r.success).length;
+
+                let output = `批量检测汇总:\n`;
+                output += `总日期数: ${results.length}\n`;
+                output += `工作日: ${weekdayCount} | 周末: ${weekendCount} | 错误: ${errorCount}\n`;
+                output += `\n${'='.repeat(60)}\n\n`;
+
+                results.forEach(result => {
+                    if (result.success) {
+                        output += `#${result.index}: ${result.input}\n`;
+                        output += `  日期: ${result.date}\n`;
+                        output += `  星期: ${result.dayName}\n`;
+                        output += `  类型: ${result.isWeekday ? '工作日' : '周末'}\n`;
+                        output += `  isWeekday: ${result.isWeekday}\n\n`;
+                    } else {
+                        output += `#${result.index}: ${result.input}\n`;
+                        output += `  错误: ${result.error}\n\n`;
+                    }
+                });
+
+                batchResult.innerHTML = `<pre><code class="language-plaintext">${this.escapeHtml(output)}</code></pre>`;
+                batchResult.style.display = 'block';
+
+                if (window.hljs) {
+                    const codeBlock = batchResult.querySelector('code');
+                    if (codeBlock) hljs.highlightElement(codeBlock);
+                }
+            }
+
+            // 生成测试日期
+            generateTestDates() {
+                const batchInput = document.getElementById('batchInput');
+                if (!batchInput) return;
+
+                const testDates = [];
+                const today = new Date();
+
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() + i);
+                    testDates.push(this.formatDate(date));
+                }
+
+                batchInput.value = testDates.join('\n');
+                this.showNotification('测试日期已生成', 'success');
+            }
+
+            // 清空批量输入
+            clearBatch() {
+                const batchInput = document.getElementById('batchInput');
+                const batchResult = document.getElementById('batchResult');
+
+                if (batchInput) batchInput.value = '';
+                if (batchResult) batchResult.style.display = 'none';
+
+                this.showNotification('批量输入已清空', 'info');
+            }
+
+            // 清空输入
+            clearInput() {
+                const today = new Date();
+                
+                // 重置 datepicker
+                if (this.plugins.datePicker) {
+                    try {
+                        this.plugins.datePicker.setValue(today);
+                    } catch (error) {
+                        console.warn('重置 DatePicker 失败:', error);
+                    }
+                }
+                
+                // 兼容原生 input
+                const dateInput = document.getElementById('dateInput');
+                if (dateInput) dateInput.value = this.formatDate(today);
+                
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) resultSection.style.display = 'none';
+
+                this.showNotification('输入已清空', 'info');
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                const today = new Date();
+                const currentYear = today.getFullYear();
+                const currentMonth = today.getMonth();
+
+                // 计算本月工作日
+                const firstDay = new Date(currentYear, currentMonth, 1);
+                const lastDay = new Date(currentYear, currentMonth + 1, 0);
+                let monthWeekdays = 0;
+                const current = new Date(firstDay);
+                while (current <= lastDay) {
+                    if (isWeekday(current)) monthWeekdays++;
+                    current.setDate(current.getDate() + 1);
+                }
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalChecks}</div>
+                        <div class="stat-label">总检测次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.weekdayCount}</div>
+                        <div class="stat-label">工作日检测</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.weekendCount}</div>
+                        <div class="stat-label">周末检测</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.rangeAnalyses}</div>
+                        <div class="stat-label">范围分析</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${monthWeekdays}</div>
+                        <div class="stat-label">本月工作日</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${isWeekday(today) ? '是' : '否'}</div>
+                        <div class="stat-label">今天是工作日</div>
+                    </div>
+                `;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            // 显示错误
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用工作日检测与日历管理平台',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">📅</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>智能工作日检测 (isWeekday)</li>
+                                        <li>可视化月历展示</li>
+                                        <li>日期范围工作日统计</li>
+                                        <li>批量日期检测</li>
+                                        <li>详细统计信息</li>
+                                        <li>日期选择器支持</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 提示：</strong> 点击月历中的日期可以查看详细信息
+                                    </p>
+                                </div>
+
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                                    <p style="margin: 0; font-size: 14px; color: #d97706;">
+                                        <strong>📅 工作日：</strong> 周一至周五为工作日，周六和周日为周末
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            window.weekdayChecker = new WeekdayChecker();
+            console.log('工作日检测与日历管理平台初始化完成');
+        });
+
+        // 如果 DOMContentLoaded 已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            window.weekdayChecker = new WeekdayChecker();
+        }
+    </script>
+</body>
+</html>
