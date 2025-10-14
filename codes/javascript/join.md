@@ -21,6 +21,10 @@ const join = (arr, separator = ',', end = separator) =>
   );
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/join.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -30,6 +34,8 @@ join(['pen', 'pineapple', 'apple', 'pen']); // 'pen,pineapple,apple,pen'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/join.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
 <div class="code-editor" data-url="codes/javascript/html/join.html" data-language="html"></div>
 
