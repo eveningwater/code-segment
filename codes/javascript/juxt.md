@@ -11,6 +11,10 @@
 const juxt = (...fns) => (...args) => [...fns].map(fn => [...args].map(fn));
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/juxt.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -22,8 +26,15 @@ juxt(
 juxt(
   s => s.length,
   s => s.split(' ').join('-')
-)('30 seconds of code'); // [[18], ['30-seconds-of-code']]
+)('code segment'); // [[18], ['code-segment']]
 ```
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/juxt.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/juxt.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/juxt.html"></iframe>
