@@ -52,6 +52,10 @@ const kMeans = (data, k = 1) => {
 };
 ```
 
+ts代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/k-means.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -60,3 +64,10 @@ kMeans([[0, 0], [0, 1], [1, 3], [2, 0]], 2); // [0, 1, 1, 0]
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/k-means.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/k-means.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/k-means.html"></iframe>

@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Means 聚类可视化平台 - kMeans</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #clusterCanvas {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: crosshair;
+            background: #f8f9fa;
+        }
+
+        .data-points-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .data-point-item {
+            background: white;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .data-point-item .coords {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #667eea;
+        }
+
+        .data-point-item .cluster-label {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .remove-point-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-point-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .cluster-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .cluster-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .cluster-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .cluster-card.cluster-0 { border-left-color: #ef4444; }
+        .cluster-card.cluster-1 { border-left-color: #3b82f6; }
+        .cluster-card.cluster-2 { border-left-color: #10b981; }
+        .cluster-card.cluster-3 { border-left-color: #f59e0b; }
+        .cluster-card.cluster-4 { border-left-color: #8b5cf6; }
+
+        .cluster-card-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .cluster-card-count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .code-block {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #282c34;
+            border-radius: 8px;
+        }
+
+        .code-block pre code {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .hljs {
+            background: #282c34;
+            padding: 0;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .modal-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 K-Means 聚类可视化平台</h1>
+            <p>基于 K-Means 算法的智能聚类工具，支持可视化数据点、动态调整簇数、实时查看聚类效果</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 聚类配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label for="kValue">簇数 (K值)</label>
+                            <div id="kValueInput"></div>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.kMeansTool?.runClustering()">🚀 开始聚类</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📍 数据点管理</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>手动添加点</label>
+                            <div class="input-row">
+                                <input type="number" id="pointX" placeholder="X 坐标" step="0.1">
+                                <input type="number" id="pointY" placeholder="Y 坐标" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.kMeansTool?.addManualPoint()">➕ 添加点</button>
+                            <button class="btn btn-info" onclick="window.kMeansTool?.generateRandom()">🎲 生成随机</button>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-warning" onclick="window.kMeansTool?.loadSample()">📄 加载示例</button>
+                            <button class="btn btn-danger" onclick="window.kMeansTool?.clearAll()">🗑️ 清空所有</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>数据点列表 (<span id="pointCount">0</span>)</label>
+                        <div class="data-points-list" id="dataPointsList">
+                            <div style="text-align: center; padding: 20px; color: #6c757d;">
+                                暂无数据点
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="advanced-options">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：可视化区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>🎨 聚类可视化</h2>
+                    <div class="canvas-container">
+                        <canvas id="clusterCanvas" width="800" height="600"></canvas>
+                        
+                        <div class="legend" id="legend">
+                            <!-- 图例将动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 聚类结果</h2>
+                    <div class="cluster-info">
+                        <div class="cluster-cards" id="clusterCards">
+                            <div style="text-align: center; padding: 20px; color: #6c757d;">
+                                执行聚类后将显示结果
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 代码预览 -->
+        <div class="card" id="codeSection" style="display: none;">
+            <h2>💻 执行代码</h2>
+            <div class="code-block">
+                <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2>📖 算法说明</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">K-Means 聚类算法</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const kMeans = (data, k = 1) => {
+            const centroids = data.slice(0, k);
+            const distances = Array.from({ length: data.length }, () =>
+                Array.from({ length: k }, () => 0)
+            );
+            const classes = Array.from({ length: data.length }, () => -1);
+            let itr = true;
+
+            while (itr) {
+                itr = false;
+
+        // 计算每个点到质心的距离
+                for (let d in data) {
+                    for (let c = 0; c < k; c++) {
+                        distances[d][c] = Math.hypot(
+                    ...Object.keys(data[0]).map(key => 
+                        data[d][key] - centroids[c][key]
+                    )
+                        );
+                    }
+                    const m = distances[d].indexOf(Math.min(...distances[d]));
+                    if (classes[d] !== m) itr = true;
+                    classes[d] = m;
+                }
+
+        // 更新质心位置
+                for (let c = 0; c < k; c++) {
+                    centroids[c] = Array.from({ length: data[0].length }, () => 0);
+                    const size = data.reduce((acc, _, d) => {
+                        if (classes[d] === c) {
+                            acc++;
+                            for (let i in data[0]) centroids[c][i] += data[d][i];
+                        }
+                        return acc;
+                    }, 0);
+                    for (let i in data[0]) {
+                        centroids[c][i] = parseFloat(Number(centroids[c][i] / size).toFixed(2));
+                    }
+                }
+            }
+
+            return classes;
+};</code></pre>
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">算法步骤</h3>
+                <ol style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>初始化</strong>：随机选择 K 个数据点作为初始质心</li>
+                    <li><strong>分配</strong>：将每个数据点分配到最近的质心，形成 K 个簇</li>
+                    <li><strong>更新</strong>：计算每个簇的新质心（簇内所有点的平均位置）</li>
+                    <li><strong>迭代</strong>：重复分配和更新步骤，直到质心不再变化</li>
+                </ol>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">使用说明</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li>🖱️ <strong>点击画布</strong>：在画布上点击添加数据点</li>
+                    <li>📝 <strong>手动输入</strong>：输入 X、Y 坐标手动添加点</li>
+                    <li>🎲 <strong>生成随机</strong>：自动生成随机分布的数据点</li>
+                    <li>📊 <strong>设置 K 值</strong>：调整簇的数量（1-10）</li>
+                    <li>🚀 <strong>开始聚类</strong>：执行 K-Means 算法查看结果</li>
+                    <li>🎨 <strong>可视化</strong>：不同颜色表示不同的簇，星形表示质心</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">应用场景</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li>📊 <strong>客户细分</strong>：根据行为特征对客户进行分组</li>
+                    <li>🖼️ <strong>图像分割</strong>：将图像像素聚类以实现分割</li>
+                    <li>📈 <strong>数据分析</strong>：发现数据中的自然分组</li>
+                    <li>🗺️ <strong>地理聚类</strong>：根据位置信息对数据点分组</li>
+                    <li>🔍 <strong>异常检测</strong>：识别不属于任何簇的异常点</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 核心 K-Means 聚类算法
+        const kMeans = (data, k = 1) => {
+            const centroids = data.slice(0, k);
+            const distances = Array.from({ length: data.length }, () =>
+                Array.from({ length: k }, () => 0)
+            );
+            const classes = Array.from({ length: data.length }, () => -1);
+            let itr = true;
+
+            while (itr) {
+                itr = false;
+
+                for (let d in data) {
+                    for (let c = 0; c < k; c++) {
+                        distances[d][c] = Math.hypot(
+                            ...Object.keys(data[0]).map(key => data[d][key] - centroids[c][key])
+                        );
+                    }
+                    const m = distances[d].indexOf(Math.min(...distances[d]));
+                    if (classes[d] !== m) itr = true;
+                    classes[d] = m;
+                }
+
+                for (let c = 0; c < k; c++) {
+                    centroids[c] = Array.from({ length: data[0].length }, () => 0);
+                    const size = data.reduce((acc, _, d) => {
+                        if (classes[d] === c) {
+                            acc++;
+                            for (let i in data[0]) centroids[c][i] += data[d][i];
+                        }
+                        return acc;
+                    }, 0);
+                    for (let i in data[0]) {
+                        centroids[c][i] = parseFloat(Number(centroids[c][i] / size).toFixed(2));
+                    }
+                }
+            }
+
+            return classes;
+        };
+
+        // K-Means 聚类可视化工具类
+        class KMeansTool {
+            constructor() {
+                this.plugins = {};
+                this.dataPoints = [];
+                this.clusters = null;
+                this.centroids = null;
+                this.k = 3;
+                this.canvas = null;
+                this.ctx = null;
+                this.stats = {
+                    totalClusters: 0,
+                    totalPoints: 0,
+                    clusteringRuns: 0
+                };
+                this.colors = [
+                    '#ef4444', // 红色
+                    '#3b82f6', // 蓝色
+                    '#10b981', // 绿色
+                    '#f59e0b', // 橙色
+                    '#8b5cf6', // 紫色
+                    '#ec4899', // 粉色
+                    '#06b6d4', // 青色
+                    '#84cc16', // 黄绿色
+                    '#f97316', // 深橙色
+                    '#6366f1'  // 靛蓝色
+                ];
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCanvas();
+                    this.setupInputNumber();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 初始化代码高亮
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    console.log('Highlight.js 初始化完成');
+                } else {
+                    console.warn('Highlight.js 未加载');
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置 Canvas
+            setupCanvas() {
+                this.canvas = document.getElementById('clusterCanvas');
+                if (!this.canvas) return;
+                
+                this.ctx = this.canvas.getContext('2d');
+                
+                // 点击事件：添加数据点
+                this.canvas.addEventListener('click', (e) => {
+                    if (this.getCheckboxValue('clickToAdd')) {
+                        const rect = this.canvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        this.addPoint({ x, y });
+                    }
+                });
+
+                this.drawCanvas();
+            }
+
+            // 设置 InputNumber
+            setupInputNumber() {
+                const kValueInput = document.getElementById('kValueInput');
+                if (!kValueInput) return;
+
+                try {
+                    this.plugins.kValueInput = new InputNumber({
+                        container: kValueInput,
+                        value: 3,
+                        min: 1,
+                        max: 10,
+                        step: 1,
+                        onChange: (value) => {
+                            this.k = value;
+                            this.updateLegend();
+                        }
+                    });
+                } catch (error) {
+                    console.warn('InputNumber 插件加载失败，使用原生输入:', error);
+                    kValueInput.innerHTML = '<input type="number" id="kValueNative" value="3" min="1" max="10" step="1">';
+                    const nativeInput = document.getElementById('kValueNative');
+                    if (nativeInput) {
+                        nativeInput.addEventListener('change', (e) => {
+                            this.k = parseInt(e.target.value) || 3;
+                            this.updateLegend();
+                        });
+                    }
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'clickToAdd', label: '点击画布添加点', checked: true },
+                    { id: 'showCentroids', label: '显示质心', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'showCode', label: '显示执行代码', checked: true }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            this.drawCanvas();
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.style.marginBottom = '10px';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}" style="margin-left: 8px; cursor: pointer;">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                    
+                    const checkbox = checkboxItem.querySelector('input');
+                    if (checkbox) {
+                        checkbox.addEventListener('change', () => {
+                            this.drawCanvas();
+                        });
+                    }
+                });
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 添加数据点
+            addPoint(point) {
+                this.dataPoints.push(point);
+                this.stats.totalPoints++;
+                this.updateDataPointsList();
+                this.drawCanvas();
+                this.updateStats();
+            }
+
+            // 手动添加点
+            addManualPoint() {
+                const pointX = document.getElementById('pointX');
+                const pointY = document.getElementById('pointY');
+
+                if (!pointX || !pointY) return;
+
+                const x = parseFloat(pointX.value);
+                const y = parseFloat(pointY.value);
+
+                if (isNaN(x) || isNaN(y)) {
+                    this.showError('请输入有效的坐标值');
+                    return;
+                }
+
+                // 确保坐标在画布范围内
+                const clampedX = Math.max(0, Math.min(this.canvas.width, x));
+                const clampedY = Math.max(0, Math.min(this.canvas.height, y));
+
+                this.addPoint({ x: clampedX, y: clampedY });
+                
+                pointX.value = '';
+                pointY.value = '';
+                pointX.focus();
+
+                this.showNotification(`已添加点: (${clampedX.toFixed(1)}, ${clampedY.toFixed(1)})`, 'success');
+            }
+
+            // 生成随机数据点
+            generateRandom() {
+                const count = 30;
+                const numClusters = 3;
+                
+                for (let i = 0; i < numClusters; i++) {
+                    const centerX = Math.random() * (this.canvas.width - 100) + 50;
+                    const centerY = Math.random() * (this.canvas.height - 100) + 50;
+                    
+                    for (let j = 0; j < count / numClusters; j++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = Math.random() * 80 + 20;
+                        const x = centerX + Math.cos(angle) * radius;
+                        const y = centerY + Math.sin(angle) * radius;
+                        
+                        this.dataPoints.push({
+                            x: Math.max(0, Math.min(this.canvas.width, x)),
+                            y: Math.max(0, Math.min(this.canvas.height, y))
+                        });
+                        this.stats.totalPoints++;
+                    }
+                }
+
+                this.updateDataPointsList();
+                this.drawCanvas();
+                this.updateStats();
+                this.showNotification(`已生成 ${count} 个随机数据点`, 'success');
+            }
+
+            // 加载示例数据
+            loadSample() {
+                this.dataPoints = [
+                    { x: 100, y: 100 }, { x: 120, y: 110 }, { x: 95, y: 105 },
+                    { x: 400, y: 150 }, { x: 420, y: 160 }, { x: 390, y: 155 },
+                    { x: 700, y: 300 }, { x: 720, y: 310 }, { x: 680, y: 295 },
+                    { x: 200, y: 500 }, { x: 220, y: 510 }, { x: 190, y: 495 },
+                    { x: 600, y: 500 }, { x: 620, y: 510 }, { x: 580, y: 505 }
+                ];
+                
+                this.stats.totalPoints += this.dataPoints.length;
+                this.updateDataPointsList();
+                this.drawCanvas();
+                this.updateStats();
+                this.showNotification('示例数据已加载', 'success');
+            }
+
+            // 清空所有数据
+            clearAll() {
+                this.dataPoints = [];
+                this.clusters = null;
+                this.centroids = null;
+                this.updateDataPointsList();
+                this.drawCanvas();
+                this.updateStats();
+                this.updateClusterCards();
+                this.showNotification('所有数据已清空', 'info');
+            }
+
+            // 更新数据点列表
+            updateDataPointsList() {
+                const list = document.getElementById('dataPointsList');
+                const pointCount = document.getElementById('pointCount');
+
+                if (!list) return;
+
+                if (pointCount) {
+                    pointCount.textContent = this.dataPoints.length;
+                }
+
+                if (this.dataPoints.length === 0) {
+                    list.innerHTML = '<div style="text-align: center; padding: 20px; color: #6c757d;">暂无数据点</div>';
+                    return;
+                }
+
+                let html = '';
+                this.dataPoints.forEach((point, index) => {
+                    const cluster = this.clusters ? this.clusters[index] : -1;
+                    const clusterLabel = cluster >= 0 ? `簇 ${cluster}` : '未分类';
+                    const clusterColor = cluster >= 0 ? this.colors[cluster % this.colors.length] : '#6c757d';
+                    
+                    html += `
+                        <div class="data-point-item">
+                            <span class="coords">(${point.x.toFixed(1)}, ${point.y.toFixed(1)})</span>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span class="cluster-label" style="background: ${clusterColor};">${clusterLabel}</span>
+                                <button class="remove-point-btn" onclick="window.kMeansTool?.removePoint(${index})" title="删除">×</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                list.innerHTML = html;
+            }
+
+            // 移除数据点
+            removePoint(index) {
+                if (index >= 0 && index < this.dataPoints.length) {
+                    this.dataPoints.splice(index, 1);
+                    if (this.clusters && index < this.clusters.length) {
+                        this.clusters.splice(index, 1);
+                    }
+                    this.updateDataPointsList();
+                    this.drawCanvas();
+                    this.updateStats();
+                }
+            }
+
+            // 绘制 Canvas
+            drawCanvas() {
+                if (!this.ctx) return;
+
+                // 清空画布
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 绘制网格
+                this.drawGrid();
+
+                // 绘制数据点
+                this.dataPoints.forEach((point, index) => {
+                    const cluster = this.clusters ? this.clusters[index] : -1;
+                    const color = cluster >= 0 ? this.colors[cluster % this.colors.length] : '#6c757d';
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+                    this.ctx.fillStyle = color;
+                    this.ctx.fill();
+                    this.ctx.strokeStyle = 'white';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                });
+
+                // 绘制质心
+                if (this.centroids && this.getCheckboxValue('showCentroids')) {
+                    this.centroids.forEach((centroid, index) => {
+                        const color = this.colors[index % this.colors.length];
+                        
+                        // 绘制星形
+                        this.drawStar(centroid[0], centroid[1], 5, 15, 8, color);
+                    });
+                }
+            }
+
+            // 绘制网格
+            drawGrid() {
+                this.ctx.strokeStyle = '#e9ecef';
+                this.ctx.lineWidth = 1;
+                
+                // 垂直线
+                for (let x = 0; x <= this.canvas.width; x += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                // 水平线
+                for (let y = 0; y <= this.canvas.height; y += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            // 绘制星形（表示质心）
+            drawStar(cx, cy, spikes, outerRadius, innerRadius, color) {
+                let rot = Math.PI / 2 * 3;
+                let x = cx;
+                let y = cy;
+                const step = Math.PI / spikes;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx, cy - outerRadius);
+
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    this.ctx.lineTo(x, y);
+                    rot += step;
+
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    this.ctx.lineTo(x, y);
+                    rot += step;
+                }
+
+                this.ctx.lineTo(cx, cy - outerRadius);
+                this.ctx.closePath();
+                this.ctx.fillStyle = color;
+                this.ctx.fill();
+                this.ctx.strokeStyle = 'white';
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+            }
+
+            // 执行聚类
+            runClustering() {
+                if (this.dataPoints.length === 0) {
+                    this.showError('请先添加数据点');
+                    return;
+                }
+
+                if (this.dataPoints.length < this.k) {
+                    this.showError(`数据点数量（${this.dataPoints.length}）不能少于簇数（${this.k}）`);
+                    return;
+                }
+
+                try {
+                    // 准备数据：转换为数组格式
+                    const data = this.dataPoints.map(p => [p.x, p.y]);
+
+                    // 执行 K-Means
+                    this.clusters = kMeans(data, this.k);
+
+                    // 计算质心
+                    this.centroids = this.calculateCentroids(data, this.clusters);
+
+                    // 更新显示
+                    this.stats.clusteringRuns++;
+                    this.stats.totalClusters = this.k;
+                    this.updateDataPointsList();
+                    this.drawCanvas();
+                    this.updateClusterCards();
+                    this.updateLegend();
+                    this.updateStats();
+
+                    // 显示代码
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode();
+                    }
+
+                    this.showNotification('聚类完成！', 'success');
+                } catch (error) {
+                    this.showError('聚类失败: ' + error.message);
+                    console.error('聚类错误:', error);
+                }
+            }
+
+            // 计算质心
+            calculateCentroids(data, clusters) {
+                const centroids = [];
+                
+                for (let c = 0; c < this.k; c++) {
+                    const clusterPoints = data.filter((_, i) => clusters[i] === c);
+                    
+                    if (clusterPoints.length > 0) {
+                        const sumX = clusterPoints.reduce((sum, p) => sum + p[0], 0);
+                        const sumY = clusterPoints.reduce((sum, p) => sum + p[1], 0);
+                        centroids.push([
+                            sumX / clusterPoints.length,
+                            sumY / clusterPoints.length
+                        ]);
+                    } else {
+                        centroids.push([0, 0]);
+                    }
+                }
+
+                return centroids;
+            }
+
+            // 更新聚类卡片
+            updateClusterCards() {
+                const container = document.getElementById('clusterCards');
+                if (!container) return;
+
+                if (!this.clusters) {
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #6c757d;">执行聚类后将显示结果</div>';
+                    return;
+                }
+
+                // 统计每个簇的点数
+                const clusterCounts = new Array(this.k).fill(0);
+                this.clusters.forEach(c => {
+                    if (c >= 0 && c < this.k) clusterCounts[c]++;
+                });
+
+                let html = '';
+                for (let i = 0; i < this.k; i++) {
+                    html += `
+                        <div class="cluster-card cluster-${i}">
+                            <div class="cluster-card-title">簇 ${i}</div>
+                            <div class="cluster-card-count">${clusterCounts[i]}</div>
+                            <div style="font-size: 0.85rem; color: #6c757d; margin-top: 5px;">数据点</div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            }
+
+            // 更新图例
+            updateLegend() {
+                const legend = document.getElementById('legend');
+                if (!legend) return;
+
+                let html = '<div style="font-weight: 600; margin-right: 15px;">图例：</div>';
+                
+                for (let i = 0; i < this.k; i++) {
+                    const color = this.colors[i % this.colors.length];
+                    html += `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: ${color};"></div>
+                            <span>簇 ${i}</span>
+                        </div>
+                    `;
+                }
+
+                legend.innerHTML = html;
+            }
+
+            // 显示代码
+            showCode() {
+                const codeSection = document.getElementById('codeSection');
+                const codePreview = document.getElementById('codePreview');
+
+                if (!codePreview) return;
+
+                const dataStr = `[\n${this.dataPoints.slice(0, 3).map(p => `    { x: ${p.x.toFixed(1)}, y: ${p.y.toFixed(1)} }`).join(',\n')}${this.dataPoints.length > 3 ? ',\n    // ... 更多数据点' : ''}\n]`;
+
+                const code = `// 准备数据
+const dataPoints = ${dataStr};
+const data = dataPoints.map(p => [p.x, p.y]);
+
+// 设置簇数
+const k = ${this.k};
+
+// 执行 K-Means 聚类
+const clusters = kMeans(data, k);
+
+// 结果：
+// clusters = [${this.clusters ? this.clusters.slice(0, 10).join(', ') : ''}${this.clusters && this.clusters.length > 10 ? ', ...' : ''}]
+// 每个元素表示对应数据点所属的簇编号
+
+// 质心位置：
+${this.centroids ? this.centroids.map((c, i) => `// 簇 ${i}: (${c[0].toFixed(2)}, ${c[1].toFixed(2)})`).join('\n') : ''}`;
+
+                codePreview.textContent = code;
+                if (window.hljs) {
+                    hljs.highlightElement(codePreview);
+                }
+
+                if (codeSection) {
+                    codeSection.style.display = 'block';
+                }
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.dataPoints.length}</div>
+                        <div class="stat-label">数据点数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.k}</div>
+                        <div class="stat-label">当前K值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalClusters}</div>
+                        <div class="stat-label">总簇数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.clusteringRuns}</div>
+                        <div class="stat-label">聚类次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalPoints}</div>
+                        <div class="stat-label">累计添加点数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.clusters ? '已完成' : '未执行'}</div>
+                        <div class="stat-label">聚类状态</div>
+                    </div>
+                `;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            // 显示错误
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用 K-Means 聚类可视化平台',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>强大的 K-Means 聚类算法</li>
+                                        <li>可视化聚类效果（Canvas 2D 图表）</li>
+                                        <li>交互式数据点添加（点击画布）</li>
+                                        <li>动态调整簇数（K值：1-10）</li>
+                                        <li>实时显示聚类结果和质心</li>
+                                        <li>多种颜色标识不同簇</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 使用步骤：</strong>
+                                    </p>
+                                    <ol style="margin: 8px 0 0 0; padding-left: 20px; color: #16a34a; font-size: 14px;">
+                                        <li>点击画布或手动输入坐标添加数据点</li>
+                                        <li>或使用"生成随机"/"加载示例"快速添加</li>
+                                        <li>设置 K 值（簇的数量）</li>
+                                        <li>点击"开始聚类"执行算法</li>
+                                        <li>查看可视化结果和聚类统计</li>
+                                    </ol>
+                                </div>
+
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                                    <p style="margin: 0; font-size: 14px; color: #d97706;">
+                                        <strong>🎨 可视化说明：</strong> 不同颜色的圆点代表不同的簇，星形标记表示各簇的质心位置。
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            window.kMeansTool = new KMeansTool();
+            console.log('K-Means 聚类可视化平台初始化完成');
+        });
+
+        // 如果 DOMContentLoaded 已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            window.kMeansTool = new KMeansTool();
+        }
+    </script>
+</body>
+
+</html>
