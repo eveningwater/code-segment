@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K近邻分类器可视化平台 - kNearestNeighbors</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+
+        #knnCanvas {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: crosshair;
+            background: #f8f9fa;
+        }
+
+        .data-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .data-item {
+            background: white;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .data-item .coords {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #667eea;
+        }
+
+        .class-label {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .class-A { background: #ef4444; }
+        .class-B { background: #3b82f6; }
+        .class-C { background: #10b981; }
+
+        .remove-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .prediction-result {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .prediction-result.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .prediction-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .prediction-class {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .neighbors-list {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .neighbors-list h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #495057;
+        }
+
+        .neighbor-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .code-block {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #282c34;
+            border-radius: 8px;
+        }
+
+        .code-block pre code {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .hljs {
+            background: #282c34;
+            padding: 0;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .options-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-shape {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .legend-shape.square {
+            border-radius: 4px;
+        }
+
+        .modal-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 K近邻分类器可视化平台</h1>
+            <p>基于 K-Nearest Neighbors 算法的智能分类工具，支持可视化训练数据、实时分类预测、动态调整K值</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 分类器配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label for="kValue">K值（邻居数量）</label>
+                            <div id="kValueInput"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📚 训练数据</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>类别选择</label>
+                            <div id="classSelect"></div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>手动添加训练点</label>
+                            <div class="input-row">
+                                <input type="number" id="trainX" placeholder="X 坐标" step="0.1">
+                                <input type="number" id="trainY" placeholder="Y 坐标" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.knnTool?.addTrainingPoint()">➕ 添加训练点</button>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-info" onclick="window.knnTool?.generateTrainingData()">🎲 生成训练数据</button>
+                            <button class="btn btn-warning" onclick="window.knnTool?.loadSample()">📄 加载示例</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>训练数据列表 (<span id="trainCount">0</span>)</label>
+                        <div class="data-list" id="trainingDataList">
+                            <div style="text-align: center; padding: 20px; color: #6c757d;">
+                                暂无训练数据
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🎯 测试点预测</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>测试点坐标</label>
+                            <div class="input-row">
+                                <input type="number" id="testX" placeholder="X 坐标" step="0.1">
+                                <input type="number" id="testY" placeholder="Y 坐标" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.knnTool?.predictPoint()">🚀 预测分类</button>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-danger" onclick="window.knnTool?.clearAll()">🗑️ 清空所有</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="advanced-options">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：可视化区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>🎨 分类可视化</h2>
+                    <div class="canvas-container">
+                        <canvas id="knnCanvas" width="800" height="600"></canvas>
+                        
+                        <div class="legend" id="legend">
+                            <div style="font-weight: 600; margin-right: 15px;">图例：</div>
+                            <div class="legend-item">
+                                <div class="legend-shape" style="background: #ef4444;"></div>
+                                <span>类别 A（训练）</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-shape" style="background: #3b82f6;"></div>
+                                <span>类别 B（训练）</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-shape" style="background: #10b981;"></div>
+                                <span>类别 C（训练）</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-shape square" style="background: #f59e0b;"></div>
+                                <span>测试点</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="resultSection" style="display: none;">
+                    <h2>📊 预测结果</h2>
+                    <div class="prediction-result success">
+                        <div class="prediction-title">预测类别</div>
+                        <div class="prediction-class" id="predictedClass">-</div>
+                        <div id="classInfo" style="font-size: 0.9rem; opacity: 0.9;"></div>
+                    </div>
+
+                    <div class="neighbors-list" id="neighborsList">
+                        <h3>最近的 K 个邻居</h3>
+                        <div id="neighborsContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 代码预览 -->
+        <div class="card" id="codeSection" style="display: none;">
+            <h2>💻 执行代码</h2>
+            <div class="code-block">
+                <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2>📖 算法说明</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">K-Nearest Neighbors (KNN) 算法</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const kNearestNeighbors = (data, labels, point, k = 3) => {
+    const kNearest = data
+        .map((el, i) => ({
+            dist: Math.hypot(...Object.keys(el).map(key => 
+                point[key] - el[key]
+            )),
+            label: labels[i]
+        }))
+        .sort((a, b) => a.dist - b.dist)
+        .slice(0, k);
+
+    return kNearest.reduce(
+        (acc, { label }, i) => {
+            acc.classCounts[label] =
+                Object.keys(acc.classCounts).indexOf(label) !== -1
+                    ? acc.classCounts[label] + 1
+                    : 1;
+            if (acc.classCounts[label] > acc.topClassCount) {
+                acc.topClassCount = acc.classCounts[label];
+                acc.topClass = label;
+            }
+            return acc;
+        },
+        {
+            classCounts: {},
+            topClass: kNearest[0].label,
+            topClassCount: 0
+        }
+    ).topClass;
+};</code></pre>
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">算法步骤</h3>
+                <ol style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>计算距离</strong>：计算测试点到所有训练数据的欧氏距离</li>
+                    <li><strong>排序选择</strong>：按距离升序排列，选择最近的 K 个邻居</li>
+                    <li><strong>投票分类</strong>：统计 K 个邻居中各类别的数量</li>
+                    <li><strong>多数表决</strong>：选择出现次数最多的类别作为预测结果</li>
+                </ol>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">使用说明</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li>📊 <strong>添加训练数据</strong>：选择类别，点击画布或手动输入坐标</li>
+                    <li>🎲 <strong>生成数据</strong>：自动生成分布在不同区域的训练数据</li>
+                    <li>📄 <strong>加载示例</strong>：加载预设的示例训练数据</li>
+                    <li>📝 <strong>设置 K 值</strong>：调整邻居数量（1-15）</li>
+                    <li>🎯 <strong>测试预测</strong>：输入测试点坐标进行分类预测</li>
+                    <li>🎨 <strong>可视化</strong>：圆点表示训练数据，方块表示测试点</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">应用场景</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li>🏷️ <strong>文本分类</strong>：垃圾邮件识别、情感分析</li>
+                    <li>🖼️ <strong>图像识别</strong>：手写数字识别、图像分类</li>
+                    <li>🏥 <strong>医疗诊断</strong>：疾病预测、症状分类</li>
+                    <li>💰 <strong>信用评估</strong>：客户信用等级判定</li>
+                    <li>🎬 <strong>推荐系统</strong>：相似用户/商品推荐</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">K 值选择建议</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>K = 1</strong>：对噪声敏感，可能过拟合</li>
+                    <li><strong>K = 3-7</strong>：一般情况下的良好选择</li>
+                    <li><strong>K 过大</strong>：可能导致欠拟合，边界模糊</li>
+                    <li><strong>奇数 K</strong>：二分类时避免平票</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 核心 K-Nearest Neighbors 分类算法
+        const kNearestNeighbors = (data, labels, point, k = 3) => {
+  const kNearest = data
+    .map((el, i) => ({
+      dist: Math.hypot(...Object.keys(el).map(key => point[key] - el[key])),
+      label: labels[i]
+    }))
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, k);
+
+  return kNearest.reduce(
+    (acc, { label }, i) => {
+      acc.classCounts[label] =
+        Object.keys(acc.classCounts).indexOf(label) !== -1
+          ? acc.classCounts[label] + 1
+          : 1;
+      if (acc.classCounts[label] > acc.topClassCount) {
+        acc.topClassCount = acc.classCounts[label];
+        acc.topClass = label;
+      }
+      return acc;
+    },
+    {
+      classCounts: {},
+      topClass: kNearest[0].label,
+      topClassCount: 0
+    }
+  ).topClass;
+};
+
+        // KNN 分类器可视化工具类
+        class KNNTool {
+            constructor() {
+                this.plugins = {};
+                this.trainingData = [];
+                this.trainingLabels = [];
+                this.testPoint = null;
+                this.prediction = null;
+                this.neighbors = null;
+                this.k = 3;
+                this.currentClass = 'A';
+                this.canvas = null;
+                this.ctx = null;
+                this.stats = {
+                    totalTrainingPoints: 0,
+                    totalPredictions: 0,
+                    classCounts: { A: 0, B: 0, C: 0 }
+                };
+                this.classColors = {
+                    A: '#ef4444',
+                    B: '#3b82f6',
+                    C: '#10b981'
+                };
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCanvas();
+                    this.setupInputNumber();
+                    this.setupSelect();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 初始化代码高亮
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    console.log('Highlight.js 初始化完成');
+                } else {
+                    console.warn('Highlight.js 未加载');
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置 Canvas
+            setupCanvas() {
+                this.canvas = document.getElementById('knnCanvas');
+                if (!this.canvas) return;
+                
+                this.ctx = this.canvas.getContext('2d');
+                
+                // 点击事件：添加训练数据点
+                this.canvas.addEventListener('click', (e) => {
+                    if (this.getCheckboxValue('clickToAdd')) {
+                        const rect = this.canvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        this.addTrainingData({ x, y }, this.currentClass);
+                    }
+                });
+
+                this.drawCanvas();
+            }
+
+            // 设置 InputNumber
+            setupInputNumber() {
+                const kValueInput = document.getElementById('kValueInput');
+                if (!kValueInput) return;
+
+                try {
+                    this.plugins.kValueInput = new InputNumber({
+                        container: kValueInput,
+                        value: 3,
+                        min: 1,
+                        max: 15,
+                        step: 1,
+                        onChange: (value) => {
+                            this.k = value;
+                        }
+                    });
+                } catch (error) {
+                    console.warn('InputNumber 插件加载失败，使用原生输入:', error);
+                    kValueInput.innerHTML = '<input type="number" id="kValueNative" value="3" min="1" max="15" step="1">';
+                    const nativeInput = document.getElementById('kValueNative');
+                    if (nativeInput) {
+                        nativeInput.addEventListener('change', (e) => {
+                            this.k = parseInt(e.target.value) || 3;
+                        });
+                    }
+                }
+            }
+
+            // 设置 Select
+            setupSelect() {
+                const classSelect = document.getElementById('classSelect');
+                if (!classSelect) return;
+
+                try {
+                    const classOptions = [
+                        { value: 'A', label: '类别 A (红色)' },
+                        { value: 'B', label: '类别 B (蓝色)' },
+                        { value: 'C', label: '类别 C (绿色)' }
+                    ];
+
+                    this.plugins.classSelect = new Select({
+                        container: classSelect,
+                        options: classOptions,
+                        placeholder: '选择类别',
+                        onChange: (value) => {
+                            this.currentClass = value;
+                        }
+                    });
+
+                    this.plugins.classSelect.setValue('A');
+                } catch (error) {
+                    console.warn('Select 插件加载失败，使用原生下拉框:', error);
+                    classSelect.innerHTML = `
+                        <select id="classSelectNative" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 1rem;">
+                            <option value="A">类别 A (红色)</option>
+                            <option value="B">类别 B (蓝色)</option>
+                            <option value="C">类别 C (绿色)</option>
+                        </select>
+                    `;
+                    const nativeSelect = document.getElementById('classSelectNative');
+                    if (nativeSelect) {
+                        nativeSelect.addEventListener('change', (e) => {
+                            this.currentClass = e.target.value;
+                        });
+                    }
+                }
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'clickToAdd', label: '点击画布添加训练点', checked: true },
+                    { id: 'showNeighbors', label: '显示最近邻居连线', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'showCode', label: '显示执行代码', checked: true }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            this.drawCanvas();
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.style.marginBottom = '10px';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}" style="margin-left: 8px; cursor: pointer;">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                    
+                    const checkbox = checkboxItem.querySelector('input');
+                    if (checkbox) {
+                        checkbox.addEventListener('change', () => {
+                            this.drawCanvas();
+                        });
+                    }
+                });
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 添加训练数据
+            addTrainingData(point, label) {
+                this.trainingData.push([point.x, point.y]);
+                this.trainingLabels.push(label);
+                this.stats.totalTrainingPoints++;
+                this.stats.classCounts[label]++;
+                
+                this.updateTrainingDataList();
+                this.drawCanvas();
+                this.updateStats();
+                
+                this.showNotification(`已添加训练点 (类别 ${label})`, 'success');
+            }
+
+            // 手动添加训练点
+            addTrainingPoint() {
+                const trainX = document.getElementById('trainX');
+                const trainY = document.getElementById('trainY');
+
+                if (!trainX || !trainY) return;
+
+                const x = parseFloat(trainX.value);
+                const y = parseFloat(trainY.value);
+
+                if (isNaN(x) || isNaN(y)) {
+                    this.showError('请输入有效的坐标值');
+                    return;
+                }
+
+                const clampedX = Math.max(0, Math.min(this.canvas.width, x));
+                const clampedY = Math.max(0, Math.min(this.canvas.height, y));
+
+                this.addTrainingData({ x: clampedX, y: clampedY }, this.currentClass);
+                
+                trainX.value = '';
+                trainY.value = '';
+                trainX.focus();
+            }
+
+            // 生成训练数据
+            generateTrainingData() {
+                const regions = [
+                    { center: [150, 150], label: 'A', count: 15 },
+                    { center: [650, 150], label: 'B', count: 15 },
+                    { center: [400, 450], label: 'C', count: 15 }
+                ];
+
+                regions.forEach(region => {
+                    for (let i = 0; i < region.count; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = Math.random() * 80 + 20;
+                        const x = region.center[0] + Math.cos(angle) * radius;
+                        const y = region.center[1] + Math.sin(angle) * radius;
+                        
+                        this.trainingData.push([
+                            Math.max(0, Math.min(this.canvas.width, x)),
+                            Math.max(0, Math.min(this.canvas.height, y))
+                        ]);
+                        this.trainingLabels.push(region.label);
+                        this.stats.totalTrainingPoints++;
+                        this.stats.classCounts[region.label]++;
+                    }
+                });
+
+                this.updateTrainingDataList();
+                this.drawCanvas();
+                this.updateStats();
+                this.showNotification('已生成 45 个训练数据点', 'success');
+            }
+
+            // 加载示例数据
+            loadSample() {
+                const sampleData = [
+                    [[100, 100], 'A'], [[120, 110], 'A'], [[95, 115], 'A'],
+                    [[130, 105], 'A'], [[110, 125], 'A'], [[85, 95], 'A'],
+                    [[650, 150], 'B'], [[670, 160], 'B'], [[640, 145], 'B'],
+                    [[680, 155], 'B'], [[660, 170], 'B'], [[625, 140], 'B'],
+                    [[400, 450], 'C'], [[420, 460], 'C'], [[390, 445], 'C'],
+                    [[410, 470], 'C'], [[380, 455], 'C'], [[430, 440], 'C']
+                ];
+
+                sampleData.forEach(([point, label]) => {
+                    this.trainingData.push(point);
+                    this.trainingLabels.push(label);
+                    this.stats.totalTrainingPoints++;
+                    this.stats.classCounts[label]++;
+                });
+
+                this.updateTrainingDataList();
+                this.drawCanvas();
+                this.updateStats();
+                this.showNotification('示例数据已加载', 'success');
+            }
+
+            // 更新训练数据列表
+            updateTrainingDataList() {
+                const list = document.getElementById('trainingDataList');
+                const trainCount = document.getElementById('trainCount');
+
+                if (!list) return;
+
+                if (trainCount) {
+                    trainCount.textContent = this.trainingData.length;
+                }
+
+                if (this.trainingData.length === 0) {
+                    list.innerHTML = '<div style="text-align: center; padding: 20px; color: #6c757d;">暂无训练数据</div>';
+                    return;
+                }
+
+                let html = '';
+                this.trainingData.forEach((point, index) => {
+                    const label = this.trainingLabels[index];
+                    html += `
+                        <div class="data-item">
+                            <span class="coords">(${point[0].toFixed(1)}, ${point[1].toFixed(1)})</span>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span class="class-label class-${label}">类别 ${label}</span>
+                                <button class="remove-btn" onclick="window.knnTool?.removeTrainingPoint(${index})" title="删除">×</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                list.innerHTML = html;
+            }
+
+            // 移除训练点
+            removeTrainingPoint(index) {
+                if (index >= 0 && index < this.trainingData.length) {
+                    const label = this.trainingLabels[index];
+                    this.trainingData.splice(index, 1);
+                    this.trainingLabels.splice(index, 1);
+                    this.stats.classCounts[label]--;
+                    
+                    this.updateTrainingDataList();
+                    this.drawCanvas();
+                    this.updateStats();
+                }
+            }
+
+            // 清空所有数据
+            clearAll() {
+                this.trainingData = [];
+                this.trainingLabels = [];
+                this.testPoint = null;
+                this.prediction = null;
+                this.neighbors = null;
+                this.stats.totalTrainingPoints = 0;
+                this.stats.classCounts = { A: 0, B: 0, C: 0 };
+                
+                this.updateTrainingDataList();
+                this.drawCanvas();
+                this.updateStats();
+                
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) resultSection.style.display = 'none';
+                
+                this.showNotification('所有数据已清空', 'info');
+            }
+
+            // 绘制 Canvas
+            drawCanvas() {
+                if (!this.ctx) return;
+
+                // 清空画布
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 绘制网格
+                this.drawGrid();
+
+                // 绘制训练数据点
+                this.trainingData.forEach((point, index) => {
+                    const label = this.trainingLabels[index];
+                    const color = this.classColors[label];
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(point[0], point[1], 6, 0, Math.PI * 2);
+                    this.ctx.fillStyle = color;
+                    this.ctx.fill();
+                    this.ctx.strokeStyle = 'white';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                });
+
+                // 绘制测试点
+                if (this.testPoint) {
+                    this.ctx.fillStyle = '#f59e0b';
+                    this.ctx.fillRect(this.testPoint.x - 8, this.testPoint.y - 8, 16, 16);
+                    this.ctx.strokeStyle = 'white';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(this.testPoint.x - 8, this.testPoint.y - 8, 16, 16);
+
+                    // 绘制最近邻居连线
+                    if (this.neighbors && this.getCheckboxValue('showNeighbors')) {
+                        this.neighbors.forEach((neighbor, i) => {
+                            const point = this.trainingData[neighbor.index];
+                            
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(this.testPoint.x, this.testPoint.y);
+                            this.ctx.lineTo(point[0], point[1]);
+                            this.ctx.strokeStyle = this.classColors[neighbor.label];
+                            this.ctx.lineWidth = 2;
+                            this.ctx.setLineDash([5, 5]);
+                            this.ctx.stroke();
+                            this.ctx.setLineDash([]);
+                        });
+                    }
+                }
+            }
+
+            // 绘制网格
+            drawGrid() {
+                this.ctx.strokeStyle = '#e9ecef';
+                this.ctx.lineWidth = 1;
+                
+                for (let x = 0; x <= this.canvas.width; x += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                for (let y = 0; y <= this.canvas.height; y += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            // 预测分类
+            predictPoint() {
+                if (this.trainingData.length === 0) {
+                    this.showError('请先添加训练数据');
+                    return;
+                }
+
+                const testX = document.getElementById('testX');
+                const testY = document.getElementById('testY');
+
+                if (!testX || !testY) return;
+
+                const x = parseFloat(testX.value);
+                const y = parseFloat(testY.value);
+
+                if (isNaN(x) || isNaN(y)) {
+                    this.showError('请输入有效的测试点坐标');
+                    return;
+                }
+
+                const clampedX = Math.max(0, Math.min(this.canvas.width, x));
+                const clampedY = Math.max(0, Math.min(this.canvas.height, y));
+
+                this.testPoint = { x: clampedX, y: clampedY };
+
+                // 准备数据
+                const data = this.trainingData.map(p => ({ x: p[0], y: p[1] }));
+                const point = { x: clampedX, y: clampedY };
+
+                // 执行KNN预测
+                try {
+                    this.prediction = kNearestNeighbors(data, this.trainingLabels, point, this.k);
+                    
+                    // 计算邻居信息
+                    this.neighbors = data
+                        .map((el, i) => ({
+                            index: i,
+                            dist: Math.hypot(point.x - el.x, point.y - el.y),
+                            label: this.trainingLabels[i]
+                        }))
+                        .sort((a, b) => a.dist - b.dist)
+                        .slice(0, this.k);
+
+                    this.stats.totalPredictions++;
+                    
+                    this.displayPredictionResult();
+                    this.drawCanvas();
+                    this.updateStats();
+
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode();
+                    }
+
+                    this.showNotification('预测完成！', 'success');
+                } catch (error) {
+                    this.showError('预测失败: ' + error.message);
+                    console.error('预测错误:', error);
+                }
+            }
+
+            // 显示预测结果
+            displayPredictionResult() {
+                const resultSection = document.getElementById('resultSection');
+                const predictedClass = document.getElementById('predictedClass');
+                const classInfo = document.getElementById('classInfo');
+                const neighborsContent = document.getElementById('neighborsContent');
+
+                if (!resultSection) return;
+
+                resultSection.style.display = 'block';
+
+                if (predictedClass) {
+                    predictedClass.textContent = `类别 ${this.prediction}`;
+                    predictedClass.parentElement.style.background = 
+                        `linear-gradient(135deg, ${this.classColors[this.prediction]}, ${this.classColors[this.prediction]}dd)`;
+                }
+
+                if (classInfo) {
+                    const counts = {};
+                    this.neighbors.forEach(n => {
+                        counts[n.label] = (counts[n.label] || 0) + 1;
+                    });
+                    classInfo.textContent = `基于最近的 ${this.k} 个邻居投票：${Object.entries(counts).map(([label, count]) => `${label}(${count})`).join(', ')}`;
+                }
+
+                if (neighborsContent) {
+                    let html = '';
+                    this.neighbors.forEach((neighbor, i) => {
+                        html += `
+                            <div class="neighbor-item">
+                                <div>
+                                    <span style="font-weight: 600;">#${i + 1}</span>
+                                    <span style="margin-left: 10px; font-family: Monaco, monospace;">
+                                        (${this.trainingData[neighbor.index][0].toFixed(1)}, ${this.trainingData[neighbor.index][1].toFixed(1)})
+                                    </span>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <span class="class-label class-${neighbor.label}">类别 ${neighbor.label}</span>
+                                    <span style="font-size: 0.85rem; color: #6c757d;">
+                                        距离: ${neighbor.dist.toFixed(2)}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    neighborsContent.innerHTML = html;
+                }
+
+                setTimeout(() => {
+                    resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+
+            // 显示代码
+            showCode() {
+                const codeSection = document.getElementById('codeSection');
+                const codePreview = document.getElementById('codePreview');
+
+                if (!codePreview) return;
+
+                const code = `// 训练数据
+const trainingData = [
+${this.trainingData.slice(0, 3).map(p => `    { x: ${p[0].toFixed(1)}, y: ${p[1].toFixed(1)} }`).join(',\n')}${this.trainingData.length > 3 ? ',\n    // ... 更多数据点' : ''}
+];
+
+const trainingLabels = [${this.trainingLabels.slice(0, 3).map(l => `'${l}'`).join(', ')}${this.trainingLabels.length > 3 ? ', ...' : ''}];
+
+// 测试点
+const testPoint = { x: ${this.testPoint.x.toFixed(1)}, y: ${this.testPoint.y.toFixed(1)} };
+
+// 设置 K 值
+const k = ${this.k};
+
+// 执行 KNN 分类
+const prediction = kNearestNeighbors(trainingData, trainingLabels, testPoint, k);
+
+// 预测结果: '${this.prediction}'
+
+// 最近的 ${this.k} 个邻居:
+${this.neighbors ? this.neighbors.map((n, i) => `// #${i + 1}: 类别 ${n.label}, 距离 ${n.dist.toFixed(2)}`).join('\n') : ''}`;
+
+                codePreview.textContent = code;
+                if (window.hljs) {
+                    hljs.highlightElement(codePreview);
+                }
+
+                if (codeSection) {
+                    codeSection.style.display = 'block';
+                }
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.trainingData.length}</div>
+                        <div class="stat-label">训练数据数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.k}</div>
+                        <div class="stat-label">当前 K 值</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalPredictions}</div>
+                        <div class="stat-label">预测次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.classCounts.A}</div>
+                        <div class="stat-label">类别 A 数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.classCounts.B}</div>
+                        <div class="stat-label">类别 B 数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.classCounts.C}</div>
+                        <div class="stat-label">类别 C 数量</div>
+                    </div>
+                `;
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            // 显示错误
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用 K近邻分类器可视化平台',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🎯</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>强大的 K近邻分类算法</li>
+                                        <li>可视化训练数据和测试点</li>
+                                        <li>交互式数据添加（点击画布）</li>
+                                        <li>动态调整 K 值（1-15）</li>
+                                        <li>实时显示预测结果</li>
+                                        <li>展示最近邻居和连线</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 使用步骤：</strong>
+                                    </p>
+                                    <ol style="margin: 8px 0 0 0; padding-left: 20px; color: #16a34a; font-size: 14px;">
+                                        <li>选择类别（A/B/C）</li>
+                                        <li>点击画布或手动输入坐标添加训练数据</li>
+                                        <li>或使用"生成数据"/"加载示例"</li>
+                                        <li>设置 K 值（邻居数量）</li>
+                                        <li>输入测试点坐标并预测分类</li>
+                                    </ol>
+                                </div>
+
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                                    <p style="margin: 0; font-size: 14px; color: #d97706;">
+                                        <strong>🎨 可视化说明：</strong> 圆点表示训练数据（红/蓝/绿），方块表示测试点（橙色），虚线连接最近的 K 个邻居。
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            window.knnTool = new KNNTool();
+            console.log('K近邻分类器可视化平台初始化完成');
+        });
+
+        // 如果 DOMContentLoaded 已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            window.knnTool = new KNNTool();
+        }
+    </script>
+</body>
+
+</html>

@@ -406,7 +406,7 @@
 - [数组转字符串-2022-11-06](codes/javascript/join.md)
 - [并列函数-2022-11-07](codes/javascript/juxt.md)
 - [K 均值聚类算法-2022-11-08](codes/javascript/k-means.md)
-- [k 近邻算法-2022-11-09](codes/javascript/kNearestNeighbors.md)
+- [k 近邻算法-2022-11-09](codes/javascript/k-nearest-neighbors.md)
 - [公里转换成英里-2022-11-10](codes/javascript/kmToMiles.md)
 - [最后一个数组项-2022-11-11](codes/javascript/last.md)
 - [每月最后一天-2022-11-12](codes/javascript/lastDateOfMonth.md)
