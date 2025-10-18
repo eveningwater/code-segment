@@ -93,7 +93,6 @@
             font-size: 1rem;
         }
 
-        .input-group input,
         .input-group textarea {
             width: 100%;
             padding: 12px;
@@ -103,7 +102,6 @@
             transition: all 0.3s ease;
         }
 
-        .input-group input:focus,
         .input-group textarea:focus {
             outline: none;
             border-color: #667eea;
@@ -450,8 +448,8 @@
                         <div class="input-group">
                             <label>手动添加点</label>
                             <div class="input-row">
-                                <input type="number" id="pointX" placeholder="X 坐标" step="0.1">
-                                <input type="number" id="pointY" placeholder="Y 坐标" step="0.1">
+                                <div id="pointXInput"></div>
+                                <div id="pointYInput"></div>
                             </div>
                         </div>
 
@@ -747,30 +745,69 @@
 
             // 设置 InputNumber
             setupInputNumber() {
+                // K值输入框
                 const kValueInput = document.getElementById('kValueInput');
-                if (!kValueInput) return;
-
-                try {
-                    this.plugins.kValueInput = new InputNumber({
-                        container: kValueInput,
-                        value: 3,
-                        min: 1,
-                        max: 10,
-                        step: 1,
-                        onChange: (value) => {
-                            this.k = value;
-                            this.updateLegend();
-                        }
-                    });
-                } catch (error) {
-                    console.warn('InputNumber 插件加载失败，使用原生输入:', error);
-                    kValueInput.innerHTML = '<input type="number" id="kValueNative" value="3" min="1" max="10" step="1">';
-                    const nativeInput = document.getElementById('kValueNative');
-                    if (nativeInput) {
-                        nativeInput.addEventListener('change', (e) => {
-                            this.k = parseInt(e.target.value) || 3;
-                            this.updateLegend();
+                if (kValueInput) {
+                    try {
+                        this.plugins.kValueInput = new InputNumber({
+                            container: kValueInput,
+                            value: 3,
+                            min: 1,
+                            max: 10,
+                            step: 1,
+                            onChange: (value) => {
+                                this.k = value;
+                                this.updateLegend();
+                            }
                         });
+                    } catch (error) {
+                        console.warn('K值 InputNumber 插件加载失败，使用原生输入:', error);
+                        kValueInput.innerHTML = '<input type="number" id="kValueNative" value="3" min="1" max="10" step="1">';
+                        const nativeInput = document.getElementById('kValueNative');
+                        if (nativeInput) {
+                            nativeInput.addEventListener('change', (e) => {
+                                this.k = parseInt(e.target.value) || 3;
+                                this.updateLegend();
+                            });
+                        }
+                    }
+                }
+
+                // X坐标输入框
+                const pointXInput = document.getElementById('pointXInput');
+                if (pointXInput) {
+                    try {
+                        this.plugins.pointXInput = new InputNumber({
+                            container: pointXInput,
+                            value: 0,
+                            min: 0,
+                            max: 800,
+                            step: 10,
+                            precision: 1,
+                            placeholder: 'X 坐标'
+                        });
+                    } catch (error) {
+                        console.warn('X坐标 InputNumber 插件加载失败，使用原生输入:', error);
+                        pointXInput.innerHTML = '<input type="number" id="pointX" placeholder="X 坐标" step="0.1" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 1rem;">';
+                    }
+                }
+
+                // Y坐标输入框
+                const pointYInput = document.getElementById('pointYInput');
+                if (pointYInput) {
+                    try {
+                        this.plugins.pointYInput = new InputNumber({
+                            container: pointYInput,
+                            value: 0,
+                            min: 0,
+                            max: 600,
+                            step: 10,
+                            precision: 1,
+                            placeholder: 'Y 坐标'
+                        });
+                    } catch (error) {
+                        console.warn('Y坐标 InputNumber 插件加载失败，使用原生输入:', error);
+                        pointYInput.innerHTML = '<input type="number" id="pointY" placeholder="Y 坐标" step="0.1" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 1rem;">';
                     }
                 }
             }
@@ -857,13 +894,24 @@
 
             // 手动添加点
             addManualPoint() {
-                const pointX = document.getElementById('pointX');
-                const pointY = document.getElementById('pointY');
+                let x, y;
 
-                if (!pointX || !pointY) return;
-
-                const x = parseFloat(pointX.value);
-                const y = parseFloat(pointY.value);
+                // 从 InputNumber 插件或原生输入框获取值
+                if (this.plugins.pointXInput && this.plugins.pointYInput) {
+                    try {
+                        x = this.plugins.pointXInput.getValue();
+                        y = this.plugins.pointYInput.getValue();
+                    } catch (error) {
+                        console.warn('从 InputNumber 获取坐标失败:', error);
+                        return;
+                    }
+                } else {
+                    const pointX = document.getElementById('pointX');
+                    const pointY = document.getElementById('pointY');
+                    if (!pointX || !pointY) return;
+                    x = parseFloat(pointX.value);
+                    y = parseFloat(pointY.value);
+                }
 
                 if (isNaN(x) || isNaN(y)) {
                     this.showError('请输入有效的坐标值');
@@ -876,9 +924,16 @@
 
                 this.addPoint({ x: clampedX, y: clampedY });
                 
-                pointX.value = '';
-                pointY.value = '';
-                pointX.focus();
+                // 清空输入
+                if (this.plugins.pointXInput && this.plugins.pointYInput) {
+                    this.plugins.pointXInput.setValue(0);
+                    this.plugins.pointYInput.setValue(0);
+                } else {
+                    const pointX = document.getElementById('pointX');
+                    const pointY = document.getElementById('pointY');
+                    if (pointX) pointX.value = '';
+                    if (pointY) pointY.value = '';
+                }
 
                 this.showNotification(`已添加点: (${clampedX.toFixed(1)}, ${clampedY.toFixed(1)})`, 'success');
             }
