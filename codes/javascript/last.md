@@ -11,7 +11,6 @@
 const last = arr => arr && arr.length ? arr[arr.length - 1] : undefined;
 ```
 
-
 ts代码如下:
 
 <div class="code-editor" data-url="codes/javascript/ts/last.ts" data-language="typescript"></div>
