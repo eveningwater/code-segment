@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数组尾部元素管理平台 - last</title>
+    <title>数组尾部截取平台 - lastN</title>
     <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
     <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
     <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
     <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
     <!-- Highlight.js 代码高亮 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <style>
@@ -93,7 +94,7 @@
             font-size: 1rem;
         }
 
-        .input-group input,
+        .input-group input:not(.input-number-input),
         .input-group textarea {
             width: 100%;
             padding: 12px;
@@ -238,7 +239,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .array-item.last {
+        .array-item.in-result {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             font-weight: 600;
@@ -258,7 +259,7 @@
             border-radius: 4px;
         }
 
-        .array-item.last .array-item-index {
+        .array-item.in-result .array-item-index {
             background: rgba(255, 255, 255, 0.2);
         }
 
@@ -300,25 +301,48 @@
         }
 
         .result-value {
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: 700;
             margin: 15px 0;
             font-family: 'Monaco', 'Menlo', monospace;
             word-break: break-all;
         }
 
-        .result-type {
+        .result-info {
             font-size: 1rem;
             opacity: 0.8;
-            background: rgba(255, 255, 255, 0.2);
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 20px;
             margin-top: 10px;
         }
 
+        .n-value-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .n-value-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .n-value-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
         .history-list {
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
             background: #f8f9fa;
             border-radius: 8px;
@@ -424,42 +448,6 @@
             border-radius: 12px;
         }
 
-        .options-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #495057;
-        }
-
-        .type-badges {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .type-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .type-number { background: #dbeafe; color: #1e40af; }
-        .type-string { background: #dcfce7; color: #166534; }
-        .type-boolean { background: #fef3c7; color: #92400e; }
-        .type-object { background: #fce7f3; color: #9f1239; }
-        .type-array { background: #e0e7ff; color: #3730a3; }
-        .type-null { background: #f3f4f6; color: #374151; }
-        .type-undefined { background: #f3f4f6; color: #6b7280; }
-
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
         .modal-content {
             max-height: 400px;
             overflow-y: auto;
@@ -484,13 +472,35 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 数组尾部元素管理平台</h1>
-            <p>基于 last 函数的智能数组管理工具，支持多种数据类型、实时分析、历史记录追踪</p>
+            <h1>🎯 数组尾部截取平台</h1>
+            <p>基于 lastN 函数的数组管理工具，动态获取最后 N 个元素、可视化展示、批量操作</p>
         </div>
 
         <div class="main-content">
             <!-- 左侧：控制面板 -->
             <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ N 值设置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>截取数量（N）</label>
+                            <div id="nValueInput"></div>
+                        </div>
+
+                        <div class="n-value-display">
+                            <div class="n-value-label">当前 N 值</div>
+                            <div class="n-value-number" id="nValueDisplay">3</div>
+                        </div>
+
+                        <div class="quick-actions">
+                            <button class="btn btn-info btn-sm" onclick="window.lastNTool?.setN(1)">N = 1</button>
+                            <button class="btn btn-info btn-sm" onclick="window.lastNTool?.setN(3)">N = 3</button>
+                            <button class="btn btn-info btn-sm" onclick="window.lastNTool?.setN(5)">N = 5</button>
+                            <button class="btn btn-info btn-sm" onclick="window.lastNTool?.setN(10)">N = 10</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <h2>➕ 添加元素</h2>
                     <div class="input-section">
@@ -503,13 +513,13 @@
                             <label>元素值</label>
                             <div class="input-row">
                                 <input type="text" id="elementInput" placeholder="输入要添加的元素值">
-                                <button class="btn btn-success btn-sm" onclick="window.lastTool?.addElement()">添加</button>
+                                <button class="btn btn-success btn-sm" onclick="window.lastNTool?.addElement()">添加</button>
                             </div>
                         </div>
 
                         <div class="quick-actions">
-                            <button class="btn btn-info btn-sm" onclick="window.lastTool?.addSample()">📄 示例数据</button>
-                            <button class="btn btn-warning btn-sm" onclick="window.lastTool?.addRandom()">🎲 随机数据</button>
+                            <button class="btn btn-info btn-sm" onclick="window.lastNTool?.addSample()">📄 示例</button>
+                            <button class="btn btn-warning btn-sm" onclick="window.lastNTool?.addRandom()">🎲 随机</button>
                         </div>
                     </div>
                 </div>
@@ -518,12 +528,12 @@
                     <h2>📝 批量添加</h2>
                     <div class="input-section">
                         <div class="input-group">
-                            <label>批量输入（用逗号分隔）</label>
+                            <label>批量输入（逗号分隔）</label>
                             <textarea id="batchInput" placeholder="例如: 1, 2, 3, 4, 5"></textarea>
                         </div>
 
                         <div class="button-group">
-                            <button class="btn btn-success btn-block" onclick="window.lastTool?.addBatch()">🚀 批量添加</button>
+                            <button class="btn btn-success btn-block" onclick="window.lastNTool?.addBatch()">🚀 批量添加</button>
                         </div>
                     </div>
                 </div>
@@ -532,12 +542,12 @@
                     <h2>🔧 数组操作</h2>
                     <div class="input-section">
                         <div class="button-group">
-                            <button class="btn btn-primary" onclick="window.lastTool?.getLast()">🎯 获取尾部</button>
-                            <button class="btn btn-warning" onclick="window.lastTool?.removeLast()">✂️ 移除尾部</button>
+                            <button class="btn btn-primary" onclick="window.lastNTool?.getLastN()">🎯 获取尾部</button>
+                            <button class="btn btn-warning" onclick="window.lastNTool?.removeLastN()">✂️ 移除尾部</button>
                         </div>
                         <div class="button-group">
-                            <button class="btn btn-info" onclick="window.lastTool?.reverseArray()">🔄 反转数组</button>
-                            <button class="btn btn-danger" onclick="window.lastTool?.clearArray()">🗑️ 清空数组</button>
+                            <button class="btn btn-info" onclick="window.lastNTool?.reverseArray()">🔄 反转数组</button>
+                            <button class="btn btn-danger" onclick="window.lastNTool?.clearArray()">🗑️ 清空数组</button>
                         </div>
                     </div>
                 </div>
@@ -562,9 +572,9 @@
 
                     <div id="resultSection" style="display: none;">
                         <div class="result-display" id="resultDisplay">
-                            <div class="result-title">尾部元素（last）</div>
+                            <div class="result-title">最后 N 个元素（lastN）</div>
                             <div class="result-value" id="resultValue">-</div>
-                            <div class="result-type" id="resultType">类型: -</div>
+                            <div class="result-info" id="resultInfo">-</div>
                         </div>
                     </div>
                 </div>
@@ -602,43 +612,43 @@
         <div class="card">
             <h2>📖 函数说明</h2>
             <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                <h3 style="color: #667eea; margin-bottom: 15px;">last 函数</h3>
+                <h3 style="color: #667eea; margin-bottom: 15px;">lastN 函数</h3>
                 <div class="code-block">
-                    <pre><code class="language-javascript">const last = arr => arr && arr.length ? arr[arr.length - 1] : undefined;</code></pre>
+                    <pre><code class="language-javascript">const lastN = (arr, n) => arr.slice(-n);</code></pre>
                 </div>
 
                 <h3 style="color: #667eea; margin: 20px 0 15px 0;">函数说明</h3>
                 <p style="color: #495057; line-height: 1.8;">
-                    <strong>last</strong> 函数用于获取数组中的最后一个元素。它首先检查数组是否存在且具有长度属性，
-                    然后使用 <code>arr.length - 1</code> 计算最后一个元素的索引并返回该元素。
-                    如果数组为空或不存在，则返回 <code>undefined</code>。
+                    <strong>lastN</strong> 函数用于获取数组的最后 n 个元素。它使用起始值为 -n 的 
+                    <code>Array.prototype.slice()</code> 方法来截取数组尾部。负索引表示从数组末尾开始计数。
                 </p>
 
                 <h3 style="color: #667eea; margin: 20px 0 15px 0;">使用方式</h3>
                 <div class="code-block">
-                    <pre><code class="language-javascript">last([1, 2, 3]);        // 3
-last(['a', 'b', 'c']);  // 'c'
-last([]);               // undefined
-last(null);             // undefined
-last(undefined);        // undefined</code></pre>
+                    <pre><code class="language-javascript">lastN([1, 2, 3, 4, 5], 2);           // [4, 5]
+lastN(['a', 'b', 'c', 'd'], 3);      // ['b', 'c', 'd']
+lastN([1, 2, 3], 5);                 // [1, 2, 3] (n > length)
+lastN([1, 2, 3, 4, 5], 1);           // [5]</code></pre>
                 </div>
 
                 <h3 style="color: #667eea; margin: 20px 0 15px 0;">应用场景</h3>
                 <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
-                    <li>📊 <strong>数据分析</strong>：获取时间序列的最新数据点</li>
-                    <li>📝 <strong>日志处理</strong>：获取最后一条日志记录</li>
-                    <li>🔍 <strong>历史记录</strong>：获取用户最近的操作</li>
-                    <li>📈 <strong>状态管理</strong>：获取状态变更的最新状态</li>
-                    <li>🎮 <strong>游戏开发</strong>：获取玩家的最后一次操作</li>
-                    <li>💬 <strong>消息系统</strong>：获取会话的最后一条消息</li>
+                    <li>📊 <strong>数据分析</strong>：获取最近的 N 条数据记录</li>
+                    <li>📝 <strong>日志处理</strong>：查看最后 N 条日志</li>
+                    <li>🔍 <strong>历史记录</strong>：显示最近的 N 次操作</li>
+                    <li>📈 <strong>趋势分析</strong>：分析最近 N 个数据点的趋势</li>
+                    <li>🎮 <strong>游戏开发</strong>：获取玩家最近的 N 次操作</li>
+                    <li>💬 <strong>聊天系统</strong>：显示最后 N 条消息</li>
+                    <li>📱 <strong>分页加载</strong>：获取列表的最后 N 项</li>
                 </ul>
 
                 <h3 style="color: #667eea; margin: 20px 0 15px 0;">特点</h3>
                 <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
-                    <li>✅ 支持所有数据类型（数字、字符串、对象、布尔值等）</li>
-                    <li>✅ 安全处理空数组和无效输入</li>
-                    <li>✅ 时间复杂度：O(1)</li>
-                    <li>✅ 空间复杂度：O(1)</li>
+                    <li>✅ 简洁高效的实现（使用 slice）</li>
+                    <li>✅ 不修改原数组（返回新数组）</li>
+                    <li>✅ 处理边界情况（n > 数组长度）</li>
+                    <li>✅ 时间复杂度：O(n)</li>
+                    <li>✅ 空间复杂度：O(n)</li>
                 </ul>
             </div>
         </div>
@@ -648,31 +658,32 @@ last(undefined);        // undefined</code></pre>
     <script src="../../demo/plugins/checkbox/index.js"></script>
     <script src="../../demo/plugins/notification/index.js"></script>
     <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
     <!-- Highlight.js 代码高亮 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>
-        // 核心 last 函数
-        const last = arr => arr && arr.length ? arr[arr.length - 1] : undefined;
+        // 核心 lastN 函数
+        const lastN = (arr, n) => arr.slice(-n);
 
-        // LastTool 工具类
-        class LastTool {
+        // LastNTool 工具类
+        class LastNTool {
             constructor() {
                 this.plugins = {};
                 this.array = [];
+                this.n = 3;
                 this.history = [];
                 this.currentDataType = 'number';
                 this.stats = {
                     totalOperations: 0,
                     totalElements: 0,
-                    getLastCount: 0,
+                    getLastNCount: 0,
                     typeCounts: {
                         number: 0,
                         string: 0,
                         boolean: 0,
                         object: 0,
                         array: 0,
-                        null: 0,
-                        undefined: 0
+                        null: 0
                     }
                 };
                 this.init();
@@ -682,6 +693,7 @@ last(undefined);        // undefined</code></pre>
             async init() {
                 try {
                     await this.loadPlugins();
+                    this.setupInputNumber();
                     this.setupSelect();
                     this.setupCheckboxes();
                     this.initHighlight();
@@ -713,6 +725,42 @@ last(undefined);        // undefined</code></pre>
                     this.plugins.notification = new Notification();
                 } catch (error) {
                     console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置 InputNumber
+            setupInputNumber() {
+                const nValueInput = document.getElementById('nValueInput');
+                if (!nValueInput) return;
+
+                try {
+                    this.plugins.nValueInput = new InputNumber({
+                        container: nValueInput,
+                        value: 3,
+                        min: 1,
+                        max: 100,
+                        step: 1,
+                        onChange: (value) => {
+                            this.n = value;
+                            this.updateNDisplay();
+                            if (this.getCheckboxValue('autoGetLastN')) {
+                                this.getLastN();
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.warn('InputNumber 插件加载失败，使用原生输入:', error);
+                    nValueInput.innerHTML = '<input type="number" id="nValueNative" value="3" min="1" max="100" step="1">';
+                    const nativeInput = document.getElementById('nValueNative');
+                    if (nativeInput) {
+                        nativeInput.addEventListener('change', (e) => {
+                            this.n = parseInt(e.target.value) || 3;
+                            this.updateNDisplay();
+                            if (this.getCheckboxValue('autoGetLastN')) {
+                                this.getLastN();
+                            }
+                        });
+                    }
                 }
             }
 
@@ -770,7 +818,7 @@ last(undefined);        // undefined</code></pre>
                 if (!checkboxGroup) return;
 
                 const options = [
-                    { id: 'autoGetLast', label: '自动获取尾部元素', checked: true },
+                    { id: 'autoGetLastN', label: '自动获取尾部', checked: true },
                     { id: 'showNotifications', label: '显示通知提醒', checked: true },
                     { id: 'showCode', label: '显示执行代码', checked: true },
                     { id: 'saveHistory', label: '保存操作历史', checked: true }
@@ -828,6 +876,34 @@ last(undefined);        // undefined</code></pre>
                 return checkbox ? checkbox.checked : false;
             }
 
+            // 更新 N 值显示
+            updateNDisplay() {
+                const nValueDisplay = document.getElementById('nValueDisplay');
+                if (nValueDisplay) {
+                    nValueDisplay.textContent = this.n;
+                }
+            }
+
+            // 设置 N 值
+            setN(value) {
+                this.n = value;
+                if (this.plugins.nValueInput) {
+                    try {
+                        this.plugins.nValueInput.setValue(value);
+                    } catch (e) {
+                        const nativeInput = document.getElementById('nValueNative');
+                        if (nativeInput) nativeInput.value = value;
+                    }
+                } else {
+                    const nativeInput = document.getElementById('nValueNative');
+                    if (nativeInput) nativeInput.value = value;
+                }
+                this.updateNDisplay();
+                if (this.getCheckboxValue('autoGetLastN') && this.array.length > 0) {
+                    this.getLastN();
+                }
+            }
+
             // 更新输入框提示
             updateInputPlaceholder() {
                 const input = document.getElementById('elementInput');
@@ -845,7 +921,7 @@ last(undefined);        // undefined</code></pre>
                 input.placeholder = placeholders[this.currentDataType] || '输入要添加的元素值';
             }
 
-            // 解析输入值
+            // 解析输入值（与 last.html 相同）
             parseInputValue(value) {
                 if (!value && value !== 0 && value !== false) {
                     throw new Error('请输入有效的值');
@@ -856,40 +932,30 @@ last(undefined);        // undefined</code></pre>
                         const num = Number(value);
                         if (isNaN(num)) throw new Error('请输入有效的数字');
                         return num;
-                    
                     case 'string':
                         return String(value);
-                    
                     case 'boolean':
                         if (value === 'true' || value === true) return true;
                         if (value === 'false' || value === false) return false;
                         throw new Error('请输入 true 或 false');
-                    
                     case 'object':
                         try {
                             const obj = JSON.parse(value);
-                            if (Array.isArray(obj)) {
-                                throw new Error('这是一个数组，请选择数组类型');
-                            }
+                            if (Array.isArray(obj)) throw new Error('这是一个数组，请选择数组类型');
                             return obj;
                         } catch (e) {
                             throw new Error('请输入有效的 JSON 对象');
                         }
-                    
                     case 'array':
                         try {
                             const arr = JSON.parse(value);
-                            if (!Array.isArray(arr)) {
-                                throw new Error('请输入有效的数组');
-                            }
+                            if (!Array.isArray(arr)) throw new Error('请输入有效的数组');
                             return arr;
                         } catch (e) {
                             throw new Error('请输入有效的 JSON 数组');
                         }
-                    
                     case 'null':
                         return null;
-                    
                     default:
                         return value;
                 }
@@ -919,8 +985,8 @@ last(undefined);        // undefined</code></pre>
                     this.updateDisplay();
                     this.updateStats();
 
-                    if (this.getCheckboxValue('autoGetLast')) {
-                        this.getLast(false);
+                    if (this.getCheckboxValue('autoGetLastN')) {
+                        this.getLastN();
                     }
 
                     this.showNotification(`已添加元素: ${this.formatValue(parsedValue)}`, 'success');
@@ -968,8 +1034,8 @@ last(undefined);        // undefined</code></pre>
                     this.updateDisplay();
                     this.updateStats();
 
-                    if (this.getCheckboxValue('autoGetLast')) {
-                        this.getLast(false);
+                    if (this.getCheckboxValue('autoGetLastN')) {
+                        this.getLastN();
                     }
 
                     this.showNotification(`成功添加 ${addedCount} 个元素`, 'success');
@@ -980,25 +1046,24 @@ last(undefined);        // undefined</code></pre>
 
             // 添加示例数据
             addSample() {
-                this.array = [1, 2, 3, 'hello', 'world', true, false, { name: 'Alice' }, [1, 2], null];
+                this.array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'A', 'B', 'C', true, false];
                 this.stats.totalElements += this.array.length;
                 this.stats.totalOperations++;
                 
-                // 更新类型统计
                 this.array.forEach(item => {
                     const type = this.getValueType(item);
                     this.stats.typeCounts[type]++;
                 });
 
                 if (this.getCheckboxValue('saveHistory')) {
-                    this.addToHistory('加载示例', '10 个示例元素');
+                    this.addToHistory('加载示例', '15 个示例元素');
                 }
 
                 this.updateDisplay();
                 this.updateStats();
 
-                if (this.getCheckboxValue('autoGetLast')) {
-                    this.getLast(false);
+                if (this.getCheckboxValue('autoGetLastN')) {
+                    this.getLastN();
                 }
 
                 this.showNotification('示例数据已加载', 'success');
@@ -1006,7 +1071,7 @@ last(undefined);        // undefined</code></pre>
 
             // 添加随机数据
             addRandom() {
-                const count = 5;
+                const count = 10;
                 const types = ['number', 'string', 'boolean'];
                 
                 for (let i = 0; i < count; i++) {
@@ -1042,17 +1107,17 @@ last(undefined);        // undefined</code></pre>
                 this.updateDisplay();
                 this.updateStats();
 
-                if (this.getCheckboxValue('autoGetLast')) {
-                    this.getLast(false);
+                if (this.getCheckboxValue('autoGetLastN')) {
+                    this.getLastN();
                 }
 
                 this.showNotification(`已生成 ${count} 个随机元素`, 'success');
             }
 
-            // 获取尾部元素
-            getLast(showNotification = true) {
-                const result = last(this.array);
-                this.stats.getLastCount++;
+            // 获取最后 N 个元素
+            getLastN(showNotification = true) {
+                const result = lastN(this.array, this.n);
+                this.stats.getLastNCount++;
                 this.stats.totalOperations++;
 
                 if (this.getCheckboxValue('saveHistory')) {
@@ -1067,22 +1132,19 @@ last(undefined);        // undefined</code></pre>
                 }
 
                 if (showNotification) {
-                    if (result === undefined) {
-                        this.showNotification('数组为空，返回 undefined', 'info');
-                    } else {
-                        this.showNotification(`尾部元素: ${this.formatValue(result)}`, 'success');
-                    }
+                    this.showNotification(`获取最后 ${this.n} 个元素: [${result.map(v => this.formatValue(v)).join(', ')}]`, 'success');
                 }
             }
 
-            // 移除尾部元素
-            removeLast() {
+            // 移除最后 N 个元素
+            removeLastN() {
                 if (this.array.length === 0) {
                     this.showError('数组为空，无法移除');
                     return;
                 }
 
-                const removed = this.array.pop();
+                const removeCount = Math.min(this.n, this.array.length);
+                const removed = this.array.splice(-removeCount, removeCount);
                 this.stats.totalOperations++;
 
                 if (this.getCheckboxValue('saveHistory')) {
@@ -1092,11 +1154,11 @@ last(undefined);        // undefined</code></pre>
                 this.updateDisplay();
                 this.updateStats();
 
-                if (this.getCheckboxValue('autoGetLast')) {
-                    this.getLast(false);
+                if (this.getCheckboxValue('autoGetLastN')) {
+                    this.getLastN(false);
                 }
 
-                this.showNotification(`已移除尾部元素: ${this.formatValue(removed)}`, 'warning');
+                this.showNotification(`已移除最后 ${removeCount} 个元素`, 'warning');
             }
 
             // 移除指定索引的元素
@@ -1108,8 +1170,8 @@ last(undefined);        // undefined</code></pre>
                     this.updateDisplay();
                     this.updateStats();
 
-                    if (this.getCheckboxValue('autoGetLast')) {
-                        this.getLast(false);
+                    if (this.getCheckboxValue('autoGetLastN')) {
+                        this.getLastN(false);
                     }
 
                     this.showNotification(`已移除元素: ${this.formatValue(removed)}`, 'warning');
@@ -1133,8 +1195,8 @@ last(undefined);        // undefined</code></pre>
                 this.updateDisplay();
                 this.updateStats();
 
-                if (this.getCheckboxValue('autoGetLast')) {
-                    this.getLast(false);
+                if (this.getCheckboxValue('autoGetLastN')) {
+                    this.getLastN(false);
                 }
 
                 this.showNotification('数组已反转', 'success');
@@ -1178,16 +1240,19 @@ last(undefined);        // undefined</code></pre>
                     return;
                 }
 
+                // 确定哪些元素在结果中（最后 N 个）
+                const startIndex = Math.max(0, this.array.length - this.n);
+
                 let html = '';
                 this.array.forEach((item, index) => {
-                    const isLast = index === this.array.length - 1;
+                    const inResult = index >= startIndex;
                     const formattedValue = this.formatValue(item);
                     
                     html += `
-                        <div class="array-item ${isLast ? 'last' : ''}">
+                        <div class="array-item ${inResult ? 'in-result' : ''}">
                             <span class="array-item-index">[${index}]</span>
                             <span>${formattedValue}</span>
-                            <button class="array-item-remove" onclick="window.lastTool?.removeElement(${index})" title="删除">×</button>
+                            <button class="array-item-remove" onclick="window.lastNTool?.removeElement(${index})" title="删除">×</button>
                         </div>
                     `;
                 });
@@ -1198,31 +1263,31 @@ last(undefined);        // undefined</code></pre>
             // 显示结果
             displayResult(result) {
                 const resultSection = document.getElementById('resultSection');
-                const resultDisplay = document.getElementById('resultDisplay');
+                const noResultSection = document.getElementById('noResultSection');
                 const resultValue = document.getElementById('resultValue');
-                const resultType = document.getElementById('resultType');
+                const resultInfo = document.getElementById('resultInfo');
 
-                if (!resultSection || !resultDisplay) return;
+                if (resultSection) resultSection.style.display = 'block';
+                if (noResultSection) noResultSection.style.display = 'none';
 
-                resultSection.style.display = 'block';
+                if (resultValue) {
+                    const formattedResult = result.length === 0 
+                        ? '[]' 
+                        : `[${result.map(v => this.formatValue(v)).join(', ')}]`;
+                    resultValue.textContent = formattedResult;
+                }
 
-                if (result === undefined) {
-                    resultDisplay.className = 'result-display empty';
-                    if (resultValue) resultValue.textContent = 'undefined';
-                    if (resultType) resultType.textContent = '类型: undefined';
-                } else {
-                    resultDisplay.className = 'result-display';
-                    if (resultValue) resultValue.textContent = this.formatValue(result);
-                    if (resultType) resultType.textContent = `类型: ${this.getValueType(result)}`;
+                if (resultInfo) {
+                    resultInfo.textContent = `共获取 ${result.length} 个元素（N=${this.n}，数组长度=${this.array.length}）`;
                 }
             }
 
             // 隐藏结果
             hideResult() {
                 const resultSection = document.getElementById('resultSection');
-                if (resultSection) {
-                    resultSection.style.display = 'none';
-                }
+                const noResultSection = document.getElementById('noResultSection');
+                if (resultSection) resultSection.style.display = 'none';
+                if (noResultSection) noResultSection.style.display = 'block';
             }
 
             // 添加到历史记录
@@ -1232,10 +1297,10 @@ last(undefined);        // undefined</code></pre>
                     time,
                     action,
                     value,
-                    array: [...this.array]
+                    array: [...this.array],
+                    n: this.n
                 });
 
-                // 限制历史记录数量
                 if (this.history.length > 50) {
                     this.history = this.history.slice(0, 50);
                 }
@@ -1260,13 +1325,20 @@ last(undefined);        // undefined</code></pre>
                 }
 
                 let html = '';
-                this.history.slice(0, 20).forEach((item, index) => {
+                this.history.slice(0, 20).forEach((item) => {
+                    let valueDisplay = '';
+                    if (Array.isArray(item.value)) {
+                        valueDisplay = `[${item.value.map(v => this.formatValue(v)).join(', ')}]`;
+                    } else {
+                        valueDisplay = this.formatValue(item.value);
+                    }
+
                     html += `
                         <div class="history-item">
                             <div class="history-time">${item.time}</div>
-                            <div class="history-array">数组长度: ${item.array.length}</div>
+                            <div class="history-array">数组长度: ${item.array.length} | N = ${item.n}</div>
                             <div class="history-result">
-                                ${item.action}: ${this.formatValue(item.value)}
+                                ${item.action}: ${valueDisplay}
                             </div>
                         </div>
                     `;
@@ -1295,11 +1367,15 @@ last(undefined);        // undefined</code></pre>
                         <div class="stat-label">当前元素数</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-number">${this.n}</div>
+                        <div class="stat-label">当前 N 值</div>
+                    </div>
+                    <div class="stat-card">
                         <div class="stat-number">${this.stats.totalOperations}</div>
                         <div class="stat-label">总操作次数</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">${this.stats.getLastCount}</div>
+                        <div class="stat-number">${this.stats.getLastNCount}</div>
                         <div class="stat-label">获取次数</div>
                     </div>
                     <div class="stat-card">
@@ -1321,16 +1397,19 @@ last(undefined);        // undefined</code></pre>
                     ? JSON.stringify(this.array)
                     : `[${this.array.slice(0, 3).map(v => JSON.stringify(v)).join(', ')}, ..., ${JSON.stringify(this.array[this.array.length - 1])}]`;
 
-                const lastValue = last(this.array);
+                const result = lastN(this.array, this.n);
                 const code = `// 当前数组
 const arr = ${arrayStr};
 
-// 获取尾部元素
-const result = last(arr);
+// 设置 N 值
+const n = ${this.n};
 
-// 结果: ${JSON.stringify(lastValue)}
-// 类型: ${this.getValueType(lastValue)}
-// 数组长度: ${this.array.length}`;
+// 获取最后 N 个元素
+const result = lastN(arr, n);
+
+// 结果: ${JSON.stringify(result)}
+// 元素数量: ${result.length}
+// 原数组长度: ${this.array.length}`;
 
                 codePreview.textContent = code;
                 // 清除之前的高亮状态，然后重新高亮
@@ -1400,7 +1479,7 @@ const result = last(arr);
             showWelcomeMessage() {
                 if (this.plugins.modal) {
                     this.plugins.modal.show({
-                        title: '🎉 欢迎使用数组尾部元素管理平台',
+                        title: '🎉 欢迎使用数组尾部截取平台',
                         content: `
                             <div style="padding: 20px;">
                                 <div style="text-align: center; margin-bottom: 20px;">
@@ -1410,11 +1489,11 @@ const result = last(arr);
 
                                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                                     <ul style="margin: 0; padding-left: 20px; color: #495057;">
-                                        <li>强大的 last 函数（获取数组尾部元素）</li>
-                                        <li>支持多种数据类型（数字、字符串、对象等）</li>
-                                        <li>可视化数组展示（高亮尾部元素）</li>
+                                        <li>强大的 lastN 函数（获取最后 N 个元素）</li>
+                                        <li>动态调整 N 值（1-100）</li>
+                                        <li>可视化高亮最后 N 个元素</li>
+                                        <li>支持多种数据类型</li>
                                         <li>实时操作反馈和历史记录</li>
-                                        <li>批量操作和快速数据生成</li>
                                         <li>详细的统计信息和代码预览</li>
                                     </ul>
                                 </div>
@@ -1424,17 +1503,17 @@ const result = last(arr);
                                         <strong>💡 使用步骤：</strong>
                                     </p>
                                     <ol style="margin: 8px 0 0 0; padding-left: 20px; color: #16a34a; font-size: 14px;">
-                                        <li>选择数据类型</li>
-                                        <li>输入元素值并添加到数组</li>
-                                        <li>点击"获取尾部"查看最后一个元素</li>
-                                        <li>尝试反转、清空等操作</li>
+                                        <li>设置 N 值（截取数量）</li>
+                                        <li>添加数组元素</li>
+                                        <li>点击"获取尾部"查看最后 N 个元素</li>
+                                        <li>数组中最后 N 个元素会高亮显示</li>
                                         <li>查看历史记录和统计信息</li>
                                     </ol>
                                 </div>
 
                                 <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
                                     <p style="margin: 0; font-size: 14px; color: #d97706;">
-                                        <strong>🎨 可视化说明：</strong> 数组中最后一个元素会高亮显示，并带有动画效果。空数组返回 undefined。
+                                        <strong>🎨 可视化说明：</strong> 数组中最后 N 个元素会用渐变色高亮，并带有动画效果。
                                     </p>
                                 </div>
                             </div>
@@ -1448,8 +1527,8 @@ const result = last(arr);
         // 初始化应用
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM内容加载完成，开始初始化...');
-            window.lastTool = new LastTool();
-            console.log('数组尾部元素管理平台初始化完成');
+            window.lastNTool = new LastNTool();
+            console.log('数组尾部截取平台初始化完成');
         });
 
         // 如果 DOMContentLoaded 已经触发，立即执行
@@ -1457,7 +1536,7 @@ const result = last(arr);
             console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
         } else {
             console.log('文档已加载完成，立即执行初始化...');
-            window.lastTool = new LastTool();
+            window.lastNTool = new LastNTool();
         }
     </script>
 </body>

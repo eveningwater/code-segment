@@ -421,7 +421,7 @@
 - [公里转换成英里-2022-11-10](codes/javascript/km-to-miles.md)
 - [最后一个数组项-2022-11-11](codes/javascript/last.md)
 - [每月最后一天-2022-11-12](codes/javascript/lastDateOfMonth.md)
-- [最后 n 个元素-2022-11-13](codes/javascript/lastN.md)
+- [最后 n 个元素-2022-11-13](codes/javascript/last-n.md)
 - [最小公倍数-2022-11-14](codes/javascript/lcm.md)
 - [从左边开始截取字符串生成器-2022-11-15](codes/javascript/leftSubstrGenerator.md)
 - [编辑距离-2022-11-16](codes/javascript/levenshteinDistance.md)
