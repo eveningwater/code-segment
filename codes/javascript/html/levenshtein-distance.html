@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑距离计算平台 - Levenshtein Distance</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .textarea-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 12px;
+            padding: 40px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .result-value {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .result-info {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .similarity-display {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .similarity-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .similarity-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .dp-table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .dp-table {
+            min-width: 100%;
+            border-collapse: collapse;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .dp-table th,
+        .dp-table td {
+            border: 1px solid #e9ecef;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .dp-table th {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .dp-table .char-header {
+            background: #667eea;
+            color: white;
+            font-weight: 700;
+        }
+
+        .dp-table .value-cell {
+            background: white;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .dp-table .current-cell {
+            background: #fbbf24 !important;
+            color: #92400e;
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .dp-table .path-cell {
+            background: #10b981 !important;
+            color: white;
+        }
+
+        .dp-table .final-cell {
+            background: #ef4444 !important;
+            color: white;
+            transform: scale(1.15);
+        }
+
+        .operations-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .operation-step {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .operation-type {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .operation-type.insert {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .operation-type.delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .operation-type.replace {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .operation-type.match {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .operation-detail {
+            flex: 1;
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #495057;
+        }
+
+        .batch-results {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .batch-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+
+        .batch-strings {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .batch-distance {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 6px;
+        }
+
+        .batch-similarity {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .history-list {
+            max-height: 350px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .history-strings {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1rem;
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .history-result {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .history-distance {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #667eea;
+        }
+
+        .history-similarity {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .code-block {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #282c34;
+            border-radius: 8px;
+        }
+
+        .code-block pre code {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .hljs {
+            background: #282c34;
+            padding: 0;
+        }
+
+        .advanced-options {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dp-table th,
+            .dp-table td {
+                width: 35px;
+                height: 35px;
+                font-size: 0.8rem;
+            }
+
+            .result-value {
+                font-size: 3rem;
+            }
+        }
+
+        .modal-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔤 编辑距离计算平台</h1>
+            <p>基于 Levenshtein Distance 算法的智能字符串分析工具，支持可视化 DP 表格、编辑操作路径、相似度分析</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 字符串输入</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>源字符串 (Source String)</label>
+                            <input type="text" id="sourceString" class="input-field" 
+                                   placeholder="例如: kitten" value="kitten">
+                        </div>
+
+                        <div class="input-group">
+                            <label>目标字符串 (Target String)</label>
+                            <input type="text" id="targetString" class="input-field" 
+                                   placeholder="例如: sitting" value="sitting">
+                        </div>
+
+                        <div class="quick-actions">
+                            <button class="btn btn-info btn-sm" onclick="window.editDistanceTool?.loadSample()">📄 示例</button>
+                            <button class="btn btn-warning btn-sm" onclick="window.editDistanceTool?.loadRandom()">🎲 随机</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🎬 操作</h2>
+                    <div class="input-section">
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.editDistanceTool?.calculate()">
+                                🚀 计算编辑距离
+                            </button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-info" onclick="window.editDistanceTool?.showAnimation()">
+                                ▶️ 动画演示
+                            </button>
+                            <button class="btn btn-success" onclick="window.editDistanceTool?.showOperations()">
+                                📋 编辑路径
+                            </button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-danger" onclick="window.editDistanceTool?.clear()">
+                                🗑️ 清空
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 分析类型</h2>
+                    <div class="input-section">
+                        <div id="analysisTypeSelect"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📦 批量比较</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>字符串对列表（每行格式：字符串1,字符串2）</label>
+                            <textarea id="batchInput" class="input-field textarea-field" 
+                                      placeholder="kitten,sitting&#10;duck,dark&#10;hello,world"></textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-success btn-block" onclick="window.editDistanceTool?.batchCalculate()">
+                                🎯 批量计算
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="advanced-options">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：显示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📈 计算结果</h2>
+                    <div id="resultSection" style="display: none;">
+                        <div class="result-display">
+                            <div class="result-title">编辑距离 (Levenshtein Distance)</div>
+                            <div class="result-value" id="resultValue">-</div>
+                            <div class="result-info" id="resultInfo">-</div>
+                        </div>
+
+                        <div class="similarity-display" id="similaritySection" style="display: none;">
+                            <div class="similarity-title">相似度</div>
+                            <div class="similarity-value" id="similarityValue">-</div>
+                        </div>
+                    </div>
+
+                    <div class="empty-state" id="emptyResult">
+                        <div class="empty-state-icon">📊</div>
+                        <p>输入两个字符串后点击"计算编辑距离"查看结果</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔍 动态规划表格</h2>
+                    <div class="dp-table-container" id="dpTableContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔢</div>
+                            <p>计算后将显示 DP 表格</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="operationsCard" style="display: none;">
+                    <h2>✂️ 编辑操作步骤</h2>
+                    <div class="operations-display" id="operationsDisplay"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量结果 -->
+        <div class="card" id="batchResultsCard" style="display: none;">
+            <h2>🎯 批量比较结果 (<span id="batchResultCount">0</span>)</h2>
+            <div class="batch-results" id="batchResults"></div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="card">
+            <h2>📜 计算历史 (<span id="historyCount">0</span>)</h2>
+            <div class="history-list" id="historyList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📖</div>
+                    <p>暂无历史记录</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- 统计信息将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 代码预览 -->
+        <div class="card" id="codeSection" style="display: none;">
+            <h2>💻 执行代码</h2>
+            <div class="code-block">
+                <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">levenshteinDistance 函数（编辑距离）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const levenshteinDistance = (s, t) => {
+            if (!s.length) {
+                return t.length;
+            }
+            if (!t.length) {
+                return s.length;
+            }
+            const arr = [];
+            for (let i = 0; i <= t.length; i++) {
+                arr[i] = [i];
+                for (let j = 1; j <= s.length; j++) {
+      arr[i][j] = i === 0 ? j : Math.min(
+        arr[i - 1][j] + 1,        // 删除
+        arr[i][j - 1] + 1,        // 插入
+        arr[i - 1][j - 1] + (s[j - 1] === t[i - 1] ? 0 : 1)  // 替换/匹配
+      );
+                }
+            }
+            return arr[t.length][s.length];
+};</code></pre>
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">算法说明</h3>
+                <p style="color: #495057; line-height: 1.8;">
+                    <strong>Levenshtein Distance</strong> 是计算两个字符串之间差异的算法，也称为编辑距离。
+                    它表示将一个字符串转换为另一个字符串所需的最少编辑操作（插入、删除或替换）次数。
+                    使用动态规划算法，时间复杂度为 O(m×n)，空间复杂度为 O(m×n)。
+                </p>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">levenshteinDistance('kitten', 'sitting');  // 3
+levenshteinDistance('duck', 'dark');        // 2
+levenshteinDistance('hello', 'world');      // 4
+levenshteinDistance('', 'abc');             // 3
+levenshteinDistance('same', 'same');        // 0</code></pre>
+                </div>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">应用场景</h3>
+                <ul style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li>🔍 <strong>搜索引擎</strong>：模糊搜索和拼写纠错</li>
+                    <li>📝 <strong>文本编辑器</strong>：自动纠错和建议功能</li>
+                    <li>🔬 <strong>生物信息学</strong>：DNA 序列比对和分析</li>
+                    <li>📊 <strong>数据清洗</strong>：重复数据检测和合并</li>
+                    <li>🎯 <strong>推荐系统</strong>：计算文本相似度</li>
+                    <li>🌍 <strong>机器翻译</strong>：译文质量评估</li>
+                    <li>📱 <strong>输入法</strong>：候选词排序和纠错</li>
+                    <li>🔒 <strong>密码强度</strong>：检测相似密码</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">算法步骤</h3>
+                <ol style="color: #495057; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>初始化</strong>：创建 (m+1)×(n+1) 的二维数组</li>
+                    <li><strong>边界条件</strong>：第一行和第一列初始化为递增序列</li>
+                    <li><strong>状态转移</strong>：对于每个格子 (i,j)，计算三种操作的最小值：
+                        <ul style="margin-top: 10px;">
+                            <li>删除：dp[i-1][j] + 1</li>
+                            <li>插入：dp[i][j-1] + 1</li>
+                            <li>替换/匹配：dp[i-1][j-1] + cost（相同为0，不同为1）</li>
+                        </ul>
+                    </li>
+                    <li><strong>返回结果</strong>：右下角格子的值即为编辑距离</li>
+                </ol>
+
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">相似度计算</h3>
+                <p style="color: #495057; line-height: 1.8;">
+                    相似度 = (1 - 编辑距离 / max(字符串1长度, 字符串2长度)) × 100%<br>
+                    这个值越接近 100%，说明两个字符串越相似。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 核心编辑距离算法
+        const levenshteinDistance = (s, t) => {
+            if (!s.length) {
+                return t.length;
+            }
+            if (!t.length) {
+                return s.length;
+            }
+            const arr = [];
+            for (let i = 0; i <= t.length; i++) {
+                arr[i] = [i];
+                for (let j = 1; j <= s.length; j++) {
+                    arr[i][j] = i === 0 ? j : Math.min(
+                        arr[i - 1][j] + 1,        // 删除
+                        arr[i][j - 1] + 1,        // 插入
+                        arr[i - 1][j - 1] + (s[j - 1] === t[i - 1] ? 0 : 1)  // 替换/匹配
+                    );
+                }
+            }
+            return arr[t.length][s.length];
+        };
+
+        // 编辑距离算法（返回 DP 表格）
+        const levenshteinDistanceWithMatrix = (s, t) => {
+            if (!s.length && !t.length) {
+                return { distance: 0, matrix: [[0]] };
+            }
+            if (!s.length) {
+                const matrix = [];
+                for (let i = 0; i <= t.length; i++) {
+                    matrix[i] = [i];
+                }
+                return { distance: t.length, matrix };
+            }
+            if (!t.length) {
+                const matrix = [[]];
+                for (let j = 0; j <= s.length; j++) {
+                    matrix[0][j] = j;
+                }
+                return { distance: s.length, matrix };
+            }
+
+            const matrix = [];
+            for (let i = 0; i <= t.length; i++) {
+                matrix[i] = [i];
+                for (let j = 1; j <= s.length; j++) {
+                    matrix[i][j] = i === 0 ? j : Math.min(
+                        matrix[i - 1][j] + 1,        // 删除
+                        matrix[i][j - 1] + 1,        // 插入
+                        matrix[i - 1][j - 1] + (s[j - 1] === t[i - 1] ? 0 : 1)  // 替换/匹配
+                    );
+                }
+            }
+            return { distance: matrix[t.length][s.length], matrix };
+        };
+
+        // EditDistanceTool 工具类
+        class EditDistanceTool {
+            constructor() {
+                this.plugins = {};
+                this.currentResult = null;
+                this.history = [];
+                this.animationTimer = null;
+                this.stats = {
+                    totalCalculations: 0,
+                    totalComparisons: 0,
+                    avgDistance: 0,
+                    maxDistance: 0,
+                    minDistance: Infinity,
+                    avgSimilarity: 0
+                };
+                this.init();
+            }
+
+            // 初始化
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupSelect();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            // 初始化代码高亮
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    console.log('Highlight.js 初始化完成');
+                } else {
+                    console.warn('Highlight.js 未加载');
+                }
+            }
+
+            // 加载插件
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            // 设置下拉选择框
+            setupSelect() {
+                const analysisTypeSelect = document.getElementById('analysisTypeSelect');
+                if (!analysisTypeSelect) return;
+
+                const options = [
+                    { value: 'standard', text: '标准编辑距离', selected: true },
+                    { value: 'similarity', text: '相似度分析' },
+                    { value: 'operations', text: '编辑操作路径' },
+                    { value: 'comparison', text: '详细比较' }
+                ];
+
+                try {
+                    const selectInstance = Select.create({
+                        container: analysisTypeSelect,
+                        options: options,
+                        placeholder: '选择分析类型',
+                        onChange: (value) => {
+                            // 当选择改变时的处理逻辑
+                        }
+                    });
+
+                    this.plugins.analysisTypeSelect = selectInstance;
+                } catch (error) {
+                    console.warn('自定义选择框加载失败，使用原生选择框:', error);
+                    this.setupNativeSelect(options, analysisTypeSelect);
+                }
+            }
+
+            // 设置原生下拉选择框
+            setupNativeSelect(options, container) {
+                const select = document.createElement('select');
+                select.id = 'analysisTypeNative';
+                select.className = 'input-field';
+                select.style.fontFamily = 'inherit';
+
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option.value;
+                    optionElement.textContent = option.text;
+                    if (option.selected) optionElement.selected = true;
+                    select.appendChild(optionElement);
+                });
+
+                container.appendChild(select);
+            }
+
+            // 设置复选框
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'showMatrix', label: '显示 DP 表格', checked: true },
+                    { id: 'showSimilarity', label: '显示相似度', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'showCode', label: '显示执行代码', checked: true },
+                    { id: 'autoAnimation', label: '自动播放动画', checked: false }
+                ];
+
+                try {
+                    const checkboxGroupInstance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: (checkedStates) => {
+                            // 响应逻辑
+                        }
+                    });
+
+                    checkboxGroup.appendChild(checkboxGroupInstance.container);
+                    this.plugins.checkboxGroup = checkboxGroupInstance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    this.setupNativeCheckboxes(options, checkboxGroup);
+                }
+            }
+
+            // 设置原生复选框
+            setupNativeCheckboxes(options, container) {
+                options.forEach(option => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.style.marginBottom = '10px';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>
+                        <label for="${option.id}" style="margin-left: 8px; cursor: pointer;">${option.label}</label>
+                    `;
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            // 获取复选框值
+            getCheckboxValue(checkboxId) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const optionIndex = this.checkboxOptions.findIndex(option => option.id === checkboxId);
+                        if (optionIndex !== -1) {
+                            const checkedStates = this.plugins.checkboxGroup.getAllChecked();
+                            return checkedStates[optionIndex] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(checkboxId);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            // 获取选择框值
+            getSelectValue() {
+                if (this.plugins.analysisTypeSelect) {
+                    try {
+                        return this.plugins.analysisTypeSelect.getValue();
+                    } catch (error) {
+                        console.warn('获取选择框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const select = document.getElementById('analysisTypeNative');
+                return select ? select.value : 'standard';
+            }
+
+            // 获取输入字符串
+            getInputStrings() {
+                const sourceInput = document.getElementById('sourceString');
+                const targetInput = document.getElementById('targetString');
+
+                return {
+                    source: sourceInput ? sourceInput.value.trim() : '',
+                    target: targetInput ? targetInput.value.trim() : ''
+                };
+            }
+
+            // 设置输入字符串
+            setInputStrings(source, target) {
+                const sourceInput = document.getElementById('sourceString');
+                const targetInput = document.getElementById('targetString');
+
+                if (sourceInput) sourceInput.value = source;
+                if (targetInput) targetInput.value = target;
+            }
+
+            // 计算相似度
+            calculateSimilarity(distance, str1, str2) {
+                const maxLength = Math.max(str1.length, str2.length);
+                if (maxLength === 0) return 100;
+                return Math.round((1 - distance / maxLength) * 100);
+            }
+
+            // 主计算方法
+            calculate() {
+                const { source, target } = this.getInputStrings();
+
+                if (!source && !target) {
+                    this.showError('请输入两个字符串');
+                    return;
+                }
+
+                try {
+                    const result = levenshteinDistanceWithMatrix(source, target);
+                    const similarity = this.calculateSimilarity(result.distance, source, target);
+
+                    this.currentResult = {
+                        source,
+                        target,
+                        distance: result.distance,
+                        matrix: result.matrix,
+                        similarity
+                    };
+
+                    // 更新统计
+                    this.updateCalculationStats(result.distance, similarity);
+
+                    // 显示结果
+                    this.displayResult();
+
+                    // 显示 DP 表格
+                    if (this.getCheckboxValue('showMatrix')) {
+                        this.displayMatrix();
+                    }
+
+                    // 显示相似度
+                    if (this.getCheckboxValue('showSimilarity')) {
+                        this.displaySimilarity();
+                    }
+
+                    // 添加到历史
+                    this.addToHistory(source, target, result.distance, similarity);
+
+                    // 更新统计显示
+                    this.updateStats();
+
+                    // 显示代码
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode(source, target, result.distance);
+                    }
+
+                    this.showNotification(`计算完成！编辑距离: ${result.distance}, 相似度: ${similarity}%`, 'success');
+
+                    // 自动播放动画
+                    if (this.getCheckboxValue('autoAnimation')) {
+                        setTimeout(() => this.showAnimation(), 500);
+                    }
+                } catch (error) {
+                    this.showError('计算失败: ' + error.message);
+                }
+            }
+
+            // 显示结果
+            displayResult() {
+                const resultSection = document.getElementById('resultSection');
+                const emptyResult = document.getElementById('emptyResult');
+                const resultValue = document.getElementById('resultValue');
+                const resultInfo = document.getElementById('resultInfo');
+
+                if (emptyResult) emptyResult.style.display = 'none';
+                if (resultSection) resultSection.style.display = 'block';
+
+                if (resultValue) {
+                    resultValue.textContent = this.currentResult.distance;
+                }
+
+                if (resultInfo) {
+                    resultInfo.textContent = `"${this.currentResult.source}" → "${this.currentResult.target}"`;
+                }
+            }
+
+            // 显示相似度
+            displaySimilarity() {
+                const similaritySection = document.getElementById('similaritySection');
+                const similarityValue = document.getElementById('similarityValue');
+
+                if (similaritySection) similaritySection.style.display = 'block';
+                if (similarityValue) {
+                    similarityValue.textContent = `${this.currentResult.similarity}%`;
+                }
+            }
+
+            // 显示 DP 表格
+            displayMatrix() {
+                const container = document.getElementById('dpTableContainer');
+                if (!container || !this.currentResult) return;
+
+                const { source, target, matrix } = this.currentResult;
+                
+                let html = '<table class="dp-table">';
+
+                // 表头
+                html += '<thead><tr>';
+                html += '<th></th><th></th>'; // 空格和空字符串列
+                for (let j = 0; j < source.length; j++) {
+                    html += `<th class="char-header">${source[j]}</th>`;
+                }
+                html += '</tr></thead>';
+
+                // 表体
+                html += '<tbody>';
+                for (let i = 0; i <= target.length; i++) {
+                    html += '<tr>';
+                    
+                    // 第一列：目标字符串字符
+                    if (i === 0) {
+                        html += '<th class="char-header"></th>'; // 空字符串
+                    } else {
+                        html += `<th class="char-header">${target[i - 1]}</th>`;
+                    }
+
+                    // DP 值
+                    for (let j = 0; j <= source.length; j++) {
+                        const value = matrix[i] && matrix[i][j] !== undefined ? matrix[i][j] : '';
+                        const isFinal = (i === target.length && j === source.length);
+                        const cellClass = isFinal ? 'value-cell final-cell' : 'value-cell';
+                        html += `<td class="${cellClass}" data-i="${i}" data-j="${j}">${value}</td>`;
+                    }
+                    
+                    html += '</tr>';
+                }
+                html += '</tbody></table>';
+
+                container.innerHTML = html;
+            }
+
+            // 计算编辑操作路径
+            calculateOperations() {
+                if (!this.currentResult) return [];
+
+                const { source, target, matrix } = this.currentResult;
+                const operations = [];
+                
+                let i = target.length;
+                let j = source.length;
+
+                while (i > 0 || j > 0) {
+                    if (i > 0 && j > 0) {
+                        const current = matrix[i][j];
+                        const diagonal = matrix[i - 1][j - 1];
+                        const top = matrix[i - 1][j];
+                        const left = matrix[i][j - 1];
+
+                        if (source[j - 1] === target[i - 1] && current === diagonal) {
+                            // 匹配
+                            operations.unshift({
+                                type: 'match',
+                                sourceChar: source[j - 1],
+                                targetChar: target[i - 1],
+                                sourcePos: j - 1,
+                                targetPos: i - 1,
+                                detail: `匹配字符 '${source[j - 1]}'`
+                            });
+                            i--;
+                            j--;
+                        } else if (current === diagonal + 1) {
+                            // 替换
+                            operations.unshift({
+                                type: 'replace',
+                                sourceChar: source[j - 1],
+                                targetChar: target[i - 1],
+                                sourcePos: j - 1,
+                                targetPos: i - 1,
+                                detail: `将 '${source[j - 1]}' 替换为 '${target[i - 1]}'`
+                            });
+                            i--;
+                            j--;
+                        } else if (current === top + 1) {
+                            // 插入
+                            operations.unshift({
+                                type: 'insert',
+                                targetChar: target[i - 1],
+                                targetPos: i - 1,
+                                detail: `插入字符 '${target[i - 1]}'`
+                            });
+                            i--;
+                        } else if (current === left + 1) {
+                            // 删除
+                            operations.unshift({
+                                type: 'delete',
+                                sourceChar: source[j - 1],
+                                sourcePos: j - 1,
+                                detail: `删除字符 '${source[j - 1]}'`
+                            });
+                            j--;
+                        }
+                    } else if (i > 0) {
+                        // 插入剩余的目标字符
+                        operations.unshift({
+                            type: 'insert',
+                            targetChar: target[i - 1],
+                            targetPos: i - 1,
+                            detail: `插入字符 '${target[i - 1]}'`
+                        });
+                        i--;
+                    } else if (j > 0) {
+                        // 删除剩余的源字符
+                        operations.unshift({
+                            type: 'delete',
+                            sourceChar: source[j - 1],
+                            sourcePos: j - 1,
+                            detail: `删除字符 '${source[j - 1]}'`
+                        });
+                        j--;
+                    }
+                }
+
+                return operations;
+            }
+
+            // 显示编辑操作
+            showOperations() {
+                if (!this.currentResult) {
+                    this.showError('请先计算编辑距离');
+                    return;
+                }
+
+                const operations = this.calculateOperations();
+                const operationsCard = document.getElementById('operationsCard');
+                const operationsDisplay = document.getElementById('operationsDisplay');
+
+                if (!operationsDisplay) return;
+
+                let html = '';
+                operations.forEach((op, index) => {
+                    html += `
+                        <div class="operation-step">
+                            <div class="operation-type ${op.type}">
+                                ${this.getOperationTypeText(op.type)}
+                            </div>
+                            <div class="operation-detail">
+                                ${index + 1}. ${op.detail}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (operations.length === 0) {
+                    html = '<div class="empty-state"><div class="empty-state-icon">✅</div><p>字符串相同，无需编辑操作</p></div>';
+                }
+
+                operationsDisplay.innerHTML = html;
+                if (operationsCard) operationsCard.style.display = 'block';
+
+                this.showNotification(`生成了 ${operations.length} 个编辑操作步骤`, 'success');
+            }
+
+            // 获取操作类型文本
+            getOperationTypeText(type) {
+                const typeMap = {
+                    match: '匹配',
+                    replace: '替换',
+                    insert: '插入',
+                    delete: '删除'
+                };
+                return typeMap[type] || type;
+            }
+
+            // 动画演示
+            showAnimation() {
+                if (!this.currentResult) {
+                    this.showError('请先计算编辑距离');
+                    return;
+                }
+
+                // 停止之前的动画
+                if (this.animationTimer) {
+                    clearInterval(this.animationTimer);
+                    this.animationTimer = null;
+                }
+
+                const { matrix } = this.currentResult;
+                const table = document.querySelector('.dp-table');
+                if (!table) {
+                    this.showError('请先显示 DP 表格');
+                    return;
+                }
+
+                // 重置所有单元格样式
+                const allCells = table.querySelectorAll('.value-cell');
+                allCells.forEach(cell => {
+                    cell.classList.remove('current-cell', 'path-cell');
+                });
+
+                let step = 0;
+                const totalSteps = (matrix.length - 1) * (matrix[0].length - 1);
+
+                const animate = () => {
+                    if (step >= totalSteps) {
+                        clearInterval(this.animationTimer);
+                        this.animationTimer = null;
+                        
+                        // 高亮最终结果
+                        const finalCell = table.querySelector('.final-cell');
+                        if (finalCell) {
+                            finalCell.classList.add('current-cell');
+                        }
+                        
+                        this.showNotification('动画演示完成', 'success');
+                        return;
+                    }
+
+                    const i = Math.floor(step / (matrix[0].length - 1)) + 1;
+                    const j = (step % (matrix[0].length - 1)) + 1;
+
+                    // 移除之前的高亮
+                    const currentCell = table.querySelector('.current-cell');
+                    if (currentCell) {
+                        currentCell.classList.remove('current-cell');
+                        currentCell.classList.add('path-cell');
+                    }
+
+                    // 高亮当前单元格
+                    const cell = table.querySelector(`[data-i="${i}"][data-j="${j}"]`);
+                    if (cell) {
+                        cell.classList.add('current-cell');
+                    }
+
+                    step++;
+                };
+
+                // 立即执行第一步
+                animate();
+                
+                // 设置定时器
+                this.animationTimer = setInterval(animate, 300);
+
+                this.showNotification('开始动画演示...', 'info');
+            }
+
+            // 加载示例
+            loadSample() {
+                const samples = [
+                    ['kitten', 'sitting'],
+                    ['duck', 'dark'],
+                    ['hello', 'world'],
+                    ['algorithm', 'altruistic'],
+                    ['distance', 'difference']
+                ];
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                this.setInputStrings(sample[0], sample[1]);
+                this.showNotification(`示例数据已加载: "${sample[0]}" 和 "${sample[1]}"`, 'info');
+            }
+
+            // 加载随机字符串
+            loadRandom() {
+                const chars = 'abcdefghijklmnopqrstuvwxyz';
+                const generateRandomString = (length) => {
+                    let result = '';
+                    for (let i = 0; i < length; i++) {
+                        result += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    return result;
+                };
+
+                const len1 = Math.floor(Math.random() * 6) + 3; // 3-8 字符
+                const len2 = Math.floor(Math.random() * 6) + 3; // 3-8 字符
+                const str1 = generateRandomString(len1);
+                const str2 = generateRandomString(len2);
+
+                this.setInputStrings(str1, str2);
+                this.showNotification(`随机字符串已生成: "${str1}" 和 "${str2}"`, 'info');
+            }
+
+            // 清空
+            clear() {
+                this.currentResult = null;
+
+                const resultSection = document.getElementById('resultSection');
+                const emptyResult = document.getElementById('emptyResult');
+                const dpTableContainer = document.getElementById('dpTableContainer');
+                const operationsCard = document.getElementById('operationsCard');
+                const codeSection = document.getElementById('codeSection');
+
+                if (resultSection) resultSection.style.display = 'none';
+                if (emptyResult) emptyResult.style.display = 'block';
+
+                if (dpTableContainer) {
+                    dpTableContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔢</div>
+                            <p>计算后将显示 DP 表格</p>
+                        </div>
+                    `;
+                }
+
+                if (operationsCard) operationsCard.style.display = 'none';
+                if (codeSection) codeSection.style.display = 'none';
+
+                // 停止动画
+                if (this.animationTimer) {
+                    clearInterval(this.animationTimer);
+                    this.animationTimer = null;
+                }
+
+                this.showNotification('已清空显示', 'info');
+            }
+
+            // 批量计算
+            batchCalculate() {
+                const input = document.getElementById('batchInput');
+                if (!input) return;
+
+                const text = input.value.trim();
+                if (!text) {
+                    this.showError('请输入字符串对');
+                    return;
+                }
+
+                const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+                if (lines.length === 0) {
+                    this.showError('未找到有效的字符串对');
+                    return;
+                }
+
+                const batchResults = document.getElementById('batchResults');
+                const batchResultsCard = document.getElementById('batchResultsCard');
+                const batchResultCount = document.getElementById('batchResultCount');
+
+                if (!batchResults) return;
+
+                let html = '';
+                let validCount = 0;
+
+                lines.forEach((line, index) => {
+                    try {
+                        const parts = line.split(',').map(part => part.trim());
+                        if (parts.length !== 2) {
+                            throw new Error('格式错误，应为：字符串1,字符串2');
+                        }
+
+                        const [str1, str2] = parts;
+                        const distance = levenshteinDistance(str1, str2);
+                        const similarity = this.calculateSimilarity(distance, str1, str2);
+
+                        html += `
+                            <div class="batch-item">
+                                <div class="batch-strings">${index + 1}. "${str1}" ↔ "${str2}"</div>
+                                <div class="batch-distance">编辑距离: ${distance}</div>
+                                <div class="batch-similarity">相似度: ${similarity}%</div>
+                            </div>
+                        `;
+
+                        // 更新统计
+                        this.updateCalculationStats(distance, similarity);
+                        this.addToHistory(str1, str2, distance, similarity);
+                        validCount++;
+                    } catch (error) {
+                        html += `
+                            <div class="batch-item" style="border-left-color: #ef4444;">
+                                <div class="batch-strings">${index + 1}. ${line}</div>
+                                <div class="batch-distance" style="color: #ef4444;">错误: ${error.message}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                batchResults.innerHTML = html;
+                if (batchResultsCard) batchResultsCard.style.display = 'block';
+                if (batchResultCount) batchResultCount.textContent = validCount;
+
+                this.updateStats();
+                this.showNotification(`批量处理完成：${validCount}/${lines.length} 个字符串对计算成功`, 'success');
+            }
+
+            // 更新计算统计
+            updateCalculationStats(distance, similarity) {
+                this.stats.totalCalculations++;
+                this.stats.totalComparisons++;
+
+                if (distance > this.stats.maxDistance) {
+                    this.stats.maxDistance = distance;
+                }
+
+                if (distance < this.stats.minDistance || this.stats.minDistance === Infinity) {
+                    this.stats.minDistance = distance;
+                }
+
+                // 更新平均值
+                const totalDistance = this.stats.avgDistance * (this.stats.totalCalculations - 1) + distance;
+                this.stats.avgDistance = Math.round((totalDistance / this.stats.totalCalculations) * 10) / 10;
+
+                const totalSimilarity = this.stats.avgSimilarity * (this.stats.totalCalculations - 1) + similarity;
+                this.stats.avgSimilarity = Math.round((totalSimilarity / this.stats.totalCalculations) * 10) / 10;
+            }
+
+            // 添加到历史记录
+            addToHistory(source, target, distance, similarity) {
+                const time = new Date().toLocaleString('zh-CN');
+                this.history.unshift({
+                    time,
+                    source,
+                    target,
+                    distance,
+                    similarity
+                });
+
+                if (this.history.length > 50) {
+                    this.history = this.history.slice(0, 50);
+                }
+
+                this.updateHistoryDisplay();
+            }
+
+            // 更新历史显示
+            updateHistoryDisplay() {
+                const historyList = document.getElementById('historyList');
+                const historyCount = document.getElementById('historyCount');
+
+                if (!historyList) return;
+
+                if (historyCount) {
+                    historyCount.textContent = this.history.length;
+                }
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📖</div>
+                            <p>暂无历史记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                this.history.slice(0, 20).forEach((item) => {
+                    html += `
+                        <div class="history-item">
+                            <div class="history-time">${item.time}</div>
+                            <div class="history-strings">"${item.source}" ↔ "${item.target}"</div>
+                            <div class="history-result">
+                                <span class="history-distance">距离: ${item.distance}</span>
+                                <span class="history-similarity">相似度: ${item.similarity}%</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                historyList.innerHTML = html;
+            }
+
+            // 更新统计信息
+            updateStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                const minDisplay = this.stats.minDistance === Infinity ? '-' : this.stats.minDistance;
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalCalculations}</div>
+                        <div class="stat-label">计算次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalComparisons}</div>
+                        <div class="stat-label">比较次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.avgDistance}</div>
+                        <div class="stat-label">平均距离</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.maxDistance}</div>
+                        <div class="stat-label">最大距离</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${minDisplay}</div>
+                        <div class="stat-label">最小距离</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.avgSimilarity}%</div>
+                        <div class="stat-label">平均相似度</div>
+                    </div>
+                `;
+            }
+
+            // 显示代码
+            showCode(source, target, distance) {
+                const codeSection = document.getElementById('codeSection');
+                const codePreview = document.getElementById('codePreview');
+
+                if (!codePreview) return;
+
+                const code = `// 字符串
+const sourceString = "${source}";
+const targetString = "${target}";
+
+// 计算编辑距离
+const distance = levenshteinDistance(sourceString, targetString);
+
+// 结果
+console.log('编辑距离:', distance);  // ${distance}
+
+// 计算相似度
+const maxLength = Math.max(sourceString.length, targetString.length);
+const similarity = Math.round((1 - distance / maxLength) * 100);
+console.log('相似度:', similarity + '%');  // ${this.currentResult.similarity}%
+
+// 详细分析
+console.log('源字符串长度:', sourceString.length);  // ${source.length}
+console.log('目标字符串长度:', targetString.length);  // ${target.length}
+console.log('需要操作次数:', distance);  // ${distance}`;
+
+                codePreview.textContent = code;
+                // 清除之前的高亮状态，然后重新高亮
+                if (window.hljs) {
+                    delete codePreview.dataset.highlighted;
+                    codePreview.className = 'language-javascript';
+                    hljs.highlightElement(codePreview);
+                }
+
+                if (codeSection) {
+                    codeSection.style.display = 'block';
+                }
+            }
+
+            // 显示通知
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            // 显示错误
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            // 显示欢迎消息
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用编辑距离计算平台',
+                        content: `
+                            <div style="padding: 20px;">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">🔤</div>
+                                    <h3 style="margin: 0 0 10px 0; color: #667eea;">功能特色</h3>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <ul style="margin: 0; padding-left: 20px; color: #495057;">
+                                        <li>强大的 Levenshtein Distance 算法</li>
+                                        <li>可视化动态规划表格展示</li>
+                                        <li>编辑操作路径分析和演示</li>
+                                        <li>字符串相似度计算</li>
+                                        <li>批量字符串比较功能</li>
+                                        <li>历史记录追踪和统计分析</li>
+                                        <li>实时代码预览和语法高亮</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #e8f5e8; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #16a34a;">
+                                        <strong>💡 使用步骤：</strong>
+                                    </p>
+                                    <ol style="margin: 8px 0 0 0; padding-left: 20px; color: #16a34a; font-size: 14px;">
+                                        <li>输入两个字符串（源字符串和目标字符串）</li>
+                                        <li>点击"计算编辑距离"查看结果</li>
+                                        <li>点击"动画演示"观看 DP 表格填充过程</li>
+                                        <li>点击"编辑路径"查看具体的编辑操作步骤</li>
+                                        <li>使用批量功能同时比较多对字符串</li>
+                                        <li>查看历史记录和统计信息</li>
+                                    </ol>
+                                </div>
+
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b; margin-bottom: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #d97706;">
+                                        <strong>📐 算法原理：</strong>
+                                    </p>
+                                    <ul style="margin: 8px 0 0 0; padding-left: 20px; color: #d97706; font-size: 14px;">
+                                        <li>动态规划：O(m×n) 时间和空间复杂度</li>
+                                        <li>三种编辑操作：插入、删除、替换</li>
+                                        <li>最优子结构：每步选择最小代价操作</li>
+                                        <li>回溯路径：重构具体的编辑序列</li>
+                                    </ul>
+                                </div>
+
+                                <div style="background: #dbeafe; padding: 12px; border-radius: 6px; border-left: 4px solid #3b82f6;">
+                                    <p style="margin: 0; font-size: 14px; color: #1e40af;">
+                                        <strong>🎯 示例：</strong> "kitten" → "sitting" 的编辑距离<br>
+                                        需要 3 次操作：替换 k→s, 替换 e→i, 插入 g<br>
+                                        相似度：57%（基于字符串长度计算）
+                                    </p>
+                                </div>
+
+                                <div style="background: #fce7f3; padding: 12px; border-radius: 6px; border-left: 4px solid #ec4899; margin-top: 15px;">
+                                    <p style="margin: 0; font-size: 14px; color: #be185d;">
+                                        <strong>📚 应用场景：</strong>
+                                    </p>
+                                    <ul style="margin: 8px 0 0 0; padding-left: 20px; color: #be185d; font-size: 14px;">
+                                        <li>搜索引擎拼写纠错</li>
+                                        <li>DNA 序列比对分析</li>
+                                        <li>文本相似度检测</li>
+                                        <li>机器翻译质量评估</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `,
+                        type: "alert"
+                    });
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成，开始初始化...');
+            window.editDistanceTool = new EditDistanceTool();
+            console.log('编辑距离计算平台初始化完成');
+        });
+
+        // 如果 DOMContentLoaded 已经触发，立即执行
+        if (document.readyState === 'loading') {
+            console.log('文档仍在加载，等待 DOMContentLoaded 事件...');
+        } else {
+            console.log('文档已加载完成，立即执行初始化...');
+            window.editDistanceTool = new EditDistanceTool();
+        }
+    </script>
+</body>
+
+</html>

@@ -9,13 +9,15 @@
 
 ```js
 const leftSubstrGenerator = function* (str) {
-  if (typeof str !== "string" || !string.length) {
+  if (typeof str !== "string" || !str.length) {
     return;
   }
   for (let i in str) {
     yield str.slice(0, i + 1);
   }
 };
+
+// 对于ts代码，应该使用for循环而不是for...in，具体可以参考ts代码的实现
 ```
 
 ts 代码如下:

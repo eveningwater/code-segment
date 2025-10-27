@@ -413,7 +413,7 @@
 - [最后 n 个元素-2022-11-13](codes/javascript/last-n.md)
 - [最小公倍数-2022-11-14](codes/javascript/lcm.md)
 - [从左边开始截取字符串生成器-2022-11-15](codes/javascript/left-substr-generator.md)
-- [编辑距离-2022-11-16](codes/javascript/levenshteinDistance.md)
+- [编辑距离-2022-11-16](codes/javascript/levenshtein-distance.md)
 - [线性搜索-2022-11-17](codes/javascript/linearSearch.md)
 - [监听一次事件-2022-11-18](codes/javascript/listenOnce.md)
 - [计算给定基数的对数-2022-11-19](codes/javascript/logBase.md)
