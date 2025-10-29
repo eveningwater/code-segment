@@ -11,6 +11,10 @@
 const listenOnce = (el,type,handler) => el.addEventListener(type,handler,{ once:true });
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/listen-once.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,5 +27,12 @@ listenOnce(
 
 > 应用场景
 
-<iframe src="codes/javascript/html/listenOnce.html"></iframe>
+
+以下是一个实战<a href="codes/javascript/html/listen-once.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/listen-once.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/listen-once.html"></iframe>
 
