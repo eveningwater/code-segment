@@ -416,7 +416,7 @@
 - [编辑距离-2022-11-16](codes/javascript/levenshtein-distance.md)
 - [线性搜索-2022-11-17](codes/javascript/linear-search.md)
 - [监听一次事件-2022-11-18](codes/javascript/listen-once.md)
-- [计算给定基数的对数-2022-11-19](codes/javascript/logBase.md)
+- [计算给定基数的对数-2022-11-19](codes/javascript/log-base.md)
 - [最长的项-2022-11-20](codes/javascript/longestItem.md)
 - [属性名小写-2022-11-21](codes/javascript/lowercaseKeys.md)
 - [模 10 算法-2022-11-22](codes/javascript/luhnCheck.md)

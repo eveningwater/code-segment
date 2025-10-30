@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对数换底与可视化平台 - logBase</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: .95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, .95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 22px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #60a5fa);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, .35);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, .35);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, .35);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, .35);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, .35);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: .9rem;
+        }
+
+        .result-panel {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .result-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #6366f1;
+        }
+
+        .result-sub {
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .explain {
+            background: #eef2ff;
+            border-left: 4px solid #6366f1;
+            padding: 12px;
+            border-radius: 8px;
+            color: #374151;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table th,
+        .table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        .table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .event-log {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 18px;
+            max-height: 420px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .log-item {
+            background: white;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid #6366f1;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .log-time {
+            font-size: .75rem;
+            color: #6b7280;
+            font-weight: 700;
+        }
+
+        .log-badge {
+            background: linear-gradient(135deg, #6366f1, #60a5fa);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #6366f1;
+        }
+
+        .stat-label {
+            font-size: .9rem;
+            color: #6b7280;
+        }
+
+        .code-block {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #282c34;
+            border-radius: 8px;
+        }
+
+        .code-block pre code {
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: .85rem;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .hljs {
+            background: #282c34;
+            padding: 0;
+        }
+
+        .advanced-options {
+            margin-top: 10px;
+            padding: 14px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 10px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📐 对数换底与可视化平台</h1>
+            <p>基于 logBase(x, base) 的可交互演示：计算、推导、批处理、历史记录、统计分析与代码预览</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>🧮 基础参数</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>值 x (> 0)</label>
+                            <div id="valueInput"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>底数 base (> 0 且 ≠ 1)</label>
+                            <div id="baseInput"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>结果精度</label>
+                            <div id="precisionSelect"></div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="window.logTool?.calculate()">⚡ 计算
+                                log_base(x)</button>
+                            <button class="btn btn-warning" onclick="window.logTool?.swap()">🔁 交换 x 与 base</button>
+                            <button class="btn btn-danger" onclick="window.logTool?.clearInputs()">🗑️ 清空</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success btn-sm" onclick="window.logTool?.loadSample()">📄 示例</button>
+                            <button class="btn btn-info btn-sm" onclick="window.logTool?.loadRandom()">🎲 随机</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📦 批量计算</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>每行一条 x,base（例如：8,2）</label>
+                            <textarea id="batchInput"
+                                style="width:100%;min-height:120px;border:2px solid #e5e7eb;border-radius:12px;padding:12px;font-family:'Monaco','Menlo',monospace;"></textarea>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success btn-block" onclick="window.logTool?.batchCalculate()">🚀
+                                批量计算</button>
+                        </div>
+                    </div>
+                    <div class="advanced-options">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📋 事件日志 (<span id="logCount">0</span>)</h2>
+                    <div class="event-log" id="eventLog">
+                        <div class="empty-state">暂无事件记录</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：可视化 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>✅ 计算结果</h2>
+                    <div class="result-panel" id="resultPanel">
+                        <div class="empty-state">输入 x 与 base 后点击“计算”</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🧠 推导与近邻</h2>
+                    <div class="explain" id="explainBox" style="margin-bottom:12px;">
+                        log_base(x) = ln(x) / ln(base)
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table" id="neighborTable">
+                            <thead>
+                                <tr>
+                                    <th>n</th>
+                                    <th>base^n</th>
+                                    <th>与 x 的关系</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:#f8fafc;padding:20px;border-radius:12px;">
+                <h3 style="color:#6366f1;margin-bottom:10px;">logBase 函数（对数换底）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const logBase = (x, base) => Math.log(x) / Math.log(base);
+
+// 约束：x > 0, base > 0 且 base !== 1
+// 示例：logBase(8, 2) === 3</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 核心换底函数
+        const logBase = (x, base) => Math.log(x) / Math.log(base);
+
+        class LogBaseTool {
+            constructor() {
+                this.plugins = {};
+                this.precisions = [
+                    { value: '2', label: '保留 2 位' },
+                    { value: '4', label: '保留 4 位' },
+                    { value: '6', label: '保留 6 位' },
+                    { value: 'auto', label: '自动' }
+                ];
+                this.state = {
+                    value: 8,
+                    base: 2,
+                    precision: '4',
+                    history: [],
+                    stats: { total: 0, batchTotal: 0, avgMs: 0, lastMs: 0 }
+                };
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupInputNumbers();
+                    this.setupSelect();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (e) {
+                    console.error(e);
+                    this.showError('初始化失败: ' + e.message);
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (e) { console.warn('部分插件加载失败', e); }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((b) => hljs.highlightElement(b));
+                }
+            }
+
+            setupInputNumbers() {
+                const valueInput = document.getElementById('valueInput');
+                const baseInput = document.getElementById('baseInput');
+                try {
+                    this.plugins.valueNumber = new InputNumber({
+                        container: valueInput,
+                        value: this.state.value,
+                        min: 0.000001,
+                        step: 0.1,
+                        onChange: (v) => { this.state.value = Number(v); }
+                    });
+                    this.plugins.baseNumber = new InputNumber({
+                        container: baseInput,
+                        value: this.state.base,
+                        min: 0.000001,
+                        step: 0.1,
+                        onChange: (v) => { this.state.base = Number(v); }
+                    });
+                } catch (e) {
+                    console.warn('自定义数字输入加载失败，使用原生输入框');
+                    valueInput.innerHTML = '<input id="_valueNative" type="number" step="0.1" value="8" class="demo-input">';
+                    baseInput.innerHTML = '<input id="_baseNative" type="number" step="0.1" value="2" class="demo-input">';
+                    document.getElementById('_valueNative').addEventListener('input', (ev) => { this.state.value = Number(ev.target.value); });
+                    document.getElementById('_baseNative').addEventListener('input', (ev) => { this.state.base = Number(ev.target.value); });
+                }
+            }
+
+            setupSelect() {
+                const precisionSelect = document.getElementById('precisionSelect');
+                try {
+                    const selectInstance = new Select({
+                        container: precisionSelect,
+                        options: this.precisions,
+                        placeholder: '选择精度',
+                        onChange: (v) => { this.state.precision = v; }
+                    });
+                    selectInstance.setValue('4');
+                    this.plugins.precisionSelect = selectInstance;
+                } catch (e) {
+                    console.warn('自定义选择框加载失败，使用原生');
+                    const sel = document.createElement('select');
+                    sel.className = 'demo-input';
+                    this.precisions.forEach((o, i) => { const op = document.createElement('option'); op.value = o.value; op.textContent = o.label; if (i === 1) op.selected = true; sel.appendChild(op); });
+                    sel.addEventListener('change', (ev) => { this.state.precision = ev.target.value; });
+                    precisionSelect.appendChild(sel);
+                }
+            }
+
+            setupCheckboxes() {
+                const group = document.getElementById('checkboxGroup');
+                const options = [
+                    { id: 'showDerive', label: '显示推导/近邻表', checked: true },
+                    { id: 'showCode', label: '显示执行代码', checked: true },
+                    { id: 'showNotifications', label: '显示通知', checked: true }
+                ];
+                try {
+                    const instance = Checkbox.createCheckboxGroup({
+                        items: options.map(o => ({ id: o.id, label: o.label, checked: o.checked })),
+                        onChange: () => { }
+                    });
+                    group.appendChild(instance.container);
+                    this.plugins.checkboxGroup = instance; this.checkboxOptions = options;
+                } catch (e) {
+                    options.forEach(o => {
+                        const wrap = document.createElement('div');
+                        wrap.style.marginBottom = '10px';
+                        wrap.innerHTML = `<input type=\"checkbox\" id=\"${o.id}\" ${o.checked ? 'checked' : ''}><label for=\"${o.id}\" style=\"margin-left:8px;cursor:pointer;\">${o.label}</label>`;
+                        group.appendChild(wrap);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const idx = this.checkboxOptions.findIndex(o => o.id === id);
+                        if (idx !== -1) {
+                            const states = this.plugins.checkboxGroup.getAllChecked();
+                            return states[idx] || false;
+                        }
+                    } catch (e) { /* fallback */ }
+                }
+                const el = document.getElementById(id); return el ? el.checked : false;
+            }
+
+            clearInputs() {
+                if (this.plugins.valueNumber?.setValue) this.plugins.valueNumber.setValue(8);
+                if (this.plugins.baseNumber?.setValue) this.plugins.baseNumber.setValue(2);
+                this.state.value = 8; this.state.base = 2;
+                document.getElementById('resultPanel').innerHTML = '<div class="empty-state">输入 x 与 base 后点击“计算”</div>';
+                document.querySelector('#neighborTable tbody').innerHTML = '';
+                document.getElementById('codeSection').style.display = 'none';
+            }
+
+            swap() {
+                const t = this.state.value; this.state.value = this.state.base; this.state.base = t;
+                if (this.plugins.valueNumber?.setValue) this.plugins.valueNumber.setValue(this.state.value);
+                if (this.plugins.baseNumber?.setValue) this.plugins.baseNumber.setValue(this.state.base);
+                this.showNotification('已交换 x 与 base', 'info');
+            }
+
+            loadSample() {
+                const samples = [[8, 2], [27, 3], [1000, 10], [16, 4], [0.5, 2], [32, 2], [81, 3]];
+                const s = samples[Math.floor(Math.random() * samples.length)];
+                this.state.value = s[0]; this.state.base = s[1];
+                if (this.plugins.valueNumber?.setValue) this.plugins.valueNumber.setValue(s[0]);
+                if (this.plugins.baseNumber?.setValue) this.plugins.baseNumber.setValue(s[1]);
+                this.showNotification(`示例已加载: x=${s[0]}, base=${s[1]}`, 'info');
+            }
+
+            loadRandom() {
+                const x = Math.round((Math.random() * 100 + 1) * 100) / 100;
+                const bases = [2, 3, 4, 5, 10, Math.E];
+                const b = bases[Math.floor(Math.random() * bases.length)];
+                this.state.value = x; this.state.base = b;
+                if (this.plugins.valueNumber?.setValue) this.plugins.valueNumber.setValue(x);
+                if (this.plugins.baseNumber?.setValue) this.plugins.baseNumber.setValue(b);
+                this.showNotification(`随机参数: x=${x}, base=${b}`, 'info');
+            }
+
+            formatNumber(v) {
+                if (this.state.precision === 'auto') return String(v);
+                const p = parseInt(this.state.precision, 10) || 4; return Number(v).toFixed(p);
+            }
+
+            validate(x, base) {
+                if (!(x > 0)) throw new Error('x 必须大于 0');
+                if (!(base > 0)) throw new Error('base 必须大于 0');
+                if (Math.abs(base - 1) < 1e-12) throw new Error('base 不能等于 1');
+            }
+
+            calculate() {
+                const t0 = performance.now();
+                try {
+                    const x = Number(this.state.value); const base = Number(this.state.base);
+                    this.validate(x, base);
+                    const value = logBase(x, base);
+                    const lnX = Math.log(x), lnB = Math.log(base);
+                    this.renderResult(x, base, value, lnX, lnB);
+                    this.renderNeighbors(x, base, value);
+                    this.state.stats.total += 1; this.state.stats.lastMs = Math.round((performance.now() - t0) * 100) / 100;
+                    this.updateAvgMs();
+                    this.addLog(`计算 log_${base}(${x}) = ${this.formatNumber(value)}`);
+                    if (this.getCheckboxValue('showCode')) this.showCode(x, base);
+                } catch (e) { this.showError(e.message); }
+                this.updateStats();
+            }
+
+            batchCalculate() {
+                const text = (document.getElementById('batchInput').value || '').trim();
+                if (!text) { this.showError('请输入批量数据：每行 x,base'); return; }
+                const lines = text.split(/\n+/); let ok = 0; let fail = 0; const t0 = performance.now();
+                lines.forEach(line => {
+                    const m = line.split(',').map(s => s.trim());
+                    if (m.length !== 2) { fail++; return; }
+                    const x = Number(m[0]); const base = Number(m[1]);
+                    try { this.validate(x, base); const v = logBase(x, base); ok++; this.addLog(`批量: log_${base}(${x}) = ${this.formatNumber(v)}`); }
+                    catch (e) { fail++; }
+                });
+                const dt = Math.round((performance.now() - t0) * 100) / 100;
+                this.state.stats.batchTotal += ok; this.state.stats.lastMs = dt; this.updateAvgMs(); this.updateStats();
+                this.showNotification(`批量完成：成功 ${ok} 条，失败 ${fail} 条，用时 ${dt}ms`, 'success');
+            }
+
+            renderResult(x, base, value, lnX, lnB) {
+                const panel = document.getElementById('resultPanel');
+                const pVal = this.formatNumber(value);
+                panel.innerHTML = `
+                    <div class=\"result-value\">log<sub>${this.formatNumber(base)}</sub>(${this.formatNumber(x)}) = ${pVal}</div>
+                    <div class=\"result-sub\">使用换底公式：ln(${this.formatNumber(x)}) / ln(${this.formatNumber(base)}) = ${this.formatNumber(lnX)} / ${this.formatNumber(lnB)}</div>
+                `;
+            }
+
+            renderNeighbors(x, base, value) {
+                const tb = document.querySelector('#neighborTable tbody'); if (!tb) return;
+                tb.innerHTML = '';
+                if (!this.getCheckboxValue('showDerive')) return;
+                const start = Math.floor(value) - 3; const end = Math.floor(value) + 3;
+                for (let n = start; n <= end; n++) {
+                    const pow = Math.pow(base, n);
+                    let rel = '≈'; if (pow < x) rel = '<'; if (pow > x) rel = '>';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${n}</td><td>${this.formatNumber(pow)}</td><td>base^${n} ${rel} x</td>`;
+                    tb.appendChild(tr);
+                }
+            }
+
+            updateAvgMs() {
+                const t = this.state.stats.total || 1; const b = this.state.stats.batchTotal || 0;
+                const denom = t + b; if (denom <= 0) { this.state.stats.avgMs = this.state.stats.lastMs; return; }
+                this.state.stats.avgMs = Math.round(((this.state.stats.avgMs * (denom - 1) + this.state.stats.lastMs) / denom) * 100) / 100;
+            }
+
+            updateStats() {
+                const g = document.getElementById('statsGrid'); if (!g) return;
+                const s = this.state.stats;
+                g.innerHTML = `
+                    <div class=\"stat-card\"><div class=\"stat-number\">${s.total}</div><div class=\"stat-label\">计算次数</div></div>
+                    <div class=\"stat-card\"><div class=\"stat-number\">${s.batchTotal}</div><div class=\"stat-label\">批量成功</div></div>
+                    <div class=\"stat-card\"><div class=\"stat-number\">${s.lastMs}ms</div><div class=\"stat-label\">最近耗时</div></div>
+                    <div class=\"stat-card\"><div class=\"stat-number\">${s.avgMs}ms</div><div class=\"stat-label\">平均耗时(近似)</div></div>
+                `;
+            }
+
+            addLog(text) {
+                const logEl = document.getElementById('eventLog'); const cnt = document.getElementById('logCount');
+                const time = new Date().toLocaleTimeString('zh-CN');
+                const div = document.createElement('div');
+                div.className = 'log-item';
+                div.innerHTML = `<div class=\"log-time\">${time}</div><div>${text}</div><div class=\"log-badge\">LOG</div>`;
+                if (logEl.firstElementChild && logEl.firstElementChild.classList.contains('empty-state')) logEl.innerHTML = '';
+                logEl.prepend(div);
+                if (cnt) cnt.textContent = String((Number(cnt.textContent) || 0) + 1);
+            }
+
+            showCode(x, base) {
+                const codeSection = document.getElementById('codeSection');
+                const codePreview = document.getElementById('codePreview');
+                const code = `// 换底公式：log_base(x) = ln(x) / ln(base)\nconst logBase = (x, base) => Math.log(x) / Math.log(base);\n\nconst x = ${x};\nconst base = ${base};\nif (!(x > 0)) throw new Error('x 必须大于 0');\nif (!(base > 0)) throw new Error('base 必须大于 0');\nif (Math.abs(base - 1) < 1e-12) throw new Error('base 不能等于 1');\n\nconst value = logBase(x, base);\nconsole.log('log_'+base+'('+x+') =', value);`;
+                codePreview.textContent = code;
+                if (window.hljs) { delete codePreview.dataset.highlighted; codePreview.className = 'language-javascript'; hljs.highlightElement(codePreview); }
+                codeSection.style.display = 'block';
+            }
+
+            showNotification(msg, type) {
+                if (this.plugins.notification) this.plugins.notification.show(msg, type); else console.log(type, msg);
+            }
+            showError(msg) { this.showNotification(msg, 'error'); }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用对数换底与可视化平台',
+                        content: `
+                            <div style=\"padding:16px;\">
+                                <div style=\"background:#eef2ff;border-left:4px solid #6366f1;border-radius:6px;padding:12px;color:#374151;\">
+                                    使用换底公式 log_base(x) = ln(x)/ln(base) 进行计算，支持批量、推导近邻表、统计与代码预览。
+                                </div>
+                                <ul style=\"margin:12px 0 0 18px;color:#374151;\">
+                                    <li>x > 0，base > 0 且 base ≠ 1</li>
+                                    <li>支持自定义精度与自动模式</li>
+                                    <li>提供 base^n 与 x 的近邻对比帮助理解</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { window.logTool = new LogBaseTool(); });
+        if (document.readyState !== 'loading') { window.logTool = new LogBaseTool(); }
+    </script>
+</body>
+
+</html>
