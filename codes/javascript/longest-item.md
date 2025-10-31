@@ -12,6 +12,10 @@
 const longestItem = (...val) => val.reduce((a,x) => x.length > a.length ? x : a);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/longest-item.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,5 +28,10 @@ longestItem([1, 2, 3], 'foobar'); // 'foobar'
 
 > 应用场景
 
+以下是一个实战<a href="codes/javascript/html/longest-item.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
+<div class="code-editor" data-url="codes/javascript/html/longest-item.html" data-language="html"></div>
 
+结果如下:
+
+<iframe src="codes/javascript/html/longest-item.html"></iframe>
