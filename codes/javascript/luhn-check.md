@@ -19,6 +19,10 @@ const luhnCheck = num => {
 }
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/luhn-check.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,3 +30,11 @@ luhnCheck('4485275742308327'); // true
 luhnCheck(6011329933655299); //  true
 luhnCheck(123456789); // false
 ```
+
+以下是一个实战<a href="codes/javascript/html/luhn-check.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/luhn-check.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/luhn-check.html"></iframe>

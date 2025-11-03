@@ -419,7 +419,7 @@
 - [计算给定基数的对数-2022-11-19](codes/javascript/log-base.md)
 - [最长的项-2022-11-20](codes/javascript/longest-item.md)
 - [属性名小写-2022-11-21](codes/javascript/lowercase-keys.md)
-- [模 10 算法-2022-11-22](codes/javascript/luhnCheck.md)
+- [模 10 算法-2022-11-22](codes/javascript/luhn-check.md)
 - [映射连续元素-2022-11-23](codes/javascript/mapConsecutive.md)
 - [映射属性-2022-11-24](codes/javascript/mapKeys.md)
 - [映射数字从当前范围到另一个范围-2022-11-25](codes/javascript/mapNumRange.md)
