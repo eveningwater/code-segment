@@ -423,7 +423,7 @@
 - [映射连续元素-2022-11-23](codes/javascript/map-consecutive.md)
 - [映射属性-2022-11-24](codes/javascript/map-keys.md)
 - [映射数字从当前范围到另一个范围-2022-11-25](codes/javascript/map-num-range.md)
-- [映射数组元素到对象-2022-11-26](codes/javascript/mapObject.md)
+- [映射数组元素到对象-2022-11-26](codes/javascript/map-object.md)
 - [映射字符串-2022-11-27](codes/javascript/mapString.md)
 - [映射转成对象-2022-11-28](codes/javascript/mapToObject.md)
 - [映射对象值-2022-11-29](codes/javascript/mapValues.md)

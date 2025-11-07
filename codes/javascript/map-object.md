@@ -14,6 +14,10 @@ const mapObject = (arr,fn) => arr.reduce((acc,item,index) => {
 },{})
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/map-object.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,3 +25,11 @@ mapObject([1, 2, 3], a => a * a); // { 1: 1, 2: 4, 3: 9 }
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/map-object.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/map-object.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/map-object.html"></iframe>
