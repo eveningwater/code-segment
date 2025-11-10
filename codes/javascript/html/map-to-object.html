@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map 到对象转换平台 - mapToObject</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f4d03f 0%, #16a085 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        .header p {
+            font-size: 1.15rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 28px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 22px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 1rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .textarea-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #6366f1, #4338ca);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .map-entries,
+        .object-display {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .entry-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .entry-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .entry-key {
+            background: linear-gradient(135deg, #f4d03f, #f39c12);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .entry-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #1f2937;
+        }
+
+        .entry-meta {
+            font-size: 0.8rem;
+            color: #475569;
+        }
+
+        .remove-entry {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .result-preview {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            overflow-x: auto;
+            word-break: break-word;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        .analysis-card h4 {
+            font-size: 0.98rem;
+            color: #0f766e;
+            margin-bottom: 6px;
+        }
+
+        .analysis-card p,
+        .analysis-card ul {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .analysis-card ul {
+            padding-left: 18px;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #0ea5e9;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #0f172a;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0ea5e9;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+        }
+
+        .function-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #f4d03f, #f39c12);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: rgba(14, 165, 233, 0.15);
+            color: #0369a1;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .modal-content {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧭 Map 到对象转换平台</h1>
+            <p>基于 mapToObject 的可视化实验室：构建复杂 Map、支持多数据类型、智能分析、历史追踪与代码预览，一站式掌握 Map → Object 的最佳实践</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>🛠️ 映射配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>键 (Key)</label>
+                            <input id="keyInput" class="input-field" placeholder="例如：username" />
+                        </div>
+                        <div class="input-group">
+                            <label>值类型</label>
+                            <div id="valueTypeSelect"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>值 (Value)</label>
+                            <input id="valueInput" class="input-field" placeholder="根据类型输入对应的值" />
+                        </div>
+                        <div class="input-group">
+                            <label>附加参数（可选，如 JSON 配置）</label>
+                            <textarea id="valueParam" class="textarea-field" placeholder='例如：{"unit":"ms"}'></textarea>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.mapTool?.addEntry()">➕ 添加到 Map</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.mapTool?.convert()">⚡ 转换为对象</button>
+                            <button class="btn btn-warning" onclick="window.mapTool?.loadSample()">📄 示例 Map</button>
+                            <button class="btn btn-info" onclick="window.mapTool?.generateRandom()">🎲 随机生成</button>
+                            <button class="btn btn-danger" onclick="window.mapTool?.clearMap()">🧹 清空 Map</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>随机条目数量</label>
+                            <div id="randomCountInput"></div>
+                        </div>
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 历史记录 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无转换历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>🧱 Map 条目</h2>
+                    <div class="map-entries" id="mapEntries">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🧩</div>
+                            <p>添加键值对后将在此展示 Map 条目</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📦 对象预览</h2>
+                    <div class="object-display" id="objectDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <p>执行转换后将在此展示对象结果</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>🔍 转换分析</h2>
+                    <div class="analysis-grid" id="analysisGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                <h3 style="color:#0f766e;margin-bottom:12px;">mapToObject 函数（Map 到对象转换）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const mapToObject = (map) => Object.fromEntries(map.entries());</code></pre>
+                </div>
+
+                <h3 style="color:#0f766e;margin:20px 0 12px;">函数说明</h3>
+                <p style="color:#334155;line-height:1.8;">
+                    <strong>mapToObject</strong> 将 ECMAScript 标准 Map 结构转换为普通对象。依赖 <code>Map.prototype.entries()</code> 获取键值对，再使用 <code>Object.fromEntries()</code> 构造 plain object。
+                    适用于将运行时动态构造的 Map 数据传递给只接受对象的 API / 序列化逻辑（如 JSON、表单提交、配置文件）等场景。
+                </p>
+
+                <h3 style="color:#0f766e;margin:20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const map = new Map([
+  ['username', 'bluebird'],
+  ['age', 26],
+  ['tags', ['js', 'node']]
+]);
+
+const obj = mapToObject(map);
+// {
+//   "username": "bluebird",
+//   "age": 26,
+//   "tags": ["js", "node"]
+// }</code></pre>
+                </div>
+
+                <h3 style="color:#0f766e;margin:20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="function-badge">配置收集</span>
+                    <span class="function-badge">缓存序列化</span>
+                    <span class="function-badge">表单聚合</span>
+                    <span class="function-badge">国际化映射</span>
+                    <span class="function-badge">数据快照</span>
+                    <span class="function-badge">日志输出</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const mapToObject = (map) => Object.fromEntries(map.entries());
+
+        class MapToObjectTool {
+            constructor() {
+                this.plugins = {};
+                this.map = new Map();
+                this.history = [];
+                this.stats = {
+                    totalConversions: 0,
+                    totalEntries: 0,
+                    uniqueKeys: new Set(),
+                    mostUsedType: '-' 
+                };
+                this.typeUsage = {};
+                this.valueTypes = [
+                    { value: 'string', label: '字符串 (String)' },
+                    { value: 'number', label: '数字 (Number)' },
+                    { value: 'boolean', label: '布尔值 (Boolean)' },
+                    { value: 'json', label: 'JSON / 对象' },
+                    { value: 'date', label: '日期 (Date)' },
+                    { value: 'array', label: '数组 (以逗号分隔)' }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupSelect();
+                    this.setupInputNumber();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupSelect() {
+                const container = document.getElementById('valueTypeSelect');
+                if (!container) return;
+                try {
+                    const select = new Select({
+                        container,
+                        options: this.valueTypes,
+                        placeholder: '选择值类型',
+                        onChange: () => {}
+                    });
+                    select.setValue('string');
+                    this.plugins.valueType = select;
+                } catch (error) {
+                    console.warn('自定义选择框加载失败，使用原生选择框:', error);
+                    const native = document.createElement('select');
+                    native.className = 'input-field';
+                    this.valueTypes.forEach((option, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        if (index === 0) opt.selected = true;
+                        native.appendChild(opt);
+                    });
+                    container.appendChild(native);
+                }
+            }
+
+            setupInputNumber() {
+                const container = document.getElementById('randomCountInput');
+                if (!container) return;
+                try {
+                    this.plugins.randomCount = new InputNumber({
+                        container,
+                        value: 4,
+                        min: 1,
+                        max: 10,
+                        step: 1,
+                        onChange: () => {}
+                    });
+                } catch (error) {
+                    console.warn('自定义数字输入加载失败，使用原生输入框:', error);
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '10';
+                    input.value = '4';
+                    input.id = 'randomCountNative';
+                    input.className = 'input-field';
+                    container.appendChild(input);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                const options = [
+                    { id: 'autoSort', label: '按键名排序 Map', checked: false },
+                    { id: 'showMapEntries', label: '显示 Map 条目', checked: true },
+                    { id: 'showObject', label: '显示对象结果', checked: true },
+                    { id: 'showCode', label: '显示执行代码', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                try {
+                    const instance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({ id: option.id, label: option.label, checked: option.checked })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(instance.container);
+                    this.plugins.checkboxGroup = instance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    options.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            const states = this.plugins.checkboxGroup.getAllChecked();
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            getSelectedType() {
+                if (this.plugins.valueType?.getValue) {
+                    try {
+                        return this.plugins.valueType.getValue();
+                    } catch (error) {
+                        console.warn('获取类型失败，使用默认 string:', error);
+                    }
+                } else {
+                    const native = document.querySelector('#valueTypeSelect select');
+                    if (native) return native.value;
+                }
+                return 'string';
+            }
+
+            getRandomCount() {
+                if (this.plugins.randomCount?.getValue) {
+                    return Number(this.plugins.randomCount.getValue() || 4);
+                }
+                const native = document.getElementById('randomCountNative');
+                return native ? Number(native.value || 4) : 4;
+            }
+
+            parseValue(rawValue, type, param) {
+                switch (type) {
+                    case 'number': {
+                        const num = Number(rawValue);
+                        if (Number.isNaN(num)) throw new Error('无法解析为数字，请输入合法的数字值');
+                        return num;
+                    }
+                    case 'boolean': {
+                        const normalized = (rawValue || '').toString().trim().toLowerCase();
+                        return ['true', '1', 'yes', 'y', 'on'].includes(normalized);
+                    }
+                    case 'json': {
+                        if (!rawValue) return null;
+                        try {
+                            return JSON.parse(rawValue);
+                        } catch (error) {
+                            throw new Error('JSON 解析失败，请检查格式');
+                        }
+                    }
+                    case 'date': {
+                        const date = new Date(rawValue);
+                        if (Number.isNaN(date.getTime())) throw new Error('无法解析为日期，请输入合法日期字符串');
+                        return date.toISOString();
+                    }
+                    case 'array': {
+                        if (!rawValue) return [];
+                        return rawValue.split(',').map(item => item.trim());
+                    }
+                    default:
+                        return rawValue;
+                }
+            }
+
+            addEntry() {
+                const keyInput = document.getElementById('keyInput');
+                const valueInput = document.getElementById('valueInput');
+                const paramInput = document.getElementById('valueParam');
+                if (!keyInput || !valueInput) return;
+
+                const key = keyInput.value.trim();
+                if (!key) {
+                    this.showError('请输入键 (Key)');
+                    return;
+                }
+
+                const type = this.getSelectedType();
+                const rawValue = valueInput.value;
+                const param = paramInput?.value || '';
+
+                try {
+                    const parsedValue = this.parseValue(rawValue, type, param);
+                    this.map.set(key, parsedValue);
+                    this.stats.uniqueKeys.add(key);
+                    this.typeUsage[type] = (this.typeUsage[type] || 0) + 1;
+                    keyInput.value = '';
+                    valueInput.value = '';
+                    if (paramInput) paramInput.value = '';
+                    if (this.getCheckboxValue('autoSort')) {
+                        this.sortMap();
+                    }
+                    this.displayMapEntries();
+                    this.showNotification(`已添加键「${key}」`, 'success');
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            sortMap() {
+                const sorted = Array.from(this.map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+                this.map = new Map(sorted);
+            }
+
+            removeEntry(key) {
+                this.map.delete(key);
+                this.displayMapEntries();
+                this.showNotification(`已移除键「${key}」`, 'info');
+            }
+
+            clearMap() {
+                this.map.clear();
+                this.displayMapEntries();
+                const objectDisplay = document.getElementById('objectDisplay');
+                if (objectDisplay) {
+                    objectDisplay.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <p>执行转换后将在此展示对象结果</p>
+                        </div>`;
+                }
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                this.showNotification('已清空 Map', 'info');
+            }
+
+            convert() {
+                if (this.map.size === 0) {
+                    this.showError('请先添加至少一个 Map 条目');
+                    return;
+                }
+
+                try {
+                    const t0 = performance.now();
+                    const obj = mapToObject(this.map);
+                    const t1 = performance.now();
+                    const time = Math.round((t1 - t0) * 1000) / 1000;
+
+                    this.stats.totalConversions++;
+                    this.stats.totalEntries += this.map.size;
+
+                    this.displayObject(obj);
+                    this.displayAnalysis(obj);
+                    this.updateStats();
+                    this.addToHistory(obj, time);
+
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode(obj);
+                    }
+
+                    this.showNotification(`转换完成：条目 ${this.map.size} 个，用时 ${time}μs`, 'success');
+                } catch (error) {
+                    this.showError('转换失败: ' + error.message);
+                }
+            }
+
+            displayMapEntries() {
+                const container = document.getElementById('mapEntries');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showMapEntries')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭 Map 条目展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (this.map.size === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🧩</div>
+                            <p>添加键值对后将在此展示 Map 条目</p>
+                        </div>`;
+                    return;
+                }
+
+                const entriesHtml = Array.from(this.map.entries()).map(([key, value]) => {
+                    const type = Array.isArray(value) ? 'array' : value === null ? 'null' : typeof value;
+                    const displayValue = typeof value === 'object' ? JSON.stringify(value) : value;
+                    return `
+                        <div class="entry-card">
+                            <div class="entry-key">${key}</div>
+                            <div>
+                                <div class="entry-value">${displayValue}</div>
+                                <div class="entry-meta">类型：${type}</div>
+                            </div>
+                            <button class="remove-entry" onclick="window.mapTool?.removeEntry('${key.replace(/'/g, "\\'")}')">移除</button>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `<div class="entry-list">${entriesHtml}</div>`;
+            }
+
+            displayObject(obj) {
+                const container = document.getElementById('objectDisplay');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showObject')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭对象结果展示</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = `<div class="result-preview">${JSON.stringify(obj, null, 2)}</div>`;
+            }
+
+            displayAnalysis(obj) {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('analysisGrid');
+                if (!card || !grid) return;
+
+                const keys = Object.keys(obj);
+                const summary = keys.map(key => `${key}: ${Array.isArray(obj[key]) ? 'Array' : typeof obj[key]}`);
+                grid.innerHTML = `
+                    <div class="analysis-card">
+                        <h4>条目统计</h4>
+                        <p>Map 大小：${this.map.size}</p>
+                        <p>对象键数：${keys.length}</p>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>类型分布</h4>
+                        <ul>${summary.map(item => `<li>${item}</li>`).join('')}</ul>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>最佳实践</h4>
+                        <p>Map 是否保持顺序：<span class="info-badge">${this.getCheckboxValue('autoSort') ? '是' : '否'}</span></p>
+                        <p>适合序列化：<span class="info-badge">${JSON.stringify(obj).length < 2000 ? '是' : '需注意体积'}</span></p>
+                    </div>
+                `;
+                card.style.display = 'block';
+            }
+
+            addToHistory(obj, time) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    entries: this.map.size,
+                    keysPreview: Object.keys(obj).slice(0, 4).join(', '),
+                    execTime: time
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无转换历史</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.execTime}μs</div>
+                        <div class="history-summary">条目：${item.entries} | 键预览：${item.keysPreview || '无'}</div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                const mostUsed = Object.keys(this.typeUsage).reduce((a, b) => this.typeUsage[a] > this.typeUsage[b] ? a : b, '-');
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalConversions}</div>
+                        <div class="stat-label">转换次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalEntries}</div>
+                        <div class="stat-label">累计条目</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.uniqueKeys.size}</div>
+                        <div class="stat-label">唯一键数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="font-size:1rem;">${mostUsed}</div>
+                        <div class="stat-label">最常用值类型</div>
+                    </div>
+                `;
+            }
+
+            showCode(obj) {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+                const entriesArray = JSON.stringify(Array.from(this.map.entries()), null, 2);
+                const code = `// 构建 Map
+const map = new Map(${entriesArray});
+
+// Map → Object
+define mapToObject
+const obj = mapToObject(map);
+
+console.log(obj);
+// ${JSON.stringify(obj, null, 2)}`;
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            loadSample() {
+                this.map = new Map([
+                    ['project', 'alpha'],
+                    ['version', '1.2.0'],
+                    ['features', ['map', 'object', 'visualizer']],
+                    ['meta', { owner: 'Product Team', updates: 4 }]
+                ]);
+                this.displayMapEntries();
+                this.showNotification('示例 Map 已加载', 'info');
+            }
+
+            generateRandom() {
+                const count = this.getRandomCount();
+                const keys = ['status', 'score', 'enabled', 'deadline', 'owner', 'region', 'retry', 'timeout', 'tags', 'payload'];
+                const randomEntries = [];
+                for (let i = 0; i < count; i++) {
+                    const key = `${keys[Math.floor(Math.random() * keys.length)]}_${i}`;
+                    const type = this.valueTypes[Math.floor(Math.random() * this.valueTypes.length)].value;
+                    let value;
+                    switch (type) {
+                        case 'number':
+                            value = Math.floor(Math.random() * 1000);
+                            break;
+                        case 'boolean':
+                            value = Math.random() > 0.5;
+                            break;
+                        case 'json':
+                            value = { id: i, timestamp: Date.now(), active: Math.random() > 0.5 };
+                            break;
+                        case 'date':
+                            value = new Date(Date.now() - Math.random() * 86400000).toISOString();
+                            break;
+                        case 'array':
+                            value = ['alpha', 'beta', 'gamma'].sort(() => Math.random() - 0.5).slice(0, 2);
+                            break;
+                        default:
+                            value = `${type}_value_${i}`;
+                    }
+                    randomEntries.push([key, value]);
+                    this.typeUsage[type] = (this.typeUsage[type] || 0) + 1;
+                    this.stats.uniqueKeys.add(key);
+                }
+                this.map = new Map(randomEntries);
+                this.displayMapEntries();
+                this.showNotification(`已生成 ${count} 条随机 Map 条目`, 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用 Map 到对象转换平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">🧭</div>
+                                <p style="color:#1f2937;line-height:1.8;">
+                                    构建动态 Map，生成可序列化的对象，实时掌握键值结构、类型分布与最佳实践。
+                                </p>
+                                <div style="background:#ecfdf5;border-left:4px solid #10b981;padding:12px;border-radius:12px;color:#047857;">
+                                    <strong>亮点：</strong> 可视化 Map 条目、智能分析对象结构、快速复制代码片段、历史记录回顾。
+                                </div>
+                                <ul style="color:#0f172a;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>支持字符串、数字、布尔、JSON、日期、数组等常见类型</li>
+                                    <li>快捷操作：示例加载、随机生成、键排序、批量清空</li>
+                                    <li>配合 mapToObject，轻松完成对象化、序列化与后续传输</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mapTool = new MapToObjectTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.mapTool) {
+            window.mapTool = new MapToObjectTool();
+        }
+    </script>
+</body>
+
+</html>

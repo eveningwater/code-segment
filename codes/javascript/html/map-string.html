@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字符串映射与可视化平台 - mapString</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #b6fbff 0%, #83a4d4 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.15rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 28px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+            font-size: 1rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .textarea-field {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #60a5fa, #2563eb);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #818cf8, #4338ca);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(30, 64, 175, 0.25);
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .string-visualization,
+        .result-visualization {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 12px;
+        }
+
+        .char-card {
+            background: white;
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s ease;
+        }
+
+        .char-card.highlight {
+            border: 2px solid #60a5fa;
+            transform: translateY(-4px);
+        }
+
+        .char-index {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .char-before,
+        .char-after {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+            font-family: 'Fira Code', 'Monaco', monospace;
+        }
+
+        .char-after {
+            color: #2563eb;
+        }
+
+        .char-meta {
+            font-size: 0.75rem;
+            color: #0f172a;
+            text-align: center;
+        }
+
+        .result-preview {
+            margin-top: 18px;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 18px;
+            border-radius: 14px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1.05rem;
+            word-break: break-word;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        .analysis-card h4 {
+            font-size: 0.95rem;
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+
+        .analysis-card p {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #0f172a;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        .stat-number {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #2563eb;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .timeline-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .timeline-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #2563eb);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .function-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 100px;
+            background: linear-gradient(135deg, #60a5fa, #2563eb);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .modal-content {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔤 字符串映射与可视化平台</h1>
+            <p>基于 mapString 的一站式字符串处理实验室，支持多种映射函数、字符级可视化、统计分析、历史追踪与代码预览</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>✍️ 输入配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>原始字符串</label>
+                            <textarea id="stringInput" class="textarea-field" placeholder="Hello, world!">Hello, world!</textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label>映射函数</label>
+                            <div id="functionSelect"></div>
+                        </div>
+
+                        <div class="input-group" id="shiftInputContainer" style="display:none;">
+                            <label>位移量（用于 ROT/Shift 映射）</label>
+                            <div id="shiftInput"></div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>自定义参数（可选，如 JSON 或替换表）</label>
+                            <input id="customParam" class="input-field" placeholder='例如：{"from":"o","to":"0"}' />
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.stringTool?.execute()">⚡ 执行映射</button>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.stringTool?.loadSample()">📄 示例</button>
+                            <button class="btn btn-info" onclick="window.stringTool?.reverseString()">🔁 翻转</button>
+                            <button class="btn btn-warning" onclick="window.stringTool?.shuffleString()">🎲 打乱</button>
+                            <button class="btn btn-danger" onclick="window.stringTool?.clear()">🧹 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 历史记录 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无历史记录</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>🔍 字符级映射</h2>
+                    <div class="string-visualization" id="stringVisualization">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🧱</div>
+                            <p>执行映射后将展示字符级映射过程</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>✨ 映射结果</h2>
+                    <div class="result-visualization" id="resultVisualization">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🌈</div>
+                            <p>映射后的字符串将在此展示</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background: #f8fafc; padding: 20px; border-radius: 14px;">
+                <h3 style="color:#2563eb; margin-bottom: 12px;">mapString 函数（字符映射）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const mapString = (str, fn) => str
+  .split('')
+  .map((char, index) => fn(char, index, str))
+  .join('');</code></pre>
+                </div>
+
+                <h3 style="color:#2563eb; margin: 20px 0 12px;">函数说明</h3>
+                <p style="color:#334155; line-height:1.8;">
+                    <strong>mapString</strong> 将字符串拆分为字符数组，对每个字符调用映射函数 <code>fn</code>，并将映射结果重新拼接成新字符串。
+                    映射函数可以访问字符本身、索引以及原始字符串，适合用于文本美化、信息加密、格式转换、模板生成等场景。
+                </p>
+
+                <h3 style="color:#2563eb; margin: 20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">// 大写映射
+mapString('Hello', (char) => char.toUpperCase());
+// "HELLO"
+
+// 位置标记
+mapString('ABC', (char, index) => `${index}:${char}`);
+// "0:A1:B2:C"
+
+// ROT 加密（位移 2）
+const shift = 2;
+mapString('abc', (char) => {
+  const code = char.charCodeAt(0);
+  if (code < 97 || code > 122) return char;
+  return String.fromCharCode(((code - 97 + shift) % 26) + 97);
+});
+// "cde"</code></pre>
+                </div>
+
+                <h3 style="color:#2563eb; margin: 20px 0 12px;">典型应用</h3>
+                <div>
+                    <span class="function-badge">文本美化</span>
+                    <span class="function-badge">加密/编码</span>
+                    <span class="function-badge">模板生成</span>
+                    <span class="function-badge">敏感信息脱敏</span>
+                    <span class="function-badge">字符统计</span>
+                    <span class="function-badge">可视化标注</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const mapString = (str, fn) => str.split('').map((char, index) => fn(char, index, str)).join('');
+
+        class MapStringTool {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.stats = {
+                    totalMappings: 0,
+                    totalCharacters: 0,
+                    uniqueCharacters: new Set(),
+                    mostUsedFunction: '-' 
+                };
+                this.functionUsage = {};
+
+                this.mappingFunctions = [
+                    {
+                        value: 'upper',
+                        label: '大写转换 (Upper Case)',
+                        desc: '将所有字符转换为大写',
+                        fn: (char) => char.toUpperCase()
+                    },
+                    {
+                        value: 'lower',
+                        label: '小写转换 (Lower Case)',
+                        desc: '将所有字符转换为小写',
+                        fn: (char) => char.toLowerCase()
+                    },
+                    {
+                        value: 'alternating',
+                        label: '交替大小写 (Alternating)',
+                        desc: '奇偶位交替变换大小写',
+                        fn: (char, index) => index % 2 === 0 ? char.toUpperCase() : char.toLowerCase()
+                    },
+                    {
+                        value: 'rotN',
+                        label: '字母位移 (ROT/Shift)',
+                        desc: '按指定位移加密字母，其他字符保持不变',
+                        fn: (char, index, str, param, shift) => {
+                            const value = shift ?? 13;
+                            const isUpper = char >= 'A' && char <= 'Z';
+                            const isLower = char >= 'a' && char <= 'z';
+                            if (!isUpper && !isLower) return char;
+                            const base = isUpper ? 65 : 97;
+                            const code = char.charCodeAt(0) - base;
+                            const shifted = (code + value + 26) % 26;
+                            return String.fromCharCode(base + shifted);
+                        }
+                    },
+                    {
+                        value: 'leet',
+                        label: '极客替换 (Leet Speak)',
+                        desc: '将字符替换为常见的 Leet 形式',
+                        fn: (char) => {
+                            const map = { 'a': '4', 'e': '3', 'i': '1', 'o': '0', 's': '5', 't': '7' };
+                            const lower = char.toLowerCase();
+                            return map[lower] || char;
+                        }
+                    },
+                    {
+                        value: 'indexTag',
+                        label: '索引标注 (Index Tag)',
+                        desc: '将每个字符转换为带索引的标签',
+                        fn: (char, index) => `[${index}:${char}]`
+                    },
+                    {
+                        value: 'customJSON',
+                        label: '自定义映射 (JSON 配置)',
+                        desc: '使用 JSON 定义的替换规则映射字符',
+                        fn: (char, index, str, param) => {
+                            let map = {};
+                            try {
+                                map = param ? JSON.parse(param) : {};
+                            } catch (error) {
+                                map = {};
+                            }
+                            const lower = char.toLowerCase();
+                            if (map[char] !== undefined) return map[char];
+                            if (map[lower] !== undefined) return map[lower];
+                            return char;
+                        }
+                    }
+                ];
+
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupSelect();
+                    this.setupInputNumber();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupSelect() {
+                const functionSelect = document.getElementById('functionSelect');
+                if (!functionSelect) return;
+
+                try {
+                    const selectInstance = new Select({
+                        container: functionSelect,
+                        options: this.mappingFunctions,
+                        placeholder: '选择映射函数',
+                        onChange: (value) => {
+                            const shiftContainer = document.getElementById('shiftInputContainer');
+                            if (shiftContainer) {
+                                shiftContainer.style.display = value === 'rotN' ? 'block' : 'none';
+                            }
+                        }
+                    });
+                    selectInstance.setValue('upper');
+                    this.plugins.functionSelect = selectInstance;
+                } catch (error) {
+                    console.warn('自定义选择框加载失败，使用原生组件:', error);
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    this.mappingFunctions.forEach((option, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        if (index === 0) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                    select.addEventListener('change', (event) => {
+                        const shiftContainer = document.getElementById('shiftInputContainer');
+                        if (shiftContainer) {
+                            shiftContainer.style.display = event.target.value === 'rotN' ? 'block' : 'none';
+                        }
+                    });
+                    functionSelect.appendChild(select);
+                }
+            }
+
+            setupInputNumber() {
+                const shiftContainer = document.getElementById('shiftInput');
+                if (!shiftContainer) return;
+
+                try {
+                    this.plugins.shiftInput = new InputNumber({
+                        container: shiftContainer,
+                        value: 13,
+                        min: -25,
+                        max: 25,
+                        step: 1,
+                        onChange: () => {}
+                    });
+                } catch (error) {
+                    console.warn('自定义数字输入加载失败，使用原生输入框:', error);
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = 'shiftNative';
+                    input.value = '13';
+                    input.min = '-25';
+                    input.max = '25';
+                    input.className = 'input-field';
+                    shiftContainer.appendChild(input);
+                }
+            }
+
+            setupCheckboxes() {
+                const checkboxGroup = document.getElementById('checkboxGroup');
+                if (!checkboxGroup) return;
+
+                const options = [
+                    { id: 'showVisualization', label: '显示字符级可视化', checked: true },
+                    { id: 'showAnalysis', label: '显示统计分析', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true },
+                    { id: 'showCode', label: '显示执行代码', checked: true }
+                ];
+
+                try {
+                    const instance = Checkbox.createCheckboxGroup({
+                        items: options.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    checkboxGroup.appendChild(instance.container);
+                    this.plugins.checkboxGroup = instance;
+                    this.checkboxOptions = options;
+                } catch (error) {
+                    console.warn('自定义复选框加载失败，使用原生复选框:', error);
+                    options.forEach(option => {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.marginBottom = '10px';
+                        wrapper.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left: 6px;">${option.label}</label>`;
+                        checkboxGroup.appendChild(wrapper);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup && this.checkboxOptions) {
+                    try {
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            const states = this.plugins.checkboxGroup.getAllChecked();
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('获取复选框值失败，使用原生方法:', error);
+                    }
+                }
+
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            getMappingFunction() {
+                let value = 'upper';
+                if (this.plugins.functionSelect?.getValue) {
+                    try {
+                        value = this.plugins.functionSelect.getValue();
+                    } catch (error) {
+                        console.warn('获取映射函数失败，使用默认值:', error);
+                    }
+                } else {
+                    const select = document.querySelector('#functionSelect select');
+                    if (select) value = select.value;
+                }
+                return this.mappingFunctions.find(item => item.value === value) || this.mappingFunctions[0];
+            }
+
+            getShiftValue() {
+                if (this.plugins.shiftInput?.getValue) {
+                    try {
+                        return Number(this.plugins.shiftInput.getValue());
+                    } catch (error) {
+                        console.warn('读取位移量失败，使用默认 13:', error);
+                    }
+                }
+                const native = document.getElementById('shiftNative');
+                return native ? Number(native.value || 13) : 13;
+            }
+
+            execute() {
+                const input = document.getElementById('stringInput');
+                if (!input) return;
+                const str = input.value;
+
+                if (!str.length) {
+                    this.showError('请输入字符串内容');
+                    return;
+                }
+
+                const func = this.getMappingFunction();
+                const shiftValue = func.value === 'rotN' ? this.getShiftValue() : undefined;
+                const param = document.getElementById('customParam')?.value || '';
+
+                try {
+                    const t0 = performance.now();
+                    const mapped = mapString(str, (char, index) => func.fn(char, index, str, param, shiftValue));
+                    const t1 = performance.now();
+                    const time = Math.round((t1 - t0) * 1000) / 1000;
+
+                    this.stats.totalMappings++;
+                    this.stats.totalCharacters += str.length;
+                    str.split('').forEach(char => this.stats.uniqueCharacters.add(char));
+                    this.functionUsage[func.value] = (this.functionUsage[func.value] || 0) + 1;
+                    this.stats.mostUsedFunction = Object.keys(this.functionUsage)
+                        .reduce((a, b) => this.functionUsage[a] > this.functionUsage[b] ? a : b, func.value);
+
+                    this.displayVisualization(str, mapped, func, shiftValue);
+                    this.displayResult(str, mapped, func, param, shiftValue);
+                    this.updateStats();
+                    this.addToHistory(str, mapped, func, time, shiftValue, param);
+
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode(str, mapped, func, param, shiftValue);
+                    }
+
+                    this.showNotification(`已完成映射：字符 ${str.length} 个，用时 ${time}μs`, 'success');
+                } catch (error) {
+                    this.showError('映射失败: ' + error.message);
+                }
+            }
+
+            displayVisualization(original, mapped, func, shiftValue) {
+                const visualization = document.getElementById('stringVisualization');
+                if (!visualization) return;
+
+                if (!this.getCheckboxValue('showVisualization')) {
+                    visualization.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭字符级可视化展示</p>
+                        </div>`;
+                    return;
+                }
+
+                const chars = original.split('');
+                const mappedChars = mapped.split('');
+
+                const charCards = chars.map((char, index) => {
+                    const ascii = char.charCodeAt(0);
+                    const mappedAscii = mappedChars[index].charCodeAt(0);
+                    const highlight = char !== mappedChars[index] ? 'highlight' : '';
+                    return `
+                        <div class="char-card ${highlight}">
+                            <div class="char-index">索引 ${index}</div>
+                            <div class="char-before">${char === ' ' ? '␠' : char}</div>
+                            <div class="char-after">${mappedChars[index] === ' ' ? '␠' : mappedChars[index]}</div>
+                            <div class="char-meta">${ascii} → ${mappedAscii}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                visualization.innerHTML = `
+                    <div class="list-title" style="font-weight:700;color:#1d4ed8;margin-bottom:16px;">
+                        映射函数：${func.label}${func.value === 'rotN' ? `（位移 ${shiftValue}）` : ''}
+                    </div>
+                    <div class="char-grid">${charCards}</div>
+                `;
+            }
+
+            displayResult(original, mapped, func, param, shiftValue) {
+                const resultVisualization = document.getElementById('resultVisualization');
+                if (!resultVisualization) return;
+
+                const diffCount = original.split('').reduce((count, char, index) => char !== mapped[index] ? count + 1 : count, 0);
+                const uppercaseCount = mapped.split('').filter(char => /[A-Z]/.test(char)).length;
+                const lowercaseCount = mapped.split('').filter(char => /[a-z]/.test(char)).length;
+
+                resultVisualization.innerHTML = `
+                    <div class="result-preview">${mapped || '<空字符串>'}</div>
+                    <div class="analysis-grid" id="analysisGrid">
+                        <div class="analysis-card">
+                            <h4>字符变化</h4>
+                            <p>原字符：${original.length} 个</p>
+                            <p>修改字符：${diffCount} 个</p>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>大小写统计</h4>
+                            <p>大写：${uppercaseCount}</p>
+                            <p>小写：${lowercaseCount}</p>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>映射参数</h4>
+                            <p>函数：${func.label}</p>
+                            <p>${func.value === 'rotN' ? '位移：' + (shiftValue ?? 13) : '参数：' + (param || '无')}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            addToHistory(original, mapped, func, time, shiftValue, param) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    length: original.length,
+                    preview: mapped.slice(0, 40) + (mapped.length > 40 ? '...' : ''),
+                    function: func.label,
+                    shift: shiftValue,
+                    param,
+                    execTime: time
+                });
+
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const historyList = document.getElementById('historyList');
+                const historyCount = document.getElementById('historyCount');
+                if (!historyList) return;
+
+                if (historyCount) historyCount.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无历史记录</p>
+                        </div>`;
+                    return;
+                }
+
+                historyList.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.execTime}μs</div>
+                        <div class="history-summary">函数：${item.function} | 字符：${item.length}</div>
+                        ${item.shift !== undefined ? `<div style="color:#2563eb;font-size:0.8rem;margin-top:6px;">位移：${item.shift}</div>` : ''}
+                        ${item.param ? `<div style="color:#2563eb;font-size:0.8rem;margin-top:6px;">参数：${item.param}</div>` : ''}
+                        <div style="color:#64748b;font-size:0.8rem;margin-top:6px;">结果预览：${item.preview}</div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                if (!statsGrid) return;
+
+                const mostUsedLabel = this.mappingFunctions.find(f => f.value === this.stats.mostUsedFunction)?.label || '-';
+
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalMappings}</div>
+                        <div class="stat-label">映射次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalCharacters}</div>
+                        <div class="stat-label">累计处理字符</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.uniqueCharacters.size}</div>
+                        <div class="stat-label">不同字符数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="font-size:1rem;">${mostUsedLabel}</div>
+                        <div class="stat-label">最常用函数</div>
+                    </div>
+                `;
+            }
+
+            showCode(original, mapped, func, param, shiftValue) {
+                const codeSection = document.getElementById('codeSection');
+                const codePreview = document.getElementById('codePreview');
+                if (!codePreview) return;
+
+                const code = `// mapString 函数
+const mapString = (str, fn) => str.split('').map((char, index) => fn(char, index, str)).join('');
+
+const original = ${JSON.stringify(original)};
+const mappingFn = ${func.fn.toString().replace(/\n/g, '\n  ')};
+const param = ${param ? JSON.stringify(param) : 'undefined'};
+const shift = ${shiftValue !== undefined ? shiftValue : 'undefined'};
+
+const result = mapString(original, (char, index, str) => mappingFn(char, index, str, param, shift));
+
+console.log(result);
+// ${JSON.stringify(mapped)}`;
+
+                codePreview.textContent = code;
+                if (window.hljs) {
+                    delete codePreview.dataset.highlighted;
+                    codePreview.className = 'language-javascript';
+                    hljs.highlightElement(codePreview);
+                }
+                if (codeSection) codeSection.style.display = 'block';
+            }
+
+            loadSample() {
+                const samples = [
+                    'MapString makes text processing fun!',
+                    '前端开发🧑‍💻 + 字符映射 = 无限可能',
+                    '123-456-7890',
+                    'Transform me with ROT13!',
+                    '敏感信息需要脱敏处理'
+                ];
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                const input = document.getElementById('stringInput');
+                if (input) input.value = sample;
+                this.showNotification('示例字符串已加载', 'info');
+            }
+
+            reverseString() {
+                const input = document.getElementById('stringInput');
+                if (!input) return;
+                input.value = input.value.split('').reverse().join('');
+                this.showNotification('字符串已翻转', 'info');
+            }
+
+            shuffleString() {
+                const input = document.getElementById('stringInput');
+                if (!input) return;
+                const arr = input.value.split('');
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                input.value = arr.join('');
+                this.showNotification('字符顺序已打乱', 'info');
+            }
+
+            clear() {
+                const input = document.getElementById('stringInput');
+                if (input) input.value = '';
+                const param = document.getElementById('customParam');
+                if (param) param.value = '';
+                const visualization = document.getElementById('stringVisualization');
+                const resultVisualization = document.getElementById('resultVisualization');
+                const codeSection = document.getElementById('codeSection');
+                if (visualization) {
+                    visualization.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🧱</div>
+                            <p>执行映射后将展示字符级映射过程</p>
+                        </div>`;
+                }
+                if (resultVisualization) {
+                    resultVisualization.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🌈</div>
+                            <p>映射后的字符串将在此展示</p>
+                        </div>`;
+                }
+                if (codeSection) codeSection.style.display = 'none';
+                this.showNotification('已清空输入与展示区域', 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用字符串映射平台',
+                        content: `
+                            <div style="padding: 18px;">
+                                <div style="text-align:center;font-size:48px;">🔤</div>
+                                <p style="color:#334155;margin:12px 0;">
+                                    借助 <strong>mapString</strong>，您可以自定义任意字符级映射逻辑，在可视化界面中直观查看每个字符的变化过程，并即时获取统计信息与代码片段。
+                                </p>
+                                <div style="background:#eef2ff;padding:12px;border-radius:10px;margin-bottom:12px;color:#1d4ed8;">
+                                    支持功能：大小写转换、ROT 位移、Leet 替换、索引标注、自定义 JSON 映射等多种常见场景。
+                                </div>
+                                <ul style="color:#0f172a;margin-left:18px;line-height:1.8;">
+                                    <li>实时字符级可视化，洞察每一次转换</li>
+                                    <li>历史记录 & 统计面板，追踪映射行为</li>
+                                    <li>代码预览一键复制，方便整合到项目中</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.stringTool = new MapStringTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.stringTool) {
+            window.stringTool = new MapStringTool();
+        }
+    </script>
+</body>
+
+</html>
