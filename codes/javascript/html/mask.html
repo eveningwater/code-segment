@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>敏感信息遮罩平台 - mask</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #29323c 0%, #485563 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .header h1 {
+            font-size: 2.7rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.45);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+            color: rgba(248, 250, 252, 0.9);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 26px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.92);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.6);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e0f2fe;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #cbd5f5;
+            font-size: 0.98rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.25s ease;
+            background: rgba(15, 23, 42, 0.6);
+            color: #e2e8f0;
+        }
+
+        .textarea-field {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #818cf8, #4338ca);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(148, 163, 184, 0.25);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .dataset-section,
+        .mask-visualization {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .record-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .record-card {
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(2, 6, 23, 0.6);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .record-label {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .record-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #e2e8f0;
+            letter-spacing: 0.5px;
+        }
+
+        .record-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .mask-preview {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            color: #e2e8f0;
+            overflow-x: auto;
+            word-break: break-word;
+        }
+
+        .dual-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .preview-block {
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.55);
+        }
+
+        .preview-block h4 {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #bae6fd;
+        }
+
+        .preview-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1.05rem;
+            color: #f8fafc;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: rgba(15, 23, 42, 0.85);
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #38bdf8;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.6);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #38bdf8;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #0f172a;
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 34px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .dataset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .dataset-card {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 12px rgba(2, 6, 23, 0.6);
+        }
+
+        .dataset-card h4 {
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .dataset-card ul {
+            list-style: none;
+            color: #e2e8f0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .dataset-card li {
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .modal-content {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .ew-select {
+            color: #535455;
+            min-width: 200px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ 敏感信息遮罩平台</h1>
+            <p>基于 mask 函数的企业级遮罩实验室，支持卡号、手机号、邮箱等多种数据类型，自定义保留位数、遮罩字符、批量处理、历史追踪、代码预览与可视化剖析</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>🛠️ 数据录入</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>敏感原始数据</label>
+                            <textarea id="inputData" class="textarea-field" placeholder="一行一个待遮罩数据"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>数据类型</label>
+                            <div id="typeSelect"></div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.maskTool?.addRecords()">➕ 添加记录</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.maskTool?.maskAll()">⚡ 批量遮罩</button>
+                            <button class="btn btn-info" onclick="window.maskTool?.loadSample()">📄 示例数据</button>
+                            <button class="btn btn-warning" onclick="window.maskTool?.generateRandom()">🎲 随机生成</button>
+                            <button class="btn btn-danger" onclick="window.maskTool?.clearAll()">🧹 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 遮罩配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>保留尾部位数</label>
+                            <div id="keepDigitsInput"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>遮罩字符</label>
+                            <input id="maskCharInput" class="input-field" value="*" maxlength="2" />
+                        </div>
+                        <div class="input-group">
+                            <label>预设方案</label>
+                            <div id="presetSelect"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>批量导出格式</label>
+                            <div id="exportSelect"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔍 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 历史记录 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无遮罩历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>🧾 原始数据</h2>
+                    <div class="dataset-section" id="datasetSection">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔍</div>
+                            <p>添加数据后将在此展示明文与类型识别信息</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>✨ 遮罩结果</h2>
+                    <div class="mask-visualization" id="maskVisualization">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🛡️</div>
+                            <p>执行遮罩后将在此展示对比结果</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>📊 分析面板</h2>
+                    <div class="dataset-grid" id="analysisGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:rgba(15, 23, 42, 0.75);padding:20px;border-radius:14px;">
+                <h3 style="color:#38bdf8;margin-bottom:12px;">mask 函数（敏感信息遮罩）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const mask = (cc, num = 4, maskChar = "*") =>
+  `${cc}`.slice(-num).padStart(`${cc}`.length, maskChar);</code></pre>
+                </div>
+
+                <h3 style="color:#38bdf8;margin:20px 0 12px;">函数说明</h3>
+                <p style="color:#e2e8f0;line-height:1.8;">
+                    <strong>mask</strong> 函数用于保护敏感字符串。通过保留末尾 <code>num</code> 位，其余位以 <code>maskChar</code> 填充，实现快速脱敏效果。
+                    适用于银行卡号、手机号、证件号等隐私数据的展示与传输。
+                </p>
+
+                <h3 style="color:#38bdf8;margin:20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">mask('6222021234567890');
+// "************7890"
+
+mask('13800138000', 4, '#');
+// "#######8000"
+
+mask('john.doe@example.com', 3, '*');
+// "***************com"</code></pre>
+                </div>
+
+                <h3 style="color:#38bdf8;margin:20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="badge">银行卡展示</span>
+                    <span class="badge">手机号脱敏</span>
+                    <span class="badge">邮箱显示</span>
+                    <span class="badge">日志记录</span>
+                    <span class="badge">接口响应</span>
+                    <span class="badge">UI 显示</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const mask = (cc, num = 4, maskChar = "*") => `${cc}`.slice(-num).padStart(`${cc}`.length, maskChar);
+
+        class MaskTool {
+            constructor() {
+                this.plugins = {};
+                this.records = [];
+                this.history = [];
+                this.stats = {
+                    totalMasked: 0,
+                    totalCharacters: 0,
+                    typeUsage: {},
+                    lastMaskChar: '*',
+                    averageLength: 0
+                };
+                this.recordId = 1;
+                this.typeOptions = [
+                    { value: 'auto', label: '自动识别 (Auto Detect)' },
+                    { value: 'card', label: '银行卡号 (Card)' },
+                    { value: 'phone', label: '手机号 (Phone)' },
+                    { value: 'email', label: '邮箱 (Email)' },
+                    { value: 'id', label: '身份证号 (ID)' },
+                    { value: 'custom', label: '自定义 (Custom)' }
+                ];
+                this.presetOptions = [
+                    { value: 'card', label: '银行卡：保留 4 位，遮罩 *', config: { keep: 4, char: '*', type: 'card' } },
+                    { value: 'phone', label: '手机号：保留 4 位，遮罩 #', config: { keep: 4, char: '#', type: 'phone' } },
+                    { value: 'email', label: '邮箱：保留 3 位，遮罩 *', config: { keep: 3, char: '*', type: 'email' } },
+                    { value: 'id', label: '身份证：保留 6 位，遮罩 ·', config: { keep: 6, char: '·', type: 'id' } }
+                ];
+                this.exportOptions = [
+                    { value: 'table', label: '表格视图 (Table)' },
+                    { value: 'json', label: 'JSON 导出 (JSON)' },
+                    { value: 'csv', label: 'CSV 导出 (CSV)' }
+                ];
+                this.checkboxOptions = [
+                    { id: 'autoMaskOnAdd', label: '添加时立即遮罩', checked: true },
+                    { id: 'showOriginal', label: '显示原始数据', checked: true },
+                    { id: 'showMasked', label: '显示遮罩结果', checked: true },
+                    { id: 'showAnalysis', label: '显示分析面板', checked: true },
+                    { id: 'showCode', label: '显示代码预览', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupTypeSelect();
+                    this.setupPresetSelect();
+                    this.setupExportSelect();
+                    this.setupInputNumber();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupTypeSelect() {
+                const container = document.getElementById('typeSelect');
+                if (!container) return;
+                try {
+                    const select = new Select({
+                        container,
+                        options: this.typeOptions,
+                        placeholder: '选择数据类型',
+                        onChange: () => {}
+                    });
+                    select.setValue('auto');
+                    this.plugins.typeSelect = select;
+                } catch (error) {
+                    console.warn('自定义选择框加载失败，使用原生选择框:', error);
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    this.typeOptions.forEach((option, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        if (index === 0) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                    container.appendChild(select);
+                }
+            }
+
+            setupPresetSelect() {
+                const container = document.getElementById('presetSelect');
+                if (!container) return;
+                try {
+                    const select = new Select({
+                        container,
+                        options: this.presetOptions,
+                        placeholder: '快速选择遮罩方案',
+                        onChange: (value) => this.applyPreset(value)
+                    });
+                    this.plugins.presetSelect = select;
+                } catch (error) {
+                    console.warn('预设选择框加载失败，使用原生选择框:', error);
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = '快速选择遮罩方案';
+                    placeholder.disabled = true;
+                    placeholder.selected = true;
+                    select.appendChild(placeholder);
+                    this.presetOptions.forEach((option) => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.addEventListener('change', (event) => this.applyPreset(event.target.value));
+                    container.appendChild(select);
+                }
+            }
+
+            setupExportSelect() {
+                const container = document.getElementById('exportSelect');
+                if (!container) return;
+                try {
+                    const select = new Select({
+                        container,
+                        options: this.exportOptions,
+                        placeholder: '选择导出格式',
+                        onChange: () => {}
+                    });
+                    select.setValue('table');
+                    this.plugins.exportSelect = select;
+                } catch (error) {
+                    console.warn('导出选择框加载失败，使用原生选择框:', error);
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    this.exportOptions.forEach((option, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        if (index === 0) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                    container.appendChild(select);
+                }
+            }
+
+            setupInputNumber() {
+                const container = document.getElementById('keepDigitsInput');
+                if (!container) return;
+                try {
+                    this.plugins.keepDigits = new InputNumber({
+                        container,
+                        value: 4,
+                        min: 0,
+                        max: 12,
+                        step: 1,
+                        onChange: () => {}
+                    });
+                } catch (error) {
+                    console.warn('自定义数字输入加载失败，使用原生输入框:', error);
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = '4';
+                    input.min = '0';
+                    input.max = '12';
+                    input.id = 'keepDigitsNative';
+                    input.className = 'input-field';
+                    container.appendChild(input);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: this.checkboxOptions.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用原生复选框:', error);
+                    this.checkboxOptions.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('读取复选框状态失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            getKeepDigits() {
+                if (this.plugins.keepDigits?.getValue) {
+                    return Number(this.plugins.keepDigits.getValue() || 0);
+                }
+                const native = document.getElementById('keepDigitsNative');
+                return native ? Number(native.value || 0) : 0;
+            }
+
+            getMaskChar() {
+                const input = document.getElementById('maskCharInput');
+                if (!input) return '*';
+                return input.value?.trim() ? input.value.trim()[0] : '*';
+            }
+
+            getSelectedType() {
+                if (this.plugins.typeSelect?.getValue) {
+                    return this.plugins.typeSelect.getValue();
+                }
+                const native = document.querySelector('#typeSelect select');
+                return native ? native.value : 'auto';
+            }
+
+            applyPreset(value) {
+                if (!value) return;
+                const preset = this.presetOptions.find(option => option.value === value);
+                if (!preset) return;
+                const config = preset.config;
+                if (this.plugins.keepDigits?.setValue) {
+                    this.plugins.keepDigits.setValue(config.keep);
+                } else {
+                    const native = document.getElementById('keepDigitsNative');
+                    if (native) native.value = String(config.keep);
+                }
+                const maskCharInput = document.getElementById('maskCharInput');
+                if (maskCharInput) maskCharInput.value = config.char;
+                if (this.plugins.typeSelect?.setValue) {
+                    this.plugins.typeSelect.setValue(config.type);
+                } else {
+                    const native = document.querySelector('#typeSelect select');
+                    if (native) native.value = config.type;
+                }
+                this.showNotification(`已应用预设方案：${preset.label}`, 'info');
+            }
+
+            addRecords() {
+                const textarea = document.getElementById('inputData');
+                if (!textarea) return;
+                const raw = textarea.value.trim();
+                if (!raw) {
+                    this.showError('请输入至少一条数据');
+                    return;
+                }
+                const type = this.getSelectedType();
+                const rows = raw.split(/\n|,|;|\s/).map(item => item.trim()).filter(Boolean);
+                if (rows.length === 0) {
+                    this.showError('未检测到有效数据');
+                    return;
+                }
+                rows.forEach(value => {
+                    this.records.push({
+                        id: this.recordId++,
+                        raw: value,
+                        type: type === 'auto' ? this.detectType(value) : type,
+                        masked: null,
+                        timestamp: new Date().toLocaleString('zh-CN')
+                    });
+                });
+                textarea.value = '';
+                this.displayRecords();
+                if (this.getCheckboxValue('autoMaskOnAdd')) {
+                    this.maskAll();
+                } else {
+                    this.showNotification(`已添加 ${rows.length} 条记录`, 'success');
+                }
+            }
+
+            detectType(value) {
+                if (/^[0-9]{13,19}$/.test(value)) return 'card';
+                if (/^1[3-9][0-9]{9}$/.test(value)) return 'phone';
+                if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) return 'email';
+                if (/^[0-9A-Za-z]{15,18}$/.test(value)) return 'id';
+                return 'custom';
+            }
+
+            maskAll() {
+                if (this.records.length === 0) {
+                    this.showError('请先添加数据');
+                    return;
+                }
+                const keep = this.getKeepDigits();
+                const maskChar = this.getMaskChar();
+                const start = performance.now();
+                this.records = this.records.map(record => {
+                    const masked = mask(record.raw, keep, maskChar);
+                    return { ...record, masked, maskChar, keep };
+                });
+                const end = performance.now();
+                const time = Math.round((end - start) * 1000) / 1000;
+                this.stats.totalMasked += this.records.length;
+                this.stats.totalCharacters += this.records.reduce((sum, record) => sum + record.raw.length, 0);
+                this.stats.lastMaskChar = maskChar;
+                this.stats.averageLength = Math.round((this.stats.totalCharacters / (this.stats.totalMasked || 1)) * 100) / 100;
+                this.records.forEach(record => {
+                    this.stats.typeUsage[record.type] = (this.stats.typeUsage[record.type] || 0) + 1;
+                });
+                this.displayRecords();
+                this.displayMasked();
+                this.updateStats();
+                this.addToHistory(this.records.length, keep, maskChar, time);
+                if (this.getCheckboxValue('showAnalysis')) {
+                    this.displayAnalysis();
+                }
+                if (this.getCheckboxValue('showCode')) {
+                    this.showCode(keep, maskChar);
+                }
+                this.showNotification(`遮罩完成：记录 ${this.records.length} 条，用时 ${time}μs`, 'success');
+            }
+
+            displayRecords() {
+                const container = document.getElementById('datasetSection');
+                if (!container) return;
+                if (!this.getCheckboxValue('showOriginal')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭原始数据展示</p>
+                        </div>`;
+                    return;
+                }
+                if (this.records.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔍</div>
+                            <p>添加数据后将在此展示明文与类型识别信息</p>
+                        </div>`;
+                    return;
+                }
+                const html = this.records.slice(-30).map(record => `
+                    <div class="record-card">
+                        <div class="record-label">#${record.id}</div>
+                        <div>
+                            <div class="record-value">${record.raw}</div>
+                            <div class="record-meta">类型：${record.type.toUpperCase()} ｜ 添加时间：${record.timestamp}</div>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="window.maskTool?.removeRecord(${record.id})">移除</button>
+                    </div>
+                `).join('');
+                container.innerHTML = `<div class="record-list">${html}</div>`;
+            }
+
+            displayMasked() {
+                const container = document.getElementById('maskVisualization');
+                if (!container) return;
+                if (!this.getCheckboxValue('showMasked')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭遮罩结果展示</p>
+                        </div>`;
+                    return;
+                }
+                if (this.records.length === 0 || this.records.every(record => !record.masked)) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🛡️</div>
+                            <p>执行遮罩后将在此展示对比结果</p>
+                        </div>`;
+                    return;
+                }
+                const exportMode = this.getExportMode();
+                if (exportMode === 'table') {
+                    container.innerHTML = `
+                        <div class="dual-preview">
+                            ${this.records.slice(-24).map(record => `
+                                <div class="preview-block">
+                                    <h4>原始 (#${record.id})</h4>
+                                    <div class="preview-value">${record.raw}</div>
+                                    <h4 style="margin-top:12px;">遮罩 (${record.maskChar || this.getMaskChar()})</h4>
+                                    <div class="preview-value">${record.masked || '未遮罩'}</div>
+                                </div>
+                            `).join('')}
+                        </div>`;
+                } else if (exportMode === 'json') {
+                    const data = this.records.map(record => ({ id: record.id, raw: record.raw, masked: record.masked }));
+                    container.innerHTML = `<div class="mask-preview">${JSON.stringify(data, null, 2)}</div>`;
+                } else {
+                    const header = 'id,raw,masked';
+                    const rows = this.records.map(record => `${record.id},${record.raw},${record.masked}`);
+                    container.innerHTML = `<div class="mask-preview">${[header, ...rows].join('\n')}</div>`;
+                }
+            }
+
+            displayAnalysis() {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('analysisGrid');
+                if (!card || !grid) return;
+                if (this.records.length === 0) {
+                    card.style.display = 'none';
+                    return;
+                }
+                const typeSummary = Object.entries(this.stats.typeUsage).map(([type, count]) => `${type.toUpperCase()}: ${count}`).join('<br/>') || '暂无数据';
+                const lengthStats = this.computeLengthStats();
+                grid.innerHTML = `
+                    <div class="dataset-card">
+                        <h4>类型分布</h4>
+                        <ul><li>${typeSummary}</li></ul>
+                    </div>
+                    <div class="dataset-card">
+                        <h4>长度统计</h4>
+                        <ul>
+                            <li>最短：${lengthStats.min}</li>
+                            <li>最长：${lengthStats.max}</li>
+                            <li>平均：${lengthStats.avg}</li>
+                        </ul>
+                    </div>
+                    <div class="dataset-card">
+                        <h4>遮罩参数</h4>
+                        <ul>
+                            <li>保留位数：${this.getKeepDigits()}</li>
+                            <li>遮罩字符：${this.getMaskChar()}</li>
+                            <li>导出模式：${this.getExportMode().toUpperCase()}</li>
+                        </ul>
+                    </div>`;
+                card.style.display = 'block';
+            }
+
+            computeLengthStats() {
+                if (this.records.length === 0) {
+                    return { min: 0, max: 0, avg: 0 };
+                }
+                const lengths = this.records.map(record => record.raw.length);
+                const min = Math.min(...lengths);
+                const max = Math.max(...lengths);
+                const avg = Math.round((lengths.reduce((a, b) => a + b, 0) / lengths.length) * 100) / 100;
+                return { min, max, avg };
+            }
+
+            getExportMode() {
+                if (this.plugins.exportSelect?.getValue) {
+                    return this.plugins.exportSelect.getValue();
+                }
+                const native = document.querySelector('#exportSelect select');
+                return native ? native.value : 'table';
+            }
+
+            addToHistory(count, keep, maskChar, time) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    count,
+                    keep,
+                    maskChar,
+                    execTime: time,
+                    mode: this.getExportMode()
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无遮罩历史</p>
+                        </div>`;
+                    return;
+                }
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.execTime}μs</div>
+                        <div class="history-summary">记录：${item.count} ｜ 保留：${item.keep} ｜ 
+                            遮罩：${item.maskChar} ｜ 导出：${item.mode.toUpperCase()}</div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalMasked}</div>
+                        <div class="stat-label">遮罩总次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.records.length}</div>
+                        <div class="stat-label">当前记录数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.averageLength}</div>
+                        <div class="stat-label">平均原始长度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="font-size:1rem;">${this.stats.lastMaskChar}</div>
+                        <div class="stat-label">最近遮罩字符</div>
+                    </div>
+                `;
+            }
+
+            showCode(keep, maskChar) {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+                const records = this.records.slice(-10).map(record => record.raw);
+                const code = `const mask = (cc, num = ${keep}, maskChar = '${maskChar}') => \n  \
+${'`'}${'${cc}'}${'`'}.slice(-num).padStart(${ '`' }${'${cc}'}${'`'}.length, maskChar);\n\nconst data = ${JSON.stringify(records, null, 2)};\nconst result = data.map(item => mask(item));\n\nconsole.log(result);`;
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            removeRecord(id) {
+                this.records = this.records.filter(record => record.id !== id);
+                this.displayRecords();
+                this.displayMasked();
+                this.displayAnalysis();
+                this.showNotification(`已移除记录 #${id}`, 'info');
+            }
+
+            clearAll() {
+                this.records = [];
+                this.displayRecords();
+                this.displayMasked();
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                this.showNotification('已清空全部数据', 'info');
+            }
+
+            loadSample() {
+                this.records = [
+                    { id: this.recordId++, raw: '6222021234567890', type: 'card', masked: null, timestamp: new Date().toLocaleString('zh-CN') },
+                    { id: this.recordId++, raw: '13800138000', type: 'phone', masked: null, timestamp: new Date().toLocaleString('zh-CN') },
+                    { id: this.recordId++, raw: 'john.doe@example.com', type: 'email', masked: null, timestamp: new Date().toLocaleString('zh-CN') },
+                    { id: this.recordId++, raw: '11010519900101001X', type: 'id', masked: null, timestamp: new Date().toLocaleString('zh-CN') }
+                ];
+                this.displayRecords();
+                if (this.getCheckboxValue('autoMaskOnAdd')) {
+                    this.maskAll();
+                } else {
+                    this.showNotification('示例数据已加载', 'info');
+                }
+            }
+
+            generateRandom() {
+                const templates = [
+                    () => '622202' + Math.floor(1000000000 + Math.random() * 9000000000),
+                    () => '13' + Math.floor(800000000 + Math.random() * 100000000),
+                    () => `user${Math.floor(Math.random() * 9999)}@example.com`,
+                    () => '11010' + Math.floor(100000000000 + Math.random() * 900000000000)
+                ];
+                for (let i = 0; i < 6; i++) {
+                    const generator = templates[Math.floor(Math.random() * templates.length)];
+                    const raw = String(generator());
+                    this.records.push({
+                        id: this.recordId++,
+                        raw,
+                        type: this.detectType(raw),
+                        masked: null,
+                        timestamp: new Date().toLocaleString('zh-CN')
+                    });
+                }
+                this.displayRecords();
+                if (this.getCheckboxValue('autoMaskOnAdd')) {
+                    this.maskAll();
+                } else {
+                    this.showNotification('已生成随机数据', 'info');
+                }
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用敏感信息遮罩平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">🛡️</div>
+                                <p style="color:#0f172a;line-height:1.8;background:#e0f2fe;padding:12px;border-radius:12px;">
+                                    一站式遮罩中心：支持银行卡、手机号、邮箱、身份证等多场景脱敏，实时对比原始与遮罩结果，确保隐私合规与用户体验。
+                                </p>
+                                <ul style="color:#0f172a;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>批量导入、自动识别、快速遮罩</li>
+                                    <li>多种遮罩方案与导出模式可切换</li>
+                                    <li>数据分析、历史记录、代码预览全覆盖</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.maskTool = new MaskTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.maskTool) {
+            window.maskTool = new MaskTool();
+        }
+    </script>
+</body>
+
+</html>

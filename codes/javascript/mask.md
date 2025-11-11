@@ -14,6 +14,10 @@
 const mask = (cc,num = 4,mask = "*") => `${cc}`.slice(-num).padStart(`${cc}`.length,mask);
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/mask.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,3 +27,11 @@ mask(1234567890, -4, '$'); // '$$$$567890'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/mask.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/mask.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/mask.html"></iframe>
