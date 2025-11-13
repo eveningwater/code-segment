@@ -429,7 +429,7 @@
 - [映射对象值-2022-11-29](codes/javascript/map-values.md)
 - [遮盖一些字符-2022-11-30](codes/javascript/mask.md)
 - [匹配对象属性-2022-12-01](codes/javascript/matches.md)
-- [通过回调函数匹配对象属性-2022-12-01](codes/javascript/matchesWith.md)
+- [通过回调函数匹配对象属性-2022-12-01](codes/javascript/matches-with.md)
 - [通过回调函数查找数组的最大值-2022-12-03](codes/javascript/maxBy.md)
 - [查找最大日期-2022-12-04](codes/javascript/maxDate.md)
 - [返回数组中 n 个最大元素-2022-12-05](codes/javascript/maxN.md)

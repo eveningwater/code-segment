@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义匹配验证平台 - matchesWith</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.7rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 26px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.98rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .object-display,
+        .match-results {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .object-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .object-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+            border-left: 4px solid #06b6d4;
+        }
+
+        .object-card.matched {
+            border-left-color: #22c55e;
+        }
+
+        .object-card.not-matched {
+            border-left-color: #ef4444;
+        }
+
+        .object-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .object-id {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .match-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .match-badge.true {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .match-badge.false {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .object-content {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.95rem;
+            color: #1f2937;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .function-config {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .function-config h4 {
+            font-size: 0.95rem;
+            color: #06b6d4;
+            margin-bottom: 10px;
+        }
+
+        .function-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .comparison-card h4 {
+            font-size: 0.95rem;
+            color: #06b6d4;
+            margin-bottom: 10px;
+        }
+
+        .comparison-card ul {
+            list-style: none;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .comparison-card li {
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .comparison-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #06b6d4;
+        }
+
+        .comparison-card li.match {
+            color: #15803d;
+        }
+
+        .comparison-card li.mismatch {
+            color: #b91c1c;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #06b6d4;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #06b6d4;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .modal-content {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 自定义匹配验证平台</h1>
+            <p>基于 matchesWith 函数的灵活对象匹配工具，支持自定义比较函数、预设匹配策略、批量验证、详细分析</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 对象配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>待匹配对象 (JSON)</label>
+                            <textarea id="objectInput" class="textarea-field" placeholder='{"greeting": "hello", "age": 25}'></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>匹配条件对象 (Source)</label>
+                            <textarea id="sourceInput" class="textarea-field" placeholder='{"greeting": "hi"}'></textarea>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.matchWithTool?.addObject()">➕ 添加对象</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.matchWithTool?.matchAll()">⚡ 执行匹配</button>
+                            <button class="btn btn-info" onclick="window.matchWithTool?.loadSample()">📄 示例数据</button>
+                            <button class="btn btn-warning" onclick="window.matchWithTool?.generateRandom()">🎲 随机生成</button>
+                            <button class="btn btn-danger" onclick="window.matchWithTool?.clearAll()">🧹 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 比较函数</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>选择比较函数</label>
+                            <div id="functionSelect"></div>
+                        </div>
+                        <div id="functionConfig" class="function-config" style="display:none;">
+                            <h4>函数说明</h4>
+                            <div class="function-desc" id="functionDesc"></div>
+                        </div>
+                        <div class="input-group" id="customFunctionGroup" style="display:none;">
+                            <label>自定义函数代码</label>
+                            <textarea id="customFunctionInput" class="textarea-field" placeholder='(oV, sV, k, obj, source) => oV === sV'></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 历史记录 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无匹配历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>📦 对象列表</h2>
+                    <div class="object-display" id="objectDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>添加对象后将在此展示</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>✅ 匹配结果</h2>
+                    <div class="match-results" id="matchResults">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>执行匹配后将在此展示结果</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>📊 对比分析</h2>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                <h3 style="color:#06b6d4;margin-bottom:12px;">matchesWith 函数（自定义匹配）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const matchesWith = (obj, source, fn) => 
+  Object.keys(source).every(k => 
+    obj.hasOwnProperty(k) && 
+    (fn ? fn(obj[k], source[k], k, obj, source) : obj[k] === source[k])
+  );</code></pre>
+                </div>
+
+                <h3 style="color:#06b6d4;margin:20px 0 12px;">函数说明</h3>
+                <p style="color:#374151;line-height:1.8;">
+                    <strong>matchesWith</strong> 函数用于检查对象 <code>obj</code> 是否包含 <code>source</code> 对象中的所有键值对。
+                    与 <code>matches</code> 不同的是，它允许传入自定义比较函数 <code>fn</code> 来定义匹配逻辑。
+                    如果没有提供 <code>fn</code>，则使用严格相等比较（<code>===</code>）。
+                </p>
+
+                <h3 style="color:#06b6d4;margin:20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">// 使用默认严格相等比较
+matchesWith({ age: 25, name: 'John' }, { age: 25 });
+// true
+
+// 使用自定义比较函数
+const isGreeting = val => /^h(?:i|ello)$/.test(val);
+matchesWith(
+  { greeting: 'hello' },
+  { greeting: 'hi' },
+  (oV, sV) => isGreeting(oV) && isGreeting(sV)
+);
+// true
+
+// 数值范围匹配
+matchesWith(
+  { score: 85 },
+  { score: 80 },
+  (oV, sV) => Math.abs(oV - sV) <= 10
+);
+// true</code></pre>
+                </div>
+
+                <h3 style="color:#06b6d4;margin:20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="badge">模糊匹配</span>
+                    <span class="badge">范围匹配</span>
+                    <span class="badge">正则匹配</span>
+                    <span class="badge">类型转换匹配</span>
+                    <span class="badge">自定义验证规则</span>
+                    <span class="badge">复杂条件筛选</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const matchesWith = (obj, source, fn) => Object.keys(source).every(k => obj.hasOwnProperty(k) && fn ? fn(obj[k], source[k], k, obj, source) : obj[k] === source[k]);
+
+        class MatchWithTool {
+            constructor() {
+                this.plugins = {};
+                this.objects = [];
+                this.source = null;
+                this.currentFunction = null;
+                this.history = [];
+                this.stats = {
+                    totalMatches: 0,
+                    totalObjects: 0,
+                    matchedCount: 0,
+                    unmatchedCount: 0,
+                    functionUsage: {}
+                };
+                this.objectId = 1;
+                this.comparisonFunctions = [
+                    {
+                        value: 'default',
+                        label: '默认严格相等 (===)',
+                        desc: '使用严格相等运算符进行比较，要求值完全相等',
+                        fn: null
+                    },
+                    {
+                        value: 'loose',
+                        label: '宽松相等 (==)',
+                        desc: '使用宽松相等运算符，允许类型转换',
+                        fn: (oV, sV) => oV == sV
+                    },
+                    {
+                        value: 'greeting',
+                        label: '问候语匹配 (hello/hi)',
+                        desc: '匹配问候语，hello 和 hi 视为相等',
+                        fn: (oV, sV) => {
+                            const isGreeting = val => /^h(?:i|ello)$/.test(String(val).toLowerCase());
+                            return isGreeting(oV) && isGreeting(sV);
+                        }
+                    },
+                    {
+                        value: 'numberRange',
+                        label: '数值范围匹配 (±10)',
+                        desc: '数值匹配，允许 ±10 的误差范围',
+                        fn: (oV, sV) => {
+                            if (typeof oV !== 'number' || typeof sV !== 'number') return oV === sV;
+                            return Math.abs(oV - sV) <= 10;
+                        }
+                    },
+                    {
+                        value: 'stringContains',
+                        label: '字符串包含匹配',
+                        desc: '检查对象值是否包含源值（作为子字符串）',
+                        fn: (oV, sV) => {
+                            if (typeof oV !== 'string' || typeof sV !== 'string') return oV === sV;
+                            return oV.toLowerCase().includes(sV.toLowerCase());
+                        }
+                    },
+                    {
+                        value: 'arrayIncludes',
+                        label: '数组包含匹配',
+                        desc: '如果值是数组，检查是否包含源值',
+                        fn: (oV, sV) => {
+                            if (Array.isArray(oV)) return oV.includes(sV);
+                            return oV === sV;
+                        }
+                    },
+                    {
+                        value: 'custom',
+                        label: '自定义函数',
+                        desc: '使用自定义 JavaScript 函数进行比较',
+                        fn: null
+                    }
+                ];
+                this.checkboxOptions = [
+                    { id: 'showOriginal', label: '显示原始对象', checked: true },
+                    { id: 'showMatched', label: '显示匹配结果', checked: true },
+                    { id: 'showAnalysis', label: '显示对比分析', checked: true },
+                    { id: 'showCode', label: '显示代码预览', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupFunctionSelect();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupFunctionSelect() {
+                const container = document.getElementById('functionSelect');
+                if (!container) return;
+                try {
+                    const select = new Select({
+                        container,
+                        options: this.comparisonFunctions,
+                        placeholder: '选择比较函数',
+                        onChange: (value) => this.onFunctionChange(value)
+                    });
+                    select.setValue('default');
+                    this.plugins.functionSelect = select;
+                    this.onFunctionChange('default');
+                } catch (error) {
+                    console.warn('自定义选择框加载失败，使用原生选择框:', error);
+                    const native = document.createElement('select');
+                    native.className = 'input-field';
+                    this.comparisonFunctions.forEach((option, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        if (index === 0) opt.selected = true;
+                        native.appendChild(opt);
+                    });
+                    native.addEventListener('change', (event) => this.onFunctionChange(event.target.value));
+                    container.appendChild(native);
+                }
+            }
+
+            onFunctionChange(value) {
+                const func = this.comparisonFunctions.find(f => f.value === value);
+                if (!func) return;
+
+                this.currentFunction = func;
+                const configDiv = document.getElementById('functionConfig');
+                const descDiv = document.getElementById('functionDesc');
+                const customGroup = document.getElementById('customFunctionGroup');
+
+                if (value === 'custom') {
+                    if (configDiv) configDiv.style.display = 'block';
+                    if (descDiv) descDiv.textContent = func.desc;
+                    if (customGroup) customGroup.style.display = 'block';
+                } else {
+                    if (configDiv) configDiv.style.display = 'block';
+                    if (descDiv) descDiv.textContent = func.desc;
+                    if (customGroup) customGroup.style.display = 'none';
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: this.checkboxOptions.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用原生复选框:', error);
+                    this.checkboxOptions.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('读取复选框状态失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            getComparisonFunction() {
+                if (!this.currentFunction) {
+                    const select = this.plugins.functionSelect;
+                    if (select?.getValue) {
+                        const value = select.getValue();
+                        this.currentFunction = this.comparisonFunctions.find(f => f.value === value) || this.comparisonFunctions[0];
+                    } else {
+                        const native = document.querySelector('#functionSelect select');
+                        if (native) {
+                            const value = native.value;
+                            this.currentFunction = this.comparisonFunctions.find(f => f.value === value) || this.comparisonFunctions[0];
+                        } else {
+                            this.currentFunction = this.comparisonFunctions[0];
+                        }
+                    }
+                }
+
+                if (this.currentFunction.value === 'custom') {
+                    const customInput = document.getElementById('customFunctionInput');
+                    if (customInput && customInput.value.trim()) {
+                        try {
+                            return new Function('oV', 'sV', 'k', 'obj', 'source', `return ${customInput.value}`);
+                        } catch (error) {
+                            throw new Error('自定义函数代码错误: ' + error.message);
+                        }
+                    }
+                    return null;
+                }
+
+                return this.currentFunction.fn;
+            }
+
+            addObject() {
+                const objectInput = document.getElementById('objectInput');
+                const sourceInput = document.getElementById('sourceInput');
+                if (!objectInput || !sourceInput) return;
+
+                const objectStr = objectInput.value.trim();
+                const sourceStr = sourceInput.value.trim();
+
+                if (!objectStr) {
+                    this.showError('请输入待匹配对象');
+                    return;
+                }
+
+                if (!sourceStr) {
+                    this.showError('请输入匹配条件对象');
+                    return;
+                }
+
+                try {
+                    const obj = JSON.parse(objectStr);
+                    const source = JSON.parse(sourceStr);
+                    
+                    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+                        throw new Error('待匹配对象必须是普通对象');
+                    }
+                    if (typeof source !== 'object' || source === null || Array.isArray(source)) {
+                        throw new Error('匹配条件必须是普通对象');
+                    }
+
+                    this.objects.push({
+                        id: this.objectId++,
+                        obj,
+                        source,
+                        matched: null,
+                        timestamp: new Date().toLocaleString('zh-CN')
+                    });
+
+                    this.source = source;
+                    this.displayObjects();
+                    objectInput.value = '';
+                    this.showNotification('对象已添加', 'success');
+                } catch (error) {
+                    this.showError('JSON 解析失败: ' + error.message);
+                }
+            }
+
+            matchAll() {
+                if (this.objects.length === 0) {
+                    this.showError('请先添加至少一个对象');
+                    return;
+                }
+
+                const sourceInput = document.getElementById('sourceInput');
+                if (sourceInput && sourceInput.value.trim()) {
+                    try {
+                        this.source = JSON.parse(sourceInput.value.trim());
+                    } catch (error) {
+                        this.showError('匹配条件对象 JSON 解析失败: ' + error.message);
+                        return;
+                    }
+                }
+
+                if (!this.source || Object.keys(this.source).length === 0) {
+                    this.showError('请设置匹配条件对象');
+                    return;
+                }
+
+                let fn;
+                try {
+                    fn = this.getComparisonFunction();
+                } catch (error) {
+                    this.showError(error.message);
+                    return;
+                }
+
+                const start = performance.now();
+                this.objects = this.objects.map(item => {
+                    try {
+                        const matched = matchesWith(item.obj, this.source, fn);
+                        return { ...item, matched, source: this.source, fn: this.currentFunction };
+                    } catch (error) {
+                        console.error('匹配失败:', error);
+                        return { ...item, matched: false, source: this.source, fn: this.currentFunction, error: error.message };
+                    }
+                });
+                const end = performance.now();
+                const time = Math.round((end - start) * 1000) / 1000;
+
+                this.stats.totalMatches++;
+                this.stats.totalObjects += this.objects.length;
+                this.stats.matchedCount = this.objects.filter(item => item.matched).length;
+                this.stats.unmatchedCount = this.objects.length - this.stats.matchedCount;
+                
+                const funcName = this.currentFunction?.value || 'default';
+                this.stats.functionUsage[funcName] = (this.stats.functionUsage[funcName] || 0) + 1;
+
+                this.displayObjects();
+                this.displayResults();
+                this.updateStats();
+                this.addToHistory(this.objects.length, this.stats.matchedCount, time, funcName);
+
+                if (this.getCheckboxValue('showAnalysis')) {
+                    this.displayAnalysis();
+                }
+
+                if (this.getCheckboxValue('showCode')) {
+                    this.showCode();
+                }
+
+                this.showNotification(`匹配完成：${this.stats.matchedCount}/${this.objects.length} 匹配成功，用时 ${time}μs`, 'success');
+            }
+
+            displayObjects() {
+                const container = document.getElementById('objectDisplay');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showOriginal')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭原始对象展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (this.objects.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>添加对象后将在此展示</p>
+                        </div>`;
+                    return;
+                }
+
+                const html = this.objects.map(item => {
+                    const cardClass = item.matched === null ? '' : (item.matched ? 'matched' : 'not-matched');
+                    return `
+                        <div class="object-card ${cardClass}">
+                            <div class="object-header">
+                                <div class="object-id">对象 #${item.id}</div>
+                                ${item.matched !== null ? `
+                                    <div class="match-badge ${item.matched}">${item.matched ? '✓ 匹配' : '✗ 不匹配'}</div>
+                                ` : ''}
+                            </div>
+                            <div class="object-content">${JSON.stringify(item.obj, null, 2)}</div>
+                            <div style="margin-top:8px;font-size:0.8rem;color:#64748b;">添加时间：${item.timestamp}</div>
+                            <button class="btn btn-sm btn-danger" style="margin-top:8px;" onclick="window.matchWithTool?.removeObject(${item.id})">移除</button>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `<div class="object-list">${html}</div>`;
+            }
+
+            displayResults() {
+                const container = document.getElementById('matchResults');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showMatched')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭匹配结果展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (this.objects.length === 0 || this.objects.every(item => item.matched === null)) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>执行匹配后将在此展示结果</p>
+                        </div>`;
+                    return;
+                }
+
+                const matched = this.objects.filter(item => item.matched);
+                const unmatched = this.objects.filter(item => !item.matched);
+
+                container.innerHTML = `
+                    <div style="margin-bottom:16px;">
+                        <h3 style="color:#15803d;margin-bottom:12px;">✓ 匹配成功 (${matched.length})</h3>
+                        ${matched.length > 0 ? `
+                            <div class="object-list">
+                                ${matched.map(item => `
+                                    <div class="object-card matched">
+                                        <div class="object-header">
+                                            <div class="object-id">对象 #${item.id}</div>
+                                            <div class="match-badge true">匹配</div>
+                                        </div>
+                                        <div class="object-content">${JSON.stringify(item.obj, null, 2)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p style="color:#64748b;">暂无匹配对象</p>'}
+                    </div>
+                    <div>
+                        <h3 style="color:#b91c1c;margin-bottom:12px;">✗ 不匹配 (${unmatched.length})</h3>
+                        ${unmatched.length > 0 ? `
+                            <div class="object-list">
+                                ${unmatched.map(item => `
+                                    <div class="object-card not-matched">
+                                        <div class="object-header">
+                                            <div class="object-id">对象 #${item.id}</div>
+                                            <div class="match-badge false">不匹配</div>
+                                        </div>
+                                        <div class="object-content">${JSON.stringify(item.obj, null, 2)}</div>
+                                        ${item.error ? `<div style="color:#b91c1c;font-size:0.8rem;margin-top:8px;">错误: ${item.error}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p style="color:#64748b;">所有对象均匹配</p>'}
+                    </div>
+                `;
+            }
+
+            displayAnalysis() {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('comparisonGrid');
+                if (!card || !grid) return;
+
+                if (this.objects.length === 0 || !this.source) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                const sourceKeys = Object.keys(this.source);
+                const funcName = this.currentFunction?.label || '默认严格相等';
+                
+                grid.innerHTML = `
+                    <div class="comparison-card">
+                        <h4>匹配条件</h4>
+                        <div class="object-content" style="margin-top:10px;">${JSON.stringify(this.source, null, 2)}</div>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>比较函数</h4>
+                        <p style="color:#374151;margin-top:10px;">${funcName}</p>
+                        <p style="color:#64748b;font-size:0.85rem;margin-top:6px;">${this.currentFunction?.desc || ''}</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>匹配概览</h4>
+                        <ul>
+                            <li>总对象数：${this.objects.length}</li>
+                            <li class="match">匹配成功：${this.stats.matchedCount}</li>
+                            <li class="mismatch">不匹配：${this.stats.unmatchedCount}</li>
+                            <li>匹配率：${this.objects.length > 0 ? Math.round((this.stats.matchedCount / this.objects.length) * 100) : 0}%</li>
+                        </ul>
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            addToHistory(count, matched, time, funcName) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    count,
+                    matched,
+                    unmatched: count - matched,
+                    execTime: time,
+                    funcName: funcName || 'default',
+                    source: JSON.stringify(this.source).slice(0, 60) + (JSON.stringify(this.source).length > 60 ? '...' : '')
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无匹配历史</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.execTime}μs</div>
+                        <div class="history-summary">对象：${item.count} ｜ 匹配：${item.matched} ｜ 不匹配：${item.unmatched}</div>
+                        <div style="color:#64748b;font-size:0.8rem;margin-top:6px;">函数：${item.funcName} ｜ 条件：${item.source}</div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                const matchRate = this.objects.length > 0 ? Math.round((this.stats.matchedCount / this.objects.length) * 100) : 0;
+                const mostUsedFunc = Object.keys(this.stats.functionUsage).reduce((a, b) => 
+                    this.stats.functionUsage[a] > this.stats.functionUsage[b] ? a : b, '-');
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalMatches}</div>
+                        <div class="stat-label">匹配次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalObjects}</div>
+                        <div class="stat-label">累计对象</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.matchedCount}</div>
+                        <div class="stat-label">匹配成功</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${matchRate}%</div>
+                        <div class="stat-label">匹配率</div>
+                    </div>
+                `;
+            }
+
+            showCode() {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+
+                if (this.objects.length === 0 || !this.source) {
+                    if (section) section.style.display = 'none';
+                    return;
+                }
+
+                const sampleObj = this.objects[0].obj;
+                const fn = this.getComparisonFunction();
+                let fnCode = 'null';
+                let fnDesc = '默认严格相等比较';
+
+                if (fn) {
+                    if (this.currentFunction?.value === 'custom') {
+                        const customInput = document.getElementById('customFunctionInput');
+                        fnCode = customInput?.value || '(oV, sV) => oV === sV';
+                        fnDesc = '自定义函数';
+                    } else {
+                        fnCode = fn.toString();
+                        fnDesc = this.currentFunction?.label || '自定义函数';
+                    }
+                }
+
+                const code = `const matchesWith = (obj, source, fn) => 
+  Object.keys(source).every(k => 
+    obj.hasOwnProperty(k) && 
+    (fn ? fn(obj[k], source[k], k, obj, source) : obj[k] === source[k])
+  );
+
+const source = ${JSON.stringify(this.source, null, 2)};
+
+// 比较函数：${fnDesc}
+const compareFn = ${fnCode};
+
+// 单个对象匹配
+const obj1 = ${JSON.stringify(sampleObj, null, 2)};
+const result1 = matchesWith(obj1, source, compareFn);
+console.log(result1); // ${matchesWith(sampleObj, this.source, fn)}
+
+// 批量匹配
+const objects = ${JSON.stringify(this.objects.map(item => item.obj).slice(0, 3), null, 2)};
+const results = objects.map(obj => matchesWith(obj, source, compareFn));
+console.log(results); // ${JSON.stringify(this.objects.slice(0, 3).map(item => item.matched))}
+
+// 过滤匹配的对象
+const matched = objects.filter(obj => matchesWith(obj, source, compareFn));
+console.log(matched);`;
+
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            removeObject(id) {
+                this.objects = this.objects.filter(item => item.id !== id);
+                this.displayObjects();
+                this.displayResults();
+                this.displayAnalysis();
+                this.showNotification(`已移除对象 #${id}`, 'info');
+            }
+
+            clearAll() {
+                this.objects = [];
+                this.source = null;
+                const objectInput = document.getElementById('objectInput');
+                const sourceInput = document.getElementById('sourceInput');
+                if (objectInput) objectInput.value = '';
+                if (sourceInput) sourceInput.value = '';
+                this.displayObjects();
+                this.displayResults();
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                this.showNotification('已清空全部数据', 'info');
+            }
+
+            loadSample() {
+                const objectInput = document.getElementById('objectInput');
+                const sourceInput = document.getElementById('sourceInput');
+                if (objectInput && sourceInput) {
+                    objectInput.value = JSON.stringify({ greeting: 'hello', age: 25, name: 'John' }, null, 2);
+                    sourceInput.value = JSON.stringify({ greeting: 'hi' }, null, 2);
+                }
+                const functionSelect = this.plugins.functionSelect;
+                if (functionSelect?.setValue) {
+                    functionSelect.setValue('greeting');
+                    this.onFunctionChange('greeting');
+                } else {
+                    const native = document.querySelector('#functionSelect select');
+                    if (native) {
+                        native.value = 'greeting';
+                        this.onFunctionChange('greeting');
+                    }
+                }
+                this.showNotification('示例数据已加载', 'info');
+            }
+
+            generateRandom() {
+                const templates = [
+                    { greeting: 'hello', age: 25, name: 'Alice' },
+                    { greeting: 'hi', age: 30, name: 'Bob' },
+                    { greeting: 'hey', age: 25, name: 'Charlie' },
+                    { greeting: 'hello', age: 28, name: 'David' },
+                    { greeting: 'hi', age: 25, name: 'Eve' }
+                ];
+                const sourceInput = document.getElementById('sourceInput');
+                if (sourceInput && !sourceInput.value.trim()) {
+                    sourceInput.value = JSON.stringify({ greeting: 'hi' }, null, 2);
+                }
+                templates.forEach(template => {
+                    this.objects.push({
+                        id: this.objectId++,
+                        obj: template,
+                        source: null,
+                        matched: null,
+                        timestamp: new Date().toLocaleString('zh-CN')
+                    });
+                });
+                this.displayObjects();
+                this.showNotification('已生成随机对象', 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用自定义匹配验证平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">🎯</div>
+                                <p style="color:#1f2937;line-height:1.8;">
+                                    使用 <strong>matchesWith</strong> 函数进行灵活的对象匹配验证，支持自定义比较函数、预设匹配策略、批量验证与详细分析。
+                                </p>
+                                <div style="background:#cffafe;border-left:4px solid #06b6d4;padding:12px;border-radius:12px;color:#0e7490;margin-top:12px;">
+                                    <strong>亮点：</strong> 多种预设比较函数、自定义函数支持、实时匹配验证、详细对比分析、匹配率统计、代码一键复制。
+                                </div>
+                                <ul style="color:#1f2937;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>支持默认严格相等、宽松相等、问候语匹配等多种预设函数</li>
+                                    <li>可自定义 JavaScript 函数实现复杂匹配逻辑</li>
+                                    <li>可视化展示匹配成功与失败的对象</li>
+                                    <li>详细分析每个键值的匹配情况</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.matchWithTool = new MatchWithTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.matchWithTool) {
+            window.matchWithTool = new MatchWithTool();
+        }
+    </script>
+</body>
+
+</html>
