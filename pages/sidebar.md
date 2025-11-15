@@ -431,7 +431,7 @@
 - [匹配对象属性-2022-12-01](codes/javascript/matches.md)
 - [通过回调函数匹配对象属性-2022-12-01](codes/javascript/matches-with.md)
 - [通过回调函数查找数组的最大值-2022-12-03](codes/javascript/max-by.md)
-- [查找最大日期-2022-12-04](codes/javascript/maxDate.md)
+- [查找最大日期-2022-12-04](codes/javascript/max-date.md)
 - [返回数组中 n 个最大元素-2022-12-05](codes/javascript/maxN.md)
 - [在数字数组中查找具有最大总和的连续子数组-2022-12-06](codes/javascript/maxSubarray.md)
 - [获取数字数组的中位数-2022-12-07](codes/javascript/median.md)

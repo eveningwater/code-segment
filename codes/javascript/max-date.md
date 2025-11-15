@@ -11,6 +11,10 @@
 const maxDate = (...dates) => new Date(Math.max(...dates));
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/max-date.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,3 +28,11 @@ maxDate(...dates); // 2018-03-11T22:00:00.000Z
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/max-date.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/max-date.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/max-date.html"></iframe>
