@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中位数计算与可视化平台 - median</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.7rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 26px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.98rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .array-display,
+        .result-display {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .array-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+            justify-content: center;
+            min-height: 180px;
+            padding: 20px;
+        }
+
+        .array-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            min-width: 60px;
+        }
+
+        .array-item.sorted {
+            border-left-color: #3b82f6;
+        }
+
+        .array-item.median {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+            transform: scale(1.15);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+            z-index: 10;
+        }
+
+        .array-item.median-pair {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.25);
+            z-index: 10;
+        }
+
+        .item-index {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .item-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .item-label {
+            font-size: 0.7rem;
+            color: #22c55e;
+            margin-top: 6px;
+            font-weight: 700;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #4338ca;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #312e81;
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin-bottom: 16px;
+        }
+
+        .result-formula {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1rem;
+            color: #1f2937;
+        }
+
+        .result-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4338ca;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .comparison-card h4 {
+            font-size: 0.95rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .comparison-card p {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #475569;
+            margin: 4px 0;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .median-explanation {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .median-explanation h4 {
+            color: #1e40af;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .median-explanation p {
+            color: #1e3a8a;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .visual-bar {
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            margin-top: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visual-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 中位数计算与可视化平台</h1>
+            <p>基于 median 函数的统计计算工具，快速计算数字数组的中位数并可视化展示</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 数组配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>数组数据 (JSON 或逗号分隔)</label>
+                            <textarea id="arrayInput" class="textarea-field" placeholder='[5, 6, 50, 1, -5] 或 5,6,50,1,-5'></textarea>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.medianTool?.addArray()">➕ 添加数组</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.medianTool?.calculateMedian()">⚡ 计算中位数</button>
+                            <button class="btn btn-info" onclick="window.medianTool?.loadSample()">📄 示例数据</button>
+                            <button class="btn btn-warning" onclick="window.medianTool?.generateRandom()">🎲 随机生成</button>
+                            <button class="btn btn-danger" onclick="window.medianTool?.clearAll()">🧹 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 历史记录 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无计算历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>📦 数组元素</h2>
+                    <div class="array-display" id="arrayDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>添加数组后将在此展示</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>✨ 中位数结果</h2>
+                    <div class="result-display" id="resultDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>执行计算后将在此展示中位数</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>📊 统计分析</h2>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                <h3 style="color:#667eea;margin-bottom:12px;">median 函数（中位数计算）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const median = (arr) => {
+  const mid = Math.floor(arr.length / 2),
+    newArr = arr.sort((a, b) => a - b);
+  return arr.length % 2 !== 0
+    ? newArr[mid]
+    : (newArr[mid - 1] + newArr[mid]) / 2;
+};</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">函数说明</h3>
+                <p style="color:#374151;line-height:1.8;">
+                    <strong>median</strong> 函数用于计算数字数组的中位数。
+                    中位数是将一组数据按大小顺序排列后，位于中间位置的数值。
+                    如果数组长度为奇数，返回中间值；如果为偶数，返回中间两个数的平均值。
+                </p>
+
+                <div class="median-explanation">
+                    <h4>📐 中位数计算规则</h4>
+                    <p>
+                        <strong>奇数长度：</strong> 排序后取中间位置的元素<br>
+                        例如：[1, 3, 5, 7, 9] → 中位数为 5（索引 2）<br><br>
+                        <strong>偶数长度：</strong> 排序后取中间两个元素的平均值<br>
+                        例如：[1, 3, 5, 7] → 中位数为 (3 + 5) / 2 = 4
+                    </p>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">median([5, 6, 50, 1, -5]);
+// 5 (排序后: [-5, 1, 5, 6, 50]，中间值为 5)
+
+median([1, 2, 3, 4]);
+// 2.5 (排序后: [1, 2, 3, 4]，中间两个数为 2 和 3，平均值为 2.5)</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="badge">统计分析</span>
+                    <span class="badge">数据科学</span>
+                    <span class="badge">财务分析</span>
+                    <span class="badge">性能评估</span>
+                    <span class="badge">异常检测</span>
+                    <span class="badge">算法学习</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const median = (arr) => {
+            const mid = Math.floor(arr.length / 2),
+                newArr = arr.sort((a, b) => a - b);
+            return arr.length % 2 !== 0
+                ? newArr[mid]
+                : (newArr[mid - 1] + newArr[mid]) / 2;
+        };
+
+        class MedianTool {
+            constructor() {
+                this.plugins = {};
+                this.arrays = [];
+                this.currentArray = null;
+                this.sortedArray = null;
+                this.medianValue = null;
+                this.medianIndex = null;
+                this.isEvenLength = false;
+                this.history = [];
+                this.stats = {
+                    totalCalculations: 0,
+                    totalArrays: 0,
+                    averageMedian: 0,
+                    maxMedian: -Infinity,
+                    minMedian: Infinity
+                };
+                this.arrayId = 1;
+                this.checkboxOptions = [
+                    { id: 'showArray', label: '显示数组元素', checked: true },
+                    { id: 'showResult', label: '显示中位数结果', checked: true },
+                    { id: 'showAnalysis', label: '显示统计分析', checked: true },
+                    { id: 'showCode', label: '显示代码预览', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: this.checkboxOptions.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用原生复选框:', error);
+                    this.checkboxOptions.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('读取复选框状态失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            parseArray(input) {
+                const str = input.trim();
+                if (!str) {
+                    throw new Error('输入不能为空');
+                }
+
+                // 尝试 JSON 解析
+                if (str.startsWith('[') && str.endsWith(']')) {
+                    try {
+                        const parsed = JSON.parse(str);
+                        if (Array.isArray(parsed)) {
+                            return parsed.map(item => {
+                                const num = Number(item);
+                                if (Number.isNaN(num)) {
+                                    throw new Error(`无法转换为数字: ${item}`);
+                                }
+                                return num;
+                            });
+                        }
+                    } catch (error) {
+                        throw new Error('JSON 解析失败: ' + error.message);
+                    }
+                }
+
+                // 尝试逗号分隔解析
+                const parts = str.split(/[,\s]+/).filter(Boolean);
+                const numbers = parts.map(item => {
+                    const num = Number(item.trim());
+                    if (Number.isNaN(num)) {
+                        throw new Error(`无法转换为数字: ${item}`);
+                    }
+                    return num;
+                });
+
+                return numbers;
+            }
+
+            addArray() {
+                const arrayInput = document.getElementById('arrayInput');
+                if (!arrayInput) return;
+
+                const arrayStr = arrayInput.value.trim();
+                if (!arrayStr) {
+                    this.showError('请输入数组数据');
+                    return;
+                }
+
+                try {
+                    const arr = this.parseArray(arrayStr);
+                    if (arr.length === 0) {
+                        throw new Error('数组不能为空');
+                    }
+
+                    this.arrays.push({
+                        id: this.arrayId++,
+                        arr: [...arr],
+                        timestamp: new Date().toLocaleString('zh-CN')
+                    });
+
+                    this.currentArray = [...arr];
+                    this.displayArray();
+                    arrayInput.value = '';
+                    this.showNotification(`数组已添加，长度：${arr.length}`, 'success');
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            calculateMedian() {
+                if (!this.currentArray || this.currentArray.length === 0) {
+                    if (this.arrays.length === 0) {
+                        this.showError('请先添加数组');
+                        return;
+                    }
+                    this.currentArray = [...this.arrays[this.arrays.length - 1].arr];
+                }
+
+                const start = performance.now();
+                try {
+                    // 创建数组副本以避免修改原数组
+                    const arrCopy = [...this.currentArray];
+                    
+                    // 计算中位数
+                    const mid = Math.floor(arrCopy.length / 2);
+                    const sortedArr = arrCopy.sort((a, b) => a - b);
+                    
+                    this.isEvenLength = arrCopy.length % 2 === 0;
+                    
+                    if (this.isEvenLength) {
+                        this.medianValue = (sortedArr[mid - 1] + sortedArr[mid]) / 2;
+                        this.medianIndex = [mid - 1, mid];
+                    } else {
+                        this.medianValue = sortedArr[mid];
+                        this.medianIndex = [mid];
+                    }
+                    
+                    this.sortedArray = sortedArr;
+                    
+                    const end = performance.now();
+                    const time = Math.round((end - start) * 1000) / 1000;
+
+                    this.stats.totalCalculations++;
+                    this.stats.totalArrays += this.currentArray.length;
+                    const prevAvg = this.stats.averageMedian * (this.stats.totalCalculations - 1);
+                    this.stats.averageMedian = (prevAvg + this.medianValue) / this.stats.totalCalculations;
+                    this.stats.maxMedian = Math.max(this.stats.maxMedian, this.medianValue);
+                    this.stats.minMedian = Math.min(this.stats.minMedian, this.medianValue);
+
+                    this.displayArray();
+                    this.displayResult();
+                    this.updateStats();
+                    this.addToHistory(time);
+
+                    if (this.getCheckboxValue('showAnalysis')) {
+                        this.displayAnalysis();
+                    }
+
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode();
+                    }
+
+                    this.showNotification(`中位数：${this.medianValue}，用时 ${time}μs`, 'success');
+                } catch (error) {
+                    this.showError('计算失败: ' + error.message);
+                }
+            }
+
+            displayArray() {
+                const container = document.getElementById('arrayDisplay');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showArray')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭数组元素展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (!this.currentArray || this.currentArray.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>添加数组后将在此展示</p>
+                        </div>`;
+                    return;
+                }
+
+                // 如果已排序，显示排序后的数组
+                const displayArray = this.sortedArray || this.currentArray;
+                const isSorted = !!this.sortedArray;
+
+                const html = displayArray.map((value, index) => {
+                    let itemClass = isSorted ? 'sorted' : '';
+                    let label = '';
+                    
+                    if (this.medianIndex && isSorted) {
+                        if (this.isEvenLength && (index === this.medianIndex[0] || index === this.medianIndex[1])) {
+                            itemClass += ' median-pair';
+                            label = index === this.medianIndex[0] ? '中位数1' : '中位数2';
+                        } else if (!this.isEvenLength && index === this.medianIndex[0]) {
+                            itemClass += ' median';
+                            label = '中位数';
+                        }
+                    }
+
+                    return `
+                        <div class="array-item ${itemClass}" data-index="${index}">
+                            <div class="item-index">索引 ${index}</div>
+                            <div class="item-value">${value}</div>
+                            ${label ? `<div class="item-label">${label}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `<div class="array-container">${html}</div>`;
+            }
+
+            displayResult() {
+                const container = document.getElementById('resultDisplay');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showResult')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭中位数结果展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (this.medianValue === null) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>执行计算后将在此展示中位数</p>
+                        </div>`;
+                    return;
+                }
+
+                const formula = this.isEvenLength
+                    ? `(${this.sortedArray[this.medianIndex[0]]} + ${this.sortedArray[this.medianIndex[1]]}) / 2 = ${this.medianValue}`
+                    : `索引 ${this.medianIndex[0]} 的值 = ${this.medianValue}`;
+
+                container.innerHTML = `
+                    <div class="result-card">
+                        <div class="result-label">中位数</div>
+                        <div class="result-value">${this.medianValue}</div>
+                        <div class="result-info">
+                            <div class="info-item">
+                                <div class="info-label">数组长度</div>
+                                <div class="info-value">${this.currentArray.length}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">长度类型</div>
+                                <div class="info-value">${this.isEvenLength ? '偶数' : '奇数'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">中位数索引</div>
+                                <div class="info-value">${this.isEvenLength ? `[${this.medianIndex[0]}, ${this.medianIndex[1]}]` : this.medianIndex[0]}</div>
+                            </div>
+                        </div>
+                        <div class="result-formula">
+                            ${formula}
+                        </div>
+                    </div>
+                `;
+            }
+
+            displayAnalysis() {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('comparisonGrid');
+                if (!card || !grid) return;
+
+                if (!this.currentArray || this.medianValue === null) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                const sorted = this.sortedArray || [...this.currentArray].sort((a, b) => a - b);
+                const sum = this.currentArray.reduce((a, b) => a + b, 0);
+                const mean = sum / this.currentArray.length;
+                const min = Math.min(...this.currentArray);
+                const max = Math.max(...this.currentArray);
+                const range = max - min;
+                const variance = this.currentArray.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / this.currentArray.length;
+                const stdDev = Math.sqrt(variance);
+
+                // 计算四分位数
+                const q1Index = Math.floor(this.currentArray.length / 4);
+                const q3Index = Math.floor(this.currentArray.length * 3 / 4);
+                const q1 = sorted[q1Index];
+                const q3 = sorted[q3Index];
+                const iqr = q3 - q1;
+
+                grid.innerHTML = `
+                    <div class="comparison-card">
+                        <h4>📊 基本统计</h4>
+                        <p>数组长度: ${this.currentArray.length}</p>
+                        <p>总和: ${sum}</p>
+                        <p>平均值: ${Math.round(mean * 100) / 100}</p>
+                        <p>中位数: ${this.medianValue}</p>
+                        <p>最小值: ${min}</p>
+                        <p>最大值: ${max}</p>
+                        <p>范围: ${range}</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>📈 离散度指标</h4>
+                        <p>方差: ${Math.round(variance * 100) / 100}</p>
+                        <p>标准差: ${Math.round(stdDev * 100) / 100}</p>
+                        <p>第一四分位数 (Q1): ${q1}</p>
+                        <p>第三四分位数 (Q3): ${q3}</p>
+                        <p>四分位距 (IQR): ${iqr}</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>🔢 排序后数组</h4>
+                        <p style="word-break:break-all;font-size:0.85rem;">[${sorted.join(', ')}]</p>
+                        <p style="margin-top:8px;color:#22c55e;font-weight:600;">
+                            ${this.isEvenLength 
+                                ? `中位数位置: 索引 ${this.medianIndex[0]} 和 ${this.medianIndex[1]}`
+                                : `中位数位置: 索引 ${this.medianIndex[0]}`}
+                        </p>
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            addToHistory(time) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    median: this.medianValue,
+                    arrayLength: this.currentArray.length,
+                    isEvenLength: this.isEvenLength,
+                    execTime: time
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无计算历史</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.execTime}μs</div>
+                        <div class="history-summary">中位数: ${item.median} | 长度: ${item.arrayLength} (${item.isEvenLength ? '偶数' : '奇数'})</div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalCalculations}</div>
+                        <div class="stat-label">计算次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalArrays}</div>
+                        <div class="stat-label">累计元素</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.currentArray ? this.currentArray.length : 0}</div>
+                        <div class="stat-label">当前数组长度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.averageMedian.toFixed(2)}</div>
+                        <div class="stat-label">平均中位数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.maxMedian === -Infinity ? '-' : this.stats.maxMedian.toFixed(2)}</div>
+                        <div class="stat-label">最大中位数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.minMedian === Infinity ? '-' : this.stats.minMedian.toFixed(2)}</div>
+                        <div class="stat-label">最小中位数</div>
+                    </div>
+                `;
+            }
+
+            showCode() {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+
+                if (!this.currentArray || this.medianValue === null) {
+                    if (section) section.style.display = 'none';
+                    return;
+                }
+
+                const code = `const median = (arr) => {
+  const mid = Math.floor(arr.length / 2),
+    newArr = arr.sort((a, b) => a - b);
+  return arr.length % 2 !== 0
+    ? newArr[mid]
+    : (newArr[mid - 1] + newArr[mid]) / 2;
+};
+
+const arr = ${JSON.stringify(this.currentArray)};
+
+// 计算中位数
+const result = median([...arr]);
+console.log(result);
+// ${this.medianValue}
+
+// 说明：
+// - 数组长度: ${this.currentArray.length} (${this.isEvenLength ? '偶数' : '奇数'})
+${this.isEvenLength 
+    ? `// - 偶数长度：取中间两个数的平均值
+// - 排序后索引 ${this.medianIndex[0]} 和 ${this.medianIndex[1]} 的值: ${this.sortedArray[this.medianIndex[0]]} 和 ${this.sortedArray[this.medianIndex[1]]}
+// - 中位数 = (${this.sortedArray[this.medianIndex[0]]} + ${this.sortedArray[this.medianIndex[1]]}) / 2 = ${this.medianValue}`
+    : `// - 奇数长度：取中间值
+// - 排序后索引 ${this.medianIndex[0]} 的值: ${this.sortedArray[this.medianIndex[0]]}
+// - 中位数 = ${this.medianValue}`}`;
+
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            clearAll() {
+                this.arrays = [];
+                this.currentArray = null;
+                this.sortedArray = null;
+                this.medianValue = null;
+                this.medianIndex = null;
+                this.isEvenLength = false;
+                const arrayInput = document.getElementById('arrayInput');
+                if (arrayInput) arrayInput.value = '';
+                this.displayArray();
+                this.displayResult();
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                this.showNotification('已清空全部数据', 'info');
+            }
+
+            loadSample() {
+                const arrayInput = document.getElementById('arrayInput');
+                if (arrayInput) {
+                    arrayInput.value = JSON.stringify([5, 6, 50, 1, -5]);
+                }
+                this.showNotification('示例数据已加载', 'info');
+            }
+
+            generateRandom() {
+                const count = Math.floor(Math.random() * 15) + 5;
+                const randomArray = [];
+                for (let i = 0; i < count; i++) {
+                    randomArray.push(Math.floor(Math.random() * 100) - 50);
+                }
+                const arrayInput = document.getElementById('arrayInput');
+                if (arrayInput) {
+                    arrayInput.value = JSON.stringify(randomArray);
+                }
+                this.showNotification(`已生成 ${count} 个随机数字`, 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用中位数计算平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">📊</div>
+                                <p style="color:#1f2937;line-height:1.8;">
+                                    使用 <strong>median</strong> 函数快速计算数字数组的中位数。
+                                    中位数是统计学中的重要指标，不受极端值影响，常用于数据分析。
+                                </p>
+                                <div style="background:#e0e7ff;border-left:4px solid #667eea;padding:12px;border-radius:12px;color:#4338ca;margin-top:12px;">
+                                    <strong>亮点：</strong> 排序可视化、中位数高亮、统计分析、代码预览、历史记录。
+                                </div>
+                                <ul style="color:#1f2937;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>支持 JSON 数组或逗号分隔的数字输入</li>
+                                    <li>可视化展示排序后的数组和中位数位置</li>
+                                    <li>自动识别奇数/偶数长度并采用相应算法</li>
+                                    <li>提供详细的统计分析和对比信息</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.medianTool = new MedianTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.medianTool) {
+            window.medianTool = new MedianTool();
+        }
+    </script>
+</body>
+
+</html>

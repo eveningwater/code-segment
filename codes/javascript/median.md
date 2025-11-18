@@ -17,6 +17,10 @@ const median = (arr) => {
 };
 ```
 
+ts 代码如下:
+
+<div class="code-editor" data-url="codes/javascript/ts/median.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,3 +28,11 @@ median([5, 6, 50, 1, -5]); // 5
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/median.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/median.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/median.html"></iframe>
