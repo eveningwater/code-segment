@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>函数缓存与性能优化平台 - memoize</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.7rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 26px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.98rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .result-display {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+            margin-bottom: 16px;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #4338ca;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #312e81;
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin-bottom: 16px;
+        }
+
+        .result-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4338ca;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .performance-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .performance-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .performance-card h4 {
+            font-size: 1rem;
+            color: #667eea;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .performance-card.cached h4 {
+            color: #22c55e;
+        }
+
+        .performance-time {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin-bottom: 8px;
+        }
+
+        .performance-time.cached {
+            color: #22c55e;
+        }
+
+        .performance-speedup {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .cache-display {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .cache-item {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cache-key {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .cache-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #22c55e;
+            font-weight: 700;
+            margin-left: 12px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .comparison-card h4 {
+            font-size: 0.95rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .comparison-card p {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #475569;
+            margin: 4px 0;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-item.cached {
+            border-left-color: #22c55e;
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .history-badge {
+            display: inline-block;
+            background: #22c55e;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .function-selector {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .function-option {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .function-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .function-option.selected {
+            border-color: #667eea;
+            background: #e0e7ff;
+        }
+
+        .function-name {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .function-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .performance-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+        .modal-content {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ 函数缓存与性能优化平台</h1>
+            <p>基于 memoize 函数的缓存机制演示，对比缓存前后的性能差异</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>🔧 函数选择</h2>
+                    <div class="function-selector" id="functionSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>📝 参数输入</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label id="inputLabel">输入参数</label>
+                            <input type="text" id="functionInput" class="input-field" placeholder="输入参数值">
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success btn-block" onclick="window.memoizeTool?.executeFunction()">⚡ 执行函数</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-info" onclick="window.memoizeTool?.loadSample()">📄 示例</button>
+                            <button class="btn btn-warning" onclick="window.memoizeTool?.clearCache()">🗑️ 清空缓存</button>
+                            <button class="btn btn-danger" onclick="window.memoizeTool?.clearAll()">🧹 清空全部</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 执行历史 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无执行历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>✨ 执行结果</h2>
+                    <div class="result-display" id="resultDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>执行函数后将在此展示结果</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="performanceCard" style="display:none;">
+                    <h2>⚡ 性能对比</h2>
+                    <div class="performance-comparison" id="performanceComparison"></div>
+                </div>
+
+                <div class="card" id="cacheCard" style="display:none;">
+                    <h2>💾 缓存内容 (<span id="cacheSize">0</span>)</h2>
+                    <div class="cache-display" id="cacheDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💾</div>
+                            <p>缓存为空</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>📊 统计分析</h2>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                <h3 style="color:#667eea;margin-bottom:12px;">memoize 函数（函数缓存）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const memoize = (fn) => {
+  const cache = new Map();
+  const cached = (val) =>
+    cache.has(val)
+      ? cache.get(val)
+      : cache.set(val, fn.call(this, val)) && cache.get(val);
+  cached.cache = cache;
+  return cached;
+};</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">函数说明</h3>
+                <p style="color:#374151;line-height:1.8;">
+                    <strong>memoize</strong> 函数用于创建带缓存的函数，通过缓存计算结果来提升性能。
+                    当使用相同参数调用函数时，直接从缓存中返回结果，避免重复计算。
+                    这对于计算密集型函数特别有用，可以显著提升性能。
+                </p>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">// 示例：缓存中位数计算函数
+const medianCache = memoize(median);
+medianCache([5, 6, 50, 1, -5]); // 第一次调用，计算并缓存
+medianCache([5, 6, 50, 1, -5]); // 第二次调用，从缓存返回
+
+// 访问缓存
+console.log(medianCache.cache); // Map { [5,6,50,1,-5] => 5 }</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="badge">递归函数优化</span>
+                    <span class="badge">复杂计算缓存</span>
+                    <span class="badge">API 响应缓存</span>
+                    <span class="badge">性能优化</span>
+                    <span class="badge">动态规划</span>
+                    <span class="badge">算法学习</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const memoize = (fn) => {
+            const cache = new Map();
+            const cached = (val) =>
+                cache.has(val)
+                    ? cache.get(val)
+                    : cache.set(val, fn.call(this, val)) && cache.get(val);
+            cached.cache = cache;
+            return cached;
+        };
+
+        // 辅助函数
+        const median = (arr) => {
+            // 创建数组副本，避免修改原数组
+            const sortedArr = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sortedArr.length / 2);
+            return sortedArr.length % 2 !== 0
+                ? sortedArr[mid]
+                : (sortedArr[mid - 1] + sortedArr[mid]) / 2;
+        };
+
+        const fibonacci = (n) => {
+            if (n <= 1) return n;
+            return fibonacci(n - 1) + fibonacci(n - 2);
+        };
+
+        const factorial = (n) => {
+            if (n <= 1) return 1;
+            return n * factorial(n - 1);
+        };
+
+        const sum = (arr) => {
+            return arr.reduce((a, b) => a + b, 0);
+        };
+
+        const power = (base, exp) => {
+            return Math.pow(base, exp);
+        };
+
+        class MemoizeTool {
+            constructor() {
+                this.plugins = {};
+                this.currentFunction = null;
+                this.currentFunctionName = null;
+                this.cachedFunction = null;
+                this.originalFunction = null;
+                this.history = [];
+                this.stats = {
+                    totalCalls: 0,
+                    cacheHits: 0,
+                    cacheMisses: 0,
+                    totalTimeWithoutCache: 0,
+                    totalTimeWithCache: 0
+                };
+                this.functions = {
+                    median: {
+                        name: 'median',
+                        description: '计算数组的中位数',
+                        fn: median,
+                        parseInput: (input) => {
+                            try {
+                                const parsed = JSON.parse(input);
+                                return Array.isArray(parsed) ? parsed : [parsed];
+                            } catch {
+                                return input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n));
+                            }
+                        },
+                        formatInput: (input) => JSON.stringify(input),
+                        formatOutput: (output) => output.toString()
+                    },
+                    fibonacci: {
+                        name: 'fibonacci',
+                        description: '计算斐波那契数列的第 n 项（递归，慢）',
+                        fn: fibonacci,
+                        parseInput: (input) => parseInt(input) || 0,
+                        formatInput: (input) => input.toString(),
+                        formatOutput: (output) => output.toString()
+                    },
+                    factorial: {
+                        name: 'factorial',
+                        description: '计算 n 的阶乘（递归）',
+                        fn: factorial,
+                        parseInput: (input) => parseInt(input) || 0,
+                        formatInput: (input) => input.toString(),
+                        formatOutput: (output) => output.toString()
+                    },
+                    sum: {
+                        name: 'sum',
+                        description: '计算数组所有元素的和',
+                        fn: sum,
+                        parseInput: (input) => {
+                            try {
+                                const parsed = JSON.parse(input);
+                                return Array.isArray(parsed) ? parsed : [parsed];
+                            } catch {
+                                return input.split(/[,\s]+/).map(Number).filter(n => !isNaN(n));
+                            }
+                        },
+                        formatInput: (input) => JSON.stringify(input),
+                        formatOutput: (output) => output.toString()
+                    },
+                    power: {
+                        name: 'power',
+                        description: '计算 base 的 exp 次幂',
+                        fn: power,
+                        parseInput: (input) => {
+                            try {
+                                const parsed = JSON.parse(input);
+                                return Array.isArray(parsed) && parsed.length >= 2 ? parsed : [parsed || 2, 2];
+                            } catch {
+                                const parts = input.split(/[,\s]+/).map(Number);
+                                return parts.length >= 2 ? [parts[0], parts[1]] : [parts[0] || 2, parts[1] || 2];
+                            }
+                        },
+                        formatInput: (input) => JSON.stringify(Array.isArray(input) ? input : [input, 2]),
+                        formatOutput: (output) => output.toString()
+                    }
+                };
+                this.checkboxOptions = [
+                    { id: 'showResult', label: '显示执行结果', checked: true },
+                    { id: 'showPerformance', label: '显示性能对比', checked: true },
+                    { id: 'showCache', label: '显示缓存内容', checked: true },
+                    { id: 'showAnalysis', label: '显示统计分析', checked: true },
+                    { id: 'showCode', label: '显示代码预览', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupFunctionSelector();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupFunctionSelector() {
+                const container = document.getElementById('functionSelector');
+                if (!container) return;
+
+                Object.keys(this.functions).forEach((key, index) => {
+                    const func = this.functions[key];
+                    const option = document.createElement('div');
+                    option.className = 'function-option' + (index === 0 ? ' selected' : '');
+                    option.innerHTML = `
+                        <div class="function-name">${func.name}</div>
+                        <div class="function-desc">${func.description}</div>
+                    `;
+                    option.onclick = () => {
+                        document.querySelectorAll('.function-option').forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                        this.selectFunction(key);
+                    };
+                    container.appendChild(option);
+                });
+
+                // 默认选择第一个函数
+                this.selectFunction(Object.keys(this.functions)[0]);
+            }
+
+            selectFunction(functionName) {
+                this.currentFunctionName = functionName;
+                this.currentFunction = this.functions[functionName];
+                this.originalFunction = this.currentFunction.fn;
+                
+                // 创建自定义的 memoize 包装器，能够处理参数转换
+                const cache = new Map();
+                this.cachedFunction = (inputKey) => {
+                    // 检查缓存
+                    if (cache.has(inputKey)) {
+                        return cache.get(inputKey);
+                    }
+                    
+                    // 将字符串键转换回实际参数（使用当前函数的 parseInput 方法）
+                    const actualInput = this.currentFunction.parseInput(inputKey);
+                    
+                    // 计算并缓存
+                    let result;
+                    if (functionName === 'power' && Array.isArray(actualInput)) {
+                        result = this.originalFunction(actualInput[0], actualInput[1]);
+                    } else {
+                        result = this.originalFunction(actualInput);
+                    }
+                    cache.set(inputKey, result);
+                    return result;
+                };
+                this.cachedFunction.cache = cache;
+
+                const inputLabel = document.getElementById('inputLabel');
+                const functionInput = document.getElementById('functionInput');
+                if (inputLabel) {
+                    inputLabel.textContent = functionName === 'power' ? '输入参数 (base, exp)' : '输入参数';
+                }
+                if (functionInput) {
+                    functionInput.placeholder = functionName === 'power' 
+                        ? '2, 10 或 [2, 10]' 
+                        : functionName === 'fibonacci' || functionName === 'factorial'
+                        ? '输入数字'
+                        : '[1, 2, 3] 或 1,2,3';
+                }
+
+                this.updateCacheDisplay();
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: this.checkboxOptions.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用原生复选框:', error);
+                    this.checkboxOptions.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('读取复选框状态失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            executeFunction() {
+                const functionInput = document.getElementById('functionInput');
+                if (!functionInput || !this.currentFunction) return;
+
+                const inputStr = functionInput.value.trim();
+                if (!inputStr) {
+                    this.showError('请输入参数');
+                    return;
+                }
+
+                try {
+                    const input = this.currentFunction.parseInput(inputStr);
+                    const inputKey = this.currentFunction.formatInput(input);
+
+                    // 检查缓存
+                    const isCached = this.cachedFunction.cache.has(inputKey);
+                    
+                    // 执行无缓存版本
+                    const startWithoutCache = performance.now();
+                    const resultWithoutCache = this.originalFunction(input);
+                    const timeWithoutCache = performance.now() - startWithoutCache;
+
+                    // 执行缓存版本
+                    const startWithCache = performance.now();
+                    const resultWithCache = this.cachedFunction(inputKey);
+                    const timeWithCache = performance.now() - startWithCache;
+
+                    this.stats.totalCalls++;
+                    if (isCached) {
+                        this.stats.cacheHits++;
+                    } else {
+                        this.stats.cacheMisses++;
+                    }
+                    this.stats.totalTimeWithoutCache += timeWithoutCache;
+                    this.stats.totalTimeWithCache += timeWithCache;
+
+                    // 显示结果
+                    if (this.getCheckboxValue('showResult')) {
+                        this.displayResult(resultWithCache, inputKey);
+                    }
+
+                    if (this.getCheckboxValue('showPerformance')) {
+                        this.displayPerformance(timeWithoutCache, timeWithCache, isCached);
+                    }
+
+                    if (this.getCheckboxValue('showCache')) {
+                        this.updateCacheDisplay();
+                    }
+
+                    if (this.getCheckboxValue('showAnalysis')) {
+                        this.displayAnalysis();
+                    }
+
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode(inputKey, resultWithCache, isCached);
+                    }
+
+                    this.addToHistory(inputKey, resultWithCache, timeWithoutCache, timeWithCache, isCached);
+                    this.updateStats();
+
+                    const speedup = timeWithoutCache > 0 ? (timeWithoutCache / timeWithCache).toFixed(2) : '∞';
+                    this.showNotification(
+                        `结果: ${this.currentFunction.formatOutput(resultWithCache)} | ` +
+                        `无缓存: ${timeWithoutCache.toFixed(3)}ms | ` +
+                        `有缓存: ${timeWithCache.toFixed(3)}ms | ` +
+                        `加速: ${speedup}x ${isCached ? '(缓存命中)' : '(缓存未命中)'}`,
+                        isCached ? 'success' : 'info'
+                    );
+                } catch (error) {
+                    this.showError('执行失败: ' + error.message);
+                }
+            }
+
+            displayResult(result, inputKey) {
+                const container = document.getElementById('resultDisplay');
+                if (!container) return;
+
+                container.innerHTML = `
+                    <div class="result-card">
+                        <div class="result-label">函数结果</div>
+                        <div class="result-value">${this.currentFunction.formatOutput(result)}</div>
+                        <div class="result-info">
+                            <div class="info-item">
+                                <div class="info-label">函数名称</div>
+                                <div class="info-value">${this.currentFunctionName}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">输入参数</div>
+                                <div class="info-value">${inputKey.length > 30 ? inputKey.substring(0, 30) + '...' : inputKey}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">缓存状态</div>
+                                <div class="info-value">${this.cachedFunction.cache.has(inputKey) ? '已缓存' : '未缓存'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            displayPerformance(timeWithoutCache, timeWithCache, isCached) {
+                const card = document.getElementById('performanceCard');
+                const container = document.getElementById('performanceComparison');
+                if (!card || !container) return;
+
+                const speedup = timeWithoutCache > 0 ? (timeWithoutCache / timeWithCache).toFixed(2) : '∞';
+                const improvement = timeWithoutCache > 0 ? ((timeWithoutCache - timeWithCache) / timeWithoutCache * 100).toFixed(1) : '100';
+
+                container.innerHTML = `
+                    <div class="performance-card">
+                        <h4>🚫 无缓存版本</h4>
+                        <div class="performance-time">${timeWithoutCache.toFixed(3)} ms</div>
+                        <p style="color:#64748b;font-size:0.85rem;">每次都需要重新计算</p>
+                    </div>
+                    <div class="performance-card cached">
+                        <h4>✅ 缓存版本</h4>
+                        <div class="performance-time cached">${timeWithCache.toFixed(3)} ms</div>
+                        <p style="color:#64748b;font-size:0.85rem;">${isCached ? '从缓存读取' : '计算并缓存'}</p>
+                        ${isCached ? `<div class="performance-speedup">🚀 加速 ${speedup}x (提升 ${improvement}%)</div>` : ''}
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            updateCacheDisplay() {
+                const card = document.getElementById('cacheCard');
+                const container = document.getElementById('cacheDisplay');
+                const size = document.getElementById('cacheSize');
+                if (!card || !container) return;
+
+                if (size) {
+                    size.textContent = this.cachedFunction.cache.size;
+                }
+
+                if (!this.getCheckboxValue('showCache')) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                if (this.cachedFunction.cache.size === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💾</div>
+                            <p>缓存为空</p>
+                        </div>
+                    `;
+                    card.style.display = 'block';
+                    return;
+                }
+
+                const html = Array.from(this.cachedFunction.cache.entries()).map(([key, value]) => `
+                    <div class="cache-item">
+                        <div class="cache-key">${key.length > 50 ? key.substring(0, 50) + '...' : key}</div>
+                        <div class="cache-value">${this.currentFunction.formatOutput(value)}</div>
+                    </div>
+                `).join('');
+
+                container.innerHTML = html;
+                card.style.display = 'block';
+            }
+
+            displayAnalysis() {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('comparisonGrid');
+                if (!card || !grid) return;
+
+                const hitRate = this.stats.totalCalls > 0 
+                    ? (this.stats.cacheHits / this.stats.totalCalls * 100).toFixed(1) 
+                    : '0';
+                const avgTimeWithoutCache = this.stats.totalCalls > 0 
+                    ? (this.stats.totalTimeWithoutCache / this.stats.totalCalls).toFixed(3)
+                    : '0';
+                const avgTimeWithCache = this.stats.totalCalls > 0 
+                    ? (this.stats.totalTimeWithCache / this.stats.totalCalls).toFixed(3)
+                    : '0';
+                const avgSpeedup = avgTimeWithCache > 0 && avgTimeWithoutCache > 0
+                    ? (avgTimeWithoutCache / avgTimeWithCache).toFixed(2)
+                    : '1';
+
+                grid.innerHTML = `
+                    <div class="comparison-card">
+                        <h4>📊 缓存统计</h4>
+                        <p>总调用次数: ${this.stats.totalCalls}</p>
+                        <p>缓存命中: ${this.stats.cacheHits}</p>
+                        <p>缓存未命中: ${this.stats.cacheMisses}</p>
+                        <p>命中率: ${hitRate}%</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>⚡ 性能统计</h4>
+                        <p>平均无缓存时间: ${avgTimeWithoutCache} ms</p>
+                        <p>平均缓存时间: ${avgTimeWithCache} ms</p>
+                        <p>平均加速比: ${avgSpeedup}x</p>
+                        <p>缓存大小: ${this.cachedFunction.cache.size}</p>
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            addToHistory(inputKey, result, timeWithoutCache, timeWithCache, isCached) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    functionName: this.currentFunctionName,
+                    input: inputKey,
+                    result: this.currentFunction.formatOutput(result),
+                    timeWithoutCache: timeWithoutCache.toFixed(3),
+                    timeWithCache: timeWithCache.toFixed(3),
+                    isCached
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无执行历史</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item ${item.isCached ? 'cached' : ''}">
+                        <div class="history-time">${item.time}</div>
+                        <div class="history-summary">
+                            ${item.functionName}(${item.input.length > 30 ? item.input.substring(0, 30) + '...' : item.input}) = ${item.result}
+                            ${item.isCached ? '<span class="history-badge">缓存</span>' : ''}
+                        </div>
+                        <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">
+                            无缓存: ${item.timeWithoutCache}ms | 缓存: ${item.timeWithCache}ms
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                const hitRate = this.stats.totalCalls > 0 
+                    ? (this.stats.cacheHits / this.stats.totalCalls * 100).toFixed(1) 
+                    : '0';
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalCalls}</div>
+                        <div class="stat-label">总调用次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.cacheHits}</div>
+                        <div class="stat-label">缓存命中</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.cacheMisses}</div>
+                        <div class="stat-label">缓存未命中</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${hitRate}%</div>
+                        <div class="stat-label">命中率</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.cachedFunction.cache.size}</div>
+                        <div class="stat-label">缓存大小</div>
+                    </div>
+                `;
+            }
+
+            showCode(inputKey, result, isCached) {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+
+                const code = `const memoize = (fn) => {
+  const cache = new Map();
+  const cached = (val) =>
+    cache.has(val)
+      ? cache.get(val)
+      : cache.set(val, fn.call(this, val)) && cache.get(val);
+  cached.cache = cache;
+  return cached;
+};
+
+// 原始函数
+const ${this.currentFunctionName} = ${this.currentFunction.fn.toString()};
+
+// 创建缓存版本
+const ${this.currentFunctionName}Cache = memoize(${this.currentFunctionName});
+
+// 执行函数
+const input = ${this.currentFunction.formatInput === this.functions.median.formatInput ? inputKey : JSON.stringify(inputKey)};
+const result = ${this.currentFunctionName}Cache(input);
+console.log(result);
+// ${result}
+
+// 查看缓存
+console.log(${this.currentFunctionName}Cache.cache);
+// ${isCached ? '缓存命中，直接从缓存返回结果' : '缓存未命中，计算并缓存结果'}
+
+// 说明：
+// - 第一次调用: 计算并缓存结果
+// - 后续相同参数调用: 直接从缓存返回
+// - 缓存大小: ${this.cachedFunction.cache.size}
+// - 当前缓存命中: ${isCached ? '是' : '否'}`;
+
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            clearCache() {
+                this.cachedFunction.cache.clear();
+                this.updateCacheDisplay();
+                this.updateStats();
+                this.showNotification('缓存已清空', 'info');
+            }
+
+            clearAll() {
+                this.clearCache();
+                this.history = [];
+                this.stats = {
+                    totalCalls: 0,
+                    cacheHits: 0,
+                    cacheMisses: 0,
+                    totalTimeWithoutCache: 0,
+                    totalTimeWithCache: 0
+                };
+                const functionInput = document.getElementById('functionInput');
+                if (functionInput) functionInput.value = '';
+                this.displayResult(null, '');
+                const performanceCard = document.getElementById('performanceCard');
+                if (performanceCard) performanceCard.style.display = 'none';
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                this.updateHistoryDisplay();
+                this.updateStats();
+                this.showNotification('已清空全部数据', 'info');
+            }
+
+            loadSample() {
+                const functionInput = document.getElementById('functionInput');
+                if (!functionInput || !this.currentFunction) return;
+
+                const samples = {
+                    median: '[5, 6, 50, 1, -5]',
+                    fibonacci: '30',
+                    factorial: '10',
+                    sum: '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]',
+                    power: '2, 10'
+                };
+
+                functionInput.value = samples[this.currentFunctionName] || '';
+                this.showNotification('示例数据已加载', 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用函数缓存平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">⚡</div>
+                                <p style="color:#1f2937;line-height:1.8;">
+                                    使用 <strong>memoize</strong> 函数创建带缓存的函数，通过缓存计算结果来提升性能。
+                                    对比缓存前后的性能差异，直观了解缓存机制的优势。
+                                </p>
+                                <div style="background:#e0e7ff;border-left:4px solid #667eea;padding:12px;border-radius:12px;color:#4338ca;margin-top:12px;">
+                                    <strong>亮点：</strong> 多种函数支持、性能对比、缓存可视化、统计分析、代码预览。
+                                </div>
+                                <ul style="color:#1f2937;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>支持多种函数类型（median、fibonacci、factorial、sum、power）</li>
+                                    <li>实时对比缓存前后的执行时间</li>
+                                    <li>可视化展示缓存内容和命中情况</li>
+                                    <li>提供详细的统计分析和性能指标</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.memoizeTool = new MemoizeTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.memoizeTool) {
+            window.memoizeTool = new MemoizeTool();
+        }
+    </script>
+</body>
+
+</html>
