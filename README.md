@@ -448,7 +448,7 @@
 - [获取数字数组的中位数-2022-12-07](codes/javascript/median.md)
 - [缓存函数-2022-12-08](codes/javascript/memoize.md)
 - [合并对象-2022-12-09](codes/javascript/merge.md)
-- [归并排序-2022-12-10](codes/javascript/mergeSort.md)
+- [归并排序-2022-12-10](codes/javascript/merge-sort.md)
 - [归并排序合并数组-2022-12-11](codes/javascript/mergeSortedArrays.md)
 - [两对点之间的中点-2022-12-12](codes/javascript/midpoint.md)
 - [英里转换成公里-2022-12-13](codes/javascript/milesToKm.md)
