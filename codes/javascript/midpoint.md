@@ -11,6 +11,8 @@
 const midpoint = ([x1,y1],[x2,y2]) => [(x1 + y1) / 2,(x2 + y2) / 2];
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/midpoint.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,3 +22,11 @@ midpoint([1, 3], [2, 4]); // [1.5, 3.5]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/midpoint.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/midpoint.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/midpoint.html"></iframe>

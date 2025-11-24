@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中点计算可视化平台 - midpoint</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.7rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 26px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.98rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.25s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .coordinate-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #coordinateCanvas {
+            width: 100%;
+            height: 500px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            cursor: crosshair;
+        }
+
+        .result-display {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+            margin-bottom: 16px;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #4338ca;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #312e81;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .point-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .info-card h4 {
+            font-size: 0.95rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #475569;
+            margin: 4px 0;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .point-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .point-badge.point-a {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .point-badge.point-b {
+            background: #ef4444;
+            color: white;
+        }
+
+        .point-badge.midpoint {
+            background: #22c55e;
+            color: white;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📍 中点计算可视化平台</h1>
+            <p>基于 midpoint 函数的坐标中点计算工具，可视化展示两点之间的中点位置</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 坐标输入</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>点 A 坐标</label>
+                            <div class="coordinate-inputs">
+                                <input id="pointAX" class="input-field" type="number" placeholder="X" value="2" />
+                                <input id="pointAY" class="input-field" type="number" placeholder="Y" value="2" />
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>点 B 坐标</label>
+                            <div class="coordinate-inputs">
+                                <input id="pointBX" class="input-field" type="number" placeholder="X" value="4" />
+                                <input id="pointBY" class="input-field" type="number" placeholder="Y" value="4" />
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.midpointTool?.calculateMidpoint()">⚡ 计算中点</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.midpointTool?.loadSample()">📄 示例数据</button>
+                            <button class="btn btn-info" onclick="window.midpointTool?.generateRandom()">🎲 随机生成</button>
+                            <button class="btn btn-warning" onclick="window.midpointTool?.clearCanvas()">🧹 清空画布</button>
+                            <button class="btn btn-danger" onclick="window.midpointTool?.clearAll()">🗑️ 清空全部</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 计算历史 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无计算历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>🎨 坐标可视化</h2>
+                    <div class="canvas-container">
+                        <div class="canvas-wrapper">
+                            <canvas id="coordinateCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="resultCard" style="display:none;">
+                    <h2>✨ 计算结果</h2>
+                    <div class="result-display" id="resultDisplay"></div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>📈 详细分析</h2>
+                    <div class="point-info" id="analysisGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                <h3 style="color:#667eea;margin-bottom:12px;">midpoint 函数（两对点之间的中点）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const midpoint = ([x1, y1], [x2, y2]) => [
+  (x1 + x2) / 2,
+  (y1 + y2) / 2
+];</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">函数说明</h3>
+                <p style="color:#374151;line-height:1.8;">
+                    <strong>midpoint</strong> 计算两个坐标点之间的中点。
+                    通过将两个端点的 x 坐标和 y 坐标分别相加后除以 2，得到中点的坐标。
+                    适用于几何计算、图形处理、游戏开发等场景。
+                </p>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">midpoint([2, 2], [4, 4]);
+// [3, 3]
+
+midpoint([1, 3], [2, 4]);
+// [1.5, 3.5]
+
+midpoint([0, 0], [10, 10]);
+// [5, 5]</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="badge">几何计算</span>
+                    <span class="badge">图形处理</span>
+                    <span class="badge">游戏开发</span>
+                    <span class="badge">地图定位</span>
+                    <span class="badge">数据可视化</span>
+                    <span class="badge">教学演示</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 修正后的 midpoint 函数（原文档中的实现有误）
+        const midpoint = ([x1, y1], [x2, y2]) => [(x1 + x2) / 2, (y1 + y2) / 2];
+
+        class MidpointTool {
+            constructor() {
+                this.plugins = {};
+                this.pointA = [2, 2];
+                this.pointB = [4, 4];
+                this.midpointResult = null;
+                this.canvas = null;
+                this.ctx = null;
+                this.history = [];
+                this.stats = {
+                    totalCalculations: 0,
+                    totalDistance: 0,
+                    averageDistance: 0,
+                    maxDistance: 0
+                };
+                this.checkboxOptions = [
+                    { id: 'showCanvas', label: '显示坐标画布', checked: true },
+                    { id: 'showResult', label: '显示计算结果', checked: true },
+                    { id: 'showAnalysis', label: '显示详细分析', checked: true },
+                    { id: 'showCode', label: '显示代码预览', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupCheckboxes();
+                    this.initCanvas();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: this.checkboxOptions.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用原生复选框:', error);
+                    this.checkboxOptions.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('读取复选框状态失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            initCanvas() {
+                this.canvas = document.getElementById('coordinateCanvas');
+                if (!this.canvas) return;
+
+                this.ctx = this.canvas.getContext('2d');
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = 500;
+
+                // 监听画布点击
+                this.canvas.addEventListener('click', (e) => {
+                    if (!this.getCheckboxValue('showCanvas')) return;
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const canvasX = (x / rect.width) * 20 - 10;
+                    const canvasY = 10 - (y / rect.height) * 20;
+
+                    // 如果点 A 未设置或已设置，则设置点 B
+                    if (this.pointA[0] === null || (this.pointA[0] !== null && this.pointB[0] !== null)) {
+                        this.pointA = [canvasX, canvasY];
+                        document.getElementById('pointAX').value = canvasX.toFixed(2);
+                        document.getElementById('pointAY').value = canvasY.toFixed(2);
+                    } else {
+                        this.pointB = [canvasX, canvasY];
+                        document.getElementById('pointBX').value = canvasX.toFixed(2);
+                        document.getElementById('pointBY').value = canvasY.toFixed(2);
+                    }
+
+                    this.calculateMidpoint();
+                });
+
+                this.drawCanvas();
+            }
+
+            getPoints() {
+                const ax = parseFloat(document.getElementById('pointAX')?.value || 0);
+                const ay = parseFloat(document.getElementById('pointAY')?.value || 0);
+                const bx = parseFloat(document.getElementById('pointBX')?.value || 0);
+                const by = parseFloat(document.getElementById('pointBY')?.value || 0);
+                return {
+                    pointA: [ax, ay],
+                    pointB: [bx, by]
+                };
+            }
+
+            calculateDistance([x1, y1], [x2, y2]) {
+                return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            }
+
+            calculateMidpoint() {
+                const { pointA, pointB } = this.getPoints();
+                this.pointA = pointA;
+                this.pointB = pointB;
+
+                const start = performance.now();
+                this.midpointResult = midpoint(pointA, pointB);
+                const end = performance.now();
+                const time = Math.round((end - start) * 1000) / 1000;
+
+                const distance = this.calculateDistance(pointA, pointB);
+                this.stats.totalCalculations++;
+                this.stats.totalDistance += distance;
+                this.stats.averageDistance = Math.round((this.stats.totalDistance / this.stats.totalCalculations) * 100) / 100;
+                this.stats.maxDistance = Math.max(this.stats.maxDistance, distance);
+
+                this.drawCanvas();
+                this.displayResult(distance, time);
+                this.updateStats();
+                this.addToHistory(distance, time);
+
+                if (this.getCheckboxValue('showAnalysis')) {
+                    this.displayAnalysis(distance, time);
+                }
+
+                if (this.getCheckboxValue('showCode')) {
+                    this.showCode();
+                }
+
+                this.showNotification(`中点计算完成！坐标: [${this.midpointResult[0].toFixed(2)}, ${this.midpointResult[1].toFixed(2)}]`, 'success');
+            }
+
+            drawCanvas() {
+                if (!this.canvas || !this.ctx || !this.getCheckboxValue('showCanvas')) return;
+
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                const padding = 40;
+                const graphWidth = width - padding * 2;
+                const graphHeight = height - padding * 2;
+
+                // 清空画布
+                this.ctx.clearRect(0, 0, width, height);
+
+                // 绘制网格
+                this.ctx.strokeStyle = '#e5e7eb';
+                this.ctx.lineWidth = 1;
+                for (let i = 0; i <= 20; i++) {
+                    const x = padding + (i / 20) * graphWidth;
+                    const y = padding + (i / 20) * graphHeight;
+                    // 垂直线
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, padding);
+                    this.ctx.lineTo(x, height - padding);
+                    this.ctx.stroke();
+                    // 水平线
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(padding, y);
+                    this.ctx.lineTo(width - padding, y);
+                    this.ctx.stroke();
+                }
+
+                // 绘制坐标轴
+                this.ctx.strokeStyle = '#1f2937';
+                this.ctx.lineWidth = 2;
+                // X 轴
+                this.ctx.beginPath();
+                this.ctx.moveTo(padding, height / 2);
+                this.ctx.lineTo(width - padding, height / 2);
+                this.ctx.stroke();
+                // Y 轴
+                this.ctx.beginPath();
+                this.ctx.moveTo(width / 2, padding);
+                this.ctx.lineTo(width / 2, height - padding);
+                this.ctx.stroke();
+
+                // 绘制坐标标签
+                this.ctx.fillStyle = '#64748b';
+                this.ctx.font = '12px monospace';
+                for (let i = -10; i <= 10; i += 2) {
+                    const x = padding + ((i + 10) / 20) * graphWidth;
+                    const y = padding + ((10 - i) / 20) * graphHeight;
+                    this.ctx.fillText(i.toString(), x - 10, height / 2 + 20);
+                    this.ctx.fillText(i.toString(), width / 2 + 10, y + 4);
+                }
+
+                // 转换坐标到画布坐标
+                const toCanvasX = (x) => padding + ((x + 10) / 20) * graphWidth;
+                const toCanvasY = (y) => padding + ((10 - y) / 20) * graphHeight;
+
+                // 绘制点 A
+                if (this.pointA && this.pointA[0] !== null) {
+                    const cx = toCanvasX(this.pointA[0]);
+                    const cy = toCanvasY(this.pointA[1]);
+                    this.ctx.fillStyle = '#3b82f6';
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = 'bold 12px monospace';
+                    this.ctx.fillText('A', cx - 6, cy + 4);
+                }
+
+                // 绘制点 B
+                if (this.pointB && this.pointB[0] !== null) {
+                    const cx = toCanvasX(this.pointB[0]);
+                    const cy = toCanvasY(this.pointB[1]);
+                    this.ctx.fillStyle = '#ef4444';
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = 'bold 12px monospace';
+                    this.ctx.fillText('B', cx - 6, cy + 4);
+                }
+
+                // 绘制连线
+                if (this.pointA && this.pointA[0] !== null && this.pointB && this.pointB[0] !== null) {
+                    const ax = toCanvasX(this.pointA[0]);
+                    const ay = toCanvasY(this.pointA[1]);
+                    const bx = toCanvasX(this.pointB[0]);
+                    const by = toCanvasY(this.pointB[1]);
+                    this.ctx.strokeStyle = '#94a3b8';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.setLineDash([5, 5]);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(ax, ay);
+                    this.ctx.lineTo(bx, by);
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                }
+
+                // 绘制中点
+                if (this.midpointResult) {
+                    const cx = toCanvasX(this.midpointResult[0]);
+                    const cy = toCanvasY(this.midpointResult[1]);
+                    this.ctx.fillStyle = '#22c55e';
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.strokeStyle = '#15803d';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = 'bold 14px monospace';
+                    this.ctx.fillText('M', cx - 7, cy + 5);
+                }
+            }
+
+            displayResult(distance, time) {
+                const card = document.getElementById('resultCard');
+                const container = document.getElementById('resultDisplay');
+                if (!card || !container) return;
+
+                if (!this.getCheckboxValue('showResult')) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                if (!this.midpointResult) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="result-card">
+                        <div class="result-label">中点坐标</div>
+                        <div class="result-value">[${this.midpointResult[0].toFixed(2)}, ${this.midpointResult[1].toFixed(2)}]</div>
+                    </div>
+                    <div class="point-info">
+                        <div class="info-card">
+                            <h4>点 A</h4>
+                            <p>X: ${this.pointA[0].toFixed(2)}</p>
+                            <p>Y: ${this.pointA[1].toFixed(2)}</p>
+                            <span class="point-badge point-a">点 A</span>
+                        </div>
+                        <div class="info-card">
+                            <h4>点 B</h4>
+                            <p>X: ${this.pointB[0].toFixed(2)}</p>
+                            <p>Y: ${this.pointB[1].toFixed(2)}</p>
+                            <span class="point-badge point-b">点 B</span>
+                        </div>
+                        <div class="info-card">
+                            <h4>中点 M</h4>
+                            <p>X: ${this.midpointResult[0].toFixed(2)}</p>
+                            <p>Y: ${this.midpointResult[1].toFixed(2)}</p>
+                            <span class="point-badge midpoint">中点</span>
+                        </div>
+                        <div class="info-card">
+                            <h4>距离</h4>
+                            <p>AB 距离: ${distance.toFixed(2)}</p>
+                            <p>AM 距离: ${(distance / 2).toFixed(2)}</p>
+                            <p>BM 距离: ${(distance / 2).toFixed(2)}</p>
+                        </div>
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            displayAnalysis(distance, time) {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('analysisGrid');
+                if (!card || !grid) return;
+
+                if (!this.midpointResult) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                const dx = this.pointB[0] - this.pointA[0];
+                const dy = this.pointB[1] - this.pointA[1];
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                grid.innerHTML = `
+                    <div class="info-card">
+                        <h4>坐标计算</h4>
+                        <p>中点 X = (${this.pointA[0]} + ${this.pointB[0]}) / 2</p>
+                        <p>中点 X = ${this.midpointResult[0].toFixed(2)}</p>
+                        <p>中点 Y = (${this.pointA[1]} + ${this.pointB[1]}) / 2</p>
+                        <p>中点 Y = ${this.midpointResult[1].toFixed(2)}</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>几何信息</h4>
+                        <p>X 方向距离: ${Math.abs(dx).toFixed(2)}</p>
+                        <p>Y 方向距离: ${Math.abs(dy).toFixed(2)}</p>
+                        <p>直线距离: ${distance.toFixed(2)}</p>
+                        <p>角度: ${angle.toFixed(2)}°</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>验证</h4>
+                        <p>AM = BM: ${(distance / 2).toFixed(2)} = ${(distance / 2).toFixed(2)} ✅</p>
+                        <p>AM + BM = AB: ${distance.toFixed(2)} = ${distance.toFixed(2)} ✅</p>
+                        <p>中点在中线上: ✅</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>性能</h4>
+                        <p>计算时间: ${time}μs</p>
+                        <p>时间复杂度: O(1)</p>
+                        <p>空间复杂度: O(1)</p>
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            addToHistory(distance, time) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    pointA: [...this.pointA],
+                    pointB: [...this.pointB],
+                    midpoint: [...this.midpointResult],
+                    distance: distance.toFixed(2),
+                    execTime: time
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无计算历史</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.execTime}μs</div>
+                        <div class="history-summary">
+                            A[${item.pointA[0].toFixed(1)},${item.pointA[1].toFixed(1)}] + 
+                            B[${item.pointB[0].toFixed(1)},${item.pointB[1].toFixed(1)}] = 
+                            M[${item.midpoint[0].toFixed(1)},${item.midpoint[1].toFixed(1)}] | 
+                            距离: ${item.distance}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalCalculations}</div>
+                        <div class="stat-label">计算次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.averageDistance.toFixed(2)}</div>
+                        <div class="stat-label">平均距离</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.maxDistance.toFixed(2)}</div>
+                        <div class="stat-label">最大距离</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.midpointResult ? this.midpointResult[0].toFixed(1) : '-'}</div>
+                        <div class="stat-label">当前中点 X</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.midpointResult ? this.midpointResult[1].toFixed(1) : '-'}</div>
+                        <div class="stat-label">当前中点 Y</div>
+                    </div>
+                `;
+            }
+
+            showCode() {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+
+                if (!this.midpointResult) {
+                    if (section) section.style.display = 'none';
+                    return;
+                }
+
+                const code = `const midpoint = ([x1, y1], [x2, y2]) => [
+  (x1 + x2) / 2,
+  (y1 + y2) / 2
+];
+
+// 输入坐标点
+const pointA = ${JSON.stringify(this.pointA)};
+const pointB = ${JSON.stringify(this.pointB)};
+
+// 计算中点
+const result = midpoint(pointA, pointB);
+
+console.log(result);
+// ${JSON.stringify(this.midpointResult)}
+
+// 说明：
+// - midpoint 计算两个坐标点之间的中点
+// - 中点 X = (x1 + x2) / 2
+// - 中点 Y = (y1 + y2) / 2
+// - 时间复杂度: O(1)
+// - 空间复杂度: O(1)
+// - 适用于几何计算、图形处理等场景`;
+
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            clearCanvas() {
+                if (this.canvas && this.ctx) {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.drawCanvas();
+                }
+                this.showNotification('画布已清空', 'info');
+            }
+
+            clearAll() {
+                this.pointA = [0, 0];
+                this.pointB = [0, 0];
+                this.midpointResult = null;
+                document.getElementById('pointAX').value = '0';
+                document.getElementById('pointAY').value = '0';
+                document.getElementById('pointBX').value = '0';
+                document.getElementById('pointBY').value = '0';
+                this.drawCanvas();
+                const resultCard = document.getElementById('resultCard');
+                if (resultCard) resultCard.style.display = 'none';
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                this.showNotification('已清空全部数据', 'info');
+            }
+
+            loadSample() {
+                const samples = [
+                    { a: [2, 2], b: [4, 4] },
+                    { a: [1, 3], b: [2, 4] },
+                    { a: [0, 0], b: [10, 10] },
+                    { a: [-5, -5], b: [5, 5] }
+                ];
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                document.getElementById('pointAX').value = sample.a[0];
+                document.getElementById('pointAY').value = sample.a[1];
+                document.getElementById('pointBX').value = sample.b[0];
+                document.getElementById('pointBY').value = sample.b[1];
+                this.showNotification('示例数据已加载', 'info');
+            }
+
+            generateRandom() {
+                const min = -10;
+                const max = 10;
+                const ax = Math.floor(Math.random() * (max - min + 1)) + min;
+                const ay = Math.floor(Math.random() * (max - min + 1)) + min;
+                const bx = Math.floor(Math.random() * (max - min + 1)) + min;
+                const by = Math.floor(Math.random() * (max - min + 1)) + min;
+                document.getElementById('pointAX').value = ax;
+                document.getElementById('pointAY').value = ay;
+                document.getElementById('pointBX').value = bx;
+                document.getElementById('pointBY').value = by;
+                this.showNotification('已生成随机坐标', 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用中点计算可视化平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">📍</div>
+                                <p style="color:#1f2937;line-height:1.8;">
+                                    使用 <strong>midpoint</strong> 函数计算两个坐标点之间的中点。
+                                    可视化展示坐标点、连线和中点位置，帮助理解几何计算。
+                                </p>
+                                <div style="background:#e0e7ff;border-left:4px solid #667eea;padding:12px;border-radius:12px;color:#4338ca;margin-top:12px;">
+                                    <strong>亮点：</strong> 交互式坐标画布、实时可视化、距离计算、几何分析、代码预览、历史记录。
+                                </div>
+                                <ul style="color:#1f2937;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>支持手动输入坐标或点击画布设置点</li>
+                                    <li>可视化展示点 A、点 B 和中点 M</li>
+                                    <li>自动计算距离和角度信息</li>
+                                    <li>提供详细的几何分析和验证</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.midpointTool = new MidpointTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.midpointTool) {
+            window.midpointTool = new MidpointTool();
+        }
+    </script>
+</body>
+
+</html>
