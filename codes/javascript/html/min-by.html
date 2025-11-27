@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最小值查找平台 - minBy</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.7rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 26px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.98rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .array-display,
+        .result-display {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .array-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .array-item {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .array-item.min {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe, #eff6ff);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .item-index {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .item-content {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.95rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .item-mapped {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .item-mapped.min {
+            color: #1d4ed8;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .min-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #4338ca;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #312e81;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .function-config {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .function-config h4 {
+            font-size: 0.95rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .function-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .comparison-card h4 {
+            font-size: 0.95rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .comparison-card p {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .modal-content {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📉 最小值查找平台</h1>
+            <p>基于 minBy 函数的数组最小值查找工具，支持函数映射、属性名映射、可视化展示、批量处理</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 数组配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>数组数据 (JSON)</label>
+                            <textarea id="arrayInput" class="textarea-field" placeholder='[{"n": 4}, {"n": 2}, {"n": 8}, {"n": 6}]'></textarea>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.minByTool?.addArray()">➕ 添加数组</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.minByTool?.findMin()">⚡ 查找最小值</button>
+                            <button class="btn btn-info" onclick="window.minByTool?.loadSample()">📄 示例数据</button>
+                            <button class="btn btn-warning" onclick="window.minByTool?.generateRandom()">🎲 随机生成</button>
+                            <button class="btn btn-danger" onclick="window.minByTool?.clearAll()">🧹 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 映射函数</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>选择映射方式</label>
+                            <div id="mappingSelect"></div>
+                        </div>
+                        <div id="functionConfig" class="function-config" style="display:none;">
+                            <h4>函数说明</h4>
+                            <div class="function-desc" id="functionDesc"></div>
+                        </div>
+                        <div class="input-group" id="propertyGroup" style="display:none;">
+                            <label>属性名</label>
+                            <input id="propertyInput" class="input-field" placeholder="例如：n, score, value" />
+                        </div>
+                        <div class="input-group" id="customFunctionGroup" style="display:none;">
+                            <label>自定义函数代码</label>
+                            <textarea id="customFunctionInput" class="textarea-field" placeholder='x => x.n'></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 历史记录 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无查找历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>📦 数组元素</h2>
+                    <div class="array-display" id="arrayDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>添加数组后将在此展示</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>✨ 最小值结果</h2>
+                    <div class="result-display" id="resultDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>执行查找后将在此展示最小值</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>📊 对比分析</h2>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                <h3 style="color:#667eea;margin-bottom:12px;">minBy 函数（根据回调函数查找数组中的最小值）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const minBy = (arr, fn) => 
+  Math.min(...arr.map(typeof fn === 'function' ? fn : val => val[fn]));</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">函数说明</h3>
+                <p style="color:#374151;line-height:1.8;">
+                    <strong>minBy</strong> 函数在使用提供的函数将每个元素映射到一个值后，返回数组的最小值。
+                    使用 Array.prototype.map() 将每个元素映射到 fn 返回的值，然后使用 Math.min() 获取最小值。
+                    支持两种映射方式：函数映射（如 <code>x => x.n</code>）或属性名映射（如 <code>'n'</code>）。
+                    适用于查找对象数组中某个属性的最小值，或通过复杂计算找到最小值。
+                </p>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">// 使用函数映射
+minBy([{ n: 4 }, { n: 2 }, { n: 8 }, { n: 6 }], x => x.n);
+// 2
+
+// 使用属性名映射
+minBy([{ n: 4 }, { n: 2 }, { n: 8 }, { n: 6 }], 'n');
+// 2
+
+// 复杂计算
+minBy([{ x: 1, y: 2 }, { x: 3, y: 4 }], item => item.x * item.y);
+// 2</code></pre>
+                </div>
+
+                <h3 style="color:#667eea;margin:20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="badge">查找最低分</span>
+                    <span class="badge">查找最小金额</span>
+                    <span class="badge">查找最短字符串</span>
+                    <span class="badge">查找最早日期</span>
+                    <span class="badge">复杂计算最小值</span>
+                    <span class="badge">数据分析</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const minBy = (arr, fn) => Math.min(...arr.map(typeof fn === 'function' ? fn : val => val[fn]));
+
+        class MinByTool {
+            constructor() {
+                this.plugins = {};
+                this.arrays = [];
+                this.currentArray = null;
+                this.currentMapping = null;
+                this.minValue = null;
+                this.minIndex = null;
+                this.history = [];
+                this.stats = {
+                    totalFinds: 0,
+                    totalArrays: 0,
+                    mappingUsage: {}
+                };
+                this.arrayId = 1;
+                this.mappingOptions = [
+                    {
+                        value: 'property',
+                        label: '属性名映射',
+                        desc: '通过属性名（如 "n", "score"）映射到值',
+                        type: 'property'
+                    },
+                    {
+                        value: 'function',
+                        label: '函数映射',
+                        desc: '通过函数（如 x => x.n）映射到值',
+                        type: 'function'
+                    },
+                    {
+                        value: 'custom',
+                        label: '自定义函数',
+                        desc: '使用自定义 JavaScript 函数进行映射',
+                        type: 'custom'
+                    }
+                ];
+                this.presetFunctions = [
+                    {
+                        value: 'x.n',
+                        label: 'x => x.n',
+                        desc: '获取对象的 n 属性'
+                    },
+                    {
+                        value: 'x.score',
+                        label: 'x => x.score',
+                        desc: '获取对象的 score 属性'
+                    },
+                    {
+                        value: 'x.value',
+                        label: 'x => x.value',
+                        desc: '获取对象的 value 属性'
+                    },
+                    {
+                        value: 'x.x * x.y',
+                        label: 'x => x.x * x.y',
+                        desc: '计算 x 和 y 的乘积'
+                    },
+                    {
+                        value: 'x.length',
+                        label: 'x => x.length',
+                        desc: '获取字符串或数组的长度'
+                    }
+                ];
+                this.checkboxOptions = [
+                    { id: 'showArray', label: '显示数组元素', checked: true },
+                    { id: 'showResult', label: '显示最小值结果', checked: true },
+                    { id: 'showAnalysis', label: '显示对比分析', checked: true },
+                    { id: 'showCode', label: '显示代码预览', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupMappingSelect();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupMappingSelect() {
+                const container = document.getElementById('mappingSelect');
+                if (!container) return;
+                try {
+                    const select = new Select({
+                        container,
+                        options: this.mappingOptions,
+                        placeholder: '选择映射方式',
+                        onChange: (value) => this.toggleMappingConfig(value)
+                    });
+                    select.setValue('property');
+                    this.plugins.mappingSelect = select;
+                    this.toggleMappingConfig('property');
+                } catch (error) {
+                    console.warn('自定义选择框加载失败，使用原生选择框:', error);
+                    const native = document.createElement('select');
+                    native.className = 'input-field';
+                    this.mappingOptions.forEach((option, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        if (index === 0) opt.selected = true;
+                        native.appendChild(opt);
+                    });
+                    native.addEventListener('change', (event) => this.toggleMappingConfig(event.target.value));
+                    container.appendChild(native);
+                }
+            }
+
+            toggleMappingConfig(value) {
+                const propertyGroup = document.getElementById('propertyGroup');
+                const customFunctionGroup = document.getElementById('customFunctionGroup');
+                const functionConfig = document.getElementById('functionConfig');
+                const functionDesc = document.getElementById('functionDesc');
+
+                if (!propertyGroup || !customFunctionGroup || !functionConfig || !functionDesc) return;
+
+                propertyGroup.style.display = value === 'property' ? 'block' : 'none';
+                customFunctionGroup.style.display = value === 'custom' ? 'block' : 'none';
+                functionConfig.style.display = value === 'function' ? 'block' : 'none';
+
+                const option = this.mappingOptions.find(opt => opt.value === value);
+                if (option && functionDesc) {
+                    functionDesc.textContent = option.desc;
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: this.checkboxOptions.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用原生复选框:', error);
+                    this.checkboxOptions.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('读取复选框状态失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            getSelectedMapping() {
+                let value = 'property';
+                if (this.plugins.mappingSelect?.getValue) {
+                    try {
+                        value = this.plugins.mappingSelect.getValue();
+                    } catch (error) {
+                        console.warn('获取映射方式失败，使用默认值:', error);
+                    }
+                } else {
+                    const native = document.querySelector('#mappingSelect select');
+                    if (native) value = native.value;
+                }
+                return this.mappingOptions.find(opt => opt.value === value) || this.mappingOptions[0];
+            }
+
+            getMappingFunction() {
+                const mapping = this.getSelectedMapping();
+                if (mapping.value === 'property') {
+                    const propertyInput = document.getElementById('propertyInput');
+                    const property = propertyInput ? propertyInput.value.trim() : '';
+                    if (!property) {
+                        throw new Error('请输入属性名');
+                    }
+                    return property;
+                } else if (mapping.value === 'custom') {
+                    const customInput = document.getElementById('customFunctionInput');
+                    const code = customInput ? customInput.value.trim() : '';
+                    if (!code) {
+                        throw new Error('请输入自定义函数代码');
+                    }
+                    try {
+                        return new Function('x', `return ${code}`);
+                    } catch (error) {
+                        throw new Error('自定义函数代码格式错误: ' + error.message);
+                    }
+                } else {
+                    // function - 使用预设函数
+                    return x => x.n;
+                }
+            }
+
+            addArray() {
+                const arrayInput = document.getElementById('arrayInput');
+                if (!arrayInput) return;
+
+                const inputStr = arrayInput.value.trim();
+                if (!inputStr) {
+                    this.showError('请输入数组数据');
+                    return;
+                }
+
+                try {
+                    const arr = JSON.parse(inputStr);
+                    if (!Array.isArray(arr)) {
+                        throw new Error('输入必须是数组格式');
+                    }
+                    if (arr.length === 0) {
+                        throw new Error('数组不能为空');
+                    }
+
+                    this.arrays.push({
+                        id: this.arrayId++,
+                        data: arr,
+                        timestamp: new Date().toLocaleString('zh-CN')
+                    });
+                    this.currentArray = arr;
+                    this.stats.totalArrays++;
+                    arrayInput.value = '';
+                    this.displayArray();
+                    this.showNotification(`已添加数组，共 ${arr.length} 个元素`, 'success');
+                } catch (error) {
+                    this.showError('数组解析失败: ' + error.message);
+                }
+            }
+
+            findMin() {
+                if (!this.currentArray || this.currentArray.length === 0) {
+                    this.showError('请先添加数组');
+                    return;
+                }
+
+                try {
+                    const mappingFn = this.getMappingFunction();
+                    const start = performance.now();
+                    this.minValue = minBy(this.currentArray, mappingFn);
+                    const end = performance.now();
+                    const time = Math.round((end - start) * 1000) / 1000;
+
+                    // 找到最小值对应的索引
+                    const mappedValues = this.currentArray.map(
+                        typeof mappingFn === 'function' ? mappingFn : val => val[mappingFn]
+                    );
+                    this.minIndex = mappedValues.indexOf(this.minValue);
+
+                    this.currentMapping = mappingFn;
+                    this.stats.totalFinds++;
+                    const mappingType = this.getSelectedMapping().value;
+                    this.stats.mappingUsage[mappingType] = (this.stats.mappingUsage[mappingType] || 0) + 1;
+
+                    this.displayArray();
+                    this.displayResult();
+                    this.updateStats();
+                    this.addToHistory(time);
+
+                    if (this.getCheckboxValue('showAnalysis')) {
+                        this.displayAnalysis(time);
+                    }
+
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode();
+                    }
+
+                    this.showNotification(`最小值查找完成！最小值: ${this.minValue}`, 'success');
+                } catch (error) {
+                    this.showError('查找失败: ' + error.message);
+                }
+            }
+
+            displayArray() {
+                const container = document.getElementById('arrayDisplay');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showArray')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭数组元素展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (!this.currentArray || this.currentArray.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>添加数组后将在此展示</p>
+                        </div>`;
+                    return;
+                }
+
+                const mappedValues = this.currentArray.map(
+                    typeof this.currentMapping === 'function' 
+                        ? this.currentMapping 
+                        : val => val[this.currentMapping]
+                );
+
+                const html = this.currentArray.map((item, index) => {
+                    const mappedValue = mappedValues[index];
+                    const isMin = this.minValue !== null && mappedValue === this.minValue;
+                    return `
+                        <div class="array-item ${isMin ? 'min' : ''}">
+                            <div class="item-index">索引 ${index}</div>
+                            <div class="item-content">${JSON.stringify(item)}</div>
+                            <div class="item-mapped ${isMin ? 'min' : ''}">
+                                映射值: ${mappedValue}
+                                ${isMin ? '<div class="min-badge">最小值</div>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `<div class="array-grid">${html}</div>`;
+            }
+
+            displayResult() {
+                const container = document.getElementById('resultDisplay');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showResult')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭最小值结果展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (this.minValue === null) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>执行查找后将在此展示最小值</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="result-card">
+                        <div class="result-label">最小值</div>
+                        <div class="result-value">${this.minValue}</div>
+                        ${this.minIndex !== null ? `<div style="margin-top:12px;color:#64748b;font-size:0.9rem;">位于索引 ${this.minIndex}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            displayAnalysis(time) {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('comparisonGrid');
+                if (!card || !grid) return;
+
+                if (this.minValue === null || !this.currentArray) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                const mappedValues = this.currentArray.map(
+                    typeof this.currentMapping === 'function' 
+                        ? this.currentMapping 
+                        : val => val[this.currentMapping]
+                );
+                const maxValue = Math.max(...mappedValues);
+                const avgValue = mappedValues.reduce((a, b) => a + b, 0) / mappedValues.length;
+                const range = maxValue - this.minValue;
+
+                grid.innerHTML = `
+                    <div class="comparison-card">
+                        <h4>📊 查找信息</h4>
+                        <p>数组长度: ${this.currentArray.length}</p>
+                        <p>最小值: ${this.minValue}</p>
+                        <p>最大值: ${maxValue}</p>
+                        <p>平均值: ${avgValue.toFixed(2)}</p>
+                        <p>计算时间: ${time}μs</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>📈 统计分析</h4>
+                        <p>范围: ${range.toFixed(2)}</p>
+                        <p>最小值占比: ${((this.minValue / maxValue) * 100).toFixed(2)}%</p>
+                        <p>最小值索引: ${this.minIndex}</p>
+                        <p>映射方式: ${this.getSelectedMapping().label}</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>🔍 映射详情</h4>
+                        <p>映射函数: ${typeof this.currentMapping === 'function' ? this.currentMapping.toString() : this.currentMapping}</p>
+                        <p>映射值数组: [${mappedValues.join(', ')}]</p>
+                        <p>最小值元素: ${JSON.stringify(this.currentArray[this.minIndex])}</p>
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            addToHistory(time) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    arrayLength: this.currentArray.length,
+                    minValue: this.minValue,
+                    mapping: this.getSelectedMapping().label,
+                    execTime: time
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无查找历史</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.execTime}μs</div>
+                        <div class="history-summary">
+                            数组长度: ${item.arrayLength} | 最小值: ${item.minValue} | 映射: ${item.mapping}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                const mostUsedMapping = Object.keys(this.stats.mappingUsage).reduce(
+                    (a, b) => this.stats.mappingUsage[a] > this.stats.mappingUsage[b] ? a : b,
+                    '-'
+                );
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalFinds}</div>
+                        <div class="stat-label">查找次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalArrays}</div>
+                        <div class="stat-label">累计数组</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.currentArray ? this.currentArray.length : 0}</div>
+                        <div class="stat-label">当前数组长度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="font-size:1rem;">${mostUsedMapping}</div>
+                        <div class="stat-label">最常用映射</div>
+                    </div>
+                `;
+            }
+
+            showCode() {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+
+                if (this.minValue === null || !this.currentArray) {
+                    if (section) section.style.display = 'none';
+                    return;
+                }
+
+                const mapping = this.getSelectedMapping();
+                let mappingCode = '';
+                if (mapping.value === 'property') {
+                    const property = document.getElementById('propertyInput')?.value.trim() || 'n';
+                    mappingCode = `'${property}'`;
+                } else if (mapping.value === 'custom') {
+                    const customCode = document.getElementById('customFunctionInput')?.value.trim() || 'x => x.n';
+                    mappingCode = customCode;
+                } else {
+                    mappingCode = 'x => x.n';
+                }
+
+                const code = `const minBy = (arr, fn) => Math.min(...arr.map(typeof fn === 'function' ? fn : val => val[fn]));
+
+// 输入数组
+const arr = ${JSON.stringify(this.currentArray, null, 2)};
+
+// 映射函数
+const mappingFn = ${typeof mappingCode === 'string' && mappingCode.startsWith("'") ? mappingCode : mappingCode.includes('=>') ? mappingCode : `x => x.${mappingCode}`};
+
+// 执行查找
+const minValue = minBy(arr, mappingFn);
+
+console.log(minValue);
+// ${this.minValue}
+
+// 说明：
+// - minBy 通过映射函数查找数组中的最小值
+// - 支持函数映射（如 x => x.n）或属性名映射（如 'n'）
+// - 时间复杂度: O(n)
+// - 空间复杂度: O(n)
+// - 适用于查找对象数组中某个属性的最小值`;
+
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            clearAll() {
+                this.currentArray = null;
+                this.currentMapping = null;
+                this.minValue = null;
+                this.minIndex = null;
+                const arrayInput = document.getElementById('arrayInput');
+                if (arrayInput) arrayInput.value = '';
+                const propertyInput = document.getElementById('propertyInput');
+                if (propertyInput) propertyInput.value = '';
+                const customFunctionInput = document.getElementById('customFunctionInput');
+                if (customFunctionInput) customFunctionInput.value = '';
+                this.displayArray();
+                this.displayResult();
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                this.showNotification('已清空全部数据', 'info');
+            }
+
+            loadSample() {
+                const samples = [
+                    [{ n: 4 }, { n: 2 }, { n: 8 }, { n: 6 }],
+                    [{ score: 85 }, { score: 92 }, { score: 78 }, { score: 95 }],
+                    [{ value: 10 }, { value: 5 }, { value: 20 }, { value: 15 }],
+                    [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 2, y: 1 }]
+                ];
+                const sample = samples[Math.floor(Math.random() * samples.length)];
+                const arrayInput = document.getElementById('arrayInput');
+                if (arrayInput) {
+                    arrayInput.value = JSON.stringify(sample, null, 2);
+                }
+                this.showNotification('示例数据已加载', 'info');
+            }
+
+            generateRandom() {
+                const count = Math.floor(Math.random() * 8) + 3;
+                const randomArray = Array.from({ length: count }, () => ({
+                    n: Math.floor(Math.random() * 100) + 1
+                }));
+                const arrayInput = document.getElementById('arrayInput');
+                if (arrayInput) {
+                    arrayInput.value = JSON.stringify(randomArray, null, 2);
+                }
+                this.showNotification(`已生成随机数组，共 ${count} 个元素`, 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用最小值查找平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">📉</div>
+                                <p style="color:#1f2937;line-height:1.8;">
+                                    使用 <strong>minBy</strong> 函数查找数组中的最小值。
+                                    支持函数映射、属性名映射、可视化展示和详细分析。
+                                </p>
+                                <div style="background:#e0e7ff;border-left:4px solid #667eea;padding:12px;border-radius:12px;color:#4338ca;margin-top:12px;">
+                                    <strong>亮点：</strong> 多种映射方式、数组可视化、最小值高亮、对比分析、代码预览、历史记录。
+                                </div>
+                                <ul style="color:#1f2937;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>支持属性名映射（如 'n', 'score'）和函数映射（如 x => x.n）</li>
+                                    <li>可视化展示数组元素和映射值，最小值高亮显示</li>
+                                    <li>提供详细的统计分析和对比信息</li>
+                                    <li>记录查找历史并统计使用情况</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.minByTool = new MinByTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.minByTool) {
+            window.minByTool = new MinByTool();
+        }
+    </script>
+</body>
+
+</html>

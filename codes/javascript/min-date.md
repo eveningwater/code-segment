@@ -11,6 +11,8 @@
 const minDate = (...dates) => new Date(Math.min(...dates));
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/min-date.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,3 +26,11 @@ minDate(...dates); // 2016-01-08T22:00:00.000Z
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/min-date.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/min-date.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/min-date.html"></iframe>
