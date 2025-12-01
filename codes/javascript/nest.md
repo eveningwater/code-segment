@@ -14,6 +14,8 @@
 const nest = (items,id = null,link = 'parent_id') => items.filter(item => item[link] === id).map(item => ({ ...item,children:nest(items,item.id,link )}));
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/nest.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -29,3 +31,11 @@ const nestedComments = nest(comments);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/nest.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/nest.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/nest.html"></iframe>

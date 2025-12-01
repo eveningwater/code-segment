@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组织架构管理系统 - nest 函数实战</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .tree-container {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            margin-bottom: 8px;
+        }
+
+        .tree-item {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 6px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .tree-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .tree-item.department {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+
+        .tree-item.employee {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+
+        .tree-item-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tree-item-icon {
+            font-size: 1.2rem;
+        }
+
+        .tree-item-info {
+            flex: 1;
+        }
+
+        .tree-item-name {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .tree-item-meta {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .tree-item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-icon {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+
+        .tree-children {
+            margin-left: 32px;
+            margin-top: 6px;
+            border-left: 2px dashed #cbd5e1;
+            padding-left: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .form-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .select-container {
+            margin-bottom: 16px;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+        .modal-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 组织架构管理系统</h1>
+            <p>基于 nest 函数的树形结构组织架构管理，支持多级嵌套部门与员工管理</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧操作面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>➕ 添加组织</h2>
+                    <div class="button-group">
+                        <button class="btn btn-success btn-block" onclick="window.orgManager?.showAddModal('department')">
+                            🏛️ 添加部门
+                        </button>
+                        <button class="btn btn-info btn-block" onclick="window.orgManager?.showAddModal('employee')">
+                            👤 添加员工
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 批量操作</h2>
+                    <div id="checkboxGroup" class="checkbox-container"></div>
+                    <div class="button-group">
+                        <button class="btn btn-warning btn-sm" onclick="window.orgManager?.batchEdit()">
+                            ✏️ 批量编辑
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="window.orgManager?.batchDelete()">
+                            🗑️ 批量删除
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalCount">0</div>
+                            <div class="stat-label">总节点数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="departmentCount">0</div>
+                            <div class="stat-label">部门数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="employeeCount">0</div>
+                            <div class="stat-label">员工数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="maxDepth">0</div>
+                            <div class="stat-label">最大层级</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 工具</h2>
+                    <div class="button-group">
+                        <button class="btn btn-info btn-sm" onclick="window.orgManager?.loadSampleData()">
+                            📝 加载示例数据
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="window.orgManager?.exportData()">
+                            💾 导出数据
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="window.orgManager?.clearAll()">
+                            🧹 清空全部
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧树形结构展示 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>🌳 组织架构树</h2>
+                    <div class="tree-container" id="treeContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🏢</div>
+                            <p>暂无组织架构数据</p>
+                            <p style="margin-top: 8px; font-size: 0.9rem;">点击左侧按钮添加部门或员工</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // nest 函数：在平面数组中递归嵌套相互链接的对象
+        const nest = (items, id = null, link = 'parent_id') => 
+            items.filter(item => item[link] === id).map(item => ({ 
+                ...item, 
+                children: nest(items, item.id, link) 
+            }));
+
+        // 组织架构管理系统
+        class OrganizationManager {
+            constructor() {
+                this.items = [];
+                this.nextId = 1;
+                this.selectedItems = new Set();
+                this.plugins = {};
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupCheckboxes();
+                this.loadFromStorage();
+                this.render();
+                this.updateStats();
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableNotifications', label: '启用通知提醒', checked: true },
+                    { id: 'showDetails', label: '显示详细信息', checked: true },
+                    { id: 'autoExpand', label: '自动展开树', checked: false }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (checkedStates) => {
+                            // 响应复选框变化
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败:', error);
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.plugins.checkboxGroup.checkboxes.findIndex(
+                            (cb, idx) => cb.options?.id === id || idx === ['enableNotifications', 'showDetails', 'autoExpand'].indexOf(id)
+                        );
+                        return index !== -1 ? states[index] : false;
+                    } catch (error) {
+                        console.warn('读取复选框状态失败:', error);
+                    }
+                }
+                return false;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.getCheckboxValue('enableNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showAddModal(type) {
+                const isDepartment = type === 'department';
+                const title = isDepartment ? '🏛️ 添加部门' : '👤 添加员工';
+                
+                // 获取父节点选项
+                const parentOptions = [
+                    { value: null, label: '根节点（顶级）' }
+                ];
+                
+                this.items.forEach(item => {
+                    if (item.type === 'department') {
+                        parentOptions.push({
+                            value: item.id,
+                            label: `📁 ${item.name}`
+                        });
+                    }
+                });
+
+                let modalContent = `
+                    <div style="padding: 8px 0;">
+                        <div class="input-group">
+                            <label>${isDepartment ? '部门' : '员工'}名称 *</label>
+                            <input type="text" id="itemName" class="input-field" placeholder="请输入${isDepartment ? '部门' : '员工'}名称">
+                        </div>
+                        <div class="input-group">
+                            <label>上级${isDepartment ? '部门' : '部门'}</label>
+                            <div id="parentSelect" class="select-container"></div>
+                        </div>
+                        ${isDepartment ? `
+                        <div class="input-group">
+                            <label>部门描述</label>
+                            <textarea id="itemDescription" class="textarea-field" placeholder="请输入部门描述（可选）"></textarea>
+                        </div>
+                        ` : `
+                        <div class="input-group">
+                            <label>职位</label>
+                            <input type="text" id="itemPosition" class="input-field" placeholder="请输入职位">
+                        </div>
+                        <div class="input-group">
+                            <label>邮箱</label>
+                            <input type="email" id="itemEmail" class="input-field" placeholder="请输入邮箱">
+                        </div>
+                        <div class="input-group">
+                            <label>入职日期</label>
+                            <div id="hireDatePicker" class="select-container"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>薪资</label>
+                            <div id="salaryInput" class="select-container"></div>
+                        </div>
+                        `}
+                    </div>
+                `;
+
+                this.plugins.modal.show({
+                    title: title,
+                    content: modalContent,
+                    type: 'confirm',
+                    onConfirm: () => {
+                        this.submitAddForm(type, parentOptions);
+                    },
+                    onCancel: () => {}
+                });
+
+                // 初始化表单控件
+                setTimeout(() => {
+                    // 初始化父节点选择器
+                    try {
+                        const parentSelect = new Select({
+                            container: '#parentSelect',
+                            options: parentOptions,
+                            placeholder: '选择上级部门',
+                            onChange: (value) => {
+                                console.log('选择的父节点:', value);
+                            }
+                        });
+                        window.tempParentSelect = parentSelect;
+                    } catch (error) {
+                        console.warn('Select 插件加载失败:', error);
+                    }
+
+                    // 如果是员工，初始化日期和数字输入
+                    if (!isDepartment) {
+                        try {
+                            const hireDatePicker = new DateTimePicker({
+                                container: document.getElementById('hireDatePicker'),
+                                placeholder: '选择入职日期',
+                                format: 'YYYY-MM-DD'
+                            });
+                            window.tempHireDatePicker = hireDatePicker;
+
+                            const salaryInput = new InputNumber({
+                                container: document.getElementById('salaryInput'),
+                                min: 0,
+                                max: 1000000,
+                                step: 500,
+                                value: 10000,
+                                placeholder: '请输入薪资'
+                            });
+                            window.tempSalaryInput = salaryInput;
+                        } catch (error) {
+                            console.warn('日期或数字输入插件加载失败:', error);
+                        }
+                    }
+                }, 100);
+            }
+
+            submitAddForm(type, parentOptions) {
+                const nameInput = document.getElementById('itemName');
+                const name = nameInput?.value.trim();
+
+                if (!name) {
+                    this.showNotification('请输入名称', 'error');
+                    return;
+                }
+
+                let parentId = window.tempParentSelect?.getValue() || null;
+                if (parentId === 'null' || parentId === null || parentId === '') {
+                    parentId = null;
+                } else {
+                    parentId = parseInt(parentId);
+                }
+
+                const item = {
+                    id: this.nextId++,
+                    type: type,
+                    name: name,
+                    parent_id: parentId
+                };
+
+                if (type === 'department') {
+                    const descriptionInput = document.getElementById('itemDescription');
+                    item.description = descriptionInput?.value.trim() || '';
+                } else {
+                    const positionInput = document.getElementById('itemPosition');
+                    const emailInput = document.getElementById('itemEmail');
+                    item.position = positionInput?.value.trim() || '';
+                    item.email = emailInput?.value.trim() || '';
+                    item.hireDate = window.tempHireDatePicker?.getValue() || '';
+                    item.salary = window.tempSalaryInput?.getValue() || 0;
+                }
+
+                this.items.push(item);
+                this.saveToStorage();
+                this.render();
+                this.updateStats();
+                
+                const typeName = type === 'department' ? '部门' : '员工';
+                this.showNotification(`成功添加${typeName}：${name}`, 'success');
+
+                // 清理临时变量
+                window.tempParentSelect = null;
+                window.tempHireDatePicker = null;
+                window.tempSalaryInput = null;
+            }
+
+            showEditModal(item) {
+                const isDepartment = item.type === 'department';
+                const title = isDepartment ? '✏️ 编辑部门' : '✏️ 编辑员工';
+
+                // 获取父节点选项（排除自己和自己的子节点）
+                const parentOptions = [
+                    { value: null, label: '根节点（顶级）' }
+                ];
+                
+                const excludeIds = this.getDescendantIds(item.id);
+                excludeIds.push(item.id);
+
+                this.items.forEach(item_ => {
+                    if (item_.type === 'department' && !excludeIds.includes(item_.id)) {
+                        parentOptions.push({
+                            value: item_.id,
+                            label: `📁 ${item_.name}`
+                        });
+                    }
+                });
+
+                let modalContent = `
+                    <div style="padding: 8px 0;">
+                        <div class="input-group">
+                            <label>${isDepartment ? '部门' : '员工'}名称 *</label>
+                            <input type="text" id="itemName" class="input-field" value="${this.escapeHtml(item.name)}">
+                        </div>
+                        <div class="input-group">
+                            <label>上级${isDepartment ? '部门' : '部门'}</label>
+                            <div id="parentSelect" class="select-container"></div>
+                        </div>
+                        ${isDepartment ? `
+                        <div class="input-group">
+                            <label>部门描述</label>
+                            <textarea id="itemDescription" class="textarea-field">${this.escapeHtml(item.description || '')}</textarea>
+                        </div>
+                        ` : `
+                        <div class="input-group">
+                            <label>职位</label>
+                            <input type="text" id="itemPosition" class="input-field" value="${this.escapeHtml(item.position || '')}">
+                        </div>
+                        <div class="input-group">
+                            <label>邮箱</label>
+                            <input type="email" id="itemEmail" class="input-field" value="${this.escapeHtml(item.email || '')}">
+                        </div>
+                        <div class="input-group">
+                            <label>入职日期</label>
+                            <div id="hireDatePicker" class="select-container"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>薪资</label>
+                            <div id="salaryInput" class="select-container"></div>
+                        </div>
+                        `}
+                    </div>
+                `;
+
+                this.plugins.modal.show({
+                    title: title,
+                    content: modalContent,
+                    type: 'confirm',
+                    onConfirm: () => {
+                        this.submitEditForm(item.id, parentOptions);
+                    },
+                    onCancel: () => {}
+                });
+
+                // 初始化表单控件
+                setTimeout(() => {
+                    try {
+                        const parentSelect = new Select({
+                            container: '#parentSelect',
+                            options: parentOptions,
+                            placeholder: '选择上级部门',
+                            onChange: () => {}
+                        });
+                        parentSelect.setValue(item.parent_id === null ? null : item.parent_id.toString());
+                        window.tempParentSelect = parentSelect;
+                    } catch (error) {
+                        console.warn('Select 插件加载失败:', error);
+                    }
+
+                    if (!isDepartment) {
+                        try {
+                            const hireDatePicker = new DateTimePicker({
+                                container: document.getElementById('hireDatePicker'),
+                                placeholder: '选择入职日期',
+                                format: 'YYYY-MM-DD'
+                            });
+                            if (item.hireDate) {
+                                hireDatePicker.setValue(item.hireDate);
+                            }
+                            window.tempHireDatePicker = hireDatePicker;
+
+                            const salaryInput = new InputNumber({
+                                container: document.getElementById('salaryInput'),
+                                min: 0,
+                                max: 1000000,
+                                step: 500,
+                                value: item.salary || 0
+                            });
+                            window.tempSalaryInput = salaryInput;
+                        } catch (error) {
+                            console.warn('日期或数字输入插件加载失败:', error);
+                        }
+                    }
+                }, 100);
+            }
+
+            submitEditForm(itemId, parentOptions) {
+                const item = this.items.find(i => i.id === itemId);
+                if (!item) return;
+
+                const nameInput = document.getElementById('itemName');
+                const name = nameInput?.value.trim();
+
+                if (!name) {
+                    this.showNotification('请输入名称', 'error');
+                    return;
+                }
+
+                let parentId = window.tempParentSelect?.getValue() || null;
+                if (parentId === 'null' || parentId === null || parentId === '') {
+                    parentId = null;
+                } else {
+                    parentId = parseInt(parentId);
+                }
+
+                item.name = name;
+                item.parent_id = parentId;
+
+                if (item.type === 'department') {
+                    const descriptionInput = document.getElementById('itemDescription');
+                    item.description = descriptionInput?.value.trim() || '';
+                } else {
+                    const positionInput = document.getElementById('itemPosition');
+                    const emailInput = document.getElementById('itemEmail');
+                    item.position = positionInput?.value.trim() || '';
+                    item.email = emailInput?.value.trim() || '';
+                    item.hireDate = window.tempHireDatePicker?.getValue() || '';
+                    item.salary = window.tempSalaryInput?.getValue() || 0;
+                }
+
+                this.saveToStorage();
+                this.render();
+                this.updateStats();
+                this.showNotification('编辑成功', 'success');
+
+                // 清理临时变量
+                window.tempParentSelect = null;
+                window.tempHireDatePicker = null;
+                window.tempSalaryInput = null;
+            }
+
+            deleteItem(itemId) {
+                const item = this.items.find(i => i.id === itemId);
+                if (!item) return;
+
+                // 检查是否有子节点
+                const hasChildren = this.items.some(i => i.parent_id === itemId);
+                
+                if (hasChildren) {
+                    this.plugins.modal.confirm(`删除 ${item.name} 将同时删除其所有子节点，确定要继续吗？`).then(confirmed => {
+                        if (confirmed) {
+                            this.performDelete(itemId);
+                        }
+                    });
+                } else {
+                    this.plugins.modal.confirm(`确定要删除 ${item.name} 吗？`).then(confirmed => {
+                        if (confirmed) {
+                            this.performDelete(itemId);
+                        }
+                    });
+                }
+            }
+
+            performDelete(itemId) {
+                // 递归删除所有子节点
+                const toDelete = [itemId];
+                const findChildren = (parentId) => {
+                    this.items.forEach(item => {
+                        if (item.parent_id === parentId) {
+                            toDelete.push(item.id);
+                            findChildren(item.id);
+                        }
+                    });
+                };
+                findChildren(itemId);
+
+                // 删除节点
+                this.items = this.items.filter(item => !toDelete.includes(item.id));
+                this.selectedItems.clear();
+                this.saveToStorage();
+                this.render();
+                this.updateStats();
+                this.showNotification('删除成功', 'success');
+            }
+
+            getDescendantIds(parentId) {
+                const descendants = [];
+                const findDescendants = (id) => {
+                    this.items.forEach(item => {
+                        if (item.parent_id === id) {
+                            descendants.push(item.id);
+                            findDescendants(item.id);
+                        }
+                    });
+                };
+                findDescendants(parentId);
+                return descendants;
+            }
+
+            render() {
+                const container = document.getElementById('treeContainer');
+                if (!container) return;
+
+                if (this.items.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🏢</div>
+                            <p>暂无组织架构数据</p>
+                            <p style="margin-top: 8px; font-size: 0.9rem;">点击左侧按钮添加部门或员工</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 使用 nest 函数将平面数据转换为树形结构
+                const nestedItems = nest(this.items);
+
+                container.innerHTML = '';
+                nestedItems.forEach(item => {
+                    container.appendChild(this.renderTreeNode(item));
+                });
+            }
+
+            renderTreeNode(item, level = 0) {
+                const node = document.createElement('div');
+                node.className = 'tree-node';
+                
+                const isDepartment = item.type === 'department';
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `tree-item ${item.type}`;
+                itemDiv.style.paddingLeft = `${level * 16 + 16}px`;
+
+                const icon = isDepartment ? '🏛️' : '👤';
+                const meta = isDepartment 
+                    ? `部门 | ID: ${item.id}`
+                    : `${item.position || '员工'} | ${item.email || '无邮箱'} | ID: ${item.id}`;
+
+                itemDiv.innerHTML = `
+                    <div class="tree-item-content">
+                        <span class="tree-item-icon">${icon}</span>
+                        <div class="tree-item-info">
+                            <div class="tree-item-name">${this.escapeHtml(item.name)}</div>
+                            <div class="tree-item-meta">${this.escapeHtml(meta)}</div>
+                        </div>
+                    </div>
+                    <div class="tree-item-actions">
+                        <button class="btn btn-info btn-icon" onclick="window.orgManager?.showEditModal(window.orgManager?.items.find(i => i.id === ${item.id}))">
+                            ✏️
+                        </button>
+                        <button class="btn btn-danger btn-icon" onclick="window.orgManager?.deleteItem(${item.id})">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+
+                node.appendChild(itemDiv);
+
+                // 递归渲染子节点
+                if (item.children && item.children.length > 0) {
+                    const childrenContainer = document.createElement('div');
+                    childrenContainer.className = 'tree-children';
+                    item.children.forEach(child => {
+                        childrenContainer.appendChild(this.renderTreeNode(child, level + 1));
+                    });
+                    node.appendChild(childrenContainer);
+                }
+
+                return node;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            updateStats() {
+                const totalCount = this.items.length;
+                const departmentCount = this.items.filter(i => i.type === 'department').length;
+                const employeeCount = this.items.filter(i => i.type === 'employee').length;
+                
+                // 计算最大层级
+                const maxDepth = this.calculateMaxDepth();
+
+                document.getElementById('totalCount').textContent = totalCount;
+                document.getElementById('departmentCount').textContent = departmentCount;
+                document.getElementById('employeeCount').textContent = employeeCount;
+                document.getElementById('maxDepth').textContent = maxDepth;
+            }
+
+            calculateMaxDepth() {
+                if (this.items.length === 0) return 0;
+
+                const getDepth = (itemId) => {
+                    let maxChildDepth = 0;
+                    this.items.forEach(item => {
+                        if (item.parent_id === itemId) {
+                            maxChildDepth = Math.max(maxChildDepth, getDepth(item.id));
+                        }
+                    });
+                    return maxChildDepth + 1;
+                };
+
+                let maxDepth = 0;
+                this.items.forEach(item => {
+                    if (item.parent_id === null) {
+                        maxDepth = Math.max(maxDepth, getDepth(item.id));
+                    }
+                });
+                return maxDepth;
+            }
+
+            batchEdit() {
+                if (this.selectedItems.size === 0) {
+                    this.showNotification('请先选择要编辑的项目', 'warning');
+                    return;
+                }
+                this.showNotification('批量编辑功能开发中...', 'info');
+            }
+
+            batchDelete() {
+                if (this.selectedItems.size === 0) {
+                    this.showNotification('请先选择要删除的项目', 'warning');
+                    return;
+                }
+
+                this.plugins.modal.confirm(`确定要删除选中的 ${this.selectedItems.size} 个项目吗？`).then(confirmed => {
+                    if (confirmed) {
+                        this.items = this.items.filter(item => !this.selectedItems.has(item.id));
+                        this.selectedItems.clear();
+                        this.saveToStorage();
+                        this.render();
+                        this.updateStats();
+                        this.showNotification('批量删除成功', 'success');
+                    }
+                });
+            }
+
+            loadSampleData() {
+                this.plugins.modal.confirm('加载示例数据将替换当前所有数据，确定要继续吗？').then(confirmed => {
+                    if (confirmed) {
+                        this.items = [
+                            { id: 1, type: 'department', name: '技术部', parent_id: null, description: '负责技术开发' },
+                            { id: 2, type: 'department', name: '产品部', parent_id: null, description: '负责产品规划' },
+                            { id: 3, type: 'department', name: '前端组', parent_id: 1, description: '前端开发团队' },
+                            { id: 4, type: 'department', name: '后端组', parent_id: 1, description: '后端开发团队' },
+                            { id: 5, type: 'employee', name: '张三', parent_id: 3, position: '前端工程师', email: 'zhangsan@example.com', hireDate: '2023-01-15', salary: 15000 },
+                            { id: 6, type: 'employee', name: '李四', parent_id: 3, position: '高级前端工程师', email: 'lisi@example.com', hireDate: '2022-06-01', salary: 20000 },
+                            { id: 7, type: 'employee', name: '王五', parent_id: 4, position: '后端工程师', email: 'wangwu@example.com', hireDate: '2023-03-10', salary: 16000 },
+                            { id: 8, type: 'employee', name: '赵六', parent_id: 2, position: '产品经理', email: 'zhaoliu@example.com', hireDate: '2021-09-01', salary: 25000 },
+                            { id: 9, type: 'employee', name: '钱七', parent_id: 1, position: '技术总监', email: 'qianqi@example.com', hireDate: '2020-01-01', salary: 35000 }
+                        ];
+                        this.nextId = 10;
+                        this.saveToStorage();
+                        this.render();
+                        this.updateStats();
+                        this.showNotification('示例数据加载成功', 'success');
+                    }
+                });
+            }
+
+            exportData() {
+                const data = {
+                    items: this.items,
+                    nextId: this.nextId,
+                    exportTime: new Date().toISOString()
+                };
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `组织架构_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.showNotification('数据导出成功', 'success');
+            }
+
+            clearAll() {
+                this.plugins.modal.confirm('确定要清空所有数据吗？此操作不可恢复！').then(confirmed => {
+                    if (confirmed) {
+                        this.items = [];
+                        this.selectedItems.clear();
+                        this.nextId = 1;
+                        this.saveToStorage();
+                        this.render();
+                        this.updateStats();
+                        this.showNotification('数据已清空', 'info');
+                    }
+                });
+            }
+
+            saveToStorage() {
+                try {
+                    localStorage.setItem('orgManager_data', JSON.stringify({
+                        items: this.items,
+                        nextId: this.nextId
+                    }));
+                } catch (error) {
+                    console.warn('保存到本地存储失败:', error);
+                }
+            }
+
+            loadFromStorage() {
+                try {
+                    const saved = localStorage.getItem('orgManager_data');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.items = data.items || [];
+                        this.nextId = data.nextId || 1;
+                    }
+                } catch (error) {
+                    console.warn('从本地存储加载失败:', error);
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.orgManager = new OrganizationManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.orgManager) {
+            window.orgManager = new OrganizationManager();
+        }
+    </script>
+</body>
+</html>
