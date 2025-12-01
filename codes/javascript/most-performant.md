@@ -23,6 +23,8 @@ const mostPerformant = (fns,iterations = 10000) => {
 }
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/most-performant.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -39,3 +41,11 @@ mostPerformant([
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/most-performant.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/most-performant.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/most-performant.html"></iframe>

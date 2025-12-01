@@ -445,7 +445,7 @@
 - [查找最小日期-2022-12-15](codes/javascript/min-date.md)
 - [返回数组中 n 个最小元素-2022-12-16](codes/javascript/min-n.md)
 - [返回数组中出现最多次数的元素-2022-12-17](codes/javascript/most-frequent.md)
-- [性能最强的函数-2022-12-18](codes/javascript/mostPerformant.md)
+- [性能最强的函数-2022-12-18](codes/javascript/most-performant.md)
 - [否定函数-2022-12-19](codes/javascript/negate.md)
 - [嵌套相互链接的对象-2022-12-20](codes/javascript/nest.md)
 - [节点列表转成节点数组-2022-12-21](codes/javascript/nodeListToArray.md)
