@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM 节点分析与操作平台 - nodeListToArray</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .node-list-container {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+
+        .node-item {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .node-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .node-item.highlighted {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left-color: #f59e0b;
+        }
+
+        .node-item.selected {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-left-color: #3b82f6;
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .node-tag {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .node-type {
+            font-size: 0.75rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .node-info {
+            font-size: 0.8rem;
+            color: #64748b;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .node-info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .filter-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .select-container {
+            margin-bottom: 16px;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .result-display {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #1f2937;
+            word-break: break-all;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .operation-history {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            border-left: 3px solid #667eea;
+        }
+
+        .tag-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .tag-ELEMENT_NODE {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tag-TEXT_NODE {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-COMMENT_NODE {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 DOM 节点分析与操作平台</h1>
+            <p>基于 nodeListToArray 函数的 DOM 节点转换与分析工具，支持节点搜索、过滤、批量操作</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>🔎 节点选择</h2>
+                    <div class="input-group">
+                        <label>选择器 (CSS Selector)</label>
+                        <input type="text" id="selectorInput" class="input-field" placeholder="例如: .card, #container, div, button">
+                    </div>
+                    <div class="input-group">
+                        <label>选择范围</label>
+                        <div id="scopeSelect" class="select-container"></div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" onclick="window.domAnalyzer?.queryNodes()">
+                            🔍 查询节点
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="window.domAnalyzer?.analyzeDocument()">
+                            📄 分析文档
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🎯 节点过滤</h2>
+                    <div class="filter-section">
+                        <div class="input-group">
+                            <label>节点类型</label>
+                            <div id="nodeTypeSelect" class="select-container"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>搜索关键词</label>
+                            <input type="text" id="filterInput" class="input-field" placeholder="搜索节点标签名、文本内容...">
+                        </div>
+                        <div id="filterCheckboxGroup" class="checkbox-container"></div>
+                        <div class="button-group">
+                            <button class="btn btn-success btn-sm" onclick="window.domAnalyzer?.applyFilters()">
+                                ✅ 应用过滤
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="window.domAnalyzer?.clearFilters()">
+                                🧹 清除过滤
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 批量操作</h2>
+                    <div class="button-group">
+                        <button class="btn btn-info btn-sm" onclick="window.domAnalyzer?.highlightSelected()">
+                            ✨ 高亮选中
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="window.domAnalyzer?.exportSelected()">
+                            💾 导出选中
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="window.domAnalyzer?.getNodeInfo()">
+                            📊 节点信息
+                        </button>
+                    </div>
+                    <div id="operationHistory" class="operation-history" style="margin-top: 16px;">
+                        <div class="empty-state" style="padding: 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">操作历史将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalNodes">0</div>
+                            <div class="stat-label">总节点数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="elementNodes">0</div>
+                            <div class="stat-label">元素节点</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="textNodes">0</div>
+                            <div class="stat-label">文本节点</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="selectedCount">0</div>
+                            <div class="stat-label">已选中</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 工具</h2>
+                    <div class="button-group">
+                        <button class="btn btn-info btn-sm" onclick="window.domAnalyzer?.clearAll()">
+                            🧹 清空全部
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="window.domAnalyzer?.refresh()">
+                            🔄 刷新
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧节点列表展示 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📋 节点列表 (<span id="nodeCount">0</span>)</h2>
+                    <div class="node-list-container" id="nodeListContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔍</div>
+                            <p>暂无节点数据</p>
+                            <p style="margin-top: 8px; font-size: 0.9rem;">使用左侧选择器查询节点</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="resultCard" style="display: none;">
+                    <h2>📄 结果详情</h2>
+                    <div class="result-display" id="resultDisplay"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // nodeListToArray 函数：将 NodeList 转换为数组
+        const nodeListToArray = nodeList => [...nodeList];
+
+        // DOM 节点分析与操作平台
+        class DOMAnalyzer {
+            constructor() {
+                this.nodes = [];
+                this.filteredNodes = [];
+                this.selectedNodes = new Set();
+                this.plugins = {};
+                this.operationHistory = [];
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupSelects();
+                this.setupCheckboxes();
+                this.loadHistory();
+                this.updateStats();
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupSelects() {
+                // 选择范围选择器
+                try {
+                    this.plugins.scopeSelect = new Select({
+                        container: '#scopeSelect',
+                        options: [
+                            { value: 'document', label: '整个文档' },
+                            { value: 'body', label: 'Body 元素' },
+                            { value: 'container', label: 'Container 区域' }
+                        ],
+                        placeholder: '选择查询范围'
+                    });
+                    this.plugins.scopeSelect.setValue('document');
+                } catch (error) {
+                    console.warn('范围选择器加载失败:', error);
+                }
+
+                // 节点类型选择器
+                try {
+                    this.plugins.nodeTypeSelect = new Select({
+                        container: '#nodeTypeSelect',
+                        options: [
+                            { value: 'all', label: '所有类型' },
+                            { value: 'ELEMENT_NODE', label: '元素节点 (1)' },
+                            { value: 'TEXT_NODE', label: '文本节点 (3)' },
+                            { value: 'COMMENT_NODE', label: '注释节点 (8)' }
+                        ],
+                        placeholder: '选择节点类型'
+                    });
+                    this.plugins.nodeTypeSelect.setValue('all');
+                } catch (error) {
+                    console.warn('节点类型选择器加载失败:', error);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('filterCheckboxGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'includeTextNodes', label: '包含文本节点', checked: true },
+                    { id: 'includeCommentNodes', label: '包含注释节点', checked: false },
+                    { id: 'showNodeDetails', label: '显示详细信息', checked: true },
+                    { id: 'enableNotifications', label: '启用通知提醒', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: () => {
+                            this.applyFilters();
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败:', error);
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = ['includeTextNodes', 'includeCommentNodes', 'showNodeDetails', 'enableNotifications'].indexOf(id);
+                        return index !== -1 ? states[index] : false;
+                    } catch (error) {
+                        console.warn('读取复选框状态失败:', error);
+                    }
+                }
+                return false;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.getCheckboxValue('enableNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            queryNodes() {
+                const selectorInput = document.getElementById('selectorInput');
+                const selector = selectorInput?.value.trim();
+
+                if (!selector || selector === '') {
+                    this.showNotification('请输入选择器', 'error');
+                    return;
+                }
+
+                try {
+                    const scope = this.plugins.scopeSelect?.getValue() || 'document';
+                    let rootElement;
+
+                    switch (scope) {
+                        case 'document':
+                            rootElement = document;
+                            break;
+                        case 'body':
+                            rootElement = document.body;
+                            break;
+                        case 'container':
+                            rootElement = document.querySelector('.container');
+                            break;
+                        default:
+                            rootElement = document;
+                    }
+
+                    let nodeList;
+                    if (scope === 'document' && selector === '*') {
+                        // 特殊情况：选择所有节点
+                        nodeList = rootElement.querySelectorAll(selector);
+                    } else {
+                        nodeList = rootElement.querySelectorAll(selector);
+                    }
+
+                    // 使用 nodeListToArray 将 NodeList 转换为数组
+                    this.nodes = nodeListToArray(nodeList);
+                    this.filteredNodes = [...this.nodes];
+                    this.selectedNodes.clear();
+
+                    this.addHistory(`查询节点: "${selector}" (范围: ${scope})`, this.nodes.length);
+                    this.render();
+                    this.updateStats();
+                    this.showNotification(`找到 ${this.nodes.length} 个节点`, 'success');
+                } catch (error) {
+                    this.showNotification('查询失败: ' + error.message, 'error');
+                    console.error('查询节点失败:', error);
+                }
+            }
+
+            analyzeDocument() {
+                try {
+                    // 获取所有子节点（包括文本节点、注释节点等）
+                    const getAllDescendantNodes = (element) => {
+                        if (!element) {
+                            return [];
+                        }
+
+                        const nodes = [];
+                        try {
+                            const walker = document.createTreeWalker(
+                                element,
+                                NodeFilter.SHOW_ALL,
+                                null
+                            );
+                            
+                            let node;
+                            while (node = walker.nextNode()) {
+                                // 验证节点有效性
+                                if (node && typeof node.nodeType !== 'undefined') {
+                                    nodes.push(node);
+                                }
+                            }
+                        } catch (error) {
+                            console.warn('TreeWalker 创建失败，使用备用方法:', error);
+                            // 备用方法：递归获取所有节点
+                            const collectNodes = (el) => {
+                                if (!el) return;
+                                if (typeof el.nodeType !== 'undefined') {
+                                    nodes.push(el);
+                                }
+                                if (el.childNodes && el.childNodes.length > 0) {
+                                    const childArray = nodeListToArray(el.childNodes);
+                                    childArray.forEach(child => {
+                                        if (child && typeof child.nodeType !== 'undefined') {
+                                            nodes.push(child);
+                                            collectNodes(child);
+                                        }
+                                    });
+                                }
+                            };
+                            collectNodes(element);
+                        }
+                        return nodes;
+                    };
+
+                    const allDescendantNodes = getAllDescendantNodes(document.body);
+                    
+                    // 使用 nodeListToArray 处理（虽然已经是数组，但演示用法）
+                    this.nodes = nodeListToArray(allDescendantNodes);
+                    
+                    // 过滤掉无效节点和空文本节点
+                    this.nodes = this.nodes.filter(node => {
+                        // 验证节点有效性
+                        if (!node || typeof node.nodeType === 'undefined') {
+                            return false;
+                        }
+                        
+                        // 过滤掉空文本节点
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            const text = node.textContent || '';
+                            return text.trim().length > 0;
+                        }
+                        return true;
+                    });
+
+                    this.filteredNodes = [...this.nodes];
+                    this.selectedNodes.clear();
+
+                    this.addHistory('分析整个文档', this.nodes.length);
+                    this.render();
+                    this.updateStats();
+                    this.showNotification(`分析了 ${this.nodes.length} 个节点`, 'success');
+                } catch (error) {
+                    this.showNotification('分析失败: ' + error.message, 'error');
+                    console.error('分析文档失败:', error);
+                }
+            }
+
+            applyFilters() {
+                if (this.nodes.length === 0) {
+                    this.showNotification('请先查询节点', 'warning');
+                    return;
+                }
+
+                const filterInput = document.getElementById('filterInput');
+                const filterText = filterInput?.value.trim().toLowerCase() || '';
+                const nodeType = this.plugins.nodeTypeSelect?.getValue() || 'all';
+                const includeTextNodes = this.getCheckboxValue('includeTextNodes');
+                const includeCommentNodes = this.getCheckboxValue('includeCommentNodes');
+
+                this.filteredNodes = this.nodes.filter(node => {
+                    // 节点类型过滤
+                    if (nodeType !== 'all') {
+                        const nodeTypeMap = {
+                            'ELEMENT_NODE': 1,
+                            'TEXT_NODE': 3,
+                            'COMMENT_NODE': 8
+                        };
+                        if (node.nodeType !== nodeTypeMap[nodeType]) {
+                            return false;
+                        }
+                    }
+
+                    // 文本节点过滤
+                    if (node.nodeType === Node.TEXT_NODE && !includeTextNodes) {
+                        return false;
+                    }
+
+                    // 注释节点过滤
+                    if (node.nodeType === Node.COMMENT_NODE && !includeCommentNodes) {
+                        return false;
+                    }
+
+                    // 关键词过滤
+                    if (filterText) {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            const tagName = node.tagName?.toLowerCase() || '';
+                            const textContent = node.textContent?.toLowerCase() || '';
+                            const className = node.className?.toLowerCase() || '';
+                            const id = node.id?.toLowerCase() || '';
+                            
+                            if (!tagName.includes(filterText) && 
+                                !textContent.includes(filterText) && 
+                                !className.includes(filterText) &&
+                                !id.includes(filterText)) {
+                                return false;
+                            }
+                        } else if (node.nodeType === Node.TEXT_NODE) {
+                            const text = node.textContent?.toLowerCase() || '';
+                            if (!text.includes(filterText)) {
+                                return false;
+                            }
+                        } else if (node.nodeType === Node.COMMENT_NODE) {
+                            const comment = node.textContent?.toLowerCase() || '';
+                            if (!comment.includes(filterText)) {
+                                return false;
+                            }
+                        }
+                    }
+
+                    return true;
+                });
+
+                this.render();
+                this.updateStats();
+                this.showNotification(`过滤后剩余 ${this.filteredNodes.length} 个节点`, 'info');
+            }
+
+            clearFilters() {
+                const filterInput = document.getElementById('filterInput');
+                if (filterInput) filterInput.value = '';
+                
+                if (this.plugins.nodeTypeSelect) {
+                    this.plugins.nodeTypeSelect.setValue('all');
+                }
+
+                this.filteredNodes = [...this.nodes];
+                this.render();
+                this.updateStats();
+                this.showNotification('已清除所有过滤条件', 'info');
+            }
+
+            render() {
+                const container = document.getElementById('nodeListContainer');
+                const countElement = document.getElementById('nodeCount');
+                if (!container) return;
+
+                if (countElement) {
+                    countElement.textContent = this.filteredNodes.length;
+                }
+
+                if (this.filteredNodes.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔍</div>
+                            <p>暂无节点数据</p>
+                            <p style="margin-top: 8px; font-size: 0.9rem;">使用左侧选择器查询节点</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = '';
+                
+                // 使用 nodeListToArray 确保处理的是数组
+                const nodesArray = nodeListToArray(this.filteredNodes);
+                
+                nodesArray.forEach((node, index) => {
+                    const nodeItem = this.createNodeItem(node, index);
+                    container.appendChild(nodeItem);
+                });
+            }
+
+            createNodeItem(node, index) {
+                // 验证节点是否有效
+                if (!node || typeof node.nodeType === 'undefined') {
+                    console.warn('无效的节点:', node, '索引:', index);
+                    const item = document.createElement('div');
+                    item.className = 'node-item';
+                    item.innerHTML = `
+                        <div class="node-header">
+                            <div class="node-tag">
+                                <span class="tag-badge">无效节点</span>
+                            </div>
+                        </div>
+                        <div class="node-info">
+                            <span class="node-info-item">节点数据无效</span>
+                        </div>
+                    `;
+                    return item;
+                }
+
+                const item = document.createElement('div');
+                item.className = 'node-item';
+                
+                if (this.selectedNodes.has(index)) {
+                    item.classList.add('selected');
+                }
+
+                try {
+                    const nodeTypeName = this.getNodeTypeName(node.nodeType);
+                    const nodeInfo = this.getNodeInfo(node) || '<span class="node-info-item">节点信息获取失败</span>';
+
+                    item.innerHTML = `
+                        <div class="node-header">
+                            <div class="node-tag">
+                                <span class="tag-badge tag-${nodeTypeName}">${nodeTypeName}</span>
+                                ${node.nodeType === Node.ELEMENT_NODE ? `<span>${node.tagName?.toLowerCase() || 'unknown'}</span>` : ''}
+                            </div>
+                            <div class="node-type">${node.nodeType}</div>
+                        </div>
+                        <div class="node-info">
+                            ${nodeInfo}
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('渲染节点失败:', error, node);
+                    item.innerHTML = `
+                        <div class="node-header">
+                            <div class="node-tag">
+                                <span class="tag-badge">错误</span>
+                            </div>
+                        </div>
+                        <div class="node-info">
+                            <span class="node-info-item">渲染失败: ${error.message}</span>
+                        </div>
+                    `;
+                }
+
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleSelect(index);
+                });
+
+                return item;
+            }
+
+            getNodeTypeName(nodeType) {
+                const types = {
+                    1: 'ELEMENT_NODE',
+                    3: 'TEXT_NODE',
+                    8: 'COMMENT_NODE',
+                    9: 'DOCUMENT_NODE',
+                    10: 'DOCUMENT_TYPE_NODE',
+                    11: 'DOCUMENT_FRAGMENT_NODE'
+                };
+                return types[nodeType] || 'UNKNOWN';
+            }
+
+            getNodeInfo(node) {
+                // 验证节点是否有效
+                if (!node) {
+                    return '<span class="node-info-item">节点不存在</span>';
+                }
+
+                // 验证 nodeType
+                if (typeof node.nodeType === 'undefined') {
+                    return '<span class="node-info-item">节点类型未知</span>';
+                }
+
+                const infoItems = [];
+
+                try {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // 标签名
+                        const tagName = node.tagName || 'unknown';
+                        infoItems.push(`<span class="node-info-item">标签: <code>${tagName.toLowerCase()}</code></span>`);
+                        
+                        // ID
+                        if (node.id) {
+                            infoItems.push(`<span class="node-info-item">ID: <code>#${node.id}</code></span>`);
+                        }
+                        
+                        // ClassName - 处理多种情况
+                        let classNameStr = '';
+                        if (node.className) {
+                            if (typeof node.className === 'string') {
+                                classNameStr = node.className;
+                            } else if (typeof node.className === 'object' && node.className.baseVal !== undefined) {
+                                // SVG 元素的 className
+                                classNameStr = node.className.baseVal || '';
+                            } else if (node.className.toString) {
+                                classNameStr = node.className.toString();
+                            }
+                        }
+                        
+                        if (classNameStr) {
+                            const classes = classNameStr.split(/\s+/).filter(c => c.trim()).join(', ');
+                            if (classes) {
+                                infoItems.push(`<span class="node-info-item">Classes: <code>${classes}</code></span>`);
+                            }
+                        }
+                        
+                        // 子节点数量
+                        const childCount = node.childNodes ? nodeListToArray(node.childNodes).length : 0;
+                        infoItems.push(`<span class="node-info-item">子节点: ${childCount}</span>`);
+                        
+                        // 属性数量
+                        if (node.attributes && node.attributes.length > 0) {
+                            const attrCount = nodeListToArray(node.attributes).length;
+                            infoItems.push(`<span class="node-info-item">属性: ${attrCount}</span>`);
+                        }
+                    } else if (node.nodeType === Node.TEXT_NODE) {
+                        const text = (node.textContent || '').trim();
+                        if (text) {
+                            const preview = text.length > 50 ? text.substring(0, 50) + '...' : text;
+                            infoItems.push(`<span class="node-info-item">文本: <code>${this.escapeHtml(preview)}</code></span>`);
+                            infoItems.push(`<span class="node-info-item">长度: ${text.length} 字符</span>`);
+                        } else {
+                            infoItems.push(`<span class="node-info-item">空文本节点</span>`);
+                        }
+                    } else if (node.nodeType === Node.COMMENT_NODE) {
+                        const comment = (node.textContent || '').trim();
+                        if (comment) {
+                            const preview = comment.length > 50 ? comment.substring(0, 50) + '...' : comment;
+                            infoItems.push(`<span class="node-info-item">注释: <code>${this.escapeHtml(preview)}</code></span>`);
+                        } else {
+                            infoItems.push(`<span class="node-info-item">空注释节点</span>`);
+                        }
+                    } else {
+                        // 其他类型的节点
+                        infoItems.push(`<span class="node-info-item">节点类型代码: ${node.nodeType}</span>`);
+                    }
+
+                    // 如果没有任何信息，至少显示节点类型
+                    if (infoItems.length === 0) {
+                        infoItems.push(`<span class="node-info-item">节点类型: ${this.getNodeTypeName(node.nodeType)}</span>`);
+                    }
+
+                    return infoItems.join('');
+                } catch (error) {
+                    console.error('获取节点信息失败:', error, node);
+                    return `<span class="node-info-item">获取信息失败: ${error.message}</span>`;
+                }
+            }
+
+            toggleSelect(index) {
+                if (this.selectedNodes.has(index)) {
+                    this.selectedNodes.delete(index);
+                } else {
+                    this.selectedNodes.add(index);
+                }
+                this.render();
+                this.updateStats();
+            }
+
+            highlightSelected() {
+                if (this.selectedNodes.size === 0) {
+                    this.showNotification('请先选择节点', 'warning');
+                    return;
+                }
+
+                // 移除之前的高亮
+                this.filteredNodes.forEach((node, index) => {
+                    const item = document.querySelector(`.node-item:nth-child(${index + 1})`);
+                    if (item) {
+                        item.classList.remove('highlighted');
+                    }
+                });
+
+                // 添加高亮
+                this.selectedNodes.forEach(index => {
+                    const node = this.filteredNodes[index];
+                    if (node && node.nodeType === Node.ELEMENT_NODE) {
+                        node.style.outline = '3px solid #f59e0b';
+                        node.style.outlineOffset = '2px';
+                    }
+                });
+
+                this.showNotification(`已高亮 ${this.selectedNodes.size} 个节点`, 'success');
+            }
+
+            exportSelected() {
+                if (this.selectedNodes.size === 0) {
+                    this.showNotification('请先选择节点', 'warning');
+                    return;
+                }
+
+                const selectedData = [];
+                this.selectedNodes.forEach(index => {
+                    const node = this.filteredNodes[index];
+                    selectedData.push({
+                        index: index,
+                        nodeType: this.getNodeTypeName(node.nodeType),
+                        nodeTypeCode: node.nodeType,
+                        tagName: node.tagName || null,
+                        id: node.id || null,
+                        className: node.className || null,
+                        textContent: node.nodeType === Node.TEXT_NODE || node.nodeType === Node.COMMENT_NODE 
+                            ? node.textContent?.trim() 
+                            : node.textContent?.trim().substring(0, 100)
+                    });
+                });
+
+                const json = JSON.stringify(selectedData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `dom_nodes_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.showNotification(`已导出 ${this.selectedNodes.size} 个节点`, 'success');
+            }
+
+            getNodeInfo() {
+                if (this.selectedNodes.size === 0) {
+                    this.showNotification('请先选择节点', 'warning');
+                    return;
+                }
+
+                const resultCard = document.getElementById('resultCard');
+                const resultDisplay = document.getElementById('resultDisplay');
+                if (!resultCard || !resultDisplay) return;
+
+                let html = '';
+                this.selectedNodes.forEach(index => {
+                    const node = this.filteredNodes[index];
+                    const info = {
+                        '节点类型': this.getNodeTypeName(node.nodeType),
+                        '节点类型代码': node.nodeType,
+                        '标签名': node.tagName || 'N/A',
+                        'ID': node.id || 'N/A',
+                        '类名': node.className || 'N/A',
+                        '文本内容长度': node.textContent?.length || 0,
+                        '子节点数量': node.childNodes ? nodeListToArray(node.childNodes).length : 0,
+                        '属性数量': node.attributes ? nodeListToArray(node.attributes).length : 0
+                    };
+
+                    html += `
+                        <div class="result-item">
+                            <strong>节点 #${index}</strong>
+                            <pre><code>${JSON.stringify(info, null, 2)}</code></pre>
+                        </div>
+                    `;
+                });
+
+                resultDisplay.innerHTML = html;
+                resultCard.style.display = 'block';
+            }
+
+            updateStats() {
+                const totalNodes = this.filteredNodes.length;
+                const elementNodes = this.filteredNodes.filter(n => n.nodeType === Node.ELEMENT_NODE).length;
+                const textNodes = this.filteredNodes.filter(n => n.nodeType === Node.TEXT_NODE).length;
+                const selectedCount = this.selectedNodes.size;
+
+                document.getElementById('totalNodes').textContent = totalNodes;
+                document.getElementById('elementNodes').textContent = elementNodes;
+                document.getElementById('textNodes').textContent = textNodes;
+                document.getElementById('selectedCount').textContent = selectedCount;
+            }
+
+            addHistory(operation, count) {
+                this.operationHistory.unshift({
+                    time: new Date().toLocaleTimeString('zh-CN'),
+                    operation: operation,
+                    count: count
+                });
+
+                if (this.operationHistory.length > 20) {
+                    this.operationHistory.pop();
+                }
+
+                this.renderHistory();
+            }
+
+            renderHistory() {
+                const container = document.getElementById('operationHistory');
+                if (!container) return;
+
+                if (this.operationHistory.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">操作历史将显示在这里</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.operationHistory.map(item => `
+                    <div class="history-item">
+                        <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 4px;">${item.time}</div>
+                        <div style="font-weight: 600;">${item.operation}</div>
+                        <div style="font-size: 0.75rem; color: #667eea;">找到 ${item.count} 个节点</div>
+                    </div>
+                `).join('');
+            }
+
+            clearAll() {
+                this.plugins.modal?.confirm('确定要清空所有数据吗？').then(confirmed => {
+                    if (confirmed) {
+                        this.nodes = [];
+                        this.filteredNodes = [];
+                        this.selectedNodes.clear();
+                        const selectorInput = document.getElementById('selectorInput');
+                        if (selectorInput) selectorInput.value = '';
+                        this.clearFilters();
+                        this.operationHistory = [];
+                        this.render();
+                        this.renderHistory();
+                        this.updateStats();
+                        const resultCard = document.getElementById('resultCard');
+                        if (resultCard) resultCard.style.display = 'none';
+                        this.showNotification('已清空所有数据', 'info');
+                    }
+                });
+            }
+
+            refresh() {
+                if (this.nodes.length > 0) {
+                    this.applyFilters();
+                    this.render();
+                    this.updateStats();
+                    this.showNotification('已刷新', 'success');
+                } else {
+                    this.showNotification('没有可刷新的数据', 'warning');
+                }
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem('domAnalyzer_history');
+                    if (saved) {
+                        this.operationHistory = JSON.parse(saved);
+                        this.renderHistory();
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('domAnalyzer_history', JSON.stringify(this.operationHistory));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.domAnalyzer = new DOMAnalyzer();
+            
+            // 定期保存历史记录
+            setInterval(() => {
+                if (window.domAnalyzer) {
+                    window.domAnalyzer.saveHistory();
+                }
+            }, 5000);
+        });
+
+        if (document.readyState !== 'loading' && !window.domAnalyzer) {
+            window.domAnalyzer = new DOMAnalyzer();
+        }
+    </script>
+</body>
+</html>
