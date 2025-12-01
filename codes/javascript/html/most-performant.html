@@ -1,13 +1,696 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>most-performant</title>
+    <title>函数性能测试平台 - mostPerformant</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <!-- Highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.7rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 26px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 1.55rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-section {
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.98rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #fa709a;
+            box-shadow: 0 0 0 3px rgba(250, 112, 154, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(250, 112, 154, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .function-list {
+            margin-bottom: 16px;
+        }
+
+        .function-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-left: 4px solid #e5e7eb;
+            position: relative;
+        }
+
+        .function-item.winner {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+        }
+
+        .function-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .function-index {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .function-item.winner .function-index {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+        }
+
+        .function-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .function-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .function-remove:hover {
+            background: #dc2626;
+        }
+
+        .result-display {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(250, 112, 154, 0.2);
+            margin-bottom: 16px;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #9f1239;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #be185d;
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin: 12px 0;
+        }
+
+        .performance-grid {
+            display: grid;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .performance-item {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 16px;
+            align-items: center;
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .performance-item.winner {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+            transform: scale(1.02);
+        }
+
+        .performance-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+
+        .performance-item.winner:hover {
+            transform: scale(1.02) translateY(-2px);
+        }
+
+        .performance-rank {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #64748b;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .performance-item.winner .performance-rank {
+            color: #22c55e;
+        }
+
+        .performance-info {
+            flex: 1;
+        }
+
+        .performance-name {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.95rem;
+        }
+
+        .performance-bar-container {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .performance-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .performance-item.winner .performance-bar {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+        }
+
+        .performance-time {
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .performance-time-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #1f2937;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .performance-item.winner .performance-time-value {
+            color: #22c55e;
+        }
+
+        .performance-time-unit {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .history-list {
+            max-height: 320px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 4px solid #fa709a;
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fa709a;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            background: #1e293b;
+            overflow-x: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .comparison-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .comparison-card h4 {
+            font-size: 0.95rem;
+            color: #fa709a;
+            margin-bottom: 10px;
+        }
+
+        .comparison-card p {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #fa709a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .modal-content {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ 函数性能测试平台</h1>
+            <p>基于 mostPerformant 函数的性能测试工具，支持多函数对比、可视化展示、历史追踪与代码预览</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 函数配置</h2>
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label>函数代码 (JavaScript)</label>
+                            <textarea id="functionInput" class="textarea-field" placeholder='() => { [1,2,3].map(x => x * 2); }'></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>迭代次数</label>
+                            <div id="iterationsInput"></div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary btn-block" onclick="window.mostPerformantTool?.addFunction()">➕ 添加函数</button>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-success" onclick="window.mostPerformantTool?.runTest()">⚡ 运行测试</button>
+                            <button class="btn btn-info" onclick="window.mostPerformantTool?.loadSample()">📄 示例函数</button>
+                            <button class="btn btn-danger" onclick="window.mostPerformantTool?.clearAll()">🧹 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📋 函数列表 (<span id="functionCount">0</span>)</h2>
+                    <div class="function-list" id="functionList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>添加函数后将在此展示</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 高级选项</h2>
+                    <div class="input-section">
+                        <div id="checkboxGroup"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🗂️ 历史记录 (<span id="historyCount">0</span>)</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无测试历史</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <div class="card">
+                    <h2>✨ 测试结果</h2>
+                    <div class="result-display" id="resultDisplay">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>运行测试后将在此展示结果</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="performanceCard" style="display:none;">
+                    <h2>📊 性能对比</h2>
+                    <div class="performance-grid" id="performanceGrid"></div>
+                </div>
+
+                <div class="card" id="analysisCard" style="display:none;">
+                    <h2>📈 对比分析</h2>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                </div>
+
+                <div class="card" id="codeSection" style="display:none;">
+                    <h2>💻 执行代码</h2>
+                    <div class="code-block">
+                        <pre><code class="language-javascript" id="codePreview">// 代码将在这里显示</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 统计信息</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📖 函数说明</h2>
+            <div style="background: #f8fafc; padding: 20px; border-radius: 14px;">
+                <h3 style="color: #fa709a; margin-bottom: 12px;">mostPerformant 函数（性能最强的函数）</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const mostPerformant = (fns, iterations = 10000) => {
+    const times = fns.map(fn => {
+        const before = performance.now();
+        for (let i = 0; i < iterations; i++) {
+            fn();
+        }
+        return performance.now() - before;
+    });
+    return times.indexOf(Math.min(...times));
+};</code></pre>
+                </div>
+
+                <h3 style="color: #fa709a; margin: 20px 0 12px;">函数说明</h3>
+                <p style="color: #334155; line-height: 1.8;">
+                    <strong>mostPerformant</strong> 函数返回该函数在执行速度最快的函数数组中的索引。
+                    使用 <code>Array.prototype.map()</code> 生成一个数组，其中每个值都是迭代次数之后执行函数所花费的总时间。
+                    使用之前和之后的 <code>performance.now()</code> 值的差异来获得以毫秒为单位的总时间，以达到较高的精度。
+                    使用 <code>Math.min()</code> 找到最小的执行时间，并返回与性能最好的函数的索引相对应的最短时间的索引。
+                    省略第二个参数 iterations，以使用默认值 10000。迭代次数越多，结果就越可靠，但耗时也越长。
+                </p>
+
+                <h3 style="color: #fa709a; margin: 20px 0 12px;">使用方式</h3>
+                <div class="code-block">
+                    <pre><code class="language-javascript">mostPerformant([
+    () => {
+        // Loops through the entire array before returning `false`
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, '10'].every(el => typeof el === 'number');
+    },
+    () => {
+        // Only needs to reach index `1` before returning `false`
+        [1, '2', 3, 4, 5, 6, 7, 8, 9, 10].every(el => typeof el === 'number');
+    }
+]); // 1</code></pre>
+                </div>
+
+                <h3 style="color: #fa709a; margin: 20px 0 12px;">典型场景</h3>
+                <div>
+                    <span class="badge">性能优化</span>
+                    <span class="badge">算法对比</span>
+                    <span class="badge">代码优化</span>
+                    <span class="badge">基准测试</span>
+                    <span class="badge">性能分析</span>
+                    <span class="badge">函数选择</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <!-- Highlight.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>
         const mostPerformant = (fns, iterations = 10000) => {
             const times = fns.map(fn => {
@@ -18,6 +701,629 @@
                 return performance.now() - before;
             });
             return times.indexOf(Math.min(...times));
+        };
+
+        class MostPerformantTool {
+            constructor() {
+                this.plugins = {};
+                this.functions = [];
+                this.testResults = null;
+                this.history = [];
+                this.stats = {
+                    totalTests: 0,
+                    totalFunctions: 0,
+                    averageIterations: 0
+                };
+                this.checkboxOptions = [
+                    { id: 'showResult', label: '显示测试结果', checked: true },
+                    { id: 'showPerformance', label: '显示性能对比', checked: true },
+                    { id: 'showAnalysis', label: '显示对比分析', checked: true },
+                    { id: 'showCode', label: '显示执行代码', checked: true },
+                    { id: 'showNotifications', label: '显示通知提醒', checked: true }
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadPlugins();
+                    this.setupInputNumber();
+                    this.setupCheckboxes();
+                    this.initHighlight();
+                    this.updateStats();
+                    this.updateFunctionList();
+                    this.showWelcomeMessage();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    this.showError('初始化失败: ' + error.message);
+                }
+            }
+
+            initHighlight() {
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                }
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('部分插件加载失败:', error);
+                }
+            }
+
+            setupInputNumber() {
+                const container = document.getElementById('iterationsInput');
+                if (!container) return;
+                try {
+                    this.plugins.iterationsInput = new InputNumber({
+                        container,
+                        value: 10000,
+                        min: 100,
+                        max: 1000000,
+                        step: 1000,
+                        onChange: () => {}
+                    });
+                } catch (error) {
+                    console.warn('自定义数字输入加载失败，使用原生输入框:', error);
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = 'iterationsNative';
+                    input.value = '10000';
+                    input.min = '100';
+                    input.max = '1000000';
+                    input.step = '1000';
+                    input.className = 'input-field';
+                    container.appendChild(input);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: this.checkboxOptions.map(option => ({
+                            id: option.id,
+                            label: option.label,
+                            checked: option.checked
+                        })),
+                        onChange: () => {}
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败，使用原生复选框:', error);
+                    this.checkboxOptions.forEach(option => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '10px';
+                        div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}>` +
+                            `<label for="${option.id}" style="margin-left:6px;">${option.label}</label>`;
+                        container.appendChild(div);
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = this.checkboxOptions.findIndex(option => option.id === id);
+                        if (index !== -1) {
+                            return states[index] || false;
+                        }
+                    } catch (error) {
+                        console.warn('读取复选框状态失败，使用原生方法:', error);
+                    }
+                }
+                const checkbox = document.getElementById(id);
+                return checkbox ? checkbox.checked : false;
+            }
+
+            getIterationsValue() {
+                if (this.plugins.iterationsInput?.getValue) {
+                    return Number(this.plugins.iterationsInput.getValue() || 10000);
+                }
+                const native = document.getElementById('iterationsNative');
+                return native ? Number(native.value || 10000) : 10000;
+            }
+
+            addFunction() {
+                const input = document.getElementById('functionInput');
+                if (!input) return;
+                const functionCode = input.value.trim();
+
+                if (!functionCode) {
+                    this.showError('请输入函数代码');
+                    return;
+                }
+
+                try {
+                    // 验证函数代码
+                    let fn;
+                    if (functionCode.startsWith('() =>') || functionCode.startsWith('function')) {
+                        fn = eval(`(${functionCode})`);
+                    } else {
+                        fn = eval(`(() => { ${functionCode} })`);
+                    }
+
+                    if (typeof fn !== 'function') {
+                        throw new Error('输入的不是有效的函数');
+                    }
+
+                    this.functions.push({
+                        id: Date.now() + Math.random(),
+                        code: functionCode,
+                        fn: fn
+                    });
+
+                    input.value = '';
+                    this.updateFunctionList();
+                    this.showNotification(`已添加函数 #${this.functions.length}`, 'success');
+                } catch (error) {
+                    this.showError('函数代码无效: ' + error.message);
+                }
+            }
+
+            removeFunction(id) {
+                this.functions = this.functions.filter(f => f.id !== id);
+                this.updateFunctionList();
+                this.showNotification('已移除函数', 'info');
+            }
+
+            updateFunctionList() {
+                const container = document.getElementById('functionList');
+                const count = document.getElementById('functionCount');
+                if (!container) return;
+                if (count) count.textContent = this.functions.length;
+
+                if (this.functions.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>添加函数后将在此展示</p>
+                        </div>`;
+                    return;
+                }
+
+                const html = this.functions.map((func, index) => {
+                    const isWinner = this.testResults && this.testResults.winnerIndex === index;
+                    return `
+                        <div class="function-item ${isWinner ? 'winner' : ''}">
+                            <div class="function-header">
+                                <span class="function-index">函数 #${index + 1}</span>
+                                ${isWinner ? '<span style="color:#22c55e;font-weight:700;">🏆 最快</span>' : ''}
+                            </div>
+                            <div class="function-code">${this.escapeHtml(func.code)}</div>
+                            <button class="function-remove" onclick="window.mostPerformantTool?.removeFunction('${func.id}')">删除</button>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = html;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            async runTest() {
+                if (this.functions.length < 2) {
+                    this.showError('至少需要添加 2 个函数才能进行性能测试');
+                    return;
+                }
+
+                const iterations = this.getIterationsValue();
+                if (iterations < 100) {
+                    this.showError('迭代次数至少为 100');
+                    return;
+                }
+
+                try {
+                    // 显示加载状态
+                    const resultDisplay = document.getElementById('resultDisplay');
+                    if (resultDisplay) {
+                        resultDisplay.innerHTML = `
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                                <p style="margin-top:12px;">正在运行性能测试...</p>
+                                <p style="font-size:0.85rem;color:#64748b;">迭代次数: ${iterations.toLocaleString()}</p>
+                            </div>
+                        `;
+                    }
+
+                    // 使用 setTimeout 让 UI 更新
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    const start = performance.now();
+                    const fns = this.functions.map(f => f.fn);
+                    const winnerIndex = mostPerformant(fns, iterations);
+                    const end = performance.now();
+                    const totalTime = Math.round((end - start) * 1000) / 1000;
+
+                    // 计算每个函数的执行时间
+                    const times = fns.map(fn => {
+                        const before = performance.now();
+                        for (let i = 0; i < iterations; i++) {
+                            fn();
+                        }
+                        return performance.now() - before;
+                    });
+
+                    this.testResults = {
+                        winnerIndex,
+                        times,
+                        iterations,
+                        totalTime
+                    };
+
+                    this.stats.totalTests++;
+                    this.stats.totalFunctions += this.functions.length;
+                    this.stats.averageIterations = Math.round(
+                        (this.stats.totalTests > 0 ? (this.stats.averageIterations * (this.stats.totalTests - 1) + iterations) / this.stats.totalTests : iterations) * 100
+                    ) / 100;
+
+                    this.displayResult();
+                    this.updateFunctionList();
+                    this.updateStats();
+                    this.addToHistory();
+
+                    if (this.getCheckboxValue('showPerformance')) {
+                        this.displayPerformance();
+                    }
+
+                    if (this.getCheckboxValue('showAnalysis')) {
+                        this.displayAnalysis();
+                    }
+
+                    if (this.getCheckboxValue('showCode')) {
+                        this.showCode();
+                    }
+
+                    const winner = this.functions[winnerIndex];
+                    this.showNotification(`测试完成！最快函数: #${winnerIndex + 1}，用时 ${times[winnerIndex].toFixed(2)}ms`, 'success');
+                } catch (error) {
+                    this.showError('测试失败: ' + error.message);
+                }
+            }
+
+            displayResult() {
+                const container = document.getElementById('resultDisplay');
+                if (!container) return;
+
+                if (!this.getCheckboxValue('showResult')) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🙈</div>
+                            <p>已关闭测试结果展示</p>
+                        </div>`;
+                    return;
+                }
+
+                if (!this.testResults) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <p>运行测试后将在此展示结果</p>
+                        </div>`;
+                    return;
+                }
+
+                const winner = this.functions[this.testResults.winnerIndex];
+                const winnerTime = this.testResults.times[this.testResults.winnerIndex];
+
+                container.innerHTML = `
+                    <div class="result-card">
+                        <div class="result-label">性能最快的函数</div>
+                        <div class="result-value">函数 #${this.testResults.winnerIndex + 1}</div>
+                        <div style="color:#9f1239;margin-top:12px;">
+                            执行时间: ${winnerTime.toFixed(2)}ms (${this.testResults.iterations.toLocaleString()} 次迭代)
+                        </div>
+                    </div>
+                `;
+            }
+
+            displayPerformance() {
+                const card = document.getElementById('performanceCard');
+                const grid = document.getElementById('performanceGrid');
+                if (!card || !grid) return;
+
+                if (!this.testResults) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                const maxTime = Math.max(...this.testResults.times);
+                const sortedResults = this.testResults.times
+                    .map((time, index) => ({ index, time }))
+                    .sort((a, b) => a.time - b.time);
+
+                const html = sortedResults.map((result, rank) => {
+                    const func = this.functions[result.index];
+                    const isWinner = result.index === this.testResults.winnerIndex;
+                    const percentage = Math.round((result.time / maxTime) * 100);
+                    const barWidth = 100 - percentage;
+
+                    return `
+                        <div class="performance-item ${isWinner ? 'winner' : ''}">
+                            <div class="performance-rank">#${rank + 1}</div>
+                            <div class="performance-info">
+                                <div class="performance-name">函数 #${result.index + 1}</div>
+                                <div class="performance-bar-container">
+                                    <div class="performance-bar" style="width: ${100 - barWidth}%"></div>
+                                </div>
+                            </div>
+                            <div class="performance-time">
+                                <div class="performance-time-value">${result.time.toFixed(2)}</div>
+                                <div class="performance-time-unit">ms</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                grid.innerHTML = html;
+                card.style.display = 'block';
+            }
+
+            displayAnalysis() {
+                const card = document.getElementById('analysisCard');
+                const grid = document.getElementById('comparisonGrid');
+                if (!card || !grid) return;
+
+                if (!this.testResults) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                const winnerTime = this.testResults.times[this.testResults.winnerIndex];
+                const slowestTime = Math.max(...this.testResults.times);
+                const averageTime = this.testResults.times.reduce((a, b) => a + b, 0) / this.testResults.times.length;
+                const speedup = (slowestTime / winnerTime).toFixed(2);
+
+                grid.innerHTML = `
+                    <div class="comparison-card">
+                        <h4>📊 测试信息</h4>
+                        <p>函数数量: ${this.functions.length}</p>
+                        <p>迭代次数: ${this.testResults.iterations.toLocaleString()}</p>
+                        <p>总测试时间: ${this.testResults.totalTime.toFixed(2)}ms</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>⚡ 性能数据</h4>
+                        <p>最快: ${winnerTime.toFixed(2)}ms</p>
+                        <p>最慢: ${slowestTime.toFixed(2)}ms</p>
+                        <p>平均: ${averageTime.toFixed(2)}ms</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>📈 性能提升</h4>
+                        <p>速度提升: ${speedup}x</p>
+                        <p>性能差异: ${((slowestTime - winnerTime) / winnerTime * 100).toFixed(1)}%</p>
+                        <p>测试次数: ${this.stats.totalTests}</p>
+                    </div>
+                `;
+
+                card.style.display = 'block';
+            }
+
+            addToHistory() {
+                if (!this.testResults) return;
+
+                const winner = this.functions[this.testResults.winnerIndex];
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    functionCount: this.functions.length,
+                    iterations: this.testResults.iterations,
+                    winnerIndex: this.testResults.winnerIndex,
+                    winnerTime: this.testResults.times[this.testResults.winnerIndex],
+                    totalTime: this.testResults.totalTime
+                });
+                if (this.history.length > 40) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const container = document.getElementById('historyList');
+                const count = document.getElementById('historyCount');
+                if (!container) return;
+                if (count) count.textContent = this.history.length;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <p>暂无测试历史</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time} • ${item.totalTime.toFixed(2)}ms</div>
+                        <div class="history-summary">
+                            ${item.functionCount} 个函数 | ${item.iterations.toLocaleString()} 次迭代 | 最快: 函数 #${item.winnerIndex + 1} (${item.winnerTime.toFixed(2)}ms)
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalTests}</div>
+                        <div class="stat-label">测试次数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.totalFunctions}</div>
+                        <div class="stat-label">累计函数数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.functions.length}</div>
+                        <div class="stat-label">当前函数数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${this.stats.averageIterations.toLocaleString()}</div>
+                        <div class="stat-label">平均迭代次数</div>
+                    </div>
+                `;
+            }
+
+            showCode() {
+                const section = document.getElementById('codeSection');
+                const preview = document.getElementById('codePreview');
+                if (!preview) return;
+
+                if (this.functions.length === 0) {
+                    if (section) section.style.display = 'none';
+                    return;
+                }
+
+                const fnsCode = this.functions.map(f => f.code).join(',\n    ');
+                const iterations = this.testResults ? this.testResults.iterations : this.getIterationsValue();
+
+                const code = `const mostPerformant = (fns, iterations = 10000) => {
+    const times = fns.map(fn => {
+        const before = performance.now();
+        for (let i = 0; i < iterations; i++) {
+            fn();
+        }
+        return performance.now() - before;
+    });
+    return times.indexOf(Math.min(...times));
+};
+
+// 定义测试函数
+const fns = [
+    ${fnsCode}
+];
+
+// 执行性能测试
+const iterations = ${iterations};
+const winnerIndex = mostPerformant(fns, iterations);
+
+console.log('性能最快的函数索引:', winnerIndex);
+console.log('函数 #' + (winnerIndex + 1) + ' 性能最好');
+
+// 说明：
+// 1. 使用 performance.now() 获取高精度时间
+// 2. 对每个函数执行指定次数的迭代
+// 3. 返回执行时间最短的函数的索引
+// 时间复杂度: O(n * m)，n 为函数数量，m 为迭代次数`;
+
+                preview.textContent = code;
+                if (window.hljs) {
+                    delete preview.dataset.highlighted;
+                    preview.className = 'language-javascript';
+                    hljs.highlightElement(preview);
+                }
+                if (section) section.style.display = 'block';
+            }
+
+            clearAll() {
+                this.functions = [];
+                this.testResults = null;
+                this.updateFunctionList();
+                this.displayResult();
+                const performanceCard = document.getElementById('performanceCard');
+                if (performanceCard) performanceCard.style.display = 'none';
+                const analysisCard = document.getElementById('analysisCard');
+                if (analysisCard) analysisCard.style.display = 'none';
+                const codeSection = document.getElementById('codeSection');
+                if (codeSection) codeSection.style.display = 'none';
+                const input = document.getElementById('functionInput');
+                if (input) input.value = '';
+                this.updateStats();
+                this.showNotification('已清空全部数据', 'info');
+            }
+
+            loadSample() {
+                const samples = [
+                    {
+                        code: '() => { [1,2,3,4,5].map(x => x * 2); }',
+                        label: 'Array.map'
+                    },
+                    {
+                        code: '() => { const arr = [1,2,3,4,5]; for(let i = 0; i < arr.length; i++) arr[i] * 2; }',
+                        label: 'for 循环'
+                    },
+                    {
+                        code: '() => { [1,2,3,4,5].forEach(x => x * 2); }',
+                        label: 'Array.forEach'
+                    }
+                ];
+
+                // 清空现有函数
+                this.functions = [];
+                
+                // 添加示例函数
+                samples.forEach(sample => {
+                    try {
+                        const fn = eval(`(${sample.code})`);
+                        this.functions.push({
+                            id: Date.now() + Math.random(),
+                            code: sample.code,
+                            fn: fn
+                        });
+                    } catch (error) {
+                        console.warn('加载示例函数失败:', error);
+                    }
+                });
+
+                this.updateFunctionList();
+                this.showNotification('已加载示例函数', 'info');
+            }
+
+            showNotification(message, type) {
+                if (this.plugins.notification && this.getCheckboxValue('showNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            showWelcomeMessage() {
+                if (this.plugins.modal) {
+                    this.plugins.modal.show({
+                        title: '🎉 欢迎使用函数性能测试平台',
+                        content: `
+                            <div style="padding:18px;">
+                                <div style="font-size:46px;text-align:center;margin-bottom:12px;">⚡</div>
+                                <p style="color:#1f2937;line-height:1.8;">
+                                    使用 <strong>mostPerformant</strong> 函数测试多个函数的性能，找出执行速度最快的函数。
+                                    支持可视化展示、性能对比、历史追踪与代码预览。
+                                </p>
+                                <div style="background:#fce7f3;border-left:4px solid #fa709a;padding:12px;border-radius:12px;color:#9f1239;margin-top:12px;">
+                                    <strong>亮点：</strong> 多函数对比、性能可视化、详细分析、代码预览、历史记录。
+                                </div>
+                                <ul style="color:#1f2937;margin-left:18px;margin-top:12px;line-height:1.8;">
+                                    <li>支持添加多个函数进行性能对比</li>
+                                    <li>可配置迭代次数（默认 10000 次）</li>
+                                    <li>可视化展示性能对比结果</li>
+                                    <li>提供详细的性能分析和统计信息</li>
+                                    <li>记录测试历史并支持代码预览</li>
+                                </ul>
+                            </div>
+                        `,
+                        type: 'alert'
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mostPerformantTool = new MostPerformantTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.mostPerformantTool) {
+            window.mostPerformantTool = new MostPerformantTool();
         }
     </script>
 </body>
