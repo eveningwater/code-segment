@@ -11,6 +11,8 @@
 const none = (arr,fn = Boolean) => !arr.some(fn);
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/none.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,3 +21,11 @@ none([0, 0, 0]); // true
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/none.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/none.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/none.html"></iframe>
