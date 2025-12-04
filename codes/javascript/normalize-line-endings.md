@@ -11,6 +11,8 @@
 const normalizeLineEndings = (str,normalized = "\r\n") => str.replace(/\r?\n/g,normalized);
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/normalize-line-endings.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,3 +23,11 @@ normalizeLineEndings('This\r\nis a\nmultiline\nstring.\r\n', '\n');
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/normalize-line-endings.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/normalize-line-endings.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/normalize-line-endings.html"></iframe>

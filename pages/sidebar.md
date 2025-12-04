@@ -451,7 +451,7 @@
 - [节点列表转成节点数组-2022-12-21](codes/javascript/node-list-to-array.md)
 - [检查所有数组项是否为 false-2022-12-22](codes/javascript/none.md)
 - [逻辑或-2022-12-23](codes/javascript/nor.md)
-- [规范化行尾-2022-12-24](codes/javascript/normalizeLineEndings.md)
+- [规范化行尾-2022-12-24](codes/javascript/normalize-line-endings.md)
 - [逻辑非-2022-12-25](codes/javascript/not.md)
 - [第 n 个参数-2022-12-26](codes/javascript/nthArg.md)
 - [第 n 个数组元素-2022-12-27](codes/javascript/nthElement.md)
