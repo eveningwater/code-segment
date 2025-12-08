@@ -12,6 +12,8 @@
 const nthElement = (arr,n = 0) => (n === -1 ? arr.slice(n) : arr.slice(n,n + 1))[0];
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/nth-element.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,3 +22,11 @@ nthElement(['a', 'b', 'b'], -3); // 'a'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/nth-element.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/nth-element.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/nth-element.html"></iframe>

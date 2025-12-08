@@ -11,6 +11,8 @@
 const nthArg = n => (...args) => args.slice(n)[0];
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/nth-arg.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -22,3 +24,11 @@ last(1, 2, 3, 4, 5); // 5
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/nth-arg.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/nth-arg.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/nth-arg.html"></iframe>
