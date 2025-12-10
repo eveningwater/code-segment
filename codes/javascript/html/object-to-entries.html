@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对象转键值对工具 - objectToEntries 函数实战平台</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .result-panel {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-display {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.95rem;
+            margin-top: 12px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .entries-display {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .entry-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .entry-index {
+            font-weight: 700;
+            color: #94a3b8;
+            min-width: 40px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .entry-key {
+            font-weight: 700;
+            color: #667eea;
+            min-width: 100px;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .entry-value {
+            flex: 1;
+            color: #374151;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .entry-separator {
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .batch-test-container {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .test-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .test-title {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .test-result {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+
+        .test-args {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .history-info {
+            font-size: 0.85rem;
+            color: #1f2937;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .select-container {
+            margin-bottom: 16px;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .code-preview .comment {
+            color: #697098;
+        }
+
+        .code-preview .number {
+            color: #f78c6c;
+        }
+
+        .object-info {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .info-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .comparison-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .comparison-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .comparison-title {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .comparison-content {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .comparison-view {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 对象转键值对工具 - objectToEntries 函数实战平台</h1>
+            <p>基于 objectToEntries 函数的智能对象转换工具，支持对象转键值对数组、实时预览、批量测试和可视化展示</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 对象转换器</h2>
+                    <div class="input-group">
+                        <label>对象输入 (JSON 格式)</label>
+                        <textarea id="objectInput" class="textarea-field" placeholder='例如: {"name": "John", "age": 30, "city": "New York"}'></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" onclick="window.entryConverter?.convert()">
+                            🔄 转换为键值对
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 工具选项</h2>
+                    <div id="checkboxGroup" class="checkbox-container"></div>
+                    <div class="button-group">
+                        <button class="btn btn-info btn-sm" onclick="window.entryConverter?.loadSample()">
+                            📝 加载示例
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="window.entryConverter?.runBatchTest()">
+                            🧪 批量测试
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="window.entryConverter?.generateRandom()">
+                            🎲 随机生成
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="window.entryConverter?.clearAll()">
+                            🧹 清空全部
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalConversions">0</div>
+                            <div class="stat-label">转换次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalKeys">0</div>
+                            <div class="stat-label">总键数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalEntries">0</div>
+                            <div class="stat-label">总键值对数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 转换历史</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state" style="padding: 40px 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">转换历史将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧结果展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📊 转换结果</h2>
+                    <div class="result-panel">
+                        <div class="result-display" id="resultDisplay">
+                            <div style="color: #94a3b8; font-size: 0.9rem;">转换结果将显示在这里...</div>
+                        </div>
+                        <div class="entries-display" id="entriesDisplay" style="display: none;">
+                            <!-- 键值对列表将在这里显示 -->
+                        </div>
+                        <div class="object-info" id="objectInfo" style="display: none;">
+                            <div class="info-row">
+                                <span class="info-label">对象键数量</span>
+                                <span class="info-value" id="infoKeyCount">0</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">键值对数量</span>
+                                <span class="info-value" id="infoEntryCount">0</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">对象大小</span>
+                                <span class="info-value" id="infoObjectSize">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">是否为空对象</span>
+                                <span class="info-value" id="infoIsEmpty">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="comparisonCard" style="display: none;">
+                    <h2>🔄 对比视图</h2>
+                    <div class="comparison-view">
+                        <div class="comparison-panel">
+                            <div class="comparison-title">原始对象</div>
+                            <div class="comparison-content" id="originalObject">-</div>
+                        </div>
+                        <div class="comparison-panel">
+                            <div class="comparison-title">键值对数组</div>
+                            <div class="comparison-content" id="entriesArray">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="batchTestCard" style="display: none;">
+                    <h2>🧪 批量测试结果</h2>
+                    <div class="batch-test-container" id="batchTestContainer">
+                        <!-- 批量测试结果将在这里显示 -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">objectToEntries 函数（从对象创建键值对）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">objectToEntries</span> = <span class="function">obj</span> => <span class="function">Object</span>.<span class="function">keys</span>(<span class="function">obj</span>).<span class="function">map</span>(<span class="function">k</span> => [<span class="function">k</span>, <span class="function">obj</span>[<span class="function">k</span>]]);
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>objectToEntries</strong> 函数用于从一个对象创建一个键值对数组。
+                            使用 <code>Object.keys()</code> 和 <code>Array.prototype.map()</code> 迭代对象的键并生成具有键值对的数组。
+                            <code>Object.entries()</code> 提供了类似的功能。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">使用示例</h3>
+                        <div class="code-preview">
+<span class="comment">// 从对象创建键值对数组</span>
+<span class="function">objectToEntries</span>({ <span class="string">a</span>: <span class="number">1</span>, <span class="string">b</span>: <span class="number">2</span> }); <span class="comment">// => [ ['a', 1], ['b', 2] ]</span>
+
+<span class="comment">// 复杂对象</span>
+<span class="function">objectToEntries</span>({ <span class="string">name</span>: <span class="string">'John'</span>, <span class="string">age</span>: <span class="number">30</span>, <span class="string">city</span>: <span class="string">'New York'</span> });
+<span class="comment">// => [ ['name', 'John'], ['age', 30], ['city', 'New York'] ]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+        // objectToEntries 函数：从一个对象创建一个键值对数组
+        const objectToEntries = obj => Object.keys(obj).map(k => [k, obj[k]]);
+
+        // 对象转键值对工具类
+        class EntryConverter {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.stats = {
+                    totalConversions: 0,
+                    totalKeys: 0,
+                    totalEntries: 0
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupCheckboxes();
+                this.setupEventListeners();
+                this.loadHistoryFromStorage();
+                this.updateStats();
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'autoConvert', label: '自动转换', checked: false },
+                    { id: 'showEntries', label: '显示键值对列表', checked: true },
+                    { id: 'showDetails', label: '显示详细信息', checked: true },
+                    { id: 'showComparison', label: '显示对比视图', checked: true },
+                    { id: 'enableNotifications', label: '启用通知提醒', checked: true },
+                    { id: 'saveHistory', label: '保存转换历史', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: () => {
+                            this.updateDisplay();
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败:', error);
+                }
+            }
+
+            setupEventListeners() {
+                const objectInput = document.getElementById('objectInput');
+                if (objectInput) {
+                    let timeout;
+                    objectInput.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoConvert')) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => {
+                                this.convert();
+                            }, 500);
+                        }
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = ['autoConvert', 'showEntries', 'showDetails', 'showComparison', 'enableNotifications', 'saveHistory'].indexOf(id);
+                        return index !== -1 ? states[index] : false;
+                    } catch (error) {
+                        console.warn('读取复选框状态失败:', error);
+                    }
+                }
+                return false;
+            }
+
+            parseObject(input) {
+                if (!input || !input.trim()) return null;
+
+                const trimmed = input.trim();
+
+                try {
+                    const parsed = JSON.parse(trimmed);
+                    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+                        return parsed;
+                    }
+                } catch (e) {
+                    return null;
+                }
+
+                return null;
+            }
+
+            convert() {
+                const objectInput = document.getElementById('objectInput');
+                if (!objectInput) return;
+
+                const inputValue = objectInput.value.trim();
+                if (!inputValue) {
+                    this.showNotification('请输入对象数据', 'warning');
+                    return;
+                }
+
+                // 解析对象
+                const obj = this.parseObject(inputValue);
+                if (!obj) {
+                    this.showNotification('对象格式错误，请输入有效的 JSON 对象', 'error');
+                    return;
+                }
+
+                // 使用 objectToEntries 函数转换
+                let entries;
+                let error = null;
+
+                try {
+                    entries = objectToEntries(obj);
+                } catch (e) {
+                    error = e.message;
+                }
+
+                if (error) {
+                    this.showNotification('转换失败: ' + error, 'error');
+                    return;
+                }
+
+                // 显示结果
+                this.displayResult(obj, entries);
+
+                // 更新统计
+                this.stats.totalConversions++;
+                this.stats.totalKeys += Object.keys(obj).length;
+                this.stats.totalEntries += entries.length;
+                this.updateStats();
+
+                // 保存历史
+                if (this.getCheckboxValue('saveHistory')) {
+                    this.addToHistory(obj, entries);
+                }
+
+                this.showNotification('转换完成', 'success');
+            }
+
+            displayResult(obj, entries) {
+                const resultDisplay = document.getElementById('resultDisplay');
+                if (!resultDisplay) return;
+
+                // 格式化 JSON 输出
+                const formattedJson = JSON.stringify(entries, null, 2);
+                resultDisplay.innerHTML = `<pre><code class="language-json">${this.escapeHtml(formattedJson)}</code></pre>`;
+                
+                // 高亮代码
+                if (window.hljs) {
+                    window.hljs.highlightElement(resultDisplay.querySelector('code'));
+                }
+
+                // 显示键值对列表
+                this.updateEntriesDisplay(entries);
+
+                // 显示详细信息
+                this.updateObjectInfo(obj, entries);
+
+                // 显示对比视图
+                this.updateComparisonView(obj, entries);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            updateEntriesDisplay(entries) {
+                const entriesDisplay = document.getElementById('entriesDisplay');
+                if (!entriesDisplay) return;
+
+                if (!this.getCheckboxValue('showEntries')) {
+                    entriesDisplay.style.display = 'none';
+                    return;
+                }
+
+                entriesDisplay.style.display = 'block';
+                entriesDisplay.innerHTML = entries.map(([key, value], index) => `
+                    <div class="entry-item">
+                        <span class="entry-index">[${index}]</span>
+                        <span class="entry-key">${this.escapeHtml(String(key))}</span>
+                        <span class="entry-separator">:</span>
+                        <span class="entry-value">${this.escapeHtml(JSON.stringify(value))}</span>
+                    </div>
+                `).join('');
+            }
+
+            updateObjectInfo(obj, entries) {
+                const objectInfo = document.getElementById('objectInfo');
+                if (!objectInfo) return;
+
+                if (!this.getCheckboxValue('showDetails')) {
+                    objectInfo.style.display = 'none';
+                    return;
+                }
+
+                objectInfo.style.display = 'block';
+                const keys = Object.keys(obj);
+                document.getElementById('infoKeyCount').textContent = keys.length;
+                document.getElementById('infoEntryCount').textContent = entries.length;
+                
+                const jsonString = JSON.stringify(obj);
+                document.getElementById('infoObjectSize').textContent = `${jsonString.length} 字符`;
+                document.getElementById('infoIsEmpty').textContent = keys.length === 0 ? '是' : '否';
+            }
+
+            updateComparisonView(obj, entries) {
+                const comparisonCard = document.getElementById('comparisonCard');
+                if (!comparisonCard) return;
+
+                if (!this.getCheckboxValue('showComparison')) {
+                    comparisonCard.style.display = 'none';
+                    return;
+                }
+
+                comparisonCard.style.display = 'block';
+                
+                const originalObject = document.getElementById('originalObject');
+                const entriesArray = document.getElementById('entriesArray');
+                
+                if (originalObject) {
+                    originalObject.textContent = JSON.stringify(obj, null, 2);
+                }
+                
+                if (entriesArray) {
+                    entriesArray.textContent = JSON.stringify(entries, null, 2);
+                }
+            }
+
+            runBatchTest() {
+                const testCases = [
+                    { 
+                        obj: { a: 1, b: 2 }, 
+                        description: '基本对象' 
+                    },
+                    { 
+                        obj: { name: 'John', age: 30, city: 'New York' }, 
+                        description: '字符串和数字混合' 
+                    },
+                    { 
+                        obj: { x: true, y: false, z: null }, 
+                        description: '布尔值和 null' 
+                    },
+                    { 
+                        obj: { nested: { a: 1, b: 2 } }, 
+                        description: '嵌套对象值' 
+                    },
+                    { 
+                        obj: { array: [1, 2, 3] }, 
+                        description: '数组值' 
+                    },
+                    { 
+                        obj: { '1': 'one', '2': 'two', '3': 'three' }, 
+                        description: '数字字符串键' 
+                    },
+                    { 
+                        obj: {}, 
+                        description: '空对象' 
+                    },
+                    { 
+                        obj: { a: 1, b: 2, c: 3, d: 4, e: 5 }, 
+                        description: '多个键值对' 
+                    }
+                ];
+
+                const batchTestContainer = document.getElementById('batchTestContainer');
+                const batchTestCard = document.getElementById('batchTestCard');
+                
+                if (!batchTestContainer || !batchTestCard) return;
+
+                batchTestCard.style.display = 'block';
+                batchTestContainer.innerHTML = '';
+
+                testCases.forEach((testCase, idx) => {
+                    let entries;
+                    let error = null;
+                    
+                    try {
+                        entries = objectToEntries(testCase.obj);
+                    } catch (e) {
+                        error = e.message;
+                    }
+
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+                    testItem.innerHTML = `
+                        <div class="test-header">
+                            <span class="test-title">测试 ${idx + 1}: ${testCase.description}</span>
+                            <span class="test-result">${error ? '❌ 错误' : '✅ 成功'}</span>
+                        </div>
+                        <div class="test-args">
+                            输入: ${JSON.stringify(testCase.obj)}<br>
+                            ${error ? `<span style="color: #ef4444;">错误: ${error}</span>` : `结果: ${JSON.stringify(entries)}`}
+                        </div>
+                    `;
+                    batchTestContainer.appendChild(testItem);
+                });
+
+                this.showNotification('批量测试完成', 'success');
+            }
+
+            generateRandom() {
+                const keys = ['name', 'age', 'city', 'country', 'email', 'phone', 'score', 'active', 'count', 'value'];
+                const values = [
+                    'John', 'Jane', 'Bob', 'Alice',
+                    18, 25, 30, 42, 100,
+                    true, false,
+                    null,
+                    [1, 2, 3],
+                    { x: 1, y: 2 }
+                ];
+
+                const keyCount = Math.floor(Math.random() * 5) + 3; // 3-7 个键
+                const obj = {};
+
+                for (let i = 0; i < keyCount; i++) {
+                    const key = keys[Math.floor(Math.random() * keys.length)] + (i > 0 ? i : '');
+                    const value = values[Math.floor(Math.random() * values.length)];
+                    obj[key] = value;
+                }
+
+                const objectInput = document.getElementById('objectInput');
+                if (objectInput) {
+                    objectInput.value = JSON.stringify(obj, null, 2);
+
+                    if (this.getCheckboxValue('autoConvert')) {
+                        this.convert();
+                    }
+
+                    this.showNotification('随机数据已生成', 'success');
+                }
+            }
+
+            loadSample() {
+                const samples = [
+                    { a: 1, b: 2 },
+                    { name: 'John', age: 30, city: 'New York' },
+                    { x: true, y: false, z: null },
+                    { nested: { a: 1, b: 2 }, array: [1, 2, 3] },
+                    { '1': 'one', '2': 'two', '3': 'three' }
+                ];
+
+                const randomSample = samples[Math.floor(Math.random() * samples.length)];
+                const objectInput = document.getElementById('objectInput');
+                
+                if (objectInput) {
+                    objectInput.value = JSON.stringify(randomSample, null, 2);
+
+                    if (this.getCheckboxValue('autoConvert')) {
+                        this.convert();
+                    }
+
+                    this.showNotification('示例数据已加载', 'success');
+                }
+            }
+
+            clearAll() {
+                this.plugins.modal?.confirm('确定要清空所有内容吗？').then(confirmed => {
+                    if (confirmed) {
+                        const objectInput = document.getElementById('objectInput');
+                        if (objectInput) objectInput.value = '';
+
+                        const resultDisplay = document.getElementById('resultDisplay');
+                        if (resultDisplay) {
+                            resultDisplay.innerHTML = '<div style="color: #94a3b8; font-size: 0.9rem;">转换结果将显示在这里...</div>';
+                        }
+
+                        const entriesDisplay = document.getElementById('entriesDisplay');
+                        if (entriesDisplay) entriesDisplay.style.display = 'none';
+
+                        const objectInfo = document.getElementById('objectInfo');
+                        if (objectInfo) objectInfo.style.display = 'none';
+
+                        const comparisonCard = document.getElementById('comparisonCard');
+                        if (comparisonCard) comparisonCard.style.display = 'none';
+
+                        const batchTestCard = document.getElementById('batchTestCard');
+                        if (batchTestCard) batchTestCard.style.display = 'none';
+
+                        this.showNotification('已清空所有内容', 'info');
+                    }
+                });
+            }
+
+            updateStats() {
+                document.getElementById('totalConversions').textContent = this.stats.totalConversions;
+                document.getElementById('totalKeys').textContent = this.stats.totalKeys;
+                document.getElementById('totalEntries').textContent = this.stats.totalEntries;
+            }
+
+            updateDisplay() {
+                // 根据选项更新显示
+                const objectInput = document.getElementById('objectInput');
+                if (objectInput && objectInput.value.trim()) {
+                    const obj = this.parseObject(objectInput.value);
+                    if (obj) {
+                        try {
+                            const entries = objectToEntries(obj);
+                            this.updateEntriesDisplay(entries);
+                            this.updateObjectInfo(obj, entries);
+                            this.updateComparisonView(obj, entries);
+                        } catch (e) {
+                            // 忽略错误
+                        }
+                    }
+                }
+            }
+
+            addToHistory(obj, entries) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    object: obj,
+                    entries: entries,
+                    keyCount: Object.keys(obj).length,
+                    entryCount: entries.length
+                });
+
+                if (this.history.length > 50) {
+                    this.history.pop();
+                }
+
+                this.renderHistory();
+                this.saveHistory();
+            }
+
+            renderHistory() {
+                const container = document.getElementById('historyList');
+                if (!container) return;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 40px 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">转换历史将显示在这里</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map((item, idx) => {
+                    const objectPreview = JSON.stringify(item.object).substring(0, 50);
+                    return `
+                        <div class="history-item" onclick="window.entryConverter?.loadHistory(${idx})">
+                            <div class="history-time">${item.time}</div>
+                            <div class="history-info">
+                                键数: ${item.keyCount} | 键值对数: ${item.entryCount}<br>
+                                对象: ${objectPreview}${JSON.stringify(item.object).length > 50 ? '...' : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            loadHistory(index) {
+                const item = this.history[index];
+                if (!item) return;
+
+                const objectInput = document.getElementById('objectInput');
+                if (objectInput) {
+                    objectInput.value = JSON.stringify(item.object, null, 2);
+
+                    if (this.getCheckboxValue('autoConvert')) {
+                        this.convert();
+                    } else {
+                        this.convert();
+                    }
+
+                    this.showNotification('已从历史记录加载', 'success');
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.getCheckboxValue('enableNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('entryConverter_history', JSON.stringify(this.history));
+                    localStorage.setItem('entryConverter_stats', JSON.stringify(this.stats));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistoryFromStorage() {
+                try {
+                    const savedHistory = localStorage.getItem('entryConverter_history');
+                    if (savedHistory) {
+                        this.history = JSON.parse(savedHistory);
+                        this.renderHistory();
+                    }
+
+                    const savedStats = localStorage.getItem('entryConverter_stats');
+                    if (savedStats) {
+                        this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+                        this.updateStats();
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.entryConverter = new EntryConverter();
+        });
+
+        if (document.readyState !== 'loading' && !window.entryConverter) {
+            window.entryConverter = new EntryConverter();
+        }
+    </script>
+</body>
+</html>

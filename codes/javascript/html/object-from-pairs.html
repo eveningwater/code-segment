@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键值对转对象工具 - objectFromPairs 函数实战平台</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .result-panel {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-display {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.95rem;
+            margin-top: 12px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .pairs-display {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .pair-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .pair-key {
+            font-weight: 700;
+            color: #667eea;
+            min-width: 100px;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .pair-value {
+            flex: 1;
+            color: #374151;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .pair-separator {
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .batch-test-container {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .test-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .test-title {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .test-result {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+
+        .test-args {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .history-info {
+            font-size: 0.85rem;
+            color: #1f2937;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .select-container {
+            margin-bottom: 16px;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .code-preview .comment {
+            color: #697098;
+        }
+
+        .code-preview .number {
+            color: #f78c6c;
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .format-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .format-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .format-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .object-info {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .info-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 键值对转对象工具 - objectFromPairs 函数实战平台</h1>
+            <p>基于 objectFromPairs 函数的智能对象创建工具，支持多种输入格式、实时预览、批量转换和可视化展示</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 对象转换器</h2>
+                    <div class="input-group">
+                        <label>输入格式</label>
+                        <div class="format-selector" id="formatSelector">
+                            <div class="format-btn active" data-format="json">JSON 数组</div>
+                            <div class="format-btn" data-format="text">文本格式</div>
+                            <div class="format-btn" data-format="csv">CSV 格式</div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>键值对输入</label>
+                        <textarea id="pairsInput" class="textarea-field" placeholder='JSON 格式: [["key1", "value1"], ["key2", "value2"]]&#10;文本格式: key1:value1, key2:value2&#10;CSV 格式: key1,value1&#10;key2,value2'></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" onclick="window.pairConverter?.convert()">
+                            🔄 转换为对象
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 工具选项</h2>
+                    <div id="checkboxGroup" class="checkbox-container"></div>
+                    <div class="button-group">
+                        <button class="btn btn-info btn-sm" onclick="window.pairConverter?.loadSample()">
+                            📝 加载示例
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="window.pairConverter?.runBatchTest()">
+                            🧪 批量测试
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="window.pairConverter?.generateRandom()">
+                            🎲 随机生成
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="window.pairConverter?.clearAll()">
+                            🧹 清空全部
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalConversions">0</div>
+                            <div class="stat-label">转换次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalPairs">0</div>
+                            <div class="stat-label">总键值对数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalKeys">0</div>
+                            <div class="stat-label">总键数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 转换历史</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state" style="padding: 40px 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">转换历史将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧结果展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📊 转换结果</h2>
+                    <div class="result-panel">
+                        <div class="result-display" id="resultDisplay">
+                            <div style="color: #94a3b8; font-size: 0.9rem;">转换结果将显示在这里...</div>
+                        </div>
+                        <div class="pairs-display" id="pairsDisplay" style="display: none;">
+                            <!-- 键值对列表将在这里显示 -->
+                        </div>
+                        <div class="object-info" id="objectInfo" style="display: none;">
+                            <div class="info-row">
+                                <span class="info-label">对象键数量</span>
+                                <span class="info-value" id="infoKeyCount">0</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">对象大小</span>
+                                <span class="info-value" id="infoObjectSize">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">是否为空对象</span>
+                                <span class="info-value" id="infoIsEmpty">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="batchTestCard" style="display: none;">
+                    <h2>🧪 批量测试结果</h2>
+                    <div class="batch-test-container" id="batchTestContainer">
+                        <!-- 批量测试结果将在这里显示 -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">objectFromPairs 函数（从键值对创建对象）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">objectFromPairs</span> = <span class="function">arr</span> => [<span class="function">...arr</span>].<span class="function">reduce</span>((<span class="function">res</span>, [<span class="function">key</span>, <span class="function">val</span>]) => ((<span class="function">res</span>[<span class="function">key</span>] = <span class="function">val</span>), <span class="function">res</span>), {});
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>objectFromPairs</strong> 函数用于从给定的键值对数组创建一个对象。
+                            使用 <code>Array.prototype.reduce()</code> 创建和组合键值对。
+                            <code>Object.fromEntries()</code> 提供了类似的功能。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">使用示例</h3>
+                        <div class="code-preview">
+<span class="comment">// 从键值对数组创建对象</span>
+<span class="function">objectFromPairs</span>([[<span class="string">'a'</span>, <span class="number">1</span>], [<span class="string">'b'</span>, <span class="number">2</span>]]); <span class="comment">// => {a: 1, b: 2}</span>
+
+<span class="comment">// 从 Map 创建对象</span>
+<span class="function">objectFromPairs</span>(<span class="keyword">new</span> <span class="function">Map</span>([[<span class="string">'a'</span>, <span class="number">1</span>], [<span class="string">'b'</span>, <span class="number">2</span>]])); <span class="comment">// => {a: 1, b: 2}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+        // objectFromPairs 函数：从给定的键值对创建一个对象
+        const objectFromPairs = arr => [...arr].reduce((res, [key, val]) => ((res[key] = val), res), {});
+
+        // 键值对转对象工具类
+        class PairConverter {
+            constructor() {
+                this.plugins = {};
+                this.history = [];
+                this.currentFormat = 'json';
+                this.stats = {
+                    totalConversions: 0,
+                    totalPairs: 0,
+                    totalKeys: 0
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupCheckboxes();
+                this.setupFormatSelector();
+                this.setupEventListeners();
+                this.loadHistoryFromStorage();
+                this.updateStats();
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupFormatSelector() {
+                const formatSelector = document.getElementById('formatSelector');
+                if (!formatSelector) return;
+
+                const buttons = formatSelector.querySelectorAll('.format-btn');
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.currentFormat = btn.dataset.format;
+                        buttons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        // 更新占位符
+                        const pairsInput = document.getElementById('pairsInput');
+                        if (pairsInput) {
+                            switch (this.currentFormat) {
+                                case 'json':
+                                    pairsInput.placeholder = 'JSON 格式: [["key1", "value1"], ["key2", "value2"]]';
+                                    break;
+                                case 'text':
+                                    pairsInput.placeholder = '文本格式: key1:value1, key2:value2';
+                                    break;
+                                case 'csv':
+                                    pairsInput.placeholder = 'CSV 格式: key1,value1\nkey2,value2';
+                                    break;
+                            }
+                        }
+
+                        if (this.getCheckboxValue('autoConvert')) {
+                            this.convert();
+                        }
+                    });
+                });
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'autoConvert', label: '自动转换', checked: false },
+                    { id: 'showPairs', label: '显示键值对列表', checked: true },
+                    { id: 'showDetails', label: '显示详细信息', checked: true },
+                    { id: 'enableNotifications', label: '启用通知提醒', checked: true },
+                    { id: 'saveHistory', label: '保存转换历史', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: () => {
+                            this.updateDisplay();
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败:', error);
+                }
+            }
+
+            setupEventListeners() {
+                const pairsInput = document.getElementById('pairsInput');
+                if (pairsInput) {
+                    let timeout;
+                    pairsInput.addEventListener('input', () => {
+                        if (this.getCheckboxValue('autoConvert')) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => {
+                                this.convert();
+                            }, 500);
+                        }
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = ['autoConvert', 'showPairs', 'showDetails', 'enableNotifications', 'saveHistory'].indexOf(id);
+                        return index !== -1 ? states[index] : false;
+                    } catch (error) {
+                        console.warn('读取复选框状态失败:', error);
+                    }
+                }
+                return false;
+            }
+
+            parsePairs(input) {
+                if (!input || !input.trim()) return null;
+
+                const trimmed = input.trim();
+
+                try {
+                    switch (this.currentFormat) {
+                        case 'json':
+                            // 尝试解析 JSON 格式
+                            const parsed = JSON.parse(trimmed);
+                            if (Array.isArray(parsed)) {
+                                // 验证每个元素是否是键值对
+                                if (parsed.every(item => Array.isArray(item) && item.length === 2)) {
+                                    return parsed;
+                                }
+                            }
+                            break;
+
+                        case 'text':
+                            // 解析文本格式: key1:value1, key2:value2
+                            const pairs = trimmed.split(',').map(pair => {
+                                const [key, ...valueParts] = pair.trim().split(':');
+                                const value = valueParts.join(':').trim();
+                                return [key.trim(), this.parseValue(value)];
+                            });
+                            return pairs;
+
+                        case 'csv':
+                            // 解析 CSV 格式
+                            const lines = trimmed.split('\n').filter(line => line.trim());
+                            const csvPairs = lines.map(line => {
+                                const parts = line.split(',').map(p => p.trim());
+                                if (parts.length >= 2) {
+                                    return [parts[0], this.parseValue(parts.slice(1).join(','))];
+                                }
+                                return null;
+                            }).filter(pair => pair !== null);
+                            return csvPairs.length > 0 ? csvPairs : null;
+                    }
+                } catch (e) {
+                    return null;
+                }
+
+                return null;
+            }
+
+            parseValue(value) {
+                if (!value) return '';
+                
+                const trimmed = value.trim();
+                
+                // 尝试解析为数字
+                if (/^-?\d+\.?\d*$/.test(trimmed)) {
+                    return trimmed.includes('.') ? parseFloat(trimmed) : parseInt(trimmed);
+                }
+                
+                // 尝试解析为布尔值
+                if (trimmed === 'true') return true;
+                if (trimmed === 'false') return false;
+                if (trimmed === 'null') return null;
+                
+                // 尝试解析为 JSON
+                if ((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+                    (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+                    try {
+                        return JSON.parse(trimmed);
+                    } catch (e) {
+                        // 不是有效的 JSON，返回字符串
+                    }
+                }
+                
+                // 移除引号（如果有）
+                return trimmed.replace(/^["']|["']$/g, '');
+            }
+
+            convert() {
+                const pairsInput = document.getElementById('pairsInput');
+                if (!pairsInput) return;
+
+                const inputValue = pairsInput.value.trim();
+                if (!inputValue) {
+                    this.showNotification('请输入键值对数据', 'warning');
+                    return;
+                }
+
+                // 解析键值对
+                const pairs = this.parsePairs(inputValue);
+                if (!pairs || pairs.length === 0) {
+                    this.showNotification('键值对格式错误，请检查输入格式', 'error');
+                    return;
+                }
+
+                // 使用 objectFromPairs 函数转换
+                let result;
+                let error = null;
+
+                try {
+                    result = objectFromPairs(pairs);
+                } catch (e) {
+                    error = e.message;
+                }
+
+                if (error) {
+                    this.showNotification('转换失败: ' + error, 'error');
+                    return;
+                }
+
+                // 显示结果
+                this.displayResult(result, pairs);
+
+                // 更新统计
+                this.stats.totalConversions++;
+                this.stats.totalPairs += pairs.length;
+                this.stats.totalKeys += Object.keys(result).length;
+                this.updateStats();
+
+                // 保存历史
+                if (this.getCheckboxValue('saveHistory')) {
+                    this.addToHistory(pairs, result);
+                }
+
+                this.showNotification('转换完成', 'success');
+            }
+
+            displayResult(result, pairs) {
+                const resultDisplay = document.getElementById('resultDisplay');
+                if (!resultDisplay) return;
+
+                // 格式化 JSON 输出
+                const formattedJson = JSON.stringify(result, null, 2);
+                resultDisplay.innerHTML = `<pre><code class="language-json">${this.escapeHtml(formattedJson)}</code></pre>`;
+                
+                // 高亮代码
+                if (window.hljs) {
+                    window.hljs.highlightElement(resultDisplay.querySelector('code'));
+                }
+
+                // 显示键值对列表
+                this.updatePairsDisplay(pairs);
+
+                // 显示详细信息
+                this.updateObjectInfo(result);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            updatePairsDisplay(pairs) {
+                const pairsDisplay = document.getElementById('pairsDisplay');
+                if (!pairsDisplay) return;
+
+                if (!this.getCheckboxValue('showPairs')) {
+                    pairsDisplay.style.display = 'none';
+                    return;
+                }
+
+                pairsDisplay.style.display = 'block';
+                pairsDisplay.innerHTML = pairs.map(([key, value]) => `
+                    <div class="pair-item">
+                        <span class="pair-key">${this.escapeHtml(String(key))}</span>
+                        <span class="pair-separator">:</span>
+                        <span class="pair-value">${this.escapeHtml(JSON.stringify(value))}</span>
+                    </div>
+                `).join('');
+            }
+
+            updateObjectInfo(result) {
+                const objectInfo = document.getElementById('objectInfo');
+                if (!objectInfo) return;
+
+                if (!this.getCheckboxValue('showDetails')) {
+                    objectInfo.style.display = 'none';
+                    return;
+                }
+
+                objectInfo.style.display = 'block';
+                const keys = Object.keys(result);
+                document.getElementById('infoKeyCount').textContent = keys.length;
+                
+                const jsonString = JSON.stringify(result);
+                document.getElementById('infoObjectSize').textContent = `${jsonString.length} 字符`;
+                document.getElementById('infoIsEmpty').textContent = keys.length === 0 ? '是' : '否';
+            }
+
+            runBatchTest() {
+                const testCases = [
+                    { 
+                        pairs: [['a', 1], ['b', 2]], 
+                        description: '基本键值对数组' 
+                    },
+                    { 
+                        pairs: [['name', 'John'], ['age', 30], ['city', 'New York']], 
+                        description: '字符串和数字混合' 
+                    },
+                    { 
+                        pairs: [['x', true], ['y', false], ['z', null]], 
+                        description: '布尔值和 null' 
+                    },
+                    { 
+                        pairs: [['nested', { a: 1, b: 2 }]], 
+                        description: '嵌套对象值' 
+                    },
+                    { 
+                        pairs: [['array', [1, 2, 3]]], 
+                        description: '数组值' 
+                    },
+                    { 
+                        pairs: [['1', 'one'], ['2', 'two'], ['3', 'three']], 
+                        description: '数字字符串键' 
+                    },
+                    { 
+                        pairs: [], 
+                        description: '空数组' 
+                    },
+                    { 
+                        pairs: [['same', 'value'], ['same', 'value2']], 
+                        description: '重复键（后值覆盖前值）' 
+                    }
+                ];
+
+                const batchTestContainer = document.getElementById('batchTestContainer');
+                const batchTestCard = document.getElementById('batchTestCard');
+                
+                if (!batchTestContainer || !batchTestCard) return;
+
+                batchTestCard.style.display = 'block';
+                batchTestContainer.innerHTML = '';
+
+                testCases.forEach((testCase, idx) => {
+                    let result;
+                    let error = null;
+                    
+                    try {
+                        if (testCase.pairs.length === 0) {
+                            result = {};
+                        } else {
+                            result = objectFromPairs(testCase.pairs);
+                        }
+                    } catch (e) {
+                        error = e.message;
+                    }
+
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+                    testItem.innerHTML = `
+                        <div class="test-header">
+                            <span class="test-title">测试 ${idx + 1}: ${testCase.description}</span>
+                            <span class="test-result">${error ? '❌ 错误' : '✅ 成功'}</span>
+                        </div>
+                        <div class="test-args">
+                            输入: ${JSON.stringify(testCase.pairs)}<br>
+                            ${error ? `<span style="color: #ef4444;">错误: ${error}</span>` : `结果: ${JSON.stringify(result)}`}
+                        </div>
+                    `;
+                    batchTestContainer.appendChild(testItem);
+                });
+
+                this.showNotification('批量测试完成', 'success');
+            }
+
+            generateRandom() {
+                const keys = ['name', 'age', 'city', 'country', 'email', 'phone', 'score', 'active', 'count', 'value'];
+                const values = [
+                    'John', 'Jane', 'Bob', 'Alice',
+                    18, 25, 30, 42, 100,
+                    true, false,
+                    null,
+                    ['a', 'b', 'c'],
+                    { x: 1, y: 2 }
+                ];
+
+                const pairCount = Math.floor(Math.random() * 5) + 3; // 3-7 对
+                const pairs = [];
+
+                for (let i = 0; i < pairCount; i++) {
+                    const key = keys[Math.floor(Math.random() * keys.length)] + (i > 0 ? i : '');
+                    const value = values[Math.floor(Math.random() * values.length)];
+                    pairs.push([key, value]);
+                }
+
+                const pairsInput = document.getElementById('pairsInput');
+                if (pairsInput) {
+                    pairsInput.value = JSON.stringify(pairs);
+                    this.currentFormat = 'json';
+                    
+                    // 更新格式选择器
+                    const formatSelector = document.getElementById('formatSelector');
+                    if (formatSelector) {
+                        const buttons = formatSelector.querySelectorAll('.format-btn');
+                        buttons.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.dataset.format === 'json') {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+
+                    if (this.getCheckboxValue('autoConvert')) {
+                        this.convert();
+                    }
+
+                    this.showNotification('随机数据已生成', 'success');
+                }
+            }
+
+            loadSample() {
+                const samples = [
+                    { format: 'json', value: JSON.stringify([['name', 'John'], ['age', 30], ['city', 'New York']]) },
+                    { format: 'json', value: JSON.stringify([['x', 1], ['y', 2], ['z', 3]]) },
+                    { format: 'text', value: 'name:John, age:30, city:New York' },
+                    { format: 'csv', value: 'name,John\nage,30\ncity,New York' }
+                ];
+
+                const randomSample = samples[Math.floor(Math.random() * samples.length)];
+                const pairsInput = document.getElementById('pairsInput');
+                
+                if (pairsInput) {
+                    pairsInput.value = randomSample.value;
+                    this.currentFormat = randomSample.format;
+                    
+                    // 更新格式选择器
+                    const formatSelector = document.getElementById('formatSelector');
+                    if (formatSelector) {
+                        const buttons = formatSelector.querySelectorAll('.format-btn');
+                        buttons.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.dataset.format === randomSample.format) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+
+                    if (this.getCheckboxValue('autoConvert')) {
+                        this.convert();
+                    }
+
+                    this.showNotification('示例数据已加载', 'success');
+                }
+            }
+
+            clearAll() {
+                this.plugins.modal?.confirm('确定要清空所有内容吗？').then(confirmed => {
+                    if (confirmed) {
+                        const pairsInput = document.getElementById('pairsInput');
+                        if (pairsInput) pairsInput.value = '';
+
+                        const resultDisplay = document.getElementById('resultDisplay');
+                        if (resultDisplay) {
+                            resultDisplay.innerHTML = '<div style="color: #94a3b8; font-size: 0.9rem;">转换结果将显示在这里...</div>';
+                        }
+
+                        const pairsDisplay = document.getElementById('pairsDisplay');
+                        if (pairsDisplay) pairsDisplay.style.display = 'none';
+
+                        const objectInfo = document.getElementById('objectInfo');
+                        if (objectInfo) objectInfo.style.display = 'none';
+
+                        const batchTestCard = document.getElementById('batchTestCard');
+                        if (batchTestCard) batchTestCard.style.display = 'none';
+
+                        this.showNotification('已清空所有内容', 'info');
+                    }
+                });
+            }
+
+            updateStats() {
+                document.getElementById('totalConversions').textContent = this.stats.totalConversions;
+                document.getElementById('totalPairs').textContent = this.stats.totalPairs;
+                document.getElementById('totalKeys').textContent = this.stats.totalKeys;
+            }
+
+            updateDisplay() {
+                // 根据选项更新显示
+                const pairsInput = document.getElementById('pairsInput');
+                if (pairsInput && pairsInput.value.trim()) {
+                    const pairs = this.parsePairs(pairsInput.value);
+                    if (pairs) {
+                        try {
+                            const result = objectFromPairs(pairs);
+                            this.updatePairsDisplay(pairs);
+                            this.updateObjectInfo(result);
+                        } catch (e) {
+                            // 忽略错误
+                        }
+                    }
+                }
+            }
+
+            addToHistory(pairs, result) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    pairs: pairs,
+                    result: result,
+                    pairCount: pairs.length,
+                    keyCount: Object.keys(result).length
+                });
+
+                if (this.history.length > 50) {
+                    this.history.pop();
+                }
+
+                this.renderHistory();
+                this.saveHistory();
+            }
+
+            renderHistory() {
+                const container = document.getElementById('historyList');
+                if (!container) return;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 40px 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">转换历史将显示在这里</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map((item, idx) => {
+                    const resultPreview = JSON.stringify(item.result).substring(0, 50);
+                    return `
+                        <div class="history-item" onclick="window.pairConverter?.loadHistory(${idx})">
+                            <div class="history-time">${item.time}</div>
+                            <div class="history-info">
+                                键值对数: ${item.pairCount} | 键数: ${item.keyCount}<br>
+                                结果: ${resultPreview}${JSON.stringify(item.result).length > 50 ? '...' : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            loadHistory(index) {
+                const item = this.history[index];
+                if (!item) return;
+
+                const pairsInput = document.getElementById('pairsInput');
+                if (pairsInput) {
+                    pairsInput.value = JSON.stringify(item.pairs);
+                    this.currentFormat = 'json';
+                    
+                    // 更新格式选择器
+                    const formatSelector = document.getElementById('formatSelector');
+                    if (formatSelector) {
+                        const buttons = formatSelector.querySelectorAll('.format-btn');
+                        buttons.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.dataset.format === 'json') {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+
+                    if (this.getCheckboxValue('autoConvert')) {
+                        this.convert();
+                    } else {
+                        this.convert();
+                    }
+
+                    this.showNotification('已从历史记录加载', 'success');
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.getCheckboxValue('enableNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('pairConverter_history', JSON.stringify(this.history));
+                    localStorage.setItem('pairConverter_stats', JSON.stringify(this.stats));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistoryFromStorage() {
+                try {
+                    const savedHistory = localStorage.getItem('pairConverter_history');
+                    if (savedHistory) {
+                        this.history = JSON.parse(savedHistory);
+                        this.renderHistory();
+                    }
+
+                    const savedStats = localStorage.getItem('pairConverter_stats');
+                    if (savedStats) {
+                        this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+                        this.updateStats();
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.pairConverter = new PairConverter();
+        });
+
+        if (document.readyState !== 'loading' && !window.pairConverter) {
+            window.pairConverter = new PairConverter();
+        }
+    </script>
+</body>
+</html>
