@@ -468,7 +468,7 @@
 - [n 次方根-2022-12-28](codes/javascript/nth-root.md)
 - [从给定键值对创建对象-2022-12-29](codes/javascript/object-from-pairs.md)
 - [从给定对象创建键值对-2022-12-30](codes/javascript/object-to-entries.md)
-- [将对象转成 map 数据结构-2022-12-31](codes/javascript/objectToMap.md)
+- [将对象转成 map 数据结构-2022-12-31](codes/javascript/object-to-map.md)
 - [从对象创建键值对-2023-01-01](codes/javascript/objectToPairs.md)
 - [序列化对象-2023-01-02](codes/javascript/objectToQueryString.md)
 - [生成同色系颜色-2023-01-03](codes/javascript/generateLikeColor.md)
