@@ -1,7 +1,7 @@
 
 | 标题                              | 标签         |
 | --------------------------------- | ------------ |
-| generateLikeColor(生成同色系颜色) | color(颜色)) |
+| generateLikeColor(生成同色系颜色) | color(颜色) |
 
 生成多种同一色系颜色。
 
@@ -27,6 +27,8 @@ const generateLikeColor = (color,n = 7) => {
 }
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts//generate-like-color.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -43,5 +45,11 @@ generateLikeColor('rgba(0,0,255,1)');/*[
 
 > 应用场景
 
-<iframe src="codes/javascript/html/generateLikeColor.html"></iframe>
+以下是一个实战<a href="codes/javascript/html//generate-like-color.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html//generate-like-color.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/generate-like-color.html"></iframe>
 
