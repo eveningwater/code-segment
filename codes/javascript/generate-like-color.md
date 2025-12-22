@@ -27,7 +27,7 @@ const generateLikeColor = (color,n = 7) => {
 }
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//generate-like-color.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/generate-like-color.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -45,9 +45,9 @@ generateLikeColor('rgba(0,0,255,1)');/*[
 
 > 应用场景
 
-以下是一个实战<a href="codes/javascript/html//generate-like-color.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是一个实战<a href="codes/javascript/html/generate-like-color.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/html//generate-like-color.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/generate-like-color.html" data-language="html"></div>
 
 结果如下:
 
