@@ -463,7 +463,7 @@
 - [序列化对象-2023-01-02](codes/javascript/object-to-query-string.md)
 - [生成同色系颜色-2023-01-03](codes/javascript/generate-like-color.md)
 - [将数组映射成对象-2023-01-04](codes/javascript/objectify.md)
-- [突变侦听器-2023-01-05](codes/javascript/observeMutations.md)
+- [突变侦听器-2023-01-05](codes/javascript/observe-mutations.md)
 - [移除事件监听器-2023-01-06](codes/javascript/off.md)
 - [偏移数组元素-2023-01-07](codes/javascript/offset.md)
 - [通过给定数组键值删除对象属性-2023-01-08](codes/javascript/omit.md)

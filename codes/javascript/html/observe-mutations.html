@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM 变化观察器 - observeMutations 函数实战平台</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .observer-status {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .test-area {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .test-area h3 {
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .test-element {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .test-element:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .test-element.editable {
+            cursor: text;
+            min-height: 60px;
+        }
+
+        .mutations-log {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+
+        .mutation-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #334155;
+        }
+
+        .mutation-item:last-child {
+            border-bottom: none;
+        }
+
+        .mutation-type {
+            color: #82aaff;
+            font-weight: 600;
+        }
+
+        .mutation-details {
+            color: #a5b4fc;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .history-info {
+            font-size: 0.85rem;
+            color: #1f2937;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .code-preview .comment {
+            color: #697098;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .info-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .option-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👁️ DOM 变化观察器 - observeMutations 函数实战平台</h1>
+            <p>基于 observeMutations 函数的智能 DOM 变化监听工具，支持实时观察、配置选项和变化记录</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 观察器控制</h2>
+                    <div id="observerStatus" class="observer-status status-inactive">
+                        ⏸️ 观察器未启动
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-success btn-block" id="startBtn" onclick="window.mutationObserver?.startObserving()">
+                            ▶️ 启动观察
+                        </button>
+                        <button class="btn btn-danger btn-block" id="stopBtn" onclick="window.mutationObserver?.stopObserving()" disabled>
+                            ⏹️ 停止观察
+                        </button>
+                    </div>
+                    <div class="input-group">
+                        <label>选择观察目标</label>
+                        <div id="targetSelectContainer"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 观察选项</h2>
+                    <div id="checkboxGroup" class="checkbox-container"></div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalMutations">0</div>
+                            <div class="stat-label">总变化数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="childListMutations">0</div>
+                            <div class="stat-label">子节点变化</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="attributeMutations">0</div>
+                            <div class="stat-label">属性变化</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="characterDataMutations">0</div>
+                            <div class="stat-label">文本变化</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 观察历史</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state" style="padding: 40px 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">观察历史将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧结果展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>🧪 测试区域</h2>
+                    <div class="test-area">
+                        <h3>可测试元素</h3>
+                        <div class="test-controls">
+                            <button class="btn btn-info btn-sm" onclick="window.mutationObserver?.addChild()">
+                                ➕ 添加子元素
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="window.mutationObserver?.removeChild()">
+                                ➖ 删除子元素
+                            </button>
+                            <button class="btn btn-info btn-sm" onclick="window.mutationObserver?.changeAttribute()">
+                                🔄 修改属性
+                            </button>
+                            <button class="btn btn-info btn-sm" onclick="window.mutationObserver?.changeText()">
+                                ✏️ 修改文本
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="window.mutationObserver?.clearTestArea()">
+                                🧹 清空测试区
+                            </button>
+                        </div>
+                        <div id="testArea" class="test-element editable" contenteditable="true">
+                            这是一个可编辑的测试元素。点击这里编辑内容，或使用上面的按钮进行操作。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📋 变化记录</h2>
+                    <div class="button-group">
+                        <button class="btn btn-warning btn-sm" onclick="window.mutationObserver?.clearLog()">
+                            🗑️ 清空记录
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="window.mutationObserver?.exportLog()">
+                            📤 导出记录
+                        </button>
+                    </div>
+                    <div class="mutations-log" id="mutationsLog">
+                        <div style="color: #64748b; text-align: center; padding: 20px;">
+                            变化记录将显示在这里...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="infoCard" style="display: none;">
+                    <h2>ℹ️ 详细信息</h2>
+                    <div class="info-section" id="infoSection">
+                        <!-- 详细信息将在这里显示 -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">observeMutations 函数（DOM 变化观察器）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">observeMutations</span> = (<span class="function">element</span>, <span class="function">callback</span>, <span class="function">options</span>) => {
+  <span class="keyword">const</span> <span class="function">observer</span> = <span class="keyword">new</span> <span class="function">MutationObserver</span>(<span class="function">mutations</span> => <span class="function">mutations</span>.<span class="function">forEach</span>(<span class="function">m</span> => <span class="function">callback</span>(<span class="function">m</span>)));
+  <span class="function">observer</span>.<span class="function">observe</span>(<span class="function">element</span>, <span class="function">Object</span>.<span class="function">assign</span>({
+    <span class="string">childList</span>: <span class="keyword">true</span>,
+    <span class="string">attributes</span>: <span class="keyword">true</span>,
+    <span class="string">attributeOldValue</span>: <span class="keyword">true</span>,
+    <span class="string">characterData</span>: <span class="keyword">true</span>,
+    <span class="string">characterDataOldValue</span>: <span class="keyword">true</span>,
+    <span class="string">subtree</span>: <span class="keyword">true</span>
+  }, <span class="function">options</span>));
+  <span class="keyword">return</span> <span class="function">observer</span>;
+}
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>observeMutations</strong> 函数创建一个新的 MutationObserver 并为指定元素上的每个 mutation 运行提供的回调。
+                            使用 <code>MutationObserver</code> API 观察给定元素的变化。
+                            默认观察所有类型的变化（子节点、属性、文本数据等）。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">使用示例</h3>
+                        <div class="code-preview">
+<span class="comment">// 观察整个文档的变化</span>
+<span class="keyword">const</span> <span class="function">obs</span> = <span class="function">observeMutations</span>(<span class="function">document</span>, <span class="function">console</span>.<span class="function">log</span>);
+<span class="comment">// 记录页面上发生的所有变化</span>
+<span class="function">obs</span>.<span class="function">disconnect</span>();
+<span class="comment">// 断开观察器并停止记录</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // observeMutations 函数：DOM 变化观察器
+        const observeMutations = (element, callback, options) => {
+            const observer = new MutationObserver(mutations => mutations.forEach(m => callback(m)));
+            observer.observe(element, Object.assign(
+                {
+                    childList: true,
+                    attributes: true,
+                    attributeOldValue: true,
+                    characterData: true,
+                    characterDataOldValue: true,
+                    subtree: true,
+                },
+                options
+            ));
+            return observer;
+        };
+
+        // DOM 变化观察器类
+        class MutationObserverTool {
+            constructor() {
+                this.plugins = {};
+                this.observer = null;
+                this.isObserving = false;
+                this.mutations = [];
+                this.history = [];
+                this.currentTarget = null;
+                this.stats = {
+                    totalMutations: 0,
+                    childListMutations: 0,
+                    attributeMutations: 0,
+                    characterDataMutations: 0
+                };
+                this.childCounter = 0;
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupSelect();
+                this.setupCheckboxes();
+                this.setupTestArea();
+                this.loadHistoryFromStorage();
+                this.updateStats();
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupSelect() {
+                const container = document.getElementById('targetSelectContainer');
+                if (!container) return;
+
+                const options = [
+                    { value: 'testArea', label: '测试区域' },
+                    { value: 'document', label: '整个文档' },
+                    { value: 'body', label: 'Body 元素' }
+                ];
+
+                try {
+                    this.plugins.targetSelect = new Select({
+                        container: container,
+                        options: options,
+                        placeholder: '选择观察目标',
+                        onChange: (value) => {
+                            if (this.isObserving) {
+                                this.stopObserving();
+                                this.startObserving();
+                            }
+                        }
+                    });
+                    this.plugins.targetSelect.setValue('testArea');
+                    this.currentTarget = document.getElementById('testArea');
+                } catch (error) {
+                    console.warn('选择器插件加载失败:', error);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'childList', label: '观察子节点变化', checked: true },
+                    { id: 'attributes', label: '观察属性变化', checked: true },
+                    { id: 'characterData', label: '观察文本变化', checked: true },
+                    { id: 'subtree', label: '观察子树变化', checked: true },
+                    { id: 'attributeOldValue', label: '记录属性旧值', checked: true },
+                    { id: 'characterDataOldValue', label: '记录文本旧值', checked: true },
+                    { id: 'showDetails', label: '显示详细信息', checked: true },
+                    { id: 'enableNotifications', label: '启用通知提醒', checked: true },
+                    { id: 'saveHistory', label: '保存观察历史', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: () => {
+                            if (this.isObserving) {
+                                this.stopObserving();
+                                this.startObserving();
+                            }
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败:', error);
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = ['childList', 'attributes', 'characterData', 'subtree', 'attributeOldValue', 'characterDataOldValue', 'showDetails', 'enableNotifications', 'saveHistory'].indexOf(id);
+                        return index !== -1 ? states[index] : false;
+                    } catch (error) {
+                        console.warn('读取复选框状态失败:', error);
+                    }
+                }
+                return false;
+            }
+
+            getObserverOptions() {
+                return {
+                    childList: this.getCheckboxValue('childList'),
+                    attributes: this.getCheckboxValue('attributes'),
+                    attributeOldValue: this.getCheckboxValue('attributeOldValue'),
+                    characterData: this.getCheckboxValue('characterData'),
+                    characterDataOldValue: this.getCheckboxValue('characterDataOldValue'),
+                    subtree: this.getCheckboxValue('subtree')
+                };
+            }
+
+            getTargetElement() {
+                const targetValue = this.plugins.targetSelect ? this.plugins.targetSelect.getValue() : 'testArea';
+                
+                switch (targetValue) {
+                    case 'document':
+                        return document;
+                    case 'body':
+                        return document.body;
+                    case 'testArea':
+                    default:
+                        return document.getElementById('testArea');
+                }
+            }
+
+            startObserving() {
+                if (this.isObserving) {
+                    this.showNotification('观察器已在运行', 'warning');
+                    return;
+                }
+
+                const target = this.getTargetElement();
+                if (!target) {
+                    this.showNotification('无法找到观察目标', 'error');
+                    return;
+                }
+
+                const options = this.getObserverOptions();
+                this.currentTarget = target;
+
+                // 使用 observeMutations 函数
+                this.observer = observeMutations(target, (mutation) => {
+                    this.handleMutation(mutation);
+                }, options);
+
+                this.isObserving = true;
+                this.updateObserverStatus();
+                this.showNotification('观察器已启动', 'success');
+            }
+
+            stopObserving() {
+                if (!this.isObserving || !this.observer) {
+                    return;
+                }
+
+                this.observer.disconnect();
+                this.observer = null;
+                this.isObserving = false;
+                this.updateObserverStatus();
+                this.showNotification('观察器已停止', 'info');
+            }
+
+            handleMutation(mutation) {
+                this.mutations.push({
+                    mutation: mutation,
+                    timestamp: new Date().toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 })
+                });
+
+                // 更新统计
+                if (mutation.type === 'childList') {
+                    this.stats.childListMutations++;
+                } else if (mutation.type === 'attributes') {
+                    this.stats.attributeMutations++;
+                } else if (mutation.type === 'characterData') {
+                    this.stats.characterDataMutations++;
+                }
+                this.stats.totalMutations++;
+                this.updateStats();
+
+                // 显示变化记录
+                this.displayMutation(mutation);
+
+                // 保存历史
+                if (this.getCheckboxValue('saveHistory')) {
+                    this.addToHistory(mutation);
+                }
+            }
+
+            displayMutation(mutation) {
+                const log = document.getElementById('mutationsLog');
+                if (!log) return;
+
+                // 清除初始提示
+                if (log.textContent.includes('变化记录将显示在这里')) {
+                    log.innerHTML = '';
+                }
+
+                const mutationItem = document.createElement('div');
+                mutationItem.className = 'mutation-item';
+                
+                const time = this.mutations[this.mutations.length - 1].timestamp;
+                let details = '';
+
+                if (mutation.type === 'childList') {
+                    details = `添加了 ${mutation.addedNodes.length} 个节点，删除了 ${mutation.removedNodes.length} 个节点`;
+                } else if (mutation.type === 'attributes') {
+                    details = `属性 "${mutation.attributeName}" 从 "${mutation.oldValue || 'null'}" 变为 "${mutation.target.getAttribute(mutation.attributeName)}"`;
+                } else if (mutation.type === 'characterData') {
+                    details = `文本从 "${mutation.oldValue || 'null'}" 变为 "${mutation.target.textContent}"`;
+                }
+
+                mutationItem.innerHTML = `
+                    <div class="mutation-type">[${time}] ${mutation.type}</div>
+                    <div class="mutation-details">${details}</div>
+                `;
+
+                log.insertBefore(mutationItem, log.firstChild);
+
+                // 限制显示数量
+                const items = log.querySelectorAll('.mutation-item');
+                if (items.length > 100) {
+                    items[items.length - 1].remove();
+                }
+            }
+
+            updateObserverStatus() {
+                const statusEl = document.getElementById('observerStatus');
+                const startBtn = document.getElementById('startBtn');
+                const stopBtn = document.getElementById('stopBtn');
+
+                if (statusEl) {
+                    if (this.isObserving) {
+                        statusEl.className = 'observer-status status-active';
+                        statusEl.textContent = '▶️ 观察器运行中';
+                    } else {
+                        statusEl.className = 'observer-status status-inactive';
+                        statusEl.textContent = '⏸️ 观察器未启动';
+                    }
+                }
+
+                if (startBtn) startBtn.disabled = this.isObserving;
+                if (stopBtn) stopBtn.disabled = !this.isObserving;
+            }
+
+            setupTestArea() {
+                const testArea = document.getElementById('testArea');
+                if (!testArea) return;
+
+                // 确保测试区域存在
+                if (!testArea) {
+                    const container = document.querySelector('.test-area');
+                    if (container) {
+                        const newTestArea = document.createElement('div');
+                        newTestArea.id = 'testArea';
+                        newTestArea.className = 'test-element editable';
+                        newTestArea.contentEditable = 'true';
+                        newTestArea.textContent = '这是一个可编辑的测试元素。';
+                        container.appendChild(newTestArea);
+                    }
+                }
+            }
+
+            addChild() {
+                const testArea = document.getElementById('testArea');
+                if (!testArea) return;
+
+                this.childCounter++;
+                const child = document.createElement('div');
+                child.className = 'test-element';
+                child.style.marginTop = '8px';
+                child.style.padding = '8px';
+                child.style.background = '#e0e7ff';
+                child.style.borderRadius = '6px';
+                child.textContent = `子元素 ${this.childCounter}`;
+                testArea.appendChild(child);
+            }
+
+            removeChild() {
+                const testArea = document.getElementById('testArea');
+                if (!testArea) return;
+
+                const children = testArea.querySelectorAll('.test-element');
+                if (children.length > 0) {
+                    children[children.length - 1].remove();
+                } else {
+                    this.showNotification('没有可删除的子元素', 'warning');
+                }
+            }
+
+            changeAttribute() {
+                const testArea = document.getElementById('testArea');
+                if (!testArea) return;
+
+                const colors = ['#e0e7ff', '#fce7f3', '#dcfce7', '#fef3c7', '#fee2e2'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                testArea.style.backgroundColor = randomColor;
+                testArea.setAttribute('data-modified', Date.now().toString());
+            }
+
+            changeText() {
+                const testArea = document.getElementById('testArea');
+                if (!testArea) return;
+
+                const texts = [
+                    '文本已更改！',
+                    '这是新的文本内容。',
+                    '观察器正在工作！',
+                    'DOM 变化已被捕获。',
+                    'MutationObserver 正常运行。'
+                ];
+                const randomText = texts[Math.floor(Math.random() * texts.length)];
+                testArea.textContent = randomText;
+            }
+
+            clearTestArea() {
+                const testArea = document.getElementById('testArea');
+                if (!testArea) return;
+
+                testArea.innerHTML = '这是一个可编辑的测试元素。点击这里编辑内容，或使用上面的按钮进行操作。';
+                testArea.style.backgroundColor = '';
+                testArea.removeAttribute('data-modified');
+                this.childCounter = 0;
+            }
+
+            clearLog() {
+                const log = document.getElementById('mutationsLog');
+                if (log) {
+                    log.innerHTML = '<div style="color: #64748b; text-align: center; padding: 20px;">变化记录将显示在这里...</div>';
+                }
+                this.mutations = [];
+                this.showNotification('记录已清空', 'info');
+            }
+
+            exportLog() {
+                if (this.mutations.length === 0) {
+                    this.showNotification('没有可导出的记录', 'warning');
+                    return;
+                }
+
+                const exportData = {
+                    exportTime: new Date().toLocaleString('zh-CN'),
+                    totalMutations: this.mutations.length,
+                    stats: this.stats,
+                    mutations: this.mutations.map(m => ({
+                        type: m.mutation.type,
+                        timestamp: m.timestamp,
+                        target: m.mutation.target.nodeName,
+                        details: this.getMutationDetails(m.mutation)
+                    }))
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `mutations-log-${Date.now()}.json`;
+                link.click();
+
+                this.showNotification('记录已导出', 'success');
+            }
+
+            getMutationDetails(mutation) {
+                if (mutation.type === 'childList') {
+                    return {
+                        addedNodes: mutation.addedNodes.length,
+                        removedNodes: mutation.removedNodes.length
+                    };
+                } else if (mutation.type === 'attributes') {
+                    return {
+                        attributeName: mutation.attributeName,
+                        oldValue: mutation.oldValue,
+                        newValue: mutation.target.getAttribute(mutation.attributeName)
+                    };
+                } else if (mutation.type === 'characterData') {
+                    return {
+                        oldValue: mutation.oldValue,
+                        newValue: mutation.target.textContent
+                    };
+                }
+                return {};
+            }
+
+            updateStats() {
+                document.getElementById('totalMutations').textContent = this.stats.totalMutations;
+                document.getElementById('childListMutations').textContent = this.stats.childListMutations;
+                document.getElementById('attributeMutations').textContent = this.stats.attributeMutations;
+                document.getElementById('characterDataMutations').textContent = this.stats.characterDataMutations;
+            }
+
+            addToHistory(mutation) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    type: mutation.type,
+                    target: mutation.target.nodeName,
+                    details: this.getMutationDetails(mutation)
+                });
+
+                if (this.history.length > 50) {
+                    this.history.pop();
+                }
+
+                this.renderHistory();
+                this.saveHistory();
+            }
+
+            renderHistory() {
+                const container = document.getElementById('historyList');
+                if (!container) return;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 40px 20px;">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">观察历史将显示在这里</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map((item, idx) => {
+                    return `
+                        <div class="history-item">
+                            <div class="history-time">${item.time}</div>
+                            <div class="history-info">
+                                类型: ${item.type} | 目标: ${item.target}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.getCheckboxValue('enableNotifications')) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem('mutationObserver_history', JSON.stringify(this.history));
+                    localStorage.setItem('mutationObserver_stats', JSON.stringify(this.stats));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistoryFromStorage() {
+                try {
+                    const savedHistory = localStorage.getItem('mutationObserver_history');
+                    if (savedHistory) {
+                        this.history = JSON.parse(savedHistory);
+                        this.renderHistory();
+                    }
+
+                    const savedStats = localStorage.getItem('mutationObserver_stats');
+                    if (savedStats) {
+                        this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+                        this.updateStats();
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mutationObserver = new MutationObserverTool();
+        });
+
+        if (document.readyState !== 'loading' && !window.mutationObserver) {
+            window.mutationObserver = new MutationObserverTool();
+        }
+    </script>
+</body>
+</html>

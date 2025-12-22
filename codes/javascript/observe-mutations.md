@@ -26,6 +26,8 @@ const observeMutations = (element,callback,options) => {
 }
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts//observe-mutations.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -36,3 +38,11 @@ obs.disconnect();
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/observe-mutations.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/observe-mutations.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/observe-mutations.html"></iframe>
