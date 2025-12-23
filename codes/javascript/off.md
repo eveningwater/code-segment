@@ -15,15 +15,23 @@ const off = (el,type,callback,useCapture = false) => {
 }
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts//off.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
 const callback = () => console.log('!');
-document.body.addEventListener('click', fn);
-off(document.body, 'click', fn); // no longer logs '!' upon clicking on the page
+document.body.addEventListener('click', callback);
+off(document.body, 'click', callback); // no longer logs '!' upon clicking on the page
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/off.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/off.html" data-language="html"></div>
+
+结果如下:
 
 <iframe src="codes/javascript/html/off.html"></iframe>
 

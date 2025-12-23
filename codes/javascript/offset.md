@@ -12,6 +12,8 @@
 const offset = (arr,offset) => [...arr.slice(offset),...arr.slice(0,offset)];
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts//offset.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,3 +22,11 @@ offset([1, 2, 3, 4, 5], -2); // [4, 5, 1, 2, 3]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/offset.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/offset.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/offset.html"></iframe>
