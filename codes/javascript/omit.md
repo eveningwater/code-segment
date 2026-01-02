@@ -11,6 +11,8 @@
 const omit = (obj,arr = []) => Object.keys(obj).filter(k => !arr.includes(k)).reduce((acc,item) => (acc[item] = obj[item],acc),{});
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts//omit.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -18,3 +20,11 @@ omit({ a: 1, b: '2', c: 3 }, ['b']); // { 'a': 1, 'c': 3 }
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/omit.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/omit.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/omit.html"></iframe>
