@@ -467,7 +467,7 @@
 - [移除事件监听器-2023-01-06](codes/javascript/off.md)
 - [偏移数组元素-2023-01-07](codes/javascript/offset.md)
 - [通过给定数组键值删除对象属性-2023-01-08](codes/javascript/omit.md)
-- [通过给定函数删除对象属性-2023-01-09](codes/javascript/omitBy.md)
+- [通过给定函数删除对象属性-2023-01-09](codes/javascript/omit-by.md)
 - [添加事件监听器-2023-01-10](codes/javascript/on.md)
 - [点击区域外的事件-2023-01-11](codes/javascript/onClickOutside.md)
 - [滚动停止-2023-01-12](codes/javascript/onScrollStop.md)

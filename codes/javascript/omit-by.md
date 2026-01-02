@@ -12,6 +12,8 @@
 const omitBy = (obj,fn) => Object.keys(obj).filter(k => !fn(obj[k],k)).reduce((acc,key) => (acc[key] = obj[key],acc),{});
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts//omit-by.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,3 +21,11 @@ omitBy({ a: 1, b: '2', c: 3 }, x => typeof x === 'number'); // { b: '2' }
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/omit-by.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/omit-by.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/omit-by.html"></iframe>
