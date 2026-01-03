@@ -479,7 +479,7 @@
 - [通过给定数组键值删除对象属性-2023-01-08](codes/javascript/omit.md)
 - [通过给定函数删除对象属性-2023-01-09](codes/javascript/omit-by.md)
 - [添加事件监听器-2023-01-10](codes/javascript/on.md)
-- [点击区域外的事件-2023-01-11](codes/javascript/onClickOutside.md)
+- [点击区域外的事件-2023-01-11](codes/javascript/on-click-outside.md)
 - [滚动停止-2023-01-12](codes/javascript/onScrollStop.md)
 - [用户输入更改-2023-01-13](codes/javascript/onUserInputChange.md)
 - [调用一次的函数-2023-01-14](codes/javascript/once.md)
