@@ -12,7 +12,7 @@
 const omitBy = (obj,fn) => Object.keys(obj).filter(k => !fn(obj[k],k)).reduce((acc,key) => (acc[key] = obj[key],acc),{});
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//omit-by.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/omit-by.ts" data-language="typescript"></div>
 
 > 调用方式:
 

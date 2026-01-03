@@ -26,7 +26,7 @@ const observeMutations = (element,callback,options) => {
 }
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//observe-mutations.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/observe-mutations.ts" data-language="typescript"></div>
 
 > 调用方式:
 

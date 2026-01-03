@@ -21,7 +21,7 @@ const on = (el,type,handler,opts = {}) => {
 }
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//on.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/on.ts" data-language="typescript"></div>
 
 > 调用方式:
 

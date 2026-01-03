@@ -12,7 +12,7 @@
 const offset = (arr,offset) => [...arr.slice(offset),...arr.slice(0,offset)];
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//offset.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/offset.ts" data-language="typescript"></div>
 
 > 调用方式:
 

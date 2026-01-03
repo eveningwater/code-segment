@@ -14,7 +14,7 @@ const objectify = (arr,mapKey,mapValue = i => i) => arr.reduce((acc,item) => {
 },{})
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//objectify.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/objectify.ts" data-language="typescript"></div>
 
 > 调用方式:
 

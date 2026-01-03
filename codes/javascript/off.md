@@ -15,7 +15,7 @@ const off = (el,type,callback,useCapture = false) => {
 }
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//off.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/off.ts" data-language="typescript"></div>
 
 > 调用方式:
 

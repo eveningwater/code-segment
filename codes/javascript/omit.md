@@ -11,7 +11,7 @@
 const omit = (obj,arr = []) => Object.keys(obj).filter(k => !arr.includes(k)).reduce((acc,item) => (acc[item] = obj[item],acc),{});
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//omit.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/omit.ts" data-language="typescript"></div>
 
 > 调用方式:
 
