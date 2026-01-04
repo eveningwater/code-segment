@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能交互适配系统 - onUserInputChange</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .input-type-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .input-type-indicator.active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .input-type-icon {
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            /* 默认鼠标模式样式 */
+            min-height: 40px;
+            min-width: 100px;
+        }
+
+        /* 触摸模式下的按钮样式 */
+        body.touch-mode .btn {
+            min-height: 48px;
+            min-width: 120px;
+            padding: 14px 24px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        /* 触摸模式下禁用hover效果 */
+        body.touch-mode .btn:hover {
+            transform: none;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .demo-area {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .demo-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+            /* 默认鼠标模式间距 */
+            gap: 12px;
+        }
+
+        /* 触摸模式下增加间距 */
+        body.touch-mode .demo-controls {
+            gap: 16px;
+        }
+
+        .demo-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            /* 默认鼠标模式 */
+            cursor: pointer;
+        }
+
+        body.touch-mode .demo-item {
+            cursor: default;
+        }
+
+        .demo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        body.touch-mode .demo-item:hover {
+            transform: none;
+        }
+
+        .demo-item.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .history-info {
+            font-size: 0.85rem;
+            color: #1f2937;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .select-container,
+        .input-number-container,
+        .datetime-container {
+            margin-bottom: 16px;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .adaptive-info {
+            background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .adaptive-info h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .adaptive-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .adaptive-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .adaptive-info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .adaptive-info-value {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* 触摸模式下的全局调整 */
+        body.touch-mode .card {
+            padding: 28px;
+        }
+
+        body.touch-mode .input-group {
+            margin-bottom: 20px;
+        }
+
+        /* 鼠标模式下的精细交互 */
+        body.mouse-mode .demo-item {
+            cursor: pointer;
+        }
+
+        body.mouse-mode .btn {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 智能交互适配系统</h1>
+            <p>基于 onUserInputChange 函数的智能UI适配工具，自动检测并适配鼠标/触摸输入方式</p>
+            <div class="input-type-indicator" id="inputTypeIndicator">
+                <span class="input-type-icon" id="inputTypeIcon">🖱️</span>
+                <span id="inputTypeText">鼠标模式</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 适配配置</h2>
+                    <div class="input-group">
+                        <label>预设配置方案</label>
+                        <div id="presetSelect" class="select-container"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>触摸模式按钮最小高度 (px)</label>
+                        <div id="touchButtonHeight" class="input-number-container"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>触摸模式按钮最小宽度 (px)</label>
+                        <div id="touchButtonWidth" class="input-number-container"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>触摸模式间距 (px)</label>
+                        <div id="touchSpacing" class="input-number-container"></div>
+                    </div>
+                    <div id="checkboxGroup" class="checkbox-container"></div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="mouseCount">0</div>
+                            <div class="stat-label">鼠标切换次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="touchCount">0</div>
+                            <div class="stat-label">触摸切换次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalSwitches">0</div>
+                            <div class="stat-label">总切换次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="currentMode">-</div>
+                            <div class="stat-label">当前模式</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔄 操作控制</h2>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" onclick="window.adaptiveSystem?.testInput()">
+                            🧪 测试输入切换
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="window.adaptiveSystem?.exportStats()">
+                            💾 导出统计
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="window.adaptiveSystem?.resetStats()">
+                            🔄 重置统计
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="window.adaptiveSystem?.showHistory()">
+                            📜 查看历史
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 切换历史</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">输入方式切换历史将显示在这里</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧演示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>🎨 实时适配演示</h2>
+                    <div class="adaptive-info">
+                        <h3>当前适配状态</h3>
+                        <div class="adaptive-info-item">
+                            <span class="adaptive-info-label">输入方式</span>
+                            <span class="adaptive-info-value" id="currentInputType">鼠标</span>
+                        </div>
+                        <div class="adaptive-info-item">
+                            <span class="adaptive-info-label">按钮最小高度</span>
+                            <span class="adaptive-info-value" id="currentButtonHeight">40px</span>
+                        </div>
+                        <div class="adaptive-info-item">
+                            <span class="adaptive-info-label">按钮最小宽度</span>
+                            <span class="adaptive-info-value" id="currentButtonWidth">100px</span>
+                        </div>
+                        <div class="adaptive-info-item">
+                            <span class="adaptive-info-label">元素间距</span>
+                            <span class="adaptive-info-value" id="currentSpacing">12px</span>
+                        </div>
+                        <div class="adaptive-info-item">
+                            <span class="adaptive-info-label">自动适配</span>
+                            <span class="adaptive-info-value" id="autoAdaptStatus">已启用</span>
+                        </div>
+                    </div>
+                    <div class="demo-area">
+                        <h3 style="margin-bottom: 20px; color: #1f2937;">交互元素演示</h3>
+                        <div class="demo-controls" id="demoControls">
+                            <div class="demo-item" data-action="action1">
+                                <div style="font-size: 1.5rem; margin-bottom: 8px;">🎯</div>
+                                <div style="font-weight: 600;">操作一</div>
+                            </div>
+                            <div class="demo-item" data-action="action2">
+                                <div style="font-size: 1.5rem; margin-bottom: 8px;">⚡</div>
+                                <div style="font-weight: 600;">操作二</div>
+                            </div>
+                            <div class="demo-item" data-action="action3">
+                                <div style="font-size: 1.5rem; margin-bottom: 8px;">🚀</div>
+                                <div style="font-weight: 600;">操作三</div>
+                            </div>
+                            <div class="demo-item" data-action="action4">
+                                <div style="font-size: 1.5rem; margin-bottom: 8px;">⭐</div>
+                                <div style="font-weight: 600;">操作四</div>
+                            </div>
+                            <div class="demo-item" data-action="action5">
+                                <div style="font-size: 1.5rem; margin-bottom: 8px;">💡</div>
+                                <div style="font-weight: 600;">操作五</div>
+                            </div>
+                            <div class="demo-item" data-action="action6">
+                                <div style="font-size: 1.5rem; margin-bottom: 8px;">🎨</div>
+                                <div style="font-weight: 600;">操作六</div>
+                            </div>
+                        </div>
+                        <div class="button-group" style="margin-top: 24px;">
+                            <button class="btn btn-primary" onclick="window.adaptiveSystem?.handleDemoAction('primary')">
+                                主要操作
+                            </button>
+                            <button class="btn btn-success" onclick="window.adaptiveSystem?.handleDemoAction('success')">
+                                成功操作
+                            </button>
+                            <button class="btn btn-warning" onclick="window.adaptiveSystem?.handleDemoAction('warning')">
+                                警告操作
+                            </button>
+                            <button class="btn btn-danger" onclick="window.adaptiveSystem?.handleDemoAction('danger')">
+                                危险操作
+                            </button>
+                        </div>
+                        <div style="margin-top: 24px; padding: 16px; background: white; border-radius: 12px;">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: #1f2937;">操作反馈:</div>
+                            <div id="demoFeedback" style="color: #64748b; font-size: 0.9rem;">等待操作...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">onUserInputChange 函数（用户输入更改检测）</h3>
+                        <div style="background:#1e293b;color:#e2e8f0;padding:16px;border-radius:10px;font-family:'Monaco','Menlo',monospace;font-size:0.85rem;overflow-x:auto;margin-bottom:16px;">
+                            <span style="color:#c792ea;">const</span> <span style="color:#82aaff;">onUserInputChange</span> = <span style="color:#c792ea;">callback</span> => {<br>
+                            &nbsp;&nbsp;<span style="color:#c792ea;">let</span> type = <span style="color:#c3e88d;">'mouse'</span>,<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;lastTime = <span style="color:#f78c6c;">0</span>;<br>
+                            &nbsp;&nbsp;<span style="color:#c792ea;">const</span> <span style="color:#82aaff;">mouseMoveHandler</span> = () => {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#c792ea;">const</span> now = <span style="color:#82aaff;">performance.now</span>();<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#c792ea;">if</span> (now - lastTime &lt; <span style="color:#f78c6c;">20</span>) {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type = <span style="color:#c3e88d;">'mouse'</span>;<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#82aaff;">callback</span>(type);<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.<span style="color:#82aaff;">removeEventListener</span>(<span style="color:#c3e88d;">'mousemove'</span>, mouseMoveHandler);<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;lastTime = now;<br>
+                            &nbsp;&nbsp;}<br>
+                            &nbsp;&nbsp;document.<span style="color:#82aaff;">addEventListener</span>(<span style="color:#c3e88d;">'touchstart'</span>, () => {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#c792ea;">if</span> (type === <span style="color:#c3e88d;">'touch'</span>) {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#c792ea;">return</span>;<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;type = <span style="color:#c3e88d;">'touch'</span>;<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#82aaff;">callback</span>(type);<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;document.<span style="color:#82aaff;">addEventListener</span>(<span style="color:#c3e88d;">'mousemove'</span>, mouseMoveHandler);<br>
+                            &nbsp;&nbsp;})<br>
+                            }
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>onUserInputChange</strong> 函数用于检测用户输入方式的变化（鼠标或触摸）。
+                            当用户从一种输入方式切换到另一种时，会触发回调函数。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:2;padding-left:20px;">
+                            <li>根据输入方式自动调整UI元素大小和间距</li>
+                            <li>优化触摸设备的交互体验</li>
+                            <li>动态切换交互模式（鼠标悬停效果 vs 触摸点击）</li>
+                            <li>记录和分析用户输入习惯</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        // onUserInputChange 函数：检测用户输入方式变化
+        const onUserInputChange = callback => {
+            let type = 'mouse',
+                lastTime = 0;
+            const mouseMoveHandler = () => {
+                const now = performance.now();
+                if (now - lastTime < 20) {
+                    type = 'mouse';
+                    callback(type);
+                    document.removeEventListener('mousemove', mouseMoveHandler);
+                }
+                lastTime = now;
+            }
+            document.addEventListener('touchstart', () => {
+                if (type === 'touch') {
+                    return;
+                }
+                type = 'touch';
+                callback(type);
+                document.addEventListener('mousemove', mouseMoveHandler);
+            })
+        }
+
+        // 智能交互适配系统
+        class AdaptiveSystem {
+            constructor() {
+                this.plugins = {};
+                this.currentInputType = 'mouse';
+                this.stats = {
+                    mouseCount: 0,
+                    touchCount: 0,
+                    totalSwitches: 0
+                };
+                this.history = [];
+                this.config = {
+                    touchButtonHeight: 48,
+                    touchButtonWidth: 120,
+                    touchSpacing: 16,
+                    autoAdapt: true,
+                    showNotifications: true,
+                    saveHistory: true
+                };
+                this.presets = {
+                    'default': { touchButtonHeight: 48, touchButtonWidth: 120, touchSpacing: 16 },
+                    'compact': { touchButtonHeight: 44, touchButtonWidth: 100, touchSpacing: 12 },
+                    'comfortable': { touchButtonHeight: 52, touchButtonWidth: 140, touchSpacing: 20 },
+                    'large': { touchButtonHeight: 56, touchButtonWidth: 160, touchSpacing: 24 }
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupPlugins();
+                this.setupEventListeners();
+                this.loadStatsFromStorage();
+                this.loadConfigFromStorage();
+                this.updateUI();
+                this.startInputDetection();
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupPlugins() {
+                // 预设配置选择器
+                try {
+                    this.plugins.presetSelect = new Select({
+                        container: '#presetSelect',
+                        options: [
+                            { value: 'default', label: '默认配置' },
+                            { value: 'compact', label: '紧凑模式' },
+                            { value: 'comfortable', label: '舒适模式' },
+                            { value: 'large', label: '大尺寸模式' }
+                        ],
+                        placeholder: '选择预设配置',
+                        onChange: (value) => {
+                            if (value && this.presets[value]) {
+                                const preset = this.presets[value];
+                                this.config.touchButtonHeight = preset.touchButtonHeight;
+                                this.config.touchButtonWidth = preset.touchButtonWidth;
+                                this.config.touchSpacing = preset.touchSpacing;
+                                
+                                if (this.plugins.touchButtonHeight) {
+                                    this.plugins.touchButtonHeight.setValue(preset.touchButtonHeight);
+                                }
+                                if (this.plugins.touchButtonWidth) {
+                                    this.plugins.touchButtonWidth.setValue(preset.touchButtonWidth);
+                                }
+                                if (this.plugins.touchSpacing) {
+                                    this.plugins.touchSpacing.setValue(preset.touchSpacing);
+                                }
+                                
+                                this.applyAdaptation();
+                                this.saveConfigToStorage();
+                                this.showNotification(`已切换到${this.plugins.presetSelect.options.find(o => o.value === value)?.label}`, 'success');
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.warn('预设选择器加载失败:', error);
+                }
+
+                // 触摸模式按钮高度
+                try {
+                    this.plugins.touchButtonHeight = new InputNumber({
+                        container: '#touchButtonHeight',
+                        min: 32,
+                        max: 80,
+                        step: 2,
+                        value: this.config.touchButtonHeight,
+                        onChange: (value) => {
+                            this.config.touchButtonHeight = value;
+                            this.applyAdaptation();
+                            this.saveConfigToStorage();
+                        }
+                    });
+                } catch (error) {
+                    console.warn('按钮高度输入器加载失败:', error);
+                }
+
+                // 触摸模式按钮宽度
+                try {
+                    this.plugins.touchButtonWidth = new InputNumber({
+                        container: '#touchButtonWidth',
+                        min: 80,
+                        max: 200,
+                        step: 4,
+                        value: this.config.touchButtonWidth,
+                        onChange: (value) => {
+                            this.config.touchButtonWidth = value;
+                            this.applyAdaptation();
+                            this.saveConfigToStorage();
+                        }
+                    });
+                } catch (error) {
+                    console.warn('按钮宽度输入器加载失败:', error);
+                }
+
+                // 触摸模式间距
+                try {
+                    this.plugins.touchSpacing = new InputNumber({
+                        container: '#touchSpacing',
+                        min: 8,
+                        max: 32,
+                        step: 2,
+                        value: this.config.touchSpacing,
+                        onChange: (value) => {
+                            this.config.touchSpacing = value;
+                            this.applyAdaptation();
+                            this.saveConfigToStorage();
+                        }
+                    });
+                } catch (error) {
+                    console.warn('间距输入器加载失败:', error);
+                }
+
+                // 复选框组
+                try {
+                    const container = document.getElementById('checkboxGroup');
+                    if (container) {
+                        const group = Checkbox.createCheckboxGroup({
+                            items: [
+                                { id: 'autoAdapt', label: '启用自动适配', checked: this.config.autoAdapt },
+                                { id: 'showNotifications', label: '显示通知提醒', checked: this.config.showNotifications },
+                                { id: 'saveHistory', label: '保存切换历史', checked: this.config.saveHistory }
+                            ],
+                            onChange: (states) => {
+                                this.config.autoAdapt = states[0];
+                                this.config.showNotifications = states[1];
+                                this.config.saveHistory = states[2];
+                                this.saveConfigToStorage();
+                                if (!this.config.autoAdapt) {
+                                    this.showNotification('自动适配已禁用', 'warning');
+                                }
+                            }
+                        });
+                        container.appendChild(group.container);
+                        this.plugins.checkboxGroup = group;
+                    }
+                } catch (error) {
+                    console.warn('复选框组加载失败:', error);
+                }
+            }
+
+            setupEventListeners() {
+                // 演示区域交互
+                const demoItems = document.querySelectorAll('.demo-item');
+                demoItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const action = item.getAttribute('data-action');
+                        this.handleDemoAction(action);
+                        
+                        // 添加激活效果
+                        demoItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                        setTimeout(() => {
+                            item.classList.remove('active');
+                        }, 500);
+                    });
+                });
+            }
+
+            startInputDetection() {
+                onUserInputChange((type) => {
+                    if (this.currentInputType !== type) {
+                        this.handleInputTypeChange(type);
+                    }
+                });
+            }
+
+            handleInputTypeChange(type) {
+                const previousType = this.currentInputType;
+                this.currentInputType = type;
+
+                // 更新统计
+                if (type === 'mouse') {
+                    this.stats.mouseCount++;
+                } else {
+                    this.stats.touchCount++;
+                }
+                this.stats.totalSwitches++;
+
+                // 保存历史
+                if (this.config.saveHistory) {
+                    this.addToHistory(previousType, type);
+                }
+
+                // 应用适配
+                if (this.config.autoAdapt) {
+                    this.applyAdaptation();
+                }
+
+                // 显示通知
+                if (this.config.showNotifications) {
+                    const typeText = type === 'mouse' ? '鼠标' : '触摸';
+                    this.showNotification(`检测到输入方式切换: ${typeText}模式`, 'info');
+                }
+
+                // 更新UI
+                this.updateUI();
+                this.saveStatsToStorage();
+            }
+
+            applyAdaptation() {
+                const body = document.body;
+                const isTouch = this.currentInputType === 'touch';
+
+                // 切换body类名
+                body.classList.remove('mouse-mode', 'touch-mode');
+                body.classList.add(isTouch ? 'touch-mode' : 'mouse-mode');
+
+                // 应用CSS变量
+                if (isTouch) {
+                    document.documentElement.style.setProperty('--touch-button-height', `${this.config.touchButtonHeight}px`);
+                    document.documentElement.style.setProperty('--touch-button-width', `${this.config.touchButtonWidth}px`);
+                    document.documentElement.style.setProperty('--touch-spacing', `${this.config.touchSpacing}px`);
+                    
+                    // 动态更新按钮样式
+                    const style = document.createElement('style');
+                    style.id = 'adaptive-styles';
+                    style.textContent = `
+                        body.touch-mode .btn {
+                            min-height: ${this.config.touchButtonHeight}px !important;
+                            min-width: ${this.config.touchButtonWidth}px !important;
+                            padding: ${Math.floor(this.config.touchButtonHeight * 0.3)}px ${Math.floor(this.config.touchButtonWidth * 0.2)}px !important;
+                        }
+                        body.touch-mode .demo-controls {
+                            gap: ${this.config.touchSpacing}px !important;
+                        }
+                    `;
+                    const existingStyle = document.getElementById('adaptive-styles');
+                    if (existingStyle) {
+                        existingStyle.remove();
+                    }
+                    document.head.appendChild(style);
+                } else {
+                    const existingStyle = document.getElementById('adaptive-styles');
+                    if (existingStyle) {
+                        existingStyle.remove();
+                    }
+                }
+
+                this.updateAdaptiveInfo();
+            }
+
+            updateUI() {
+                // 更新输入方式指示器
+                const indicator = document.getElementById('inputTypeIndicator');
+                const icon = document.getElementById('inputTypeIcon');
+                const text = document.getElementById('inputTypeText');
+                
+                if (indicator && icon && text) {
+                    if (this.currentInputType === 'touch') {
+                        icon.textContent = '👆';
+                        text.textContent = '触摸模式';
+                    } else {
+                        icon.textContent = '🖱️';
+                        text.textContent = '鼠标模式';
+                    }
+                    indicator.classList.add('active');
+                    setTimeout(() => {
+                        indicator.classList.remove('active');
+                    }, 1000);
+                }
+
+                // 更新统计
+                document.getElementById('mouseCount').textContent = this.stats.mouseCount;
+                document.getElementById('touchCount').textContent = this.stats.touchCount;
+                document.getElementById('totalSwitches').textContent = this.stats.totalSwitches;
+                document.getElementById('currentMode').textContent = this.currentInputType === 'mouse' ? '鼠标' : '触摸';
+            }
+
+            updateAdaptiveInfo() {
+                const isTouch = this.currentInputType === 'touch';
+                document.getElementById('currentInputType').textContent = isTouch ? '触摸' : '鼠标';
+                document.getElementById('currentButtonHeight').textContent = 
+                    isTouch ? `${this.config.touchButtonHeight}px` : '40px';
+                document.getElementById('currentButtonWidth').textContent = 
+                    isTouch ? `${this.config.touchButtonWidth}px` : '100px';
+                document.getElementById('currentSpacing').textContent = 
+                    isTouch ? `${this.config.touchSpacing}px` : '12px';
+                document.getElementById('autoAdaptStatus').textContent = 
+                    this.config.autoAdapt ? '已启用' : '已禁用';
+            }
+
+            addToHistory(fromType, toType) {
+                this.history.unshift({
+                    time: new Date().toLocaleString('zh-CN'),
+                    from: fromType,
+                    to: toType,
+                    timestamp: Date.now()
+                });
+
+                if (this.history.length > 50) {
+                    this.history.pop();
+                }
+
+                this.renderHistory();
+                this.saveHistoryToStorage();
+            }
+
+            renderHistory() {
+                const container = document.getElementById('historyList');
+                if (!container) return;
+
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p style="font-size: 0.9rem;">输入方式切换历史将显示在这里</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.history.slice(0, 20).map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${item.time}</div>
+                        <div class="history-info">
+                            ${item.from === 'mouse' ? '🖱️ 鼠标' : '👆 触摸'} → 
+                            ${item.to === 'mouse' ? '🖱️ 鼠标' : '👆 触摸'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            handleDemoAction(action) {
+                const feedback = document.getElementById('demoFeedback');
+                if (feedback) {
+                    const actionNames = {
+                        'action1': '操作一',
+                        'action2': '操作二',
+                        'action3': '操作三',
+                        'action4': '操作四',
+                        'action5': '操作五',
+                        'action6': '操作六',
+                        'primary': '主要操作',
+                        'success': '成功操作',
+                        'warning': '警告操作',
+                        'danger': '危险操作'
+                    };
+                    const actionName = actionNames[action] || action;
+                    const inputType = this.currentInputType === 'mouse' ? '鼠标' : '触摸';
+                    feedback.textContent = `[${new Date().toLocaleTimeString()}] 使用${inputType}方式执行了: ${actionName}`;
+                }
+            }
+
+            testInput() {
+                this.plugins.modal?.show({
+                    title: '🧪 测试输入切换',
+                    content: `
+                        <div style="padding: 8px 0;">
+                            <p style="margin-bottom: 12px;">请尝试以下操作来测试输入方式检测：</p>
+                            <ul style="padding-left: 20px; line-height: 2;">
+                                <li>在移动设备上触摸屏幕</li>
+                                <li>在桌面设备上移动鼠标</li>
+                                <li>在支持触摸的桌面设备上切换输入方式</li>
+                            </ul>
+                            <p style="margin-top: 12px; color: #64748b; font-size: 0.9rem;">
+                                当前模式: <strong>${this.currentInputType === 'mouse' ? '鼠标' : '触摸'}</strong>
+                            </p>
+                        </div>
+                    `,
+                    type: 'alert'
+                });
+            }
+
+            exportStats() {
+                const data = {
+                    stats: this.stats,
+                    config: this.config,
+                    currentInputType: this.currentInputType,
+                    exportTime: new Date().toISOString()
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `adaptive-system-stats-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.showNotification('统计数据已导出', 'success');
+            }
+
+            resetStats() {
+                this.plugins.modal?.confirm('确定要重置所有统计数据吗？').then(confirmed => {
+                    if (confirmed) {
+                        this.stats = {
+                            mouseCount: 0,
+                            touchCount: 0,
+                            totalSwitches: 0
+                        };
+                        this.updateUI();
+                        this.saveStatsToStorage();
+                        this.showNotification('统计数据已重置', 'info');
+                    }
+                });
+            }
+
+            showHistory() {
+                if (this.history.length === 0) {
+                    this.showNotification('暂无切换历史', 'warning');
+                    return;
+                }
+
+                const historyText = this.history.slice(0, 10).map((item, index) => 
+                    `${index + 1}. ${item.time}: ${item.from} → ${item.to}`
+                ).join('<br>');
+
+                this.plugins.modal?.show({
+                    title: '📜 切换历史记录',
+                    content: `
+                        <div style="padding: 8px 0; max-height: 400px; overflow-y: auto;">
+                            ${historyText}
+                            ${this.history.length > 10 ? `<br><p style="color: #64748b; margin-top: 12px;">还有 ${this.history.length - 10} 条记录...</p>` : ''}
+                        </div>
+                    `,
+                    type: 'alert'
+                });
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.config.showNotifications) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            saveStatsToStorage() {
+                try {
+                    localStorage.setItem('adaptiveSystem_stats', JSON.stringify(this.stats));
+                } catch (error) {
+                    console.warn('保存统计数据失败:', error);
+                }
+            }
+
+            loadStatsFromStorage() {
+                try {
+                    const saved = localStorage.getItem('adaptiveSystem_stats');
+                    if (saved) {
+                        this.stats = { ...this.stats, ...JSON.parse(saved) };
+                    }
+                } catch (error) {
+                    console.warn('加载统计数据失败:', error);
+                }
+            }
+
+            saveConfigToStorage() {
+                try {
+                    localStorage.setItem('adaptiveSystem_config', JSON.stringify(this.config));
+                } catch (error) {
+                    console.warn('保存配置失败:', error);
+                }
+            }
+
+            loadConfigFromStorage() {
+                try {
+                    const saved = localStorage.getItem('adaptiveSystem_config');
+                    if (saved) {
+                        const savedConfig = JSON.parse(saved);
+                        this.config = { ...this.config, ...savedConfig };
+                        
+                        // 更新插件值
+                        if (this.plugins.touchButtonHeight) {
+                            this.plugins.touchButtonHeight.setValue(this.config.touchButtonHeight);
+                        }
+                        if (this.plugins.touchButtonWidth) {
+                            this.plugins.touchButtonWidth.setValue(this.config.touchButtonWidth);
+                        }
+                        if (this.plugins.touchSpacing) {
+                            this.plugins.touchSpacing.setValue(this.config.touchSpacing);
+                        }
+                    }
+                } catch (error) {
+                    console.warn('加载配置失败:', error);
+                }
+            }
+
+            saveHistoryToStorage() {
+                try {
+                    localStorage.setItem('adaptiveSystem_history', JSON.stringify(this.history));
+                } catch (error) {
+                    console.warn('保存历史记录失败:', error);
+                }
+            }
+
+            loadHistoryFromStorage() {
+                try {
+                    const saved = localStorage.getItem('adaptiveSystem_history');
+                    if (saved) {
+                        this.history = JSON.parse(saved);
+                        this.renderHistory();
+                    }
+                } catch (error) {
+                    console.warn('加载历史记录失败:', error);
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.adaptiveSystem = new AdaptiveSystem();
+        });
+
+        if (document.readyState !== 'loading' && !window.adaptiveSystem) {
+            window.adaptiveSystem = new AdaptiveSystem();
+        }
+    </script>
+</body>
+
+</html>

@@ -36,11 +36,11 @@ onScrollStop(() => {
 
 > 应用场景
 
-以下是一个实战<a href="codes/javascript/htmlon-scroll-stop.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是一个实战<a href="codes/javascript/html/on-scroll-stop.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/htmlon-scroll-stop.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/on-scroll-stop.html" data-language="html"></div>
 
 结果如下:
 
-<iframe src="codes/javascript/htmlon-scroll-stop.html"></iframe>
+<iframe src="codes/javascript/html/on-scroll-stop.html"></iframe>
 

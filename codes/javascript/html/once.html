@@ -1,18 +1,526 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>once</title>
-</head>
+    <title>once - 一次性操作管理中心</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .operation-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .operation-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .operation-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .operation-card.executed {
+            background: #f0fdf4;
+            border-color: #22c55e;
+        }
+
+        .operation-card.executed .operation-title {
+            color: #15803d;
+        }
+
+        .operation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .operation-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+        }
+
+        .operation-status {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-executed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .operation-content {
+            margin-bottom: 16px;
+        }
+
+        .operation-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .operation-params {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .param-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .param-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .param-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .param-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-item.error {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .code-preview .comment {
+            color: #697098;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
 <body>
-    <div id="content">0</div>
-    <button id="btn">增加</button>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 一次性操作管理中心</h1>
+            <p>基于 once 函数的实战示例 - 确保关键操作只执行一次</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 操作配置</h2>
+                    <div class="input-group">
+                        <label>选择操作类型</label>
+                        <div id="operationSelect" class="select-container"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>操作金额</label>
+                        <div id="amountInput" class="input-number-container"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>操作描述</label>
+                        <textarea id="operationDescription" class="textarea-field" placeholder="请输入操作描述..."></textarea>
+                    </div>
+                    <div class="checkbox-container" id="checkboxGroup"></div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="executeBtn">
+                            ▶️ 执行操作
+                        </button>
+                        <button class="btn btn-warning btn-sm" id="resetBtn">
+                            🔄 重置所有操作
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalOperations">0</div>
+                            <div class="stat-label">总操作数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="executedOperations">0</div>
+                            <div class="stat-label">已执行</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="pendingOperations">0</div>
+                            <div class="stat-label">待执行</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalAmount">0</div>
+                            <div class="stat-label">总金额</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧操作区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📋 操作列表</h2>
+                    <div class="operation-panel" id="operationPanel">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>暂无操作，请在上方配置并执行操作</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">once 函数（确保函数只执行一次）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">once</span> = fn => {
+  <span class="keyword">let</span> called = <span class="keyword">false</span>;
+  <span class="keyword">return</span> <span class="keyword">function</span> (...args) {
+    <span class="keyword">if</span> (called) {
+      <span class="keyword">return</span>;
+    }
+    called = <span class="keyword">true</span>;
+    <span class="keyword">return</span> fn.<span class="function">apply</span>(<span class="keyword">this</span>, args);
+  }
+}
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>once</strong> 函数利用闭包机制，确保一个函数只被调用一次。
+                            在第一次调用后，后续的调用将被忽略。这对于防止重复提交、重复初始化等场景非常有用。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px;">
+                            <li>表单提交：防止重复提交</li>
+                            <li>支付确认：确保只支付一次</li>
+                            <li>初始化操作：只初始化一次</li>
+                            <li>事件监听：确保事件处理只执行一次</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
     <script>
-        let count = 0;
+        // once 函数：确保一个函数只被调用一次
         const once = fn => {
             let called = false;
             return function (...args) {
@@ -23,13 +531,387 @@
                 return fn.apply(this, args);
             }
         }
-        const addHandler = (event) => {
-            count++;
-            document.getElementById('content').textContent = count;
-            console.log(event)
+
+        // 一次性操作管理中心
+        class OnceOperationManager {
+            constructor() {
+                this.plugins = {};
+                this.operations = [];
+                this.stats = {
+                    total: 0,
+                    executed: 0,
+                    pending: 0,
+                    totalAmount: 0
+                };
+                this.logs = [];
+                this.settings = {
+                    enableConfirm: true,
+                    enableNotification: true,
+                    enableLog: true,
+                    autoReset: false
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupOperationSelect();
+                this.setupAmountInput();
+                this.setupCheckboxes();
+                this.setupSettings();
+                this.setupButtons();
+                this.updateStats();
+                this.addLog('系统已初始化', 'success');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupOperationSelect() {
+                try {
+                    const container = document.getElementById('operationSelect');
+                    if (!container) return;
+                    
+                    this.plugins.operationSelect = new Select({
+                        options: [
+                            { value: 'submit', label: '📝 表单提交' },
+                            { value: 'payment', label: '💳 支付确认' },
+                            { value: 'initialize', label: '🚀 系统初始化' },
+                            { value: 'confirm', label: '✅ 确认操作' },
+                            { value: 'publish', label: '📢 发布内容' },
+                            { value: 'delete', label: '🗑️ 删除操作' }
+                        ],
+                        placeholder: '选择操作类型',
+                        onChange: (value) => {
+                            this.updateOperationDescription(value);
+                        }
+                    });
+                    this.plugins.operationSelect.mount(container);
+                } catch (error) {
+                    console.warn('操作类型选择器加载失败:', error);
+                }
+            }
+
+            setupAmountInput() {
+                try {
+                    const container = document.getElementById('amountInput');
+                    if (!container) return;
+                    
+                    this.plugins.amountInput = new InputNumber({
+                        min: 0,
+                        max: 1000000,
+                        step: 100,
+                        value: 0,
+                        onChange: (value) => {
+                            // 金额变化时的处理
+                        }
+                    });
+                    this.plugins.amountInput.mount(container);
+                } catch (error) {
+                    console.warn('金额输入器加载失败:', error);
+                }
+            }
+
+            setupCheckboxes() {
+                const container = document.getElementById('checkboxGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'requireConfirm', label: '需要确认对话框', checked: true },
+                    { id: 'showNotification', label: '显示通知', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: () => {
+                            // 复选框变化处理
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.checkboxGroup = group;
+                } catch (error) {
+                    console.warn('复选框插件加载失败:', error);
+                }
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableConfirm', label: '启用确认对话框', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true },
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'autoReset', label: '自动重置操作', checked: false }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableConfirm = states[0];
+                            this.settings.enableNotification = states[1];
+                            this.settings.enableLog = states[2];
+                            this.settings.autoReset = states[3];
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.settingsGroup = group;
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                const executeBtn = document.getElementById('executeBtn');
+                const resetBtn = document.getElementById('resetBtn');
+
+                if (executeBtn) {
+                    executeBtn.addEventListener('click', () => {
+                        this.executeOperation();
+                    });
+                }
+
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        this.resetAllOperations();
+                    });
+                }
+            }
+
+            getCheckboxValue(id) {
+                if (this.plugins.checkboxGroup) {
+                    try {
+                        const states = this.plugins.checkboxGroup.getAllChecked();
+                        const index = ['requireConfirm', 'showNotification'].indexOf(id);
+                        return index !== -1 ? states[index] : false;
+                    } catch (error) {
+                        console.warn('读取复选框状态失败:', error);
+                    }
+                }
+                return false;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+
+            updateOperationDescription(type) {
+                const descriptions = {
+                    'submit': '提交表单数据，此操作只能执行一次',
+                    'payment': '确认支付，确保不会重复扣款',
+                    'initialize': '初始化系统配置，只执行一次',
+                    'confirm': '确认重要操作，防止误操作',
+                    'publish': '发布内容到平台，避免重复发布',
+                    'delete': '删除重要数据，确保只删除一次'
+                };
+
+                const textarea = document.getElementById('operationDescription');
+                if (textarea) {
+                    textarea.value = descriptions[type] || '';
+                }
+            }
+
+            executeOperation() {
+                const operationType = this.plugins.operationSelect?.getValue();
+                const amount = this.plugins.amountInput?.getValue() || 0;
+                const description = document.getElementById('operationDescription')?.value || '';
+
+                if (!operationType) {
+                    this.showNotification('请选择操作类型', 'warning');
+                    return;
+                }
+
+                // 检查是否已存在相同类型的操作
+                const existingOperation = this.operations.find(op => op.type === operationType);
+                if (existingOperation && existingOperation.executed) {
+                    this.showNotification('该操作已经执行过了，无法重复执行', 'warning');
+                    this.addLog(`尝试重复执行操作: ${operationType}，已被阻止`, 'warning');
+                    return;
+                }
+
+                // 创建操作对象
+                const operation = {
+                    id: Date.now(),
+                    type: operationType,
+                    amount: amount,
+                    description: description,
+                    executed: false,
+                    timestamp: new Date().toLocaleString('zh-CN')
+                };
+
+                // 使用 once 函数包装执行函数
+                const executeOnce = once((op) => {
+                    op.executed = true;
+                    this.stats.executed++;
+                    this.stats.pending--;
+                    this.stats.totalAmount += op.amount;
+                    
+                    this.updateStats();
+                    this.renderOperations();
+                    this.addLog(`操作 "${this.getOperationName(op.type)}" 执行成功`, 'success');
+                    this.showNotification(`操作 "${this.getOperationName(op.type)}" 执行成功`, 'success');
+                });
+
+                // 如果需要确认
+                if (this.getCheckboxValue('requireConfirm') && this.settings.enableConfirm) {
+                    this.plugins.modal?.confirm(`确定要执行 "${this.getOperationName(operationType)}" 操作吗？`).then(confirmed => {
+                        if (confirmed) {
+                            this.operations.push(operation);
+                            this.stats.total++;
+                            this.stats.pending++;
+                            this.updateStats();
+                            this.renderOperations();
+                            this.addLog(`创建操作: ${this.getOperationName(operationType)}`, 'info');
+                            
+                            // 执行操作（使用 once 确保只执行一次）
+                            executeOnce(operation);
+                        }
+                    });
+                } else {
+                    this.operations.push(operation);
+                    this.stats.total++;
+                    this.stats.pending++;
+                    this.updateStats();
+                    this.renderOperations();
+                    this.addLog(`创建操作: ${this.getOperationName(operationType)}`, 'info');
+                    
+                    // 执行操作（使用 once 确保只执行一次）
+                    executeOnce(operation);
+                }
+            }
+
+            getOperationName(type) {
+                const names = {
+                    'submit': '表单提交',
+                    'payment': '支付确认',
+                    'initialize': '系统初始化',
+                    'confirm': '确认操作',
+                    'publish': '发布内容',
+                    'delete': '删除操作'
+                };
+                return names[type] || type;
+            }
+
+            getOperationIcon(type) {
+                const icons = {
+                    'submit': '📝',
+                    'payment': '💳',
+                    'initialize': '🚀',
+                    'confirm': '✅',
+                    'publish': '📢',
+                    'delete': '🗑️'
+                };
+                return icons[type] || '📋';
+            }
+
+            renderOperations() {
+                const panel = document.getElementById('operationPanel');
+                if (!panel) return;
+
+                if (this.operations.length === 0) {
+                    panel.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>暂无操作，请在上方配置并执行操作</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                panel.innerHTML = this.operations.map(op => `
+                    <div class="operation-card ${op.executed ? 'executed' : ''}">
+                        <div class="operation-header">
+                            <div class="operation-title">
+                                ${this.getOperationIcon(op.type)} ${this.getOperationName(op.type)}
+                            </div>
+                            <div class="operation-status ${op.executed ? 'status-executed' : 'status-pending'}">
+                                ${op.executed ? '已执行' : '待执行'}
+                            </div>
+                        </div>
+                        <div class="operation-content">
+                            <div class="operation-description">${op.description || '无描述'}</div>
+                            <div class="operation-params">
+                                <div class="param-item">
+                                    <span class="param-label">金额:</span>
+                                    <span class="param-value">¥${op.amount.toLocaleString()}</span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">创建时间:</span>
+                                    <span class="param-value">${op.timestamp}</span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">操作ID:</span>
+                                    <span class="param-value">#${op.id}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                document.getElementById('totalOperations').textContent = this.stats.total;
+                document.getElementById('executedOperations').textContent = this.stats.executed;
+                document.getElementById('pendingOperations').textContent = this.stats.pending;
+                document.getElementById('totalAmount').textContent = `¥${this.stats.totalAmount.toLocaleString()}`;
+            }
+
+            resetAllOperations() {
+                this.plugins.modal?.confirm('确定要重置所有操作吗？这将清空所有操作记录。').then(confirmed => {
+                    if (confirmed) {
+                        this.operations = [];
+                        this.stats = {
+                            total: 0,
+                            executed: 0,
+                            pending: 0,
+                            totalAmount: 0
+                        };
+                        this.updateStats();
+                        this.renderOperations();
+                        this.addLog('所有操作已重置', 'info');
+                        this.showNotification('所有操作已重置', 'success');
+                    }
+                });
+            }
         }
-        document.getElementById('btn').addEventListener('click',once(addHandler));
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.onceOperationManager = new OnceOperationManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.onceOperationManager) {
+            window.onceOperationManager = new OnceOperationManager();
+        }
     </script>
 </body>
-
 </html>
