@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>or - 逻辑或操作与默认值管理</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .demo-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .demo-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .demo-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .demo-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .demo-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .value-display {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .value-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .value-content {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .code-preview .comment {
+            color: #697098;
+        }
+
+        .scenario-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .scenario-list li {
+            padding: 8px 0;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .scenario-list li:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ 逻辑或操作管理中心</h1>
+            <p>基于 or 函数的实战示例 - 灵活处理默认值与参数回退</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>⚙️ 参数配置</h2>
+                    <div class="input-group">
+                        <label>主值 (Primary Value)</label>
+                        <input type="text" id="primaryValue" class="input-field" placeholder="请输入主值...">
+                    </div>
+                    <div class="input-group">
+                        <label>备选值 (Fallback Value)</label>
+                        <input type="text" id="fallbackValue" class="input-field" placeholder="请输入备选值...">
+                    </div>
+                    <div class="input-group">
+                        <label>测试场景</label>
+                        <div id="scenarioSelect" class="select-container"></div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="executeBtn">
+                            ▶️ 执行逻辑或
+                        </button>
+                        <button class="btn btn-warning btn-block" id="clearBtn">
+                            🔄 清空结果
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalTests">0</div>
+                            <div class="stat-label">总测试数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="successTests">0</div>
+                            <div class="stat-label">成功</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="falsebackTests">0</div>
+                            <div class="stat-label">回退</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧演示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>🎯 演示场景</h2>
+                    <div class="demo-panel" id="demoPanel">
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请在左侧配置参数并执行演示</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 执行日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">or 函数（逻辑或与默认值提供）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">or</span> = (a, b) => a || b;
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>or</strong> 函数返回两个参数中第一个真值。这是 JavaScript 中处理默认值的常见模式。
+                            当第一个参数为假值（null, undefined, false, 0, '', NaN）时，会返回第二个参数。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">常见应用场景</h3>
+                        <ul class="scenario-list">
+                            <li>✓ 提供默认配置值</li>
+                            <li>✓ 处理 API 响应回退</li>
+                            <li>✓ 用户偏好与系统默认值</li>
+                            <li>✓ 参数验证与备选方案</li>
+                            <li>✓ 缓存失败时的回退</li>
+                            <li>✓ 国际化语言设置</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // or 函数：逻辑或运算，返回第一个真值或最后一个值
+        const or = (a, b) => a || b;
+
+        // 多参数或函数
+        const orMultiple = (...args) => {
+            for (let arg of args) {
+                if (arg) return arg;
+            }
+            return args[args.length - 1];
+        };
+
+        // 逻辑或管理中心
+        class OrOperationManager {
+            constructor() {
+                this.plugins = {};
+                this.results = [];
+                this.stats = {
+                    total: 0,
+                    success: 0,
+                    fallback: 0
+                };
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    showType: true,
+                    enableNotification: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupScenarioSelect();
+                this.setupSettings();
+                this.setupButtons();
+                this.updateStats();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupScenarioSelect() {
+                try {
+                    const container = document.getElementById('scenarioSelect');
+                    if (!container) return;
+                    
+                    this.plugins.scenarioSelect = new Select({
+                        options: [
+                            { value: 'userconfig', label: '👤 用户配置回退' },
+                            { value: 'apifallback', label: '🌐 API 响应回退' },
+                            { value: 'cachedefault', label: '💾 缓存默认值' },
+                            { value: 'language', label: '🌍 语言选择' },
+                            { value: 'theme', label: '🎨 主题设置' },
+                            { value: 'custom', label: '⚡ 自定义演示' }
+                        ],
+                        placeholder: '选择演示场景',
+                        onChange: (value) => {
+                            // 根据场景更新示例值
+                            this.updateExampleValues(value);
+                        }
+                    });
+                    this.plugins.scenarioSelect.mount(container);
+                } catch (error) {
+                    console.warn('场景选择器加载失败:', error);
+                }
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'showType', label: '显示值类型', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.showType = states[1];
+                            this.settings.enableNotification = states[2];
+                        }
+                    });
+                    container.appendChild(group.container);
+                    this.plugins.settingsGroup = group;
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                const executeBtn = document.getElementById('executeBtn');
+                const clearBtn = document.getElementById('clearBtn');
+
+                if (executeBtn) {
+                    executeBtn.addEventListener('click', () => {
+                        this.executeOr();
+                    });
+                }
+
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', () => {
+                        this.clearResults();
+                    });
+                }
+            }
+
+            updateExampleValues(scenario) {
+                const examples = {
+                    'userconfig': { primary: '', fallback: 'default_theme_dark' },
+                    'apifallback': { primary: '', fallback: 'offline_data' },
+                    'cachedefault': { primary: '', fallback: '{"cached": true}' },
+                    'language': { primary: '', fallback: 'en-US' },
+                    'theme': { primary: '', fallback: 'light' },
+                    'custom': { primary: '', fallback: '' }
+                };
+
+                const ex = examples[scenario] || examples['custom'];
+                document.getElementById('primaryValue').placeholder = ex.primary || '请输入主值...';
+                document.getElementById('fallbackValue').placeholder = ex.fallback || '请输入备选值...';
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+
+            getValueType(value) {
+                if (value === '') return '空字符串 (Falsy)';
+                if (value === null) return 'null (Falsy)';
+                if (value === undefined) return 'undefined (Falsy)';
+                if (value === '0') return '字符串 "0" (Falsy)';
+                if (value === 'false') return '字符串 "false" (Falsy)';
+                if (typeof value === 'number') return `数字: ${value}`;
+                if (typeof value === 'boolean') return `布尔值: ${value}`;
+                return `字符串: "${value}" (Truthy)`;
+            }
+
+            executeOr() {
+                const primary = document.getElementById('primaryValue').value;
+                const fallback = document.getElementById('fallbackValue').value;
+                const scenario = this.plugins.scenarioSelect?.getValue() || 'custom';
+
+                if (primary === '' && fallback === '') {
+                    this.showNotification('请至少输入一个值', 'warning');
+                    return;
+                }
+
+                // 转换值用于 or 操作
+                let primaryValue = primary === '' ? '' : primary;
+                let fallbackValue = fallback === '' ? '' : fallback;
+
+                // 执行 or 操作
+                const result = or(primaryValue || null, fallbackValue || null) || 'null';
+                const isFallback = !primaryValue || primaryValue === '';
+
+                // 创建结果对象
+                const resultObj = {
+                    id: Date.now(),
+                    scenario: scenario,
+                    primary: primary || '(empty)',
+                    fallback: fallback || '(empty)',
+                    result: result,
+                    isFallback: isFallback,
+                    timestamp: new Date().toLocaleString('zh-CN')
+                };
+
+                this.results.push(resultObj);
+                this.stats.total++;
+                if (isFallback) {
+                    this.stats.fallback++;
+                } else {
+                    this.stats.success++;
+                }
+
+                this.updateStats();
+                this.renderResults();
+                
+                const logMsg = isFallback 
+                    ? `主值为空，使用备选值: "${fallback}"`
+                    : `使用主值: "${primary}"`;
+                this.addLog(logMsg, isFallback ? 'warning' : 'success');
+                this.showNotification(`操作完成: ${logMsg}`, isFallback ? 'warning' : 'success');
+
+                // 清空输入框
+                document.getElementById('primaryValue').value = '';
+                document.getElementById('fallbackValue').value = '';
+            }
+
+            getScenarioName(scenario) {
+                const names = {
+                    'userconfig': '用户配置回退',
+                    'apifallback': 'API 响应回退',
+                    'cachedefault': '缓存默认值',
+                    'language': '语言选择',
+                    'theme': '主题设置',
+                    'custom': '自定义演示'
+                };
+                return names[scenario] || scenario;
+            }
+
+            getScenarioIcon(scenario) {
+                const icons = {
+                    'userconfig': '👤',
+                    'apifallback': '🌐',
+                    'cachedefault': '💾',
+                    'language': '🌍',
+                    'theme': '🎨',
+                    'custom': '⚡'
+                };
+                return icons[scenario] || '📋';
+            }
+
+            renderResults() {
+                const panel = document.getElementById('demoPanel');
+                if (!panel) return;
+
+                if (this.results.length === 0) {
+                    panel.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请在左侧配置参数并执行演示</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                panel.innerHTML = this.results.map(res => `
+                    <div class="demo-card">
+                        <div class="demo-title">
+                            ${this.getScenarioIcon(res.scenario)} ${this.getScenarioName(res.scenario)}
+                        </div>
+                        <div class="demo-description">
+                            ${res.isFallback ? '⚠️ 已回退到备选值' : '✅ 使用主值'}
+                        </div>
+                        <div class="value-display">
+                            <div class="value-label">主值 (Primary)</div>
+                            <div class="value-content">${res.primary}</div>
+                        </div>
+                        <div class="value-display">
+                            <div class="value-label">备选值 (Fallback)</div>
+                            <div class="value-content">${res.fallback}</div>
+                        </div>
+                        <div class="value-display" style="border-left-color: #22c55e;">
+                            <div class="value-label">执行结果</div>
+                            <div class="value-content">${res.result}</div>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 8px;">
+                            📅 ${res.timestamp}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats() {
+                document.getElementById('totalTests').textContent = this.stats.total;
+                document.getElementById('successTests').textContent = this.stats.success;
+                document.getElementById('falsebackTests').textContent = this.stats.fallback;
+            }
+
+            clearResults() {
+                this.results = [];
+                this.stats = {
+                    total: 0,
+                    success: 0,
+                    fallback: 0
+                };
+                this.updateStats();
+                this.renderResults();
+                this.addLog('结果已清空', 'info');
+                this.showNotification('结果已清空', 'success');
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.orOperationManager = new OrOperationManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.orOperationManager) {
+            window.orOperationManager = new OrOperationManager();
+        }
+    </script>
+</body>
+</html>
