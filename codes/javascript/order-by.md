@@ -18,6 +18,8 @@ const orderBy = (arr,props,orders) => [...arr].sort((a,b) => props.reduce((acc,p
 },0))
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/order-by.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -33,3 +35,11 @@ orderBy(users, ['name', 'age']);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/order-by.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/order-by.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/order-by.html"></iframe>

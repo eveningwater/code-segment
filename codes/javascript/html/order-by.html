@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>orderBy - 多属性排序管理</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .sort-item {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .sort-item input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .sort-toggle {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #f8fafc;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sort-toggle.desc {
+            background: #fecaca;
+            color: #b91c1c;
+        }
+
+        .sort-toggle.asc {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .sort-remove {
+            padding: 6px 12px;
+            background: #fee2e2;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+
+        .sort-remove:hover {
+            background: #fecaca;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 14px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .data-table th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+
+        .data-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 0.8rem;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .data-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .data-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .data-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .data-btn:hover {
+            border-color: #667eea;
+        }
+
+        @media (max-width: 1400px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 多属性排序管理中心</h1>
+            <p>基于 orderBy 函数的实战示例 - 灵活处理复杂数据排序</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📊 数据集选择</h2>
+                    <div class="data-selector" id="dataSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 排序配置</h2>
+                    <div id="sortRulesContainer"></div>
+                    <button class="btn btn-secondary btn-block btn-sm" id="addSortBtn">
+                        ➕ 添加排序规则
+                    </button>
+                    <div class="button-group" style="margin-top: 16px;">
+                        <button class="btn btn-primary btn-block" id="executeSortBtn">
+                            ▶️ 执行排序
+                        </button>
+                        <button class="btn btn-warning btn-block" id="resetSortBtn">
+                            🔄 重置排序
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalItems">0</div>
+                            <div class="stat-label">数据项</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="sortRules">0</div>
+                            <div class="stat-label">排序规则</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="sortCount">0</div>
+                            <div class="stat-label">排序次数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📋 排序结果</h2>
+                    <div class="table-wrapper" id="tableContainer">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>暂无数据</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center; color: #64748b; padding: 40px;">
+                                        请选择数据集并配置排序规则
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">orderBy 函数（多属性排序）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">orderBy</span> = (arr, props, orders) => 
+  [...arr].<span class="function">sort</span>((a,b) => 
+    props.<span class="function">reduce</span>((acc, prop, i) => {
+      <span class="keyword">if</span>(acc === 0) {
+        <span class="keyword">const</span> [p1, p2] = orders && orders[i] === <span class="string">'desc'</span>
+          ? [b[prop], a[prop]] : [a[prop], b[prop]];
+        acc = p1 > p2 ? 1 : p1 < p2 ? -1 : 0;
+      }
+      <span class="keyword">return</span> acc;
+    }, 0)
+  );
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>orderBy</strong> 函数支持按多个属性进行排序，每个属性可以独立配置升序（asc）或降序（desc）。
+                            它创建数组副本来避免修改原数据，使用 reduce 实现多级排序逻辑。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 学生成绩排序（按班级+成绩）</li>
+                            <li>✓ 商品列表排序（按分类+价格+销量）</li>
+                            <li>✓ 员工管理排序（按部门+工资+入职时间）</li>
+                            <li>✓ 任务管理排序（按优先级+截止日期）</li>
+                            <li>✓ 数据报表排序（按日期+金额+状态）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // orderBy 函数：多属性排序
+        const orderBy = (arr, props, orders) => [...arr].sort((a, b) => props.reduce((acc, prop, i) => {
+            if (acc === 0) {
+                const [p1, p2] = orders && orders[i] === 'desc' ? [b[prop], a[prop]] : [a[prop], b[prop]];
+                acc = p1 > p2 ? 1 : p1 < p2 ? -1 : 0;
+            }
+            return acc;
+        }, 0));
+
+        // 多属性排序管理中心
+        class OrderByManager {
+            constructor() {
+                this.plugins = {};
+                this.currentDataset = null;
+                this.datasets = {
+                    students: [
+                        { name: '张三', class: '一班', score: 95, age: 18 },
+                        { name: '李四', class: '一班', score: 88, age: 17 },
+                        { name: '王五', class: '二班', score: 92, age: 18 },
+                        { name: '赵六', class: '一班', score: 95, age: 17 },
+                        { name: '孙七', class: '二班', score: 85, age: 18 },
+                        { name: '周八', class: '二班', score: 92, age: 17 }
+                    ],
+                    products: [
+                        { name: '笔记本', category: '电子', price: 5999, sales: 1200 },
+                        { name: '键盘', category: '配件', price: 299, sales: 5600 },
+                        { name: '显示器', category: '电子', price: 1999, sales: 800 },
+                        { name: '鼠标', category: '配件', price: 99, sales: 8900 },
+                        { name: '手机', category: '电子', price: 3999, sales: 3200 },
+                        { name: '手机壳', category: '配件', price: 29, sales: 12000 }
+                    ],
+                    employees: [
+                        { name: '张经理', dept: '技术部', salary: 15000, joinDate: '2020-01' },
+                        { name: '李工程师', dept: '技术部', salary: 12000, joinDate: '2021-06' },
+                        { name: '王销售', dept: '销售部', salary: 10000, joinDate: '2019-03' },
+                        { name: '赵经理', dept: '销售部', salary: 13000, joinDate: '2020-09' },
+                        { name: '孙HR', dept: '人力', salary: 11000, joinDate: '2018-12' },
+                        { name: '周财务', dept: '财务部', salary: 12500, joinDate: '2021-01' }
+                    ]
+                };
+                this.sortRules = [];
+                this.sortCount = 0;
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupDataSelector();
+                this.setupSettings();
+                this.setupButtons();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupDataSelector() {
+                const selector = document.getElementById('dataSelector');
+                if (!selector) return;
+
+                const datasets = [
+                    { id: 'students', label: '👨‍🎓 学生成绩' },
+                    { id: 'products', label: '🛍️ 商品列表' },
+                    { id: 'employees', label: '👔 员工管理' }
+                ];
+
+                selector.innerHTML = datasets.map(ds => `
+                    <button class="data-btn" data-id="${ds.id}">
+                        ${ds.label}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('data-btn')) {
+                        document.querySelectorAll('.data-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+                        this.selectDataset(e.target.dataset.id);
+                    }
+                });
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('addSortBtn').addEventListener('click', () => {
+                    this.addSortRule();
+                });
+
+                document.getElementById('executeSortBtn').addEventListener('click', () => {
+                    this.executeSort();
+                });
+
+                document.getElementById('resetSortBtn').addEventListener('click', () => {
+                    this.resetSort();
+                });
+            }
+
+            selectDataset(id) {
+                this.currentDataset = id;
+                this.sortRules = [];
+                this.renderSortRules();
+                this.updateStats();
+                this.renderTable();
+                this.addLog(`已选择数据集: ${this.getDatasetName(id)}`, 'info');
+                this.showNotification(`已选择数据集: ${this.getDatasetName(id)}`, 'success');
+            }
+
+            getDatasetName(id) {
+                const names = { students: '学生成绩', products: '商品列表', employees: '员工管理' };
+                return names[id] || id;
+            }
+
+            getDatasetFields(id) {
+                const fieldsMap = {
+                    students: ['name', 'class', 'score', 'age'],
+                    products: ['name', 'category', 'price', 'sales'],
+                    employees: ['name', 'dept', 'salary', 'joinDate']
+                };
+                return fieldsMap[id] || [];
+            }
+
+            getFieldLabel(field) {
+                const labels = {
+                    name: '名称', class: '班级', score: '成绩', age: '年龄',
+                    category: '分类', price: '价格', sales: '销量',
+                    dept: '部门', salary: '工资', joinDate: '入职时间'
+                };
+                return labels[field] || field;
+            }
+
+            addSortRule() {
+                if (!this.currentDataset) {
+                    this.showNotification('请先选择数据集', 'warning');
+                    return;
+                }
+
+                this.sortRules.push({
+                    id: Date.now(),
+                    property: this.getDatasetFields(this.currentDataset)[0],
+                    order: 'asc'
+                });
+
+                this.renderSortRules();
+                this.updateStats();
+            }
+
+            removeSortRule(id) {
+                this.sortRules = this.sortRules.filter(rule => rule.id !== id);
+                this.renderSortRules();
+                this.updateStats();
+            }
+
+            toggleSortOrder(id) {
+                const rule = this.sortRules.find(r => r.id === id);
+                if (rule) {
+                    rule.order = rule.order === 'asc' ? 'desc' : 'asc';
+                    this.renderSortRules();
+                }
+            }
+
+            updateSortProperty(id, property) {
+                const rule = this.sortRules.find(r => r.id === id);
+                if (rule) {
+                    rule.property = property;
+                }
+            }
+
+            renderSortRules() {
+                const container = document.getElementById('sortRulesContainer');
+                if (!container) return;
+
+                if (this.sortRules.length === 0) {
+                    container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 20px; font-size: 0.9rem;">暂无排序规则</p>';
+                    return;
+                }
+
+                const fields = this.getDatasetFields(this.currentDataset);
+                container.innerHTML = this.sortRules.map((rule, index) => `
+                    <div class="sort-item">
+                        <span style="color: #64748b; font-weight: 600; min-width: 24px;">L${index + 1}</span>
+                        <select style="flex: 1; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.9rem;" 
+                            onchange="window.orderByManager.updateSortProperty(${rule.id}, this.value)">
+                            ${fields.map(f => `<option value="${f}" ${f === rule.property ? 'selected' : ''}>${this.getFieldLabel(f)}</option>`).join('')}
+                        </select>
+                        <button class="sort-toggle ${rule.order}" onclick="window.orderByManager.toggleSortOrder(${rule.id})">
+                            ${rule.order === 'asc' ? '⬆️ 升序' : '⬇️ 降序'}
+                        </button>
+                        <button class="sort-remove" onclick="window.orderByManager.removeSortRule(${rule.id})">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            executeSort() {
+                if (!this.currentDataset) {
+                    this.showNotification('请先选择数据集', 'warning');
+                    return;
+                }
+
+                if (this.sortRules.length === 0) {
+                    this.showNotification('请先添加排序规则', 'warning');
+                    return;
+                }
+
+                const props = this.sortRules.map(r => r.property);
+                const orders = this.sortRules.map(r => r.order);
+                const originalData = this.datasets[this.currentDataset];
+
+                const sortedData = orderBy(originalData, props, orders);
+                
+                this.datasets[this.currentDataset] = sortedData;
+                this.sortCount++;
+                this.updateStats();
+                this.renderTable();
+
+                const ruleDesc = this.sortRules.map((r, i) => 
+                    `${this.getFieldLabel(r.property)}(${r.order === 'asc' ? '升序' : '降序'})`
+                ).join(' → ');
+
+                this.addLog(`排序执行: ${ruleDesc}`, 'success');
+                this.showNotification('排序执行成功！', 'success');
+            }
+
+            resetSort() {
+                if (!this.currentDataset) return;
+
+                // 重新加载原始数据
+                const originals = {
+                    students: [
+                        { name: '张三', class: '一班', score: 95, age: 18 },
+                        { name: '李四', class: '一班', score: 88, age: 17 },
+                        { name: '王五', class: '二班', score: 92, age: 18 },
+                        { name: '赵六', class: '一班', score: 95, age: 17 },
+                        { name: '孙七', class: '二班', score: 85, age: 18 },
+                        { name: '周八', class: '二班', score: 92, age: 17 }
+                    ],
+                    products: [
+                        { name: '笔记本', category: '电子', price: 5999, sales: 1200 },
+                        { name: '键盘', category: '配件', price: 299, sales: 5600 },
+                        { name: '显示器', category: '电子', price: 1999, sales: 800 },
+                        { name: '鼠标', category: '配件', price: 99, sales: 8900 },
+                        { name: '手机', category: '电子', price: 3999, sales: 3200 },
+                        { name: '手机壳', category: '配件', price: 29, sales: 12000 }
+                    ],
+                    employees: [
+                        { name: '张经理', dept: '技术部', salary: 15000, joinDate: '2020-01' },
+                        { name: '李工程师', dept: '技术部', salary: 12000, joinDate: '2021-06' },
+                        { name: '王销售', dept: '销售部', salary: 10000, joinDate: '2019-03' },
+                        { name: '赵经理', dept: '销售部', salary: 13000, joinDate: '2020-09' },
+                        { name: '孙HR', dept: '人力', salary: 11000, joinDate: '2018-12' },
+                        { name: '周财务', dept: '财务部', salary: 12500, joinDate: '2021-01' }
+                    ]
+                };
+
+                this.datasets[this.currentDataset] = originals[this.currentDataset];
+                this.sortRules = [];
+                this.sortCount = 0;
+                this.renderSortRules();
+                this.renderTable();
+                this.updateStats();
+                this.addLog('排序已重置，数据恢复原状', 'info');
+                this.showNotification('排序已重置', 'success');
+            }
+
+            renderTable() {
+                const container = document.getElementById('tableContainer');
+                if (!container || !this.currentDataset) return;
+
+                const data = this.datasets[this.currentDataset];
+                const fields = this.getDatasetFields(this.currentDataset);
+                const activeSortFields = this.sortRules.map(r => r.property);
+
+                const thead = `
+                    <thead>
+                        <tr>
+                            ${fields.map(f => `
+                                <th>
+                                    ${this.getFieldLabel(f)}
+                                    ${activeSortFields.includes(f) ? 
+                                        '<span class="sort-indicator">' + 
+                                        (this.sortRules.find(r => r.property === f).order === 'asc' ? '↑' : '↓') + 
+                                        '</span>' : ''}
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                `;
+
+                const tbody = `
+                    <tbody>
+                        ${data.map(row => `
+                            <tr>
+                                ${fields.map(f => `<td>${row[f]}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+
+                container.innerHTML = `<table class="data-table">${thead}${tbody}</table>`;
+            }
+
+            updateStats() {
+                document.getElementById('totalItems').textContent = 
+                    this.currentDataset ? this.datasets[this.currentDataset].length : 0;
+                document.getElementById('sortRules').textContent = this.sortRules.length;
+                document.getElementById('sortCount').textContent = this.sortCount;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.orderByManager = new OrderByManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.orderByManager) {
+            window.orderByManager = new OrderByManager();
+        }
+    </script>
+</body>
+</html>
