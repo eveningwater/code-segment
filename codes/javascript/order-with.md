@@ -25,6 +25,8 @@ const orderWith = (arr,prop,orders) => {
 }
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/order-with.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -50,3 +52,11 @@ orderWith(users, 'language', ['Javascript', 'TypeScript', 'Java']);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/order-with.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/order-with.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/order-with.html"></iframe>

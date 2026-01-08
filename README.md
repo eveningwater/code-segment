@@ -485,7 +485,7 @@
 - [调用一次的函数-2023-01-14](codes/javascript/once.md)
 - [逻辑或-2023-01-15](codes/javascript/or.md)
 - [根据给定属性列表和排序列表对数组排序-2023-01-16](codes/javascript/order-by.md)
-- [根据属性列表的顺序对数组排序-2023-01-17](codes/javascript/orderWith.md)
+- [根据属性列表的顺序对数组排序-2023-01-17](codes/javascript/order-with.md)
 - [根据参数调用函数-2023-01-18](codes/javascript/over.md)
 - [转换函数参数-2023-01-19](codes/javascript/overArgs.md)
 - [为字符串两边填充字符-2023-01-20](codes/javascript/pad.md)

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>orderWith - 自定义顺序排序管理</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .order-item {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .order-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .order-index {
+            min-width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .order-item input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .order-remove {
+            padding: 6px 12px;
+            background: #fee2e2;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #b91c1c;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .order-remove:hover {
+            background: #fecaca;
+        }
+
+        .data-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .data-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .data-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .data-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 14px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .data-table th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+
+        .data-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-processing {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .priority-high {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .priority-medium {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .priority-low {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .order-preview {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .order-preview-title {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .order-preview-items {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .order-preview-badge {
+            padding: 4px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 1400px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 自定义顺序排序管理中心</h1>
+            <p>基于 orderWith 函数的实战示例 - 灵活处理自定义排序顺序</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📊 数据集选择</h2>
+                    <div class="data-selector" id="dataSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 排序顺序配置</h2>
+                    <div id="orderItemsContainer"></div>
+                    <button class="btn btn-secondary btn-block btn-sm" id="addOrderBtn">
+                        ➕ 添加排序值
+                    </button>
+                    <div class="order-preview" id="orderPreview" style="display: none;">
+                        <div class="order-preview-title">📍 当前排序顺序:</div>
+                        <div class="order-preview-items" id="previewItems"></div>
+                    </div>
+                    <div class="button-group" style="margin-top: 16px;">
+                        <button class="btn btn-primary btn-block" id="executeSortBtn">
+                            ▶️ 执行排序
+                        </button>
+                        <button class="btn btn-warning btn-block" id="resetSortBtn">
+                            🔄 重置排序
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalItems">0</div>
+                            <div class="stat-label">数据项</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="orderValues">0</div>
+                            <div class="stat-label">排序值</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="sortCount">0</div>
+                            <div class="stat-label">排序次数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📋 排序结果</h2>
+                    <div class="table-wrapper" id="tableContainer">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>暂无数据</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center; color: #64748b; padding: 40px;">
+                                        请选择数据集并配置排序顺序
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">orderWith 函数（自定义顺序排序）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">orderWith</span> = (arr, prop, orders) => {
+  <span class="keyword">const</span> orderValues = orders.<span class="function">reduce</span>((acc, item, i) => {
+    acc[item] = i;
+    <span class="keyword">return</span> acc;
+  }, {});
+  <span class="keyword">return</span> [...arr].<span class="function">sort</span>((a, b) => {
+    <span class="keyword">if</span> (orderValues[a[prop]] === <span class="keyword">undefined</span>) <span class="keyword">return</span> 1;
+    <span class="keyword">if</span> (orderValues[b[prop]] === <span class="keyword">undefined</span>) <span class="keyword">return</span> -1;
+    <span class="keyword">return</span> orderValues[a[prop]] - orderValues[b[prop]];
+  })
+}
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>orderWith</strong> 函数按照指定的自定义顺序对数组进行排序。
+                            它先创建一个值到索引的映射，然后根据该映射排序。不在排序列表中的项会被排到最后。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">常见应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 任务状态排序（待处理→进行中→已完成）</li>
+                            <li>✓ 优先级排序（高→中→低）</li>
+                            <li>✓ 订单状态排序（已下单→已发货→已签收）</li>
+                            <li>✓ 自定义分类排序</li>
+                            <li>✓ 业务流程排序</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // orderWith 函数：按照自定义顺序排序
+        const orderWith = (arr, prop, orders) => {
+            const orderValues = orders.reduce((acc, item, i) => {
+                acc[item] = i;
+                return acc;
+            }, {});
+            return [...arr].sort((a, b) => {
+                if (orderValues[a[prop]] === undefined) {
+                    return 1;
+                }
+                if (orderValues[b[prop]] === undefined) {
+                    return -1;
+                }
+                return orderValues[a[prop]] - orderValues[b[prop]];
+            })
+        }
+
+        // 自定义顺序排序管理中心
+        class OrderWithManager {
+            constructor() {
+                this.plugins = {};
+                this.currentDataset = null;
+                this.datasets = {
+                    tasks: [
+                        { id: 1, title: '编写代码', status: 'processing', assignee: '张三' },
+                        { id: 2, title: '代码审查', status: 'pending', assignee: '李四' },
+                        { id: 3, title: '单元测试', status: 'completed', assignee: '王五' },
+                        { id: 4, title: '集成测试', status: 'completed', assignee: '赵六' },
+                        { id: 5, title: '修复Bug', status: 'processing', assignee: '孙七' },
+                        { id: 6, title: '部署上线', status: 'pending', assignee: '周八' }
+                    ],
+                    orders: [
+                        { id: 101, orderNo: 'ORD2024001', status: 'shipped', customer: '张三' },
+                        { id: 102, orderNo: 'ORD2024002', status: 'pending', customer: '李四' },
+                        { id: 103, orderNo: 'ORD2024003', status: 'delivered', customer: '王五' },
+                        { id: 104, orderNo: 'ORD2024004', status: 'pending', customer: '赵六' },
+                        { id: 105, orderNo: 'ORD2024005', status: 'shipped', customer: '孙七' },
+                        { id: 106, orderNo: 'ORD2024006', status: 'delivered', customer: '周八' }
+                    ],
+                    priorities: [
+                        { id: 201, name: '编写文档', priority: 'low', assignee: '张三' },
+                        { id: 202, name: '修复关键Bug', priority: 'high', assignee: '李四' },
+                        { id: 203, name: '性能优化', priority: 'medium', assignee: '王五' },
+                        { id: 204, name: '添加功能', priority: 'high', assignee: '赵六' },
+                        { id: 205, name: '清理代码', priority: 'low', assignee: '孙七' },
+                        { id: 206, name: '安全审计', priority: 'high', assignee: '周八' }
+                    ]
+                };
+                this.orderItems = [];
+                this.sortCount = 0;
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupDataSelector();
+                this.setupSettings();
+                this.setupButtons();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupDataSelector() {
+                const selector = document.getElementById('dataSelector');
+                if (!selector) return;
+
+                const datasets = [
+                    { id: 'tasks', label: '📋 任务状态' },
+                    { id: 'orders', label: '📦 订单状态' },
+                    { id: 'priorities', label: '⚡ 优先级' }
+                ];
+
+                selector.innerHTML = datasets.map(ds => `
+                    <button class="data-btn" data-id="${ds.id}">
+                        ${ds.label}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('data-btn')) {
+                        document.querySelectorAll('.data-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+                        this.selectDataset(e.target.dataset.id);
+                    }
+                });
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('addOrderBtn').addEventListener('click', () => {
+                    this.addOrderItem();
+                });
+
+                document.getElementById('executeSortBtn').addEventListener('click', () => {
+                    this.executeSort();
+                });
+
+                document.getElementById('resetSortBtn').addEventListener('click', () => {
+                    this.resetSort();
+                });
+            }
+
+            selectDataset(id) {
+                this.currentDataset = id;
+                this.orderItems = [];
+                this.renderOrderItems();
+                this.updateStats();
+                this.renderTable();
+                this.addLog(`已选择数据集: ${this.getDatasetName(id)}`, 'info');
+                this.showNotification(`已选择数据集: ${this.getDatasetName(id)}`, 'success');
+            }
+
+            getDatasetName(id) {
+                const names = { tasks: '任务状态', orders: '订单状态', priorities: '优先级' };
+                return names[id] || id;
+            }
+
+            getPropertyName(id) {
+                const props = { tasks: 'status', orders: 'status', priorities: 'priority' };
+                return props[id] || '';
+            }
+
+            getSuggestedValues(id) {
+                const suggestions = {
+                    tasks: ['pending', 'processing', 'completed'],
+                    orders: ['pending', 'shipped', 'delivered'],
+                    priorities: ['high', 'medium', 'low']
+                };
+                return suggestions[id] || [];
+            }
+
+            getValueLabel(value, datasetId) {
+                const labels = {
+                    'pending': '⏳ 待处理',
+                    'processing': '⚙️ 进行中',
+                    'completed': '✅ 已完成',
+                    'shipped': '📦 已发货',
+                    'delivered': '🎁 已签收',
+                    'high': '🔴 高',
+                    'medium': '🟡 中',
+                    'low': '🟢 低'
+                };
+                return labels[value] || value;
+            }
+
+            addOrderItem() {
+                if (!this.currentDataset) {
+                    this.showNotification('请先选择数据集', 'warning');
+                    return;
+                }
+
+                const suggested = this.getSuggestedValues(this.currentDataset);
+                this.orderItems.push({
+                    id: Date.now(),
+                    value: suggested[this.orderItems.length] || ''
+                });
+
+                this.renderOrderItems();
+                this.updateStats();
+            }
+
+            removeOrderItem(id) {
+                this.orderItems = this.orderItems.filter(item => item.id !== id);
+                this.renderOrderItems();
+                this.updateStats();
+            }
+
+            updateOrderValue(id, value) {
+                const item = this.orderItems.find(i => i.id === id);
+                if (item) {
+                    item.value = value;
+                    this.updatePreview();
+                }
+            }
+
+            renderOrderItems() {
+                const container = document.getElementById('orderItemsContainer');
+                if (!container) return;
+
+                if (this.orderItems.length === 0) {
+                    container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 20px; font-size: 0.9rem;">暂无排序值</p>';
+                    return;
+                }
+
+                container.innerHTML = this.orderItems.map((item, index) => `
+                    <div class="order-item">
+                        <div class="order-index">${index + 1}</div>
+                        <input type="text" placeholder="输入排序值..." value="${item.value}" 
+                            onchange="window.orderWithManager.updateOrderValue(${item.id}, this.value)"
+                            onkeyup="window.orderWithManager.updateOrderValue(${item.id}, this.value)">
+                        <button class="order-remove" onclick="window.orderWithManager.removeOrderItem(${item.id})">✕</button>
+                    </div>
+                `).join('');
+
+                this.updatePreview();
+            }
+
+            updatePreview() {
+                const preview = document.getElementById('orderPreview');
+                const previewItems = document.getElementById('previewItems');
+
+                if (this.orderItems.length === 0) {
+                    preview.style.display = 'none';
+                    return;
+                }
+
+                preview.style.display = 'block';
+                previewItems.innerHTML = this.orderItems.map((item, index) => `
+                    <div class="order-preview-badge">
+                        ${index + 1}. ${this.getValueLabel(item.value, this.currentDataset)}
+                    </div>
+                `).join('');
+            }
+
+            executeSort() {
+                if (!this.currentDataset) {
+                    this.showNotification('请先选择数据集', 'warning');
+                    return;
+                }
+
+                if (this.orderItems.length === 0) {
+                    this.showNotification('请先添加排序值', 'warning');
+                    return;
+                }
+
+                const prop = this.getPropertyName(this.currentDataset);
+                const orders = this.orderItems.map(item => item.value).filter(v => v);
+
+                if (orders.length === 0) {
+                    this.showNotification('请输入有效的排序值', 'warning');
+                    return;
+                }
+
+                const originalData = this.datasets[this.currentDataset];
+                const sortedData = orderWith(originalData, prop, orders);
+
+                this.datasets[this.currentDataset] = sortedData;
+                this.sortCount++;
+                this.updateStats();
+                this.renderTable();
+
+                const orderDesc = orders.map(o => this.getValueLabel(o, this.currentDataset)).join(' → ');
+                this.addLog(`排序执行: ${orderDesc}`, 'success');
+                this.showNotification('排序执行成功！', 'success');
+            }
+
+            resetSort() {
+                if (!this.currentDataset) return;
+
+                const originals = {
+                    tasks: [
+                        { id: 1, title: '编写代码', status: 'processing', assignee: '张三' },
+                        { id: 2, title: '代码审查', status: 'pending', assignee: '李四' },
+                        { id: 3, title: '单元测试', status: 'completed', assignee: '王五' },
+                        { id: 4, title: '集成测试', status: 'completed', assignee: '赵六' },
+                        { id: 5, title: '修复Bug', status: 'processing', assignee: '孙七' },
+                        { id: 6, title: '部署上线', status: 'pending', assignee: '周八' }
+                    ],
+                    orders: [
+                        { id: 101, orderNo: 'ORD2024001', status: 'shipped', customer: '张三' },
+                        { id: 102, orderNo: 'ORD2024002', status: 'pending', customer: '李四' },
+                        { id: 103, orderNo: 'ORD2024003', status: 'delivered', customer: '王五' },
+                        { id: 104, orderNo: 'ORD2024004', status: 'pending', customer: '赵六' },
+                        { id: 105, orderNo: 'ORD2024005', status: 'shipped', customer: '孙七' },
+                        { id: 106, orderNo: 'ORD2024006', status: 'delivered', customer: '周八' }
+                    ],
+                    priorities: [
+                        { id: 201, name: '编写文档', priority: 'low', assignee: '张三' },
+                        { id: 202, name: '修复关键Bug', priority: 'high', assignee: '李四' },
+                        { id: 203, name: '性能优化', priority: 'medium', assignee: '王五' },
+                        { id: 204, name: '添加功能', priority: 'high', assignee: '赵六' },
+                        { id: 205, name: '清理代码', priority: 'low', assignee: '孙七' },
+                        { id: 206, name: '安全审计', priority: 'high', assignee: '周八' }
+                    ]
+                };
+
+                this.datasets[this.currentDataset] = originals[this.currentDataset];
+                this.orderItems = [];
+                this.sortCount = 0;
+                this.renderOrderItems();
+                this.renderTable();
+                this.updateStats();
+                this.addLog('排序已重置，数据恢复原状', 'info');
+                this.showNotification('排序已重置', 'success');
+            }
+
+            getStatusBadgeClass(value) {
+                const classes = {
+                    'pending': 'status-pending',
+                    'processing': 'status-processing',
+                    'completed': 'status-completed',
+                    'shipped': 'status-processing',
+                    'delivered': 'status-completed',
+                };
+                return classes[value] || '';
+            }
+
+            getPriorityClass(value) {
+                const classes = {
+                    'high': 'priority-high',
+                    'medium': 'priority-medium',
+                    'low': 'priority-low'
+                };
+                return classes[value] || '';
+            }
+
+            renderTable() {
+                const container = document.getElementById('tableContainer');
+                if (!container || !this.currentDataset) return;
+
+                const data = this.datasets[this.currentDataset];
+
+                let columns = [];
+                let thead = '<thead><tr>';
+                let tbody = '<tbody>';
+
+                if (this.currentDataset === 'tasks') {
+                    columns = ['id', 'title', 'status', 'assignee'];
+                    thead += '<th>ID</th><th>任务</th><th>状态</th><th>分配人</th></tr></thead>';
+                    tbody += data.map(row => `
+                        <tr>
+                            <td>#${row.id}</td>
+                            <td>${row.title}</td>
+                            <td><span class="status-badge ${this.getStatusBadgeClass(row.status)}">${this.getValueLabel(row.status, this.currentDataset)}</span></td>
+                            <td>${row.assignee}</td>
+                        </tr>
+                    `).join('');
+                } else if (this.currentDataset === 'orders') {
+                    columns = ['id', 'orderNo', 'status', 'customer'];
+                    thead += '<th>ID</th><th>订单号</th><th>状态</th><th>客户</th></tr></thead>';
+                    tbody += data.map(row => `
+                        <tr>
+                            <td>#${row.id}</td>
+                            <td>${row.orderNo}</td>
+                            <td><span class="status-badge ${this.getStatusBadgeClass(row.status)}">${this.getValueLabel(row.status, this.currentDataset)}</span></td>
+                            <td>${row.customer}</td>
+                        </tr>
+                    `).join('');
+                } else if (this.currentDataset === 'priorities') {
+                    columns = ['id', 'name', 'priority', 'assignee'];
+                    thead += '<th>ID</th><th>名称</th><th>优先级</th><th>分配人</th></tr></thead>';
+                    tbody += data.map(row => `
+                        <tr>
+                            <td>#${row.id}</td>
+                            <td>${row.name}</td>
+                            <td><span class="${this.getPriorityClass(row.priority)}">${this.getValueLabel(row.priority, this.currentDataset)}</span></td>
+                            <td>${row.assignee}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                tbody += '</tbody>';
+                container.innerHTML = `<table class="data-table">${thead}${tbody}</table>`;
+            }
+
+            updateStats() {
+                document.getElementById('totalItems').textContent = 
+                    this.currentDataset ? this.datasets[this.currentDataset].length : 0;
+                document.getElementById('orderValues').textContent = this.orderItems.length;
+                document.getElementById('sortCount').textContent = this.sortCount;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.orderWithManager = new OrderWithManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.orderWithManager) {
+            window.orderWithManager = new OrderWithManager();
+        }
+    </script>
+</body>
+
+</html>
