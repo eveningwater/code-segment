@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>over - 函数组合与多函数执行</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .function-item {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .function-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .function-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .function-name {
+            flex: 1;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .function-remove {
+            padding: 6px 12px;
+            background: #fee2e2;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #b91c1c;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .function-remove:hover {
+            background: #fecaca;
+        }
+
+        .scenario-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .scenario-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .scenario-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .scenario-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-content {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1rem;
+            word-break: break-all;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .function-signature {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #374151;
+            border-left: 3px solid #667eea;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔀 函数组合执行管理中心</h1>
+            <p>基于 over 函数的实战示例 - 优雅地组合多个函数并同时执行</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📊 场景选择</h2>
+                    <div class="scenario-selector" id="scenarioSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>📝 参数输入</h2>
+                    <div class="input-group">
+                        <label>输入值</label>
+                        <input type="text" id="inputValue" class="input-field" placeholder="请输入测试数值...">
+                    </div>
+                    <div class="input-group">
+                        <label>输入说明</label>
+                        <textarea id="inputDescription" class="textarea-field" placeholder="输入说明文本..." readonly></textarea>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 函数配置</h2>
+                    <div id="functionListContainer"></div>
+                    <button class="btn btn-secondary btn-block btn-sm" id="addFunctionBtn" style="margin-bottom: 10px;">
+                        ➕ 添加函数
+                    </button>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="executeBtnPanel">
+                            ▶️ 执行组合函数
+                        </button>
+                        <button class="btn btn-warning btn-block" id="clearBtnPanel">
+                            🔄 重置
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="executionCount">0</div>
+                            <div class="stat-label">执行次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="functionCount">0</div>
+                            <div class="stat-label">函数数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="resultCount">0</div>
+                            <div class="stat-label">结果数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📋 执行结果</h2>
+                    <div class="result-panel" id="resultPanel">
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置函数并执行</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">over 函数（多函数组合执行）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">over</span> = (...fns) => (...args) => 
+  [...fns].<span class="function">map</span>(fn => fn.<span class="function">apply</span>(<span class="keyword">null</span>, args));
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>over</strong> 函数接收多个函数作为参数，返回一个新函数。
+                            当新函数被调用时，它会依次执行所有传入的函数，并返回所有函数执行结果组成的数组。
+                            这是函数式编程中强大的组合工具。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 数据验证链</li>
+                            <li>✓ 数据转换管道</li>
+                            <li>✓ 多个处理器并行执行</li>
+                            <li>✓ 事件处理多个监听器</li>
+                            <li>✓ 中间件链处理</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // over 函数：多函数组合执行
+        const over = (...fns) => (...args) => [...fns].map(fn => fn.apply(null, args));
+
+        // 预定义函数库
+        const functionLibrary = {
+            validation: {
+                isNumber: (val) => !isNaN(val) ? '✓ 是数字' : '✗ 不是数字',
+                isString: (val) => typeof val === 'string' ? '✓ 是字符串' : '✗ 不是字符串',
+                isEmpty: (val) => val === '' ? '✓ 为空' : '✗ 不为空',
+                isPositive: (val) => Number(val) > 0 ? '✓ 为正数' : '✗ 不是正数'
+            },
+            transform: {
+                toUpperCase: (val) => String(val).toUpperCase(),
+                toLowerCase: (val) => String(val).toLowerCase(),
+                reverse: (val) => String(val).split('').reverse().join(''),
+                trim: (val) => String(val).trim(),
+                length: (val) => `长度: ${String(val).length}`,
+                parseNumber: (val) => `数值: ${Number(val)}`
+            },
+            analysis: {
+                charCount: (val) => `字符数: ${String(val).length}`,
+                wordCount: (val) => `单词数: ${String(val).trim().split(/\s+/).length}`,
+                hasNumber: (val) => /\d/.test(val) ? '✓ 包含数字' : '✗ 不包含数字',
+                hasSpecial: (val) => /[^a-zA-Z0-9\s]/.test(val) ? '✓ 包含特殊字符' : '✗ 无特殊字符'
+            }
+        };
+
+        // 函数组合执行管理中心
+        class OverManager {
+            constructor() {
+                this.plugins = {};
+                this.currentScenario = 'validation';
+                this.selectedFunctions = [];
+                this.executionCount = 0;
+                this.lastResults = [];
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true,
+                    showDetails: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupScenarioSelector();
+                this.setupSettings();
+                this.setupButtons();
+                this.setupInputListener();
+                this.updateFunctionList();
+                this.updateStats();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupScenarioSelector() {
+                const selector = document.getElementById('scenarioSelector');
+                if (!selector) return;
+
+                const scenarios = [
+                    { id: 'validation', label: '✓ 验证函数' },
+                    { id: 'transform', label: '🔄 转换函数' },
+                    { id: 'analysis', label: '📊 分析函数' }
+                ];
+
+                selector.innerHTML = scenarios.map(s => `
+                    <button class="scenario-btn ${s.id === 'validation' ? 'active' : ''}" data-id="${s.id}">
+                        ${s.label}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('scenario-btn')) {
+                        document.querySelectorAll('.scenario-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+                        this.selectScenario(e.target.dataset.id);
+                    }
+                });
+            }
+
+            selectScenario(scenarioId) {
+                this.currentScenario = scenarioId;
+                this.selectedFunctions = [];
+                this.updateScenarioDescription();
+                this.updateFunctionList();
+                this.updateStats();
+                this.clearResults();
+                
+                const names = { validation: '验证', transform: '转换', analysis: '分析' };
+                this.addLog(`已切换到${names[scenarioId]}场景`, 'info');
+                this.showNotification(`已切换到${names[scenarioId]}场景`, 'success');
+            }
+
+            updateScenarioDescription() {
+                const descriptions = {
+                    validation: '用于验证数据的有效性，返回布尔值或描述性文本',
+                    transform: '用于转换数据格式或内容，返回转换后的值',
+                    analysis: '用于分析数据的特征，返回分析结果'
+                };
+                document.getElementById('inputDescription').value = descriptions[this.currentScenario];
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true },
+                    { id: 'showDetails', label: '显示详细信息', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                            this.settings.showDetails = states[2];
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('addFunctionBtn').addEventListener('click', () => {
+                    this.addFunction();
+                });
+
+                document.getElementById('executeBtnPanel').addEventListener('click', () => {
+                    this.executeOver();
+                });
+
+                document.getElementById('clearBtnPanel').addEventListener('click', () => {
+                    this.clearAll();
+                });
+            }
+
+            setupInputListener() {
+                document.getElementById('inputValue').addEventListener('input', () => {
+                    if (this.selectedFunctions.length > 0) {
+                        // 实时更新如果需要
+                    }
+                });
+            }
+
+            addFunction() {
+                const scenarioFunctions = functionLibrary[this.currentScenario];
+                const availableFunctions = Object.keys(scenarioFunctions).filter(
+                    fn => !this.selectedFunctions.some(sf => sf.name === fn)
+                );
+
+                if (availableFunctions.length === 0) {
+                    this.showNotification('所有可用函数已添加', 'warning');
+                    return;
+                }
+
+                this.selectedFunctions.push({
+                    id: Date.now(),
+                    name: availableFunctions[0],
+                    scenario: this.currentScenario
+                });
+
+                this.updateFunctionList();
+                this.updateStats();
+            }
+
+            removeFunction(id) {
+                this.selectedFunctions = this.selectedFunctions.filter(f => f.id !== id);
+                this.updateFunctionList();
+                this.updateStats();
+            }
+
+            updateFunctionList() {
+                const container = document.getElementById('functionListContainer');
+                if (!container) return;
+
+                if (this.selectedFunctions.length === 0) {
+                    container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 20px; font-size: 0.9rem;">暂无选中的函数</p>';
+                    return;
+                }
+
+                const scenarioFunctions = functionLibrary[this.currentScenario];
+                container.innerHTML = this.selectedFunctions.map((fn, index) => {
+                    const funcDef = scenarioFunctions[fn.name];
+                    const funcSignature = funcDef.toString().match(/\(.*?\)/)[0];
+                    
+                    return `
+                        <div class="function-item">
+                            <span style="font-weight: 600; color: #667eea; min-width: 24px;">${index + 1}</span>
+                            <div style="flex: 1;">
+                                <div class="function-name">${fn.name}</div>
+                                <div class="function-signature">${fn.name}${funcSignature}</div>
+                            </div>
+                            <button class="function-remove" onclick="window.overManager.removeFunction(${fn.id})">✕</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            executeOver() {
+                const inputValue = document.getElementById('inputValue').value;
+
+                if (this.selectedFunctions.length === 0) {
+                    this.showNotification('请先添加至少一个函数', 'warning');
+                    return;
+                }
+
+                if (!inputValue) {
+                    this.showNotification('请输入测试值', 'warning');
+                    return;
+                }
+
+                // 获取所有选中函数
+                const scenarioFunctions = functionLibrary[this.currentScenario];
+                const funcsToExecute = this.selectedFunctions.map(sf => scenarioFunctions[sf.name]);
+
+                // 使用 over 函数组合执行
+                const composedFunction = over(...funcsToExecute);
+                this.lastResults = composedFunction(inputValue);
+
+                this.executionCount++;
+                this.updateStats();
+                this.renderResults();
+
+                const funcNames = this.selectedFunctions.map(f => f.name).join(' + ');
+                this.addLog(`执行: ${funcNames}，输入: "${inputValue}"`, 'success');
+                this.showNotification('函数执行成功！', 'success');
+            }
+
+            renderResults() {
+                const panel = document.getElementById('resultPanel');
+                if (!panel) return;
+
+                if (this.lastResults.length === 0) {
+                    panel.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置函数并执行</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const inputValue = document.getElementById('inputValue').value;
+                panel.innerHTML = this.selectedFunctions.map((fn, index) => {
+                    const result = this.lastResults[index];
+                    const isString = typeof result === 'string';
+                    const resultDisplay = isString ? result : String(result);
+                    
+                    return `
+                        <div class="result-card">
+                            <div class="result-title">
+                                #${index + 1} ${fn.name}
+                            </div>
+                            <div class="result-content">
+                                <div class="result-label">输入值</div>
+                                <div class="result-value">${inputValue}</div>
+                            </div>
+                            <div class="result-content">
+                                <div class="result-label">输出结果</div>
+                                <div class="result-value">${resultDisplay}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            clearAll() {
+                document.getElementById('inputValue').value = '';
+                this.selectedFunctions = [];
+                this.lastResults = [];
+                this.updateFunctionList();
+                this.renderResults();
+                this.updateStats();
+                this.addLog('已重置所有配置', 'info');
+                this.showNotification('已重置所有配置', 'success');
+            }
+
+            clearResults() {
+                this.lastResults = [];
+                this.renderResults();
+            }
+
+            updateStats() {
+                document.getElementById('executionCount').textContent = this.executionCount;
+                document.getElementById('functionCount').textContent = this.selectedFunctions.length;
+                document.getElementById('resultCount').textContent = this.lastResults.length;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.overManager = new OverManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.overManager) {
+            window.overManager = new OverManager();
+        }
+    </script>
+</body>
+
+</html>
