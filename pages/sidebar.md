@@ -477,7 +477,7 @@
 - [根据给定属性列表和排序列表对数组排序-2023-01-16](codes/javascript/order-by.md)
 - [根据属性列表的顺序对数组排序-2023-01-17](codes/javascript/order-with.md)
 - [根据参数调用函数-2023-01-18](codes/javascript/over.md)
-- [转换函数参数-2023-01-19](codes/javascript/overArgs.md)
+- [转换函数参数-2023-01-19](codes/javascript/over-args.md)
 - [为字符串两边填充字符-2023-01-20](codes/javascript/pad.md)
 - [填充数字-2023-01-21](codes/javascript/padNumber.md)
 - [是否是回文字符串-2023-01-22](codes/javascript/palindrome.md)
