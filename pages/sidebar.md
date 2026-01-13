@@ -479,7 +479,7 @@
 - [根据参数调用函数-2023-01-18](codes/javascript/over.md)
 - [转换函数参数-2023-01-19](codes/javascript/over-args.md)
 - [为字符串两边填充字符-2023-01-20](codes/javascript/pad.md)
-- [填充数字-2023-01-21](codes/javascript/padNumber.md)
+- [填充数字-2023-01-21](codes/javascript/pad-number.md)
 - [是否是回文字符串-2023-01-22](codes/javascript/palindrome.md)
 - [解析 cookie-2023-01-23](codes/javascript/parseCookie.md)
 - [前置函数参数-2023-01-24](codes/javascript/partial.md)

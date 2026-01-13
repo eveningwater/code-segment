@@ -11,6 +11,8 @@
 const pad = (str,length,char = ' ') => str.padStart((str.length + length) / 2,char).padEnd(length,char);
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/pad.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,3 +22,11 @@ pad('foobar', 3); // 'foobar'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/pad.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/pad.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/pad.html"></iframe>
