@@ -491,7 +491,7 @@
 - [为字符串两边填充字符-2023-01-20](codes/javascript/pad.md)
 - [填充数字-2023-01-21](codes/javascript/pad-number.md)
 - [是否是回文字符串-2023-01-22](codes/javascript/palindrome.md)
-- [解析 cookie-2023-01-23](codes/javascript/parseCookie.md)
+- [解析 cookie-2023-01-23](codes/javascript/parse-cookie.md)
 - [前置函数参数-2023-01-24](codes/javascript/partial.md)
 - [后置函数参数-2023-01-25](codes/javascript/partialRight.md)
 - [分区数组-2023-01-26](codes/javascript/partition.md)

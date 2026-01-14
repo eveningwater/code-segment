@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>parse-cookie - Cookie解析与管理中心</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .preset-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .preset-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .result-card.success {
+            border-color: #22c55e;
+        }
+
+        .result-card.error {
+            border-color: #ef4444;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            word-break: break-all;
+        }
+
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .cookie-item {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cookie-key {
+            font-weight: 600;
+            color: #667eea;
+            font-family: 'Monaco', 'Menlo', monospace;
+            word-break: break-all;
+        }
+
+        .cookie-value {
+            color: #374151;
+            font-family: 'Monaco', 'Menlo', monospace;
+            word-break: break-all;
+            flex: 1;
+            background: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #fbbf24;
+        }
+
+        .cookie-copy-btn {
+            padding: 4px 8px;
+            background: #e5e7eb;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .cookie-copy-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-item.error {
+            color: #ff6b6b;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍪 Cookie解析与管理中心</h1>
+            <p>基于 parseCookie 函数的实战示例 - 轻松解析和管理HTTP Cookie数据</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 预设示例</h2>
+                    <div class="preset-selector" id="presetSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 参数配置</h2>
+                    <div class="input-group">
+                        <label>输入Cookie字符串</label>
+                        <textarea id="cookieInput" class="textarea-field" placeholder="输入Cookie字符串，如：session_id=abc123; user_id=456"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="parseBtn">
+                            ▶️ 解析Cookie
+                        </button>
+                        <button class="btn btn-warning btn-block" id="clearBtn">
+                            🔄 清空结果
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalParses">0</div>
+                            <div class="stat-label">解析次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="successCount">0</div>
+                            <div class="stat-label">成功数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="errorCount">0</div>
+                            <div class="stat-label">错误数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📋 解析结果</h2>
+                    <div class="result-panel" id="resultPanel">
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请输入Cookie字符串并解析</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">parseCookie 函数（Cookie字符串解析）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">parseCookie</span> = str => 
+  str.<span class="function">split</span>(<span class="string">";"</span>)
+    .<span class="function">map</span>(v => v.<span class="function">split</span>(<span class="string">"="</span>))
+    .<span class="function">reduce</span>((acc, [key, value]) => {
+      acc[<span class="function">decodeURIComponent</span>(key).<span class="function">trim</span>()]
+        = <span class="function">decodeURIComponent</span>(value).<span class="function">trim</span>();
+      <span class="keyword">return</span> acc;
+    }, {});
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>parseCookie</strong> 函数将Cookie字符串（多个键值对，用分号分隔）解析为JavaScript对象。
+                            它自动处理URL编码、空白符和键值分离，是处理HTTP Cookie的关键工具。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 会话管理（Session ID、用户认证信息）</li>
+                            <li>✓ 用户偏好配置（主题、语言、时区设置）</li>
+                            <li>✓ 购物车数据管理</li>
+                            <li>✓ 用户跟踪和分析</li>
+                            <li>✓ 广告和营销追踪（UTM参数）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // parseCookie 函数：解析Cookie字符串
+        const parseCookie = str => str.split(";").map(v => v.split("=")).reduce((acc, [key, value]) => {
+            acc[decodeURIComponent(key).trim()] = decodeURIComponent(value).trim();
+            return acc;
+        }, {});
+
+        // 预设Cookie示例
+        const presets = {
+            session: 'session_id=abc123def456; user_id=789; username=john_doe; path=%2F',
+            preferences: 'theme=dark; lang=zh-CN; timezone=UTC%2B8; font_size=14',
+            shopping: 'cart_items=3; total_price=299.99; currency=CNY; cart_id=cart_001',
+            tracking: 'track_id=xyz789abc; utm_source=google; utm_medium=cpc; utm_campaign=spring2024',
+            custom: 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9; expires=2026-12-31'
+        };
+
+        // Cookie解析管理中心
+        class CookieParserManager {
+            constructor() {
+                this.plugins = {};
+                this.results = [];
+                this.stats = {
+                    total: 0,
+                    success: 0,
+                    error: 0
+                };
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true,
+                    showStats: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupPresets();
+                this.setupSettings();
+                this.setupButtons();
+                this.updateStats();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupPresets() {
+                const selector = document.getElementById('presetSelector');
+                if (!selector) return;
+
+                const presetLabels = {
+                    session: '🔐 会话Cookie',
+                    preferences: '⚙️ 用户偏好',
+                    shopping: '🛒 购物车数据',
+                    tracking: '📊 跟踪Cookie',
+                    custom: '🔑 自定义Token'
+                };
+
+                selector.innerHTML = Object.entries(presetLabels).map(([key, label]) => `
+                    <button class="preset-btn" data-preset="${key}">
+                        ${label}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('preset-btn')) {
+                        const preset = e.target.dataset.preset;
+                        document.getElementById('cookieInput').value = presets[preset];
+                        this.addLog(`已加载预设: ${e.target.textContent}`, 'info');
+                    }
+                });
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true },
+                    { id: 'showStats', label: '显示详细统计', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                            this.settings.showStats = states[2];
+                            this.renderResults();
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('parseBtn').addEventListener('click', () => {
+                    this.parseCookieString();
+                });
+
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+            }
+
+            parseCookieString() {
+                const input = document.getElementById('cookieInput').value;
+
+                if (!input.trim()) {
+                    this.showNotification('请输入Cookie字符串', 'warning');
+                    return;
+                }
+
+                try {
+                    // 执行 parseCookie 函数
+                    const parsed = parseCookie(input);
+                    const cookieCount = Object.keys(parsed).length;
+
+                    const resultObj = {
+                        id: Date.now(),
+                        raw: input,
+                        parsed: parsed,
+                        cookieCount: cookieCount,
+                        timestamp: new Date().toLocaleString('zh-CN'),
+                        success: true
+                    };
+
+                    this.results.push(resultObj);
+                    this.stats.total++;
+                    this.stats.success++;
+
+                    this.updateStats();
+                    this.renderResults();
+
+                    const message = `成功解析 ${cookieCount} 个Cookie项`;
+                    this.addLog(message, 'success');
+                    this.showNotification(message, 'success');
+
+                } catch (error) {
+                    this.stats.total++;
+                    this.stats.error++;
+                    this.updateStats();
+
+                    const errorMsg = `解析失败: ${error.message}`;
+                    this.addLog(errorMsg, 'error');
+                    this.showNotification(errorMsg, 'error');
+                }
+            }
+
+            renderResults() {
+                const panel = document.getElementById('resultPanel');
+                if (!panel) return;
+
+                if (this.results.length === 0) {
+                    panel.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请输入Cookie字符串并解析</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                panel.innerHTML = this.results.map((res, index) => {
+                    const statusClass = res.success ? 'result-card success' : 'result-card error';
+                    const statusBadge = res.success ? 
+                        `<span class="result-badge badge-success">✓ 成功 (${res.cookieCount}项)</span>` :
+                        `<span class="result-badge badge-error">✗ 失败</span>`;
+                    
+                    const cookieItemsHtml = res.success ? 
+                        Object.entries(res.parsed).map(([key, value]) => `
+                            <div class="cookie-item">
+                                <div class="cookie-key">${key}</div>
+                                <div class="cookie-value">${value}</div>
+                            </div>
+                        `).join('') : '';
+
+                    return `
+                        <div class="${statusClass}">
+                            <div class="result-title">
+                                结果 #${index + 1}
+                                ${statusBadge}
+                            </div>
+
+                            ${res.success && this.settings.showStats ? `
+                                <div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 10px; border-left: 4px solid #667eea; font-size: 0.9rem; color: #374151;">
+                                    <strong>📊 统计信息</strong>
+                                    <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                        <div>Cookie项数: <strong>${res.cookieCount}</strong></div>
+                                        <div>解析时间: <strong>${res.timestamp}</strong></div>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${res.success ? `
+                                <div style="margin-bottom: 16px;">
+                                    <div style="font-weight: 600; color: #374151; margin-bottom: 12px;">🍪 解析结果</div>
+                                    ${cookieItemsHtml}
+                                </div>
+
+                                <div style="background: white; border-radius: 10px; padding: 12px; border-left: 4px solid #667eea; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.85rem; color: #374151; word-break: break-all;">
+                                    <strong>原始字符串:</strong><br>
+                                    ${res.raw}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                document.getElementById('totalParses').textContent = this.stats.total;
+                document.getElementById('successCount').textContent = this.stats.success;
+                document.getElementById('errorCount').textContent = this.stats.error;
+            }
+
+            clearResults() {
+                this.results = [];
+                document.getElementById('cookieInput').value = '';
+                this.renderResults();
+                this.addLog('结果已清空', 'info');
+                this.showNotification('结果已清空', 'success');
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.cookieParserManager = new CookieParserManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.cookieParserManager) {
+            window.cookieParserManager = new CookieParserManager();
+        }
+    </script>
+</body>
+
+</html>
