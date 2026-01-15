@@ -493,7 +493,7 @@
 - [是否是回文字符串-2023-01-22](codes/javascript/palindrome.md)
 - [解析 cookie-2023-01-23](codes/javascript/parse-cookie.md)
 - [前置函数参数-2023-01-24](codes/javascript/partial.md)
-- [后置函数参数-2023-01-25](codes/javascript/partialRight.md)
+- [后置函数参数-2023-01-25](codes/javascript/partial-right.md)
 - [分区数组-2023-01-26](codes/javascript/partition.md)
 - [根据回调函数分区数组-2023-01-27](codes/javascript/partitionBy.md)
 - [计算百分比-2023-01-28](codes/javascript/percentile.md)
