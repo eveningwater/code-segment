@@ -485,7 +485,7 @@
 - [前置函数参数-2023-01-24](codes/javascript/partial.md)
 - [后置函数参数-2023-01-25](codes/javascript/partial-right.md)
 - [分区数组-2023-01-26](codes/javascript/partition.md)
-- [根据回调函数分区数组-2023-01-27](codes/javascript/partitionBy.md)
+- [根据回调函数分区数组-2023-01-27](codes/javascript/partition-by.md)
 - [计算百分比-2023-01-28](codes/javascript/percentile.md)
 - [数组排列-2023-01-29](codes/javascript/permutations.md)
 - [从对象中选取给定的键值对-2023-01-30](codes/javascript/pick.md)

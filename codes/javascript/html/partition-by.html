@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>partition-by - 连续分组与数据分段中心</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .preset-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .preset-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .result-card.success {
+            border-color: #22c55e;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: auto;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .groups-display {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .group-item {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            min-width: 60px;
+        }
+
+        .group-content {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .item-tag {
+            background: #f0f4ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            border: 1px solid #667eea;
+            color: #667eea;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 0.85rem;
+            margin-top: 12px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 3px solid #667eea;
+        }
+
+        .stat-item-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .stat-item-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔀 连续分组与数据分段中心</h1>
+            <p>基于 partitionBy 函数的实战示例 - 轻松按条件连续分组并分段处理</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 预设场景</h2>
+                    <div class="preset-selector" id="presetSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 参数配置</h2>
+                    <div class="input-group">
+                        <label id="dataLabel">输入数据</label>
+                        <textarea id="dataInput" class="textarea-field" placeholder="输入数据，多个值用逗号分隔"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="partitionBtn">
+                            ▶️ 执行分组
+                        </button>
+                        <button class="btn btn-warning btn-block" id="clearBtn">
+                            🔄 清空结果
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalPartitions">0</div>
+                            <div class="stat-label">分组次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="groupCount">0</div>
+                            <div class="stat-label">组数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalItems">0</div>
+                            <div class="stat-label">总项数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📋 分组结果</h2>
+                    <div class="result-panel" id="resultPanel">
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并执行分组</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">partitionBy 函数（连续分组）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">partitionBy</span> = (arr, fn) =>
+  arr.<span class="function">reduce</span>(({ res, last }, v, i, arr) => {
+    <span class="keyword">const</span> next = <span class="function">fn</span>(v, i, arr);
+    <span class="keyword">if</span> (next !== last) {
+      res.<span class="function">push</span>([v]);
+    } <span class="keyword">else</span> {
+      res[res.length - 1].<span class="function">push</span>(v);
+    }
+    <span class="keyword">return</span> { res, last: next };
+  }, { res: [] }).res;
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>partitionBy</strong> 根据函数返回值的变化对数组进行连续分组。
+                            相邻元素若函数返回值相同则在同一组，值变化时新建一组。适合处理连续的状态变化和数据分段。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 连续分组（偶数/奇数段、上升/下降段）</li>
+                            <li>✓ 状态变化追踪（开启/关闭、连接/断开）</li>
+                            <li>✓ 时间序列分段（不同时间段的数据）</li>
+                            <li>✓ 文本行分类（不同类型的代码行）</li>
+                            <li>✓ 网络请求分组（成功/失败的连续请求）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // partitionBy 函数：连续分组
+        const partitionBy = (arr, fn) => arr.reduce(({ res, last }, v, i, arr) => {
+            const next = fn(v, i, arr);
+            if (next !== last) {
+                res.push([v]);
+            } else {
+                res[res.length - 1].push(v);
+            }
+            return { res, last: next };
+        }, { res: [] }).res;
+
+        // 预设场景及其对应函数
+        const scenarios = {
+            evenOdd: {
+                name: '🔢 偶数/奇数段',
+                fn: val => val % 2 === 0 ? 'even' : 'odd',
+                data: '1,2,3,4,5,6,7,8,9,2,4,6,1,3,5',
+                description: '按偶数/奇数连续分组'
+            },
+            upDown: {
+                name: '📈 上升/下降段',
+                fn: (val, i, arr) => {
+                    if (i === 0) return 'start';
+                    return val > arr[i - 1] ? 'up' : val < arr[i - 1] ? 'down' : 'flat';
+                },
+                data: '1,3,5,7,4,2,1,4,7,10,9,8,5',
+                description: '按数据趋势连续分组'
+            },
+            length: {
+                name: '📏 字符长度段',
+                fn: val => val.length > 3 ? 'long' : 'short',
+                data: 'a,b,cat,dog,bird,fish,x,y,elephant,ant',
+                description: '按名字长度连续分组'
+            },
+            type: {
+                name: '🔤 数据类型段',
+                fn: val => {
+                    if (typeof val === 'number') return 'num';
+                    if (val === 'true' || val === 'false') return 'bool';
+                    return 'str';
+                },
+                data: '1,2,3,true,false,hello,world,10,20,yes,no',
+                description: '按数据类型连续分组'
+            },
+            sign: {
+                name: '±️ 正负号段',
+                fn: val => {
+                    const num = parseInt(val);
+                    return num > 0 ? 'positive' : num < 0 ? 'negative' : 'zero';
+                },
+                data: '5,10,3,0,-2,-5,-1,7,8,0,3',
+                description: '按数值正负性连续分组'
+            }
+        };
+
+        // 连续分组管理中心
+        class PartitionByManager {
+            constructor() {
+                this.plugins = {};
+                this.results = [];
+                this.currentScenario = 'evenOdd';
+                this.stats = {
+                    total: 0,
+                    totalGroups: 0,
+                    totalItems: 0
+                };
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true,
+                    showStats: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupPresets();
+                this.setupSettings();
+                this.setupButtons();
+                this.updateScenario();
+                this.updateStats();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupPresets() {
+                const selector = document.getElementById('presetSelector');
+                if (!selector) return;
+
+                selector.innerHTML = Object.entries(scenarios).map(([key, scenario]) => `
+                    <button class="preset-btn" data-scenario="${key}">
+                        ${scenario.name}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('preset-btn')) {
+                        this.currentScenario = e.target.dataset.scenario;
+                        this.updateScenario();
+                    }
+                });
+            }
+
+            updateScenario() {
+                const scenario = scenarios[this.currentScenario];
+                if (!scenario) return;
+
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector('[data-scenario="' + this.currentScenario + '"]').classList.add('active');
+
+                document.getElementById('dataInput').value = scenario.data;
+                document.getElementById('dataLabel').textContent = scenario.description;
+
+                this.addLog(`已切换场景: ${scenario.name}`, 'info');
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true },
+                    { id: 'showStats', label: '显示统计信息', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                            this.settings.showStats = states[2];
+                            this.renderResults();
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('partitionBtn').addEventListener('click', () => {
+                    this.executePartitionBy();
+                });
+
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+            }
+
+            parseData(input) {
+                return input.split(',').map(s => {
+                    const trimmed = s.trim();
+                    const num = parseInt(trimmed);
+                    return isNaN(num) ? trimmed : num;
+                });
+            }
+
+            executePartitionBy() {
+                const input = document.getElementById('dataInput').value;
+                const scenario = scenarios[this.currentScenario];
+
+                if (!input.trim()) {
+                    this.showNotification('请输入数据', 'warning');
+                    return;
+                }
+
+                try {
+                    // 解析数据
+                    const data = this.parseData(input);
+                    
+                    // 执行 partitionBy 函数
+                    const groups = partitionBy(data, scenario.fn);
+
+                    const resultObj = {
+                        id: Date.now(),
+                        scenario: scenario.name,
+                        groups: groups,
+                        groupCount: groups.length,
+                        totalCount: data.length,
+                        timestamp: new Date().toLocaleString('zh-CN'),
+                        success: true
+                    };
+
+                    this.results.push(resultObj);
+                    this.stats.total++;
+                    this.stats.totalGroups += groups.length;
+                    this.stats.totalItems += data.length;
+
+                    this.updateStats();
+                    this.renderResults();
+
+                    const message = `成功分组: ${groups.length} 个组，共 ${data.length} 项`;
+                    this.addLog(message, 'success');
+                    this.showNotification(message, 'success');
+
+                } catch (error) {
+                    const errorMsg = `执行失败: ${error.message}`;
+                    this.addLog(errorMsg, 'warning');
+                    this.showNotification(errorMsg, 'error');
+                }
+            }
+
+            formatValue(val) {
+                if (typeof val === 'object') {
+                    return JSON.stringify(val);
+                }
+                return String(val);
+            }
+
+            renderResults() {
+                const panel = document.getElementById('resultPanel');
+                if (!panel) return;
+
+                if (this.results.length === 0) {
+                    panel.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并执行分组</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                panel.innerHTML = this.results.map((res, index) => {
+                    const groupsHtml = res.groups.map((group, groupIdx) => `
+                        <div class="group-item">
+                            <div class="group-label">第 ${groupIdx + 1} 组</div>
+                            <div class="group-content">
+                                ${group.map(val => `<span class="item-tag">${this.formatValue(val)}</span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+
+                    const avgSize = (res.totalCount / res.groupCount).toFixed(2);
+
+                    return `
+                        <div class="result-card success">
+                            <div class="result-title">
+                                结果 #${index + 1}
+                                <span class="result-badge">✓ ${res.scenario}</span>
+                            </div>
+
+                            <div class="groups-display">
+                                ${groupsHtml}
+                            </div>
+
+                            ${this.settings.showStats ? `
+                            <div class="result-stats">
+                                <div class="stat-item">
+                                    <div class="stat-item-value">${res.groupCount}</div>
+                                    <div class="stat-item-label">分组数</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-item-value">${res.totalCount}</div>
+                                    <div class="stat-item-label">总项数</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-item-value">${avgSize}</div>
+                                    <div class="stat-item-label">平均组大</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-item-value" style="font-size: 0.75rem;">${res.timestamp}</div>
+                                    <div class="stat-item-label">执行时间</div>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                document.getElementById('totalPartitions').textContent = this.stats.total;
+                document.getElementById('groupCount').textContent = this.stats.totalGroups;
+                document.getElementById('totalItems').textContent = this.stats.totalItems;
+            }
+
+            clearResults() {
+                this.results = [];
+                this.stats = { total: 0, totalGroups: 0, totalItems: 0 };
+                this.renderResults();
+                this.updateStats();
+                this.addLog('结果已清空', 'info');
+                this.showNotification('结果已清空', 'success');
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.partitionByManager = new PartitionByManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.partitionByManager) {
+            window.partitionByManager = new PartitionByManager();
+        }
+    </script>
+</body>
+
+</html>
