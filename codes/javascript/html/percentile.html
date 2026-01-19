@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>percentile - 数据百分位数计算中心</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .preset-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .preset-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .result-card.success {
+            border-color: #22c55e;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: auto;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .percentile-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .percentile-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .percentile-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .percentile-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 30px;
+            margin-top: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .percentile-progress {
+            background: rgba(255, 255, 255, 0.9);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .data-summary {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .summary-item {
+            border-left: 3px solid #667eea;
+            padding-left: 12px;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .summary-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 4px;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 数据百分位数计算中心</h1>
+            <p>基于 percentile 函数的实战示例 - 统计分析与数据排序评估</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 预设场景</h2>
+                    <div class="preset-selector" id="presetSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 参数配置</h2>
+                    <div class="input-group">
+                        <label id="dataLabel">输入数据集</label>
+                        <textarea id="dataInput" class="textarea-field" placeholder="输入数据，多个值用逗号分隔"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label id="valueLabel">目标数值</label>
+                        <input id="valueInput" type="number" class="input-field" placeholder="输入要计算的数值">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="calculateBtn">
+                            ▶️ 计算百分位
+                        </button>
+                        <button class="btn btn-warning btn-block" id="clearBtn">
+                            🔄 清空结果
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalCalculations">0</div>
+                            <div class="stat-label">计算次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgPercentile">0</div>
+                            <div class="stat-label">平均百分位</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="maxPercentile">0</div>
+                            <div class="stat-label">最高百分位</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📊 百分位结果</h2>
+                    <div class="result-panel" id="resultPanel">
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并计算百分位</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">percentile 函数（百分位数计算）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">percentile</span> = (arr, val) =>
+  100 * arr.<span class="function">reduce</span>((acc, v) =>
+    acc + (v &lt; val ? 1 : 0) + (v === val ? 0.5 : 0),
+  0) / arr.length;
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>percentile</strong> 计算一个数值在数据集中的百分位数。
+                            返回值表示有多少百分比的数据小于或等于该值。
+                            百分位数是统计分析中的关键指标，用于数据排序和评估。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 考试成绩评估（学生排名百分位）</li>
+                            <li>✓ 收入分布分析（收入百分位数）</li>
+                            <li>✓ 性能基准测试（响应时间百分位）</li>
+                            <li>✓ 学生身高体重评估（生长百分位）</li>
+                            <li>✓ 市场价格分析（商品价格百分位）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // percentile 函数：计算百分位数
+        const percentile = (arr, val) => 100 * arr.reduce((acc, v) => acc + (v < val ? 1 : 0) + (v === val ? 0.5 : 0), 0) / arr.length;
+
+        // 预设场景
+        const scenarios = {
+            examScores: {
+                name: '🎓 考试成绩',
+                data: '45,52,58,62,68,72,75,78,80,82,85,88,90,92,95,98',
+                value: 75,
+                description: '学生考试成绩百分位分析'
+            },
+            responseTime: {
+                name: '⚡ 响应时间',
+                data: '10,15,20,25,30,35,40,45,50,55,60,70,80,100,150,200',
+                value: 50,
+                description: 'API 响应时间百分位评估'
+            },
+            salary: {
+                name: '💰 薪资分布',
+                data: '15000,18000,20000,22000,25000,28000,30000,32000,35000,38000,40000,45000,50000,60000,80000',
+                value: 30000,
+                description: '员工薪资百分位排列'
+            },
+            pageLoad: {
+                name: '📄 页面加载',
+                data: '500,600,700,800,900,1000,1100,1200,1300,1400,1500,1800,2000,2500,3000,5000',
+                value: 1200,
+                description: '网页加载时间百分位分布'
+            },
+            studentHeight: {
+                name: '📏 学生身高',
+                data: '155,158,160,162,164,166,168,170,172,174,176,178,180,182,185,190',
+                value: 170,
+                description: '学生身高百分位评估'
+            }
+        };
+
+        // 百分位数管理中心
+        class PercentileManager {
+            constructor() {
+                this.plugins = {};
+                this.results = [];
+                this.currentScenario = 'examScores';
+                this.stats = {
+                    total: 0,
+                    totalPercentiles: 0,
+                    maxPercentile: 0
+                };
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true,
+                    showStats: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupPresets();
+                this.setupSettings();
+                this.setupButtons();
+                this.updateScenario();
+                this.updateStats();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupPresets() {
+                const selector = document.getElementById('presetSelector');
+                if (!selector) return;
+
+                selector.innerHTML = Object.entries(scenarios).map(([key, scenario]) => `
+                    <button class="preset-btn" data-scenario="${key}">
+                        ${scenario.name}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('preset-btn')) {
+                        this.currentScenario = e.target.dataset.scenario;
+                        this.updateScenario();
+                    }
+                });
+            }
+
+            updateScenario() {
+                const scenario = scenarios[this.currentScenario];
+                if (!scenario) return;
+
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector('[data-scenario="' + this.currentScenario + '"]').classList.add('active');
+
+                document.getElementById('dataInput').value = scenario.data;
+                document.getElementById('valueInput').value = scenario.value;
+                document.getElementById('dataLabel').textContent = scenario.description;
+
+                this.addLog(`已切换场景: ${scenario.name}`, 'info');
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true },
+                    { id: 'showStats', label: '显示统计信息', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                            this.settings.showStats = states[2];
+                            this.renderResults();
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('calculateBtn').addEventListener('click', () => {
+                    this.executePercentile();
+                });
+
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+            }
+
+            parseData(input) {
+                return input.split(',').map(s => {
+                    const num = parseFloat(s.trim());
+                    return isNaN(num) ? 0 : num;
+                }).sort((a, b) => a - b);
+            }
+
+            executePercentile() {
+                const dataInput = document.getElementById('dataInput').value;
+                const valueInput = document.getElementById('valueInput').value;
+
+                if (!dataInput.trim() || valueInput === '') {
+                    this.showNotification('请输入完整的数据和目标值', 'warning');
+                    return;
+                }
+
+                try {
+                    // 解析数据
+                    const data = this.parseData(dataInput);
+                    const targetValue = parseFloat(valueInput);
+
+                    if (isNaN(targetValue)) {
+                        throw new Error('目标值必须是数字');
+                    }
+
+                    // 执行 percentile 函数
+                    const result = percentile(data, targetValue);
+
+                    // 计算额外统计信息
+                    const minVal = Math.min(...data);
+                    const maxVal = Math.max(...data);
+                    const avgVal = (data.reduce((a, b) => a + b, 0) / data.length).toFixed(2);
+                    const medianVal = data.length % 2 === 0 
+                        ? ((data[Math.floor(data.length / 2) - 1] + data[Math.floor(data.length / 2)]) / 2).toFixed(2)
+                        : data[Math.floor(data.length / 2)];
+
+                    const resultObj = {
+                        id: Date.now(),
+                        scenario: scenarios[this.currentScenario].name,
+                        targetValue: targetValue,
+                        percentile: result.toFixed(2),
+                        data: data,
+                        stats: {
+                            count: data.length,
+                            min: minVal,
+                            max: maxVal,
+                            avg: avgVal,
+                            median: medianVal
+                        },
+                        timestamp: new Date().toLocaleString('zh-CN'),
+                        success: true
+                    };
+
+                    this.results.push(resultObj);
+                    this.stats.total++;
+                    this.stats.totalPercentiles += result;
+                    this.stats.maxPercentile = Math.max(this.stats.maxPercentile, result);
+
+                    this.updateStats();
+                    this.renderResults();
+
+                    const message = `计算完成: ${targetValue} 的百分位数为 ${result.toFixed(2)}%`;
+                    this.addLog(message, 'success');
+                    this.showNotification(message, 'success');
+
+                } catch (error) {
+                    const errorMsg = `执行失败: ${error.message}`;
+                    this.addLog(errorMsg, 'warning');
+                    this.showNotification(errorMsg, 'error');
+                }
+            }
+
+            renderResults() {
+                const panel = document.getElementById('resultPanel');
+                if (!panel) return;
+
+                if (this.results.length === 0) {
+                    panel.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并计算百分位</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                panel.innerHTML = this.results.map((res, index) => {
+                    const percentileVal = parseFloat(res.percentile);
+                    const rank = percentileVal >= 90 ? '🏆 优秀' : 
+                                percentileVal >= 75 ? '⭐ 良好' : 
+                                percentileVal >= 50 ? '👍 中等' : '📊 需改善';
+
+                    return `
+                        <div class="result-card success">
+                            <div class="result-title">
+                                结果 #${index + 1}
+                                <span class="result-badge">${res.scenario}</span>
+                            </div>
+
+                            <div class="percentile-display">
+                                <div class="percentile-label">百分位数</div>
+                                <div class="percentile-value">${res.percentile}%</div>
+                                <div class="percentile-label">目标值: ${res.targetValue}</div>
+                                <div class="percentile-bar">
+                                    <div class="percentile-progress" style="width: ${Math.min(percentileVal, 100)}%;">
+                                        ${Math.min(percentileVal, 100).toFixed(0)}%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="data-summary">
+                                <div class="summary-item">
+                                    <div class="summary-label">排名等级</div>
+                                    <div class="summary-value">${rank}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">数据总数</div>
+                                    <div class="summary-value">${res.stats.count}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">最小值</div>
+                                    <div class="summary-value">${res.stats.min}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">最大值</div>
+                                    <div class="summary-value">${res.stats.max}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">平均值</div>
+                                    <div class="summary-value">${res.stats.avg}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">中位数</div>
+                                    <div class="summary-value">${res.stats.median}</div>
+                                </div>
+                            </div>
+
+                            ${this.settings.showStats ? `
+                            <div style="font-size: 0.85rem; color: #64748b; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                                ⏰ ${res.timestamp}
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                document.getElementById('totalCalculations').textContent = this.stats.total;
+                document.getElementById('avgPercentile').textContent = this.stats.total > 0 
+                    ? (this.stats.totalPercentiles / this.stats.total).toFixed(1) 
+                    : '0';
+                document.getElementById('maxPercentile').textContent = this.stats.maxPercentile.toFixed(1);
+            }
+
+            clearResults() {
+                this.results = [];
+                this.stats = { total: 0, totalPercentiles: 0, maxPercentile: 0 };
+                this.renderResults();
+                this.updateStats();
+                this.addLog('结果已清空', 'info');
+                this.showNotification('结果已清空', 'success');
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.percentileManager = new PercentileManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.percentileManager) {
+            window.percentileManager = new PercentileManager();
+        }
+    </script>
+</body>
+
+</html>
