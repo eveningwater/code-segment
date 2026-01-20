@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pick - 对象属性提取中心</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .preset-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .preset-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .result-card.success {
+            border-color: #22c55e;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: auto;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .key-tag {
+            display: inline-block;
+            background: #f0f4ff;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 600;
+            border: 1px solid #667eea;
+        }
+
+        .value-display {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            border-left: 3px solid #667eea;
+            word-break: break-all;
+        }
+
+        .stats-summary {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .summary-item {
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 对象属性提取中心</h1>
+            <p>基于 pick 函数的实战示例 - 快速提取对象中的指定属性</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 预设场景</h2>
+                    <div class="preset-selector" id="presetSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 参数配置</h2>
+                    <div class="input-group">
+                        <label id="dataLabel">输入对象数据</label>
+                        <textarea id="dataInput" class="textarea-field" placeholder="输入 JSON 格式的对象"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label id="keysLabel">提取的属性键</label>
+                        <input id="keysInput" type="text" class="input-field" placeholder="输入键名，多个用逗号分隔">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="pickBtn">
+                            ▶️ 执行提取
+                        </button>
+                        <button class="btn btn-warning btn-block" id="clearBtn">
+                            🔄 清空结果
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalOperations">0</div>
+                            <div class="stat-label">执行次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalKeysExtracted">0</div>
+                            <div class="stat-label">总属性数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgKeysPerOp">0</div>
+                            <div class="stat-label">平均属性</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📊 提取结果</h2>
+                    <div class="result-panel" id="resultPanel">
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并执行提取</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">pick 函数（属性提取）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">pick</span> = (obj, arr) =>
+  arr.<span class="function">reduce</span>((acc, key) =>
+    (key <span class="keyword">in</span> obj && (acc[key] = obj[key]), acc),
+  {});
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>pick</strong> 从对象中提取指定的属性，返回一个新对象。
+                            只包含数组中指定的键及其对应的值，忽略不存在的键。
+                            常用于数据过滤、隐私保护和API响应处理。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 用户信息提取（仅获取公开字段）</li>
+                            <li>✓ API响应处理（过滤不需要的数据）</li>
+                            <li>✓ 表单提交（只提交必要字段）</li>
+                            <li>✓ 数据隐私保护（移除敏感字段）</li>
+                            <li>✓ 配置对象处理（提取特定配置项）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // pick 函数：提取对象的指定属性
+        const pick = (obj, arr) => arr.reduce((acc, key) => (key in obj && (acc[key] = obj[key]), acc), {});
+
+        // 预设场景
+        const scenarios = {
+            userInfo: {
+                name: '👤 用户信息',
+                data: { id: 12345, name: '张三', email: 'zhangsan@example.com', phone: '13800138000', age: 28, status: 'active', createdAt: '2023-01-15', lastLogin: '2024-01-19' },
+                keys: 'id,name,email,status',
+                description: '从完整用户对象中提取公开字段'
+            },
+            apiResponse: {
+                name: '🌐 API响应',
+                data: { success: true, code: 200, message: 'OK', data: { id: 1, title: 'Product A', price: 99.99, inventory: 50, supplier: 'ABC Inc', warehouse: 'NY' }, timestamp: 1705686000000, requestId: 'req_12345' },
+                keys: 'success,code,data,timestamp',
+                description: '从API响应中提取关键信息'
+            },
+            productData: {
+                name: '📦 产品属性',
+                data: { sku: 'PROD-001', name: 'Laptop', price: 1299.99, currency: 'USD', stock: 45, category: 'Electronics', brand: 'TechCorp', manufacturer: 'TechCorp Inc', warehouseId: 'WH-01', lastUpdated: '2024-01-19' },
+                keys: 'sku,name,price,stock,category',
+                description: '从产品对象中提取主要属性'
+            },
+            configSettings: {
+                name: '⚙️ 配置提取',
+                data: { appName: 'MyApp', version: '2.1.0', debug: false, apiUrl: 'https://api.example.com', apiKey: 'sk_xxxx', timeout: 5000, maxRetries: 3, logLevel: 'info', databaseUrl: 'mysql://localhost' },
+                keys: 'appName,version,apiUrl,timeout,maxRetries',
+                description: '从应用配置中提取使用的设置项'
+            },
+            formData: {
+                name: '📋 表单数据',
+                data: { firstName: 'John', lastName: 'Doe', email: 'john@example.com', phone: '555-1234', company: 'Acme Corp', department: 'Sales', title: 'Manager', address: '123 Main St', city: 'New York', country: 'USA', bio: 'Experienced professional' },
+                keys: 'firstName,lastName,email,company,title',
+                description: '从完整表单数据中提取关键字段'
+            }
+        };
+
+        // pick 管理中心
+        class PickManager {
+            constructor() {
+                this.plugins = {};
+                this.results = [];
+                this.currentScenario = 'userInfo';
+                this.stats = {
+                    total: 0,
+                    totalKeys: 0
+                };
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true,
+                    showStats: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupPresets();
+                this.setupSettings();
+                this.setupButtons();
+                this.updateScenario();
+                this.updateStats();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupPresets() {
+                const selector = document.getElementById('presetSelector');
+                if (!selector) return;
+
+                selector.innerHTML = Object.entries(scenarios).map(([key, scenario]) => `
+                    <button class="preset-btn" data-scenario="${key}">
+                        ${scenario.name}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('preset-btn')) {
+                        this.currentScenario = e.target.dataset.scenario;
+                        this.updateScenario();
+                    }
+                });
+            }
+
+            updateScenario() {
+                const scenario = scenarios[this.currentScenario];
+                if (!scenario) return;
+
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector('[data-scenario="' + this.currentScenario + '"]').classList.add('active');
+
+                document.getElementById('dataInput').value = JSON.stringify(scenario.data, null, 2);
+                document.getElementById('keysInput').value = scenario.keys;
+                document.getElementById('dataLabel').textContent = scenario.description;
+
+                this.addLog(`已切换场景: ${scenario.name}`, 'info');
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true },
+                    { id: 'showStats', label: '显示统计信息', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                            this.settings.showStats = states[2];
+                            this.renderResults();
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('pickBtn').addEventListener('click', () => {
+                    this.executePick();
+                });
+
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+            }
+
+            executePick() {
+                const dataInput = document.getElementById('dataInput').value;
+                const keysInput = document.getElementById('keysInput').value;
+
+                if (!dataInput.trim() || !keysInput.trim()) {
+                    this.showNotification('请输入完整的对象数据和属性键', 'warning');
+                    return;
+                }
+
+                try {
+                    // 解析数据
+                    const obj = JSON.parse(dataInput);
+                    const keys = keysInput.split(',').map(k => k.trim()).filter(k => k.length > 0);
+
+                    if (!Array.isArray(keys) || keys.length === 0) {
+                        throw new Error('属性键必须为非空数组');
+                    }
+
+                    // 执行 pick 函数
+                    const result = pick(obj, keys);
+
+                    // 统计信息
+                    const foundKeys = Object.keys(result);
+                    const missingKeys = keys.filter(k => !(k in obj));
+
+                    const resultObj = {
+                        id: Date.now(),
+                        scenario: scenarios[this.currentScenario].name,
+                        originalObj: obj,
+                        requestedKeys: keys,
+                        result: result,
+                        foundKeys: foundKeys,
+                        missingKeys: missingKeys,
+                        foundCount: foundKeys.length,
+                        requestedCount: keys.length,
+                        timestamp: new Date().toLocaleString('zh-CN'),
+                        success: true
+                    };
+
+                    this.results.push(resultObj);
+                    this.stats.total++;
+                    this.stats.totalKeys += foundKeys.length;
+
+                    this.updateStats();
+                    this.renderResults();
+
+                    const message = `提取完成: 从 ${keys.length} 个请求属性中找到 ${foundKeys.length} 个`;
+                    this.addLog(message, 'success');
+                    this.showNotification(message, 'success');
+
+                } catch (error) {
+                    const errorMsg = `执行失败: ${error.message}`;
+                    this.addLog(errorMsg, 'warning');
+                    this.showNotification(errorMsg, 'error');
+                }
+            }
+
+            renderResults() {
+                const panel = document.getElementById('resultPanel');
+                if (!panel) return;
+
+                if (this.results.length === 0) {
+                    panel.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并执行提取</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                panel.innerHTML = this.results.map((res, index) => {
+                    const resultTable = `
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>属性键</th>
+                                    <th>提取值</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${res.requestedKeys.map(key => {
+                                    const found = key in res.result;
+                                    const value = res.result[key];
+                                    const displayValue = typeof value === 'object' 
+                                        ? JSON.stringify(value)
+                                        : String(value);
+                                    
+                                    return `
+                                        <tr>
+                                            <td><span class="key-tag">${key}</span></td>
+                                            <td><code style="font-family: 'Monaco', monospace; font-size: 0.85rem;">${this.escapeHtml(displayValue.substring(0, 50))}</code></td>
+                                            <td>${found ? '✅ 已提取' : '❌ 不存在'}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                    const detailsHtml = `
+                        <div style="background: #f8fafc; padding: 14px; border-radius: 10px; margin-top: 16px; border-left: 3px solid #667eea;">
+                            <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95rem;">📄 提取结果对象</h4>
+                            <div class="value-display">${this.escapeHtml(JSON.stringify(res.result, null, 2))}</div>
+                        </div>
+                    `;
+
+                    return `
+                        <div class="result-card success">
+                            <div class="result-title">
+                                结果 #${index + 1}
+                                <span class="result-badge">${res.scenario}</span>
+                            </div>
+
+                            <div class="comparison-table">
+                                ${resultTable}
+                            </div>
+
+                            ${this.settings.showStats ? `
+                            <div class="stats-summary">
+                                <div class="summary-item">
+                                    <div class="summary-label">请求属性数</div>
+                                    <div class="summary-value">${res.requestedCount}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">成功提取</div>
+                                    <div class="summary-value" style="color: #22c55e;">${res.foundCount}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">缺失属性</div>
+                                    <div class="summary-value" style="color: ${res.missingKeys.length > 0 ? '#ef4444' : '#22c55e'};">${res.missingKeys.length}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">成功率</div>
+                                    <div class="summary-value">${((res.foundCount / res.requestedCount) * 100).toFixed(0)}%</div>
+                                </div>
+                            </div>
+                            ` : ''}
+
+                            ${detailsHtml}
+
+                            <div style="font-size: 0.85rem; color: #64748b; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                                ⏰ ${res.timestamp}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                document.getElementById('totalOperations').textContent = this.stats.total;
+                document.getElementById('totalKeysExtracted').textContent = this.stats.totalKeys;
+                document.getElementById('avgKeysPerOp').textContent = this.stats.total > 0 
+                    ? (this.stats.totalKeys / this.stats.total).toFixed(1)
+                    : '0';
+            }
+
+            clearResults() {
+                this.results = [];
+                this.stats = { total: 0, totalKeys: 0 };
+                this.renderResults();
+                this.updateStats();
+                this.addLog('结果已清空', 'info');
+                this.showNotification('结果已清空', 'success');
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.pickManager = new PickManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.pickManager) {
+            window.pickManager = new PickManager();
+        }
+    </script>
+</body>
+
+</html>
