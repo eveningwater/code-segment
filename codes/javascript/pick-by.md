@@ -12,6 +12,8 @@
 const pickBy = (obj,fn) => Object.keys(obj).filter(key => fn(obj[key],key)).reduce((acc,key) => (key in obj && (acc[key] = obj[key]),acc),{});
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/pick-by.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,3 +22,12 @@ pickBy({ a: 1, b: '2', c: 3 }, x => typeof x === 'number');
 ```
 
 > 应用场景
+
+
+以下是一个实战<a href="codes/javascript/html/pick-by.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/pick-by.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/pick-by.html"></iframe>
