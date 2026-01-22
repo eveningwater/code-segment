@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pipe-async-functions - 异步函数管道中心</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .textarea-field {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input-field:focus,
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .preset-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .preset-btn:hover {
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .result-card.success {
+            border-color: #22c55e;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: auto;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .pipeline-steps {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-label {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .step-result {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            color: #667eea;
+            border: 1px solid #e5e7eb;
+            word-break: break-all;
+            max-height: 60px;
+            overflow: hidden;
+        }
+
+        .step-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .stats-summary {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .summary-item {
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        .final-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+
+        .final-result-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .final-result-value {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-item {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-item.success {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .log-item.info {
+            color: #82aaff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item.warning {
+            color: #fde047;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .log-time {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-right: 8px;
+        }
+
+        .code-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .code-preview .keyword {
+            color: #c792ea;
+        }
+
+        .code-preview .function {
+            color: #82aaff;
+        }
+
+        .code-preview .string {
+            color: #c3e88d;
+        }
+
+        .checkbox-container {
+            margin-top: 12px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⛓️ 异步函数管道中心</h1>
+            <p>基于 pipeAsyncFunctions 函数的实战示例 - 链式异步函数组合与执行</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>📝 预设场景</h2>
+                    <div class="preset-selector" id="presetSelector"></div>
+                </div>
+
+                <div class="card">
+                    <h2>⚙️ 参数配置</h2>
+                    <div class="input-group">
+                        <label id="dataLabel">输入初始值</label>
+                        <input id="dataInput" type="text" class="input-field" placeholder="输入初始数据">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-block" id="executeBtn">
+                            ▶️ 执行管道
+                        </button>
+                        <button class="btn btn-warning btn-block" id="clearBtn">
+                            🔄 清空结果
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 统计信息</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalExecutions">0</div>
+                            <div class="stat-label">执行次数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalSteps">0</div>
+                            <div class="stat-label">总步数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgTime">0</div>
+                            <div class="stat-label">平均耗时</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔧 选项设置</h2>
+                    <div class="checkbox-container" id="settingsGroup"></div>
+                </div>
+            </div>
+
+            <!-- 右侧展示区域 -->
+            <div class="visualization">
+                <div class="card">
+                    <h2>📊 执行结果</h2>
+                    <div class="result-panel" id="resultPanel">
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并执行管道</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📜 操作日志</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-item info">
+                            <span class="log-time">[系统]</span>
+                            系统已初始化，等待操作...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📖 函数说明</h2>
+                    <div style="background:#f8fafc;padding:20px;border-radius:14px;">
+                        <h3 style="color:#667eea;margin-bottom:12px;">pipeAsyncFunctions 函数（异步管道）</h3>
+                        <div class="code-preview">
+<span class="keyword">const</span> <span class="function">pipeAsyncFunctions</span> = (...fns) =>
+  arg => fns.<span class="function">reduce</span>(
+    (p, f) => p.<span class="function">then</span>(f),
+    Promise.<span class="function">resolve</span>(arg)
+  );
+                        </div>
+                        <p style="color:#374151;line-height:1.8;margin-top:16px;">
+                            <strong>pipeAsyncFunctions</strong> 将多个异步函数组合成一个管道。
+                            接受多个异步函数，返回一个函数，该函数接收初始值并依次执行每个异步函数，
+                            前一个函数的输出作为后一个函数的输入。
+                        </p>
+                        <h3 style="color:#667eea;margin:20px 0 12px;">应用场景</h3>
+                        <ul style="color:#374151;line-height:1.8;padding-left:20px; list-style-position: inside;">
+                            <li>✓ 数据处理流程（验证→转换→发送）</li>
+                            <li>✓ API调用链（获取→解析→处理）</li>
+                            <li>✓ 文件处理流程（读取→转换→保存）</li>
+                            <li>✓ 认证授权链（验证→解析→检查）</li>
+                            <li>✓ 工作流程（步骤1→步骤2→步骤3）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // pipeAsyncFunctions 函数：异步管道
+        const pipeAsyncFunctions = (...fns) => arg => fns.reduce((p, f) => p.then(f), Promise.resolve(arg));
+
+        // 异步函数库
+        const asyncFunctions = {
+            // 数据处理场景
+            dataProcessing: {
+                name: '📊 数据处理流程',
+                description: '输入数字进行数据处理',
+                functions: [
+                    { name: '验证数字', fn: async (val) => { await new Promise(r => setTimeout(r, 300)); if (typeof val !== 'number') throw new Error('输入必须是数字'); return val; } },
+                    { name: '乘以2', fn: async (val) => { await new Promise(r => setTimeout(r, 200)); return val * 2; } },
+                    { name: '加10', fn: async (val) => { await new Promise(r => setTimeout(r, 200)); return val + 10; } },
+                    { name: '开平方', fn: async (val) => { await new Promise(r => setTimeout(r, 250)); return Math.sqrt(val); } }
+                ],
+                defaultInput: '5'
+            },
+            apiFlow: {
+                name: '🌐 API调用链',
+                description: '模拟API数据流处理',
+                functions: [
+                    { name: '获取用户ID', fn: async (input) => { await new Promise(r => setTimeout(r, 400)); return { id: parseInt(input) || 1, status: 'fetched' }; } },
+                    { name: '获取用户信息', fn: async (data) => { await new Promise(r => setTimeout(r, 300)); return { ...data, name: 'User_' + data.id, email: 'user' + data.id + '@example.com' }; } },
+                    { name: '获取用户权限', fn: async (data) => { await new Promise(r => setTimeout(r, 300)); return { ...data, role: data.id % 2 === 0 ? 'admin' : 'user', permissions: ['read', 'write'] }; } }
+                ],
+                defaultInput: '1'
+            },
+            fileProcessing: {
+                name: '📄 文件处理流程',
+                description: '输入文件名进行处理',
+                functions: [
+                    { name: '验证文件', fn: async (filename) => { await new Promise(r => setTimeout(r, 250)); if (!filename) throw new Error('文件名不能为空'); return { name: filename, size: Math.random() * 1000 }; } },
+                    { name: '解析格式', fn: async (file) => { await new Promise(r => setTimeout(r, 200)); const ext = file.name.split('.').pop(); return { ...file, format: ext || 'unknown', mimeType: 'application/' + ext }; } },
+                    { name: '生成缓存', fn: async (file) => { await new Promise(r => setTimeout(r, 200)); return { ...file, cached: true, cacheKey: 'cache_' + file.name, path: '/cache/' + file.name }; } }
+                ],
+                defaultInput: 'document.pdf'
+            },
+            textProcessing: {
+                name: '✏️ 文本处理流程',
+                description: '输入文本进行处理',
+                functions: [
+                    { name: '清理空格', fn: async (text) => { await new Promise(r => setTimeout(r, 150)); return text.trim(); } },
+                    { name: '转为大写', fn: async (text) => { await new Promise(r => setTimeout(r, 150)); return text.toUpperCase(); } },
+                    { name: '计数字符', fn: async (text) => { await new Promise(r => setTimeout(r, 200)); return { text, length: text.length, words: text.split(/\s+/).length }; } }
+                ],
+                defaultInput: 'hello world'
+            },
+            mathematical: {
+                name: '🔢 数学计算流程',
+                description: '输入数字进行多步计算',
+                functions: [
+                    { name: '转为数字', fn: async (val) => { await new Promise(r => setTimeout(r, 150)); return parseFloat(val); } },
+                    { name: '绝对值', fn: async (val) => { await new Promise(r => setTimeout(r, 150)); return Math.abs(val); } },
+                    { name: '向下取整', fn: async (val) => { await new Promise(r => setTimeout(r, 150)); return Math.floor(val); } },
+                    { name: '进制转换', fn: async (val) => { await new Promise(r => setTimeout(r, 150)); return { decimal: val, hex: val.toString(16), binary: val.toString(2) }; } }
+                ],
+                defaultInput: '42.7'
+            }
+        };
+
+        // 异步管道管理中心
+        class PipeAsyncFunctionsManager {
+            constructor() {
+                this.plugins = {};
+                this.results = [];
+                this.currentScenario = 'dataProcessing';
+                this.stats = {
+                    total: 0,
+                    totalSteps: 0,
+                    totalTime: 0
+                };
+                this.logs = [];
+                this.settings = {
+                    enableLog: true,
+                    enableNotification: true,
+                    showStats: true
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                await this.loadPlugins();
+                this.setupPresets();
+                this.setupSettings();
+                this.setupButtons();
+                this.updateScenario();
+                this.updateStats();
+                this.addLog('系统已初始化，等待操作...', 'info');
+            }
+
+            async loadPlugins() {
+                try {
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn('插件加载失败:', error);
+                }
+            }
+
+            setupPresets() {
+                const selector = document.getElementById('presetSelector');
+                if (!selector) return;
+
+                selector.innerHTML = Object.entries(asyncFunctions).map(([key, scenario]) => `
+                    <button class="preset-btn" data-scenario="${key}">
+                        ${scenario.name}
+                    </button>
+                `).join('');
+
+                selector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('preset-btn')) {
+                        this.currentScenario = e.target.dataset.scenario;
+                        this.updateScenario();
+                    }
+                });
+            }
+
+            updateScenario() {
+                const scenario = asyncFunctions[this.currentScenario];
+                if (!scenario) return;
+
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector('[data-scenario="' + this.currentScenario + '"]').classList.add('active');
+
+                document.getElementById('dataInput').value = scenario.defaultInput;
+                document.getElementById('dataLabel').textContent = scenario.description;
+
+                this.addLog(`已切换场景: ${scenario.name}`, 'info');
+            }
+
+            setupSettings() {
+                const container = document.getElementById('settingsGroup');
+                if (!container) return;
+
+                const options = [
+                    { id: 'enableLog', label: '启用操作日志', checked: true },
+                    { id: 'enableNotification', label: '启用通知提醒', checked: true },
+                    { id: 'showStats', label: '显示统计信息', checked: true }
+                ];
+
+                try {
+                    const group = Checkbox.createCheckboxGroup({
+                        items: options,
+                        onChange: (states) => {
+                            this.settings.enableLog = states[0];
+                            this.settings.enableNotification = states[1];
+                            this.settings.showStats = states[2];
+                            this.renderResults();
+                        }
+                    });
+                    container.appendChild(group.container);
+                } catch (error) {
+                    console.warn('设置复选框加载失败:', error);
+                }
+            }
+
+            setupButtons() {
+                document.getElementById('executeBtn').addEventListener('click', () => {
+                    this.executeAsyncPipe();
+                });
+
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearResults();
+                });
+            }
+
+            async executeAsyncPipe() {
+                const input = document.getElementById('dataInput').value;
+                const scenario = asyncFunctions[this.currentScenario];
+
+                if (!input.trim()) {
+                    this.showNotification('请输入初始值', 'warning');
+                    return;
+                }
+
+                try {
+                    document.getElementById('executeBtn').disabled = true;
+                    this.addLog(`开始执行管道: ${scenario.name}`, 'info');
+
+                    const startTime = Date.now();
+                    let currentValue = input;
+                    const steps = [];
+
+                    // 创建管道
+                    const pipe = pipeAsyncFunctions(...scenario.functions.map(f => f.fn));
+
+                    // 执行管道并记录每一步
+                    const result = await new Promise((resolve, reject) => {
+                        let stepIndex = 0;
+                        const executeStep = async (value) => {
+                            if (stepIndex >= scenario.functions.length) {
+                                resolve(value);
+                                return;
+                            }
+
+                            const stepStart = Date.now();
+                            const fn = scenario.functions[stepIndex].fn;
+                            const fnName = scenario.functions[stepIndex].name;
+
+                            try {
+                                const stepResult = await fn(value);
+                                const stepEnd = Date.now();
+                                
+                                steps.push({
+                                    index: stepIndex + 1,
+                                    name: fnName,
+                                    input: this.formatValue(value),
+                                    output: this.formatValue(stepResult),
+                                    duration: stepEnd - stepStart,
+                                    status: 'success'
+                                });
+
+                                stepIndex++;
+                                executeStep(stepResult);
+                            } catch (error) {
+                                reject(error);
+                            }
+                        };
+
+                        executeStep(currentValue);
+                    });
+
+                    const endTime = Date.now();
+                    const totalTime = endTime - startTime;
+
+                    const resultObj = {
+                        id: Date.now(),
+                        scenario: scenario.name,
+                        input: input,
+                        result: result,
+                        steps: steps,
+                        totalTime: totalTime,
+                        stepCount: steps.length,
+                        timestamp: new Date().toLocaleString('zh-CN'),
+                        success: true
+                    };
+
+                    this.results.push(resultObj);
+                    this.stats.total++;
+                    this.stats.totalSteps += steps.length;
+                    this.stats.totalTime += totalTime;
+
+                    this.updateStats();
+                    this.renderResults();
+
+                    const message = `管道执行完成: ${steps.length} 步，耗时 ${totalTime}ms`;
+                    this.addLog(message, 'success');
+                    this.showNotification(message, 'success');
+
+                } catch (error) {
+                    const errorMsg = `执行失败: ${error.message}`;
+                    this.addLog(errorMsg, 'warning');
+                    this.showNotification(errorMsg, 'error');
+                } finally {
+                    document.getElementById('executeBtn').disabled = false;
+                }
+            }
+
+            formatValue(val) {
+                if (typeof val === 'object') {
+                    return JSON.stringify(val);
+                }
+                return String(val);
+            }
+
+            renderResults() {
+                const panel = document.getElementById('resultPanel');
+                if (!panel) return;
+
+                if (this.results.length === 0) {
+                    panel.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding: 40px 20px; color: #64748b;">
+                            <p>👆 请配置数据并执行管道</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                panel.innerHTML = this.results.map((res, index) => {
+                    const stepsHtml = res.steps.map(step => `
+                        <div class="step-item">
+                            <div class="step-number">${step.index}</div>
+                            <div class="step-content">
+                                <div class="step-label">${step.name}</div>
+                                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 6px;">
+                                    输入: <code style="background: #f0f4ff; padding: 2px 6px; border-radius: 3px; color: #667eea;">${this.escapeHtml(step.input.substring(0, 50))}</code>
+                                </div>
+                                <div class="step-result">${this.escapeHtml(step.output)}</div>
+                                <div class="step-time">⏱️ ${step.duration}ms</div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="result-card success">
+                            <div class="result-title">
+                                结果 #${index + 1}
+                                <span class="result-badge">${res.scenario}</span>
+                            </div>
+
+                            ${this.settings.showStats ? `
+                            <div class="stats-summary">
+                                <div class="summary-item">
+                                    <div class="summary-label">执行步数</div>
+                                    <div class="summary-value">${res.stepCount}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">总耗时</div>
+                                    <div class="summary-value">${res.totalTime}ms</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">平均步时</div>
+                                    <div class="summary-value">${(res.totalTime / res.stepCount).toFixed(0)}ms</div>
+                                </div>
+                            </div>
+                            ` : ''}
+
+                            <div class="pipeline-steps">
+                                <h4 style="color: #667eea; margin-bottom: 12px; font-size: 0.95rem;">⛓️ 管道执行步骤</h4>
+                                ${stepsHtml}
+                            </div>
+
+                            <div class="final-result">
+                                <div class="final-result-label">✅ 最终输出结果</div>
+                                <div class="final-result-value">${this.escapeHtml(JSON.stringify(res.result, null, 2))}</div>
+                            </div>
+
+                            <div style="font-size: 0.85rem; color: #64748b; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                                ⏰ ${res.timestamp} | 📥 初始值: <code style="background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px;">${this.escapeHtml(res.input)}</code>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                document.getElementById('totalExecutions').textContent = this.stats.total;
+                document.getElementById('totalSteps').textContent = this.stats.totalSteps;
+                document.getElementById('avgTime').textContent = this.stats.total > 0 
+                    ? (this.stats.totalTime / this.stats.total).toFixed(0)
+                    : '0';
+            }
+
+            clearResults() {
+                this.results = [];
+                this.stats = { total: 0, totalSteps: 0, totalTime: 0 };
+                this.renderResults();
+                this.updateStats();
+                this.addLog('结果已清空', 'info');
+                this.showNotification('结果已清空', 'success');
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            showNotification(message, type = 'info') {
+                if (this.plugins.notification && this.settings.enableNotification) {
+                    this.plugins.notification.show(message, type);
+                }
+            }
+
+            addLog(message, type = 'info') {
+                if (!this.settings.enableLog) return;
+
+                const time = new Date().toLocaleTimeString('zh-CN');
+                this.logs.push({ time, message, type });
+                
+                const logContainer = document.getElementById('logContainer');
+                if (logContainer) {
+                    const logItem = document.createElement('div');
+                    logItem.className = `log-item ${type}`;
+                    logItem.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+                    logContainer.appendChild(logItem);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.pipeAsyncFunctionsManager = new PipeAsyncFunctionsManager();
+        });
+
+        if (document.readyState !== 'loading' && !window.pipeAsyncFunctionsManager) {
+            window.pipeAsyncFunctionsManager = new PipeAsyncFunctionsManager();
+        }
+    </script>
+</body>
+
+</html>

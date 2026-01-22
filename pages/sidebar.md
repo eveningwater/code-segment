@@ -490,7 +490,7 @@
 - [数组排列-2023-01-29](codes/javascript/permutations.md)
 - [从对象中选取给定的键值对-2023-01-30](codes/javascript/pick.md)
 - [从对象中选取符合回调函数的键值对-2023-01-31](codes/javascript/pick-by.md)
-- [异步执行函数-2023-02-01](codes/javascript/pipeAsyncFunctions.md)
+- [异步执行函数-2023-02-01](codes/javascript/pipe-async-functions.md)
 - [同步执行函数-2023-02-02](codes/javascript/pipeFunctions.md)
 - [对象数组中提取值-2023-02-03](codes/javascript/pluck.md)
 - [字符串复数-2023-02-04](codes/javascript/pluralize.md)
