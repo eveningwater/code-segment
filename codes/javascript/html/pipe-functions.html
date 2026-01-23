@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pipe-functions - 函数管道示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #667eea;
+            margin-top: 12px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .result-value {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            color: #1f2937;
+        }
+
+        .pipeline-display {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .pipeline-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .step-desc {
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        .example-section {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .example-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .example-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .example-code {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            color: #667eea;
+        }
+
+        .example-result {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #22c55e;
+            margin-top: 8px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔀 函数管道 (Pipe Functions)</h1>
+            <p>按顺序组合多个函数，前一个函数的输出作为下一个函数的输入</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 数据处理管道 -->
+            <div class="card">
+                <h2>📊 数据处理管道</h2>
+                <div class="pipeline-display">
+                    <div class="pipeline-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-name">字符串转小写</div>
+                            <div class="step-desc">toLowerCase()</div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-name">移除空格</div>
+                            <div class="step-desc">replace spaces</div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-name">添加前缀</div>
+                            <div class="step-desc">add prefix</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>输入文本：</label>
+                    <input type="text" id="textInput" placeholder="输入任意文本" value="Hello World">
+                </div>
+
+                <button class="btn btn-primary" onclick="processTextPipeline()">执行管道</button>
+
+                <div class="result-box">
+                    <div class="result-label">处理结果：</div>
+                    <div class="result-value" id="textResult">-</div>
+                </div>
+            </div>
+
+            <!-- 数学计算管道 -->
+            <div class="card">
+                <h2>🔢 数学计算管道</h2>
+                <div class="pipeline-display">
+                    <div class="pipeline-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-name">加 10</div>
+                            <div class="step-desc">x + 10</div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-name">乘以 2</div>
+                            <div class="step-desc">x * 2</div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-name">平方</div>
+                            <div class="step-desc">x²</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>输入数字：</label>
+                    <input type="number" id="numberInput" placeholder="输入数字" value="5">
+                </div>
+
+                <button class="btn btn-primary" onclick="processNumberPipeline()">执行管道</button>
+
+                <div class="result-box">
+                    <div class="result-label">计算结果：</div>
+                    <div class="result-value" id="numberResult">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 更多示例 -->
+        <div class="example-section">
+            <h2>📚 更多应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card">
+                    <h3>字符串处理</h3>
+                    <div class="example-code">const trim = str => str.trim();<br>const uppercase = str => str.toUpperCase();</div>
+                    <div class="example-result" onclick="runExample('stringExample')">点击运行示例</div>
+                </div>
+
+                <div class="example-card">
+                    <h3>数据验证</h3>
+                    <div class="example-code">const isNumber = x => !isNaN(x);<br>const isPositive = x => x > 0;</div>
+                    <div class="example-result" onclick="runExample('validationExample')">点击运行示例</div>
+                </div>
+
+                <div class="example-card">
+                    <h3>数组处理</h3>
+                    <div class="example-code">const map = fn => arr => arr.map(fn);<br>const filter = pred => arr => arr.filter(pred);</div>
+                    <div class="example-result" onclick="runExample('arrayExample')">点击运行示例</div>
+                </div>
+
+                <div class="example-card">
+                    <h3>对象转换</h3>
+                    <div class="example-code">const getKeys = obj => Object.keys(obj);<br>const getValues = obj => Object.values(obj);</div>
+                    <div class="example-result" onclick="runExample('objectExample')">点击运行示例</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">总执行次数: <span id="execCount">0</span></div>
+                <div class="stat-item">最后结果: <span id="lastResult">无</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 核心函数管道实现
+        const pipeFunctions = (...fns) =>
+            fns.reduce(
+                (f, g) =>
+                    (...args) =>
+                        g(f(...args))
+            );
+
+        // 统计数据
+        let stats = {
+            executionCount: 0,
+            lastResult: null
+        };
+
+        // 示例 1: 文本处理管道
+        function processTextPipeline() {
+            const input = document.getElementById('textInput').value;
+
+            // 定义处理函数
+            const toLowerCase = str => str.toLowerCase();
+            const removeSpaces = str => str.replace(/\s+/g, '');
+            const addPrefix = str => `processed_${str}`;
+
+            // 创建管道
+            const pipeline = pipeFunctions(
+                toLowerCase,
+                removeSpaces,
+                addPrefix
+            );
+
+            // 执行管道
+            const result = pipeline(input);
+            document.getElementById('textResult').textContent = result;
+
+            updateStats(result);
+        }
+
+        // 示例 2: 数学计算管道
+        function processNumberPipeline() {
+            const input = parseFloat(document.getElementById('numberInput').value);
+
+            // 定义计算函数
+            const add10 = x => x + 10;
+            const multiplyBy2 = x => x * 2;
+            const square = x => x * x;
+
+            // 创建管道
+            const pipeline = pipeFunctions(
+                add10,
+                multiplyBy2,
+                square
+            );
+
+            // 执行管道
+            const result = pipeline(input);
+            document.getElementById('numberResult').textContent = result;
+
+            updateStats(result);
+        }
+
+        // 更多示例
+        function runExample(exampleType) {
+            let result;
+
+            if (exampleType === 'stringExample') {
+                const trim = str => str.trim();
+                const uppercase = str => str.toUpperCase();
+                const addExclamation = str => str + '!!!';
+
+                const pipeline = pipeFunctions(trim, uppercase, addExclamation);
+                result = pipeline('  hello world  ');
+                alert(`字符串处理结果: "${result}"`);
+            }
+
+            else if (exampleType === 'validationExample') {
+                const isNumber = x => !isNaN(x);
+                const isPositive = x => x > 0;
+                const checkRange = x => x < 1000;
+
+                const validate = pipeFunctions(isNumber, isPositive, checkRange);
+                result = validate(500);
+                alert(`验证结果 (500): ${result}`);
+            }
+
+            else if (exampleType === 'arrayExample') {
+                const double = x => x * 2;
+                const mapFn = fn => arr => arr.map(fn);
+                const filterFn = pred => arr => arr.filter(pred);
+
+                const pipeline = pipeFunctions(
+                    arr => mapFn(double)(arr),
+                    arr => filterFn(x => x > 10)(arr)
+                );
+
+                result = pipeline([1, 2, 3, 4, 5, 6]);
+                alert(`数组处理结果: [${result}]`);
+            }
+
+            else if (exampleType === 'objectExample') {
+                const obj = { name: 'Alice', age: 25, city: 'Beijing' };
+                const getKeys = obj => Object.keys(obj);
+                const sortFn = arr => arr.sort();
+                const joinFn = arr => arr.join(', ');
+
+                const pipeline = pipeFunctions(getKeys, sortFn, joinFn);
+                result = pipeline(obj);
+                alert(`对象处理结果: ${result}`);
+            }
+
+            updateStats(result);
+        }
+
+        // 更新统计信息
+        function updateStats(result) {
+            stats.executionCount++;
+            stats.lastResult = typeof result === 'object' ? JSON.stringify(result) : String(result);
+
+            document.getElementById('execCount').textContent = stats.executionCount;
+            document.getElementById('lastResult').textContent = stats.lastResult.substring(0, 30) + (stats.lastResult.length > 30 ? '...' : '');
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            processTextPipeline();
+            processNumberPipeline();
+        });
+    </script>
+</body>
+
+</html>
