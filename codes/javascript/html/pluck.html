@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pluck - 数据提取工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        table thead {
+            background: #f3f4f6;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        table th {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .result-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #667eea;
+            margin-top: 16px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .result-value {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            color: #1f2937;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .example-section {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            margin-top: 24px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .example-code {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #667eea;
+            overflow-x: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            margin-top: 6px;
+        }
+
+        .data-preview {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #1f2937;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Pluck - 数据提取工具</h1>
+            <p>从对象数组中快速提取指定属性，支持多种数据场景</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 数据源管理 -->
+            <div class="card">
+                <h2>📊 数据源</h2>
+                
+                <div class="input-group">
+                    <label>选择数据集：</label>
+                    <select id="datasetSelect" onchange="switchDataset()">
+                        <option value="users">用户列表</option>
+                        <option value="products">商品列表</option>
+                        <option value="orders">订单列表</option>
+                        <option value="employees">员工列表</option>
+                    </select>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">数据预览：</div>
+                    <div class="data-preview" id="dataPreview"></div>
+                </div>
+            </div>
+
+            <!-- 提取配置 -->
+            <div class="card">
+                <h2>⚙️ 提取配置</h2>
+                
+                <div class="input-group">
+                    <label>选择要提取的属性：</label>
+                    <select id="propertySelect">
+                        <option value="">-- 请先选择数据集 --</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="performPluck()">执行提取</button>
+                    <button class="btn btn-success" onclick="clearResults()">清除结果</button>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">提取结果：</div>
+                    <div class="result-value" id="pluckResult">-</div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">提取次数</div>
+                        <div class="stat-value" id="extractCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">结果数量</div>
+                        <div class="stat-value" id="resultCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('usernames')">
+                    <h3>👥 提取所有用户名</h3>
+                    <div class="example-desc">从用户列表中获取所有用户名</div>
+                    <div class="example-code">pluck(users, 'name')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('prices')">
+                    <h3>💰 提取商品价格</h3>
+                    <div class="example-desc">收集所有商品的价格信息</div>
+                    <div class="example-code">pluck(products, 'price')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('emails')">
+                    <h3>📧 提取邮箱列表</h3>
+                    <div class="example-desc">批量获取所有用户邮箱</div>
+                    <div class="example-code">pluck(users, 'email')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('departments')">
+                    <h3>🏢 提取部门信息</h3>
+                    <div class="example-desc">收集所有员工的部门</div>
+                    <div class="example-code">pluck(employees, 'dept')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('statuses')">
+                    <h3>📦 提取订单状态</h3>
+                    <div class="example-desc">获取所有订单的当前状态</div>
+                    <div class="example-code">pluck(orders, 'status')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('totals')">
+                    <h3>📈 提取订单金额</h3>
+                    <div class="example-desc">统计所有订单的总金额</div>
+                    <div class="example-code">pluck(orders, 'total')</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Core pluck function
+        const pluck = (arr, k) => arr.map(i => i[k]);
+
+        // Mock data
+        const datasets = {
+            users: [
+                { id: 1, name: '张三', email: 'zhangsan@example.com', age: 28 },
+                { id: 2, name: '李四', email: 'lisi@example.com', age: 32 },
+                { id: 3, name: '王五', email: 'wangwu@example.com', age: 25 },
+                { id: 4, name: '赵六', email: 'zhaoliu@example.com', age: 30 }
+            ],
+            products: [
+                { id: 101, name: '笔记本', price: 5999, category: '电子' },
+                { id: 102, name: '手机', price: 3999, category: '电子' },
+                { id: 103, name: '鼠标', price: 89, category: '配件' },
+                { id: 104, name: '键盘', price: 299, category: '配件' }
+            ],
+            orders: [
+                { orderId: 'ORD001', userId: 1, total: 5999, status: '已发货' },
+                { orderId: 'ORD002', userId: 2, total: 3999, status: '处理中' },
+                { orderId: 'ORD003', userId: 3, total: 388, status: '已完成' },
+                { orderId: 'ORD004', userId: 4, total: 6298, status: '已发货' }
+            ],
+            employees: [
+                { id: 1, name: '李明', dept: '技术部', salary: 15000 },
+                { id: 2, name: '王芳', dept: '销售部', salary: 12000 },
+                { id: 3, name: '张海', dept: '技术部', salary: 18000 },
+                { id: 4, name: '陈静', dept: '人事部', salary: 10000 }
+            ]
+        };
+
+        const properties = {
+            users: ['name', 'email', 'age'],
+            products: ['name', 'price', 'category'],
+            orders: ['orderId', 'total', 'status'],
+            employees: ['name', 'dept', 'salary']
+        };
+
+        let currentDataset = 'users';
+        let stats = { extractCount: 0, results: [] };
+
+        // 切换数据集
+        function switchDataset() {
+            currentDataset = document.getElementById('datasetSelect').value;
+            updateDataPreview();
+            updatePropertySelect();
+            clearResults();
+        }
+
+        // 更新数据预览
+        function updateDataPreview() {
+            const data = datasets[currentDataset];
+            const preview = JSON.stringify(data, null, 2);
+            document.getElementById('dataPreview').textContent = preview;
+        }
+
+        // 更新属性选择器
+        function updatePropertySelect() {
+            const select = document.getElementById('propertySelect');
+            const props = properties[currentDataset];
+            select.innerHTML = props.map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+
+        // 执行提取
+        function performPluck() {
+            const property = document.getElementById('propertySelect').value;
+            if (!property) {
+                alert('请选择要提取的属性');
+                return;
+            }
+
+            const data = datasets[currentDataset];
+            const result = pluck(data, property);
+
+            // 显示结果
+            const resultStr = JSON.stringify(result, null, 2);
+            document.getElementById('pluckResult').textContent = resultStr;
+
+            // 更新统计
+            stats.extractCount++;
+            stats.results = result;
+            document.getElementById('extractCount').textContent = stats.extractCount;
+            document.getElementById('resultCount').textContent = result.length;
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                usernames: () => {
+                    document.getElementById('datasetSelect').value = 'users';
+                    currentDataset = 'users';
+                    updateDataPreview();
+                    updatePropertySelect();
+                    document.getElementById('propertySelect').value = 'name';
+                    performPluck();
+                },
+                prices: () => {
+                    document.getElementById('datasetSelect').value = 'products';
+                    currentDataset = 'products';
+                    updateDataPreview();
+                    updatePropertySelect();
+                    document.getElementById('propertySelect').value = 'price';
+                    performPluck();
+                },
+                emails: () => {
+                    document.getElementById('datasetSelect').value = 'users';
+                    currentDataset = 'users';
+                    updateDataPreview();
+                    updatePropertySelect();
+                    document.getElementById('propertySelect').value = 'email';
+                    performPluck();
+                },
+                departments: () => {
+                    document.getElementById('datasetSelect').value = 'employees';
+                    currentDataset = 'employees';
+                    updateDataPreview();
+                    updatePropertySelect();
+                    document.getElementById('propertySelect').value = 'dept';
+                    performPluck();
+                },
+                statuses: () => {
+                    document.getElementById('datasetSelect').value = 'orders';
+                    currentDataset = 'orders';
+                    updateDataPreview();
+                    updatePropertySelect();
+                    document.getElementById('propertySelect').value = 'status';
+                    performPluck();
+                },
+                totals: () => {
+                    document.getElementById('datasetSelect').value = 'orders';
+                    currentDataset = 'orders';
+                    updateDataPreview();
+                    updatePropertySelect();
+                    document.getElementById('propertySelect').value = 'total';
+                    performPluck();
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 清除结果
+        function clearResults() {
+            document.getElementById('pluckResult').textContent = '-';
+            document.getElementById('resultCount').textContent = '0';
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            updateDataPreview();
+            updatePropertySelect();
+        });
+    </script>
+</body>
+
+</html>

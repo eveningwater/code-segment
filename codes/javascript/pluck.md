@@ -10,6 +10,8 @@
 const pluck = (arr, k) => arr.map(i => i[k]);
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/pluck.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -23,3 +25,11 @@ pluck(simpsons, 'age'); // [8, 36, 34, 10]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/pluck.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/pluck.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/pluck.html"></iframe>
