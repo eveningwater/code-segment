@@ -6,6 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pluralize - 复数形式转换工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
     <style>
         * {
             margin: 0;
@@ -290,7 +294,7 @@
                 
                 <div class="input-group">
                     <label>输入数量：</label>
-                    <input type="number" id="basicNum" placeholder="输入数字" value="1">
+                    <div id="basicNumContainer"></div>
                 </div>
 
                 <div class="input-group">
@@ -313,7 +317,7 @@
                 
                 <div class="input-group">
                     <label>输入数量：</label>
-                    <input type="number" id="customNum" placeholder="输入数字" value="5">
+                    <div id="customNumContainer"></div>
                 </div>
 
                 <div class="input-group">
@@ -386,6 +390,11 @@
         </div>
     </div>
 
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
     <script>
         // Core pluralize function
         const pluralize = (val, word, plural = word + 's') => {
@@ -398,14 +407,72 @@
         };
 
         let stats = { totalCount: 0 };
+        let plugins = {
+            basicNumInput: null,
+            customNumInput: null,
+            modal: null,
+            notification: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+                
+                // 初始化基础数量输入框
+                plugins.basicNumInput = new InputNumber({
+                    min: 0,
+                    max: 1000,
+                    step: 1,
+                    value: 1,
+                    onChange: (value) => {
+                        // 可选的变更处理
+                    }
+                });
+                plugins.basicNumInput.mount(document.getElementById('basicNumContainer'));
+
+                // 初始化自定义数量输入框
+                plugins.customNumInput = new InputNumber({
+                    min: 0,
+                    max: 1000,
+                    step: 1,
+                    value: 5,
+                    onChange: (value) => {
+                        // 可选的变更处理
+                    }
+                });
+                plugins.customNumInput.mount(document.getElementById('customNumContainer'));
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
 
         // 执行基础转换
         function performBasicPluralize() {
-            const num = document.getElementById('basicNum').value;
+            const num = plugins.basicNumInput?.getValue() || 1;
             const word = document.getElementById('basicWord').value;
 
             if (!word) {
-                alert('请输入单词');
+                showNotification('请输入单词', 'warning');
                 return;
             }
 
@@ -416,16 +483,17 @@
 
             stats.totalCount++;
             document.getElementById('totalCount').textContent = stats.totalCount;
+            showNotification(`转换成功: ${num} ${result}`, 'success');
         }
 
         // 执行自定义规则转换
         function performCustomPluralize() {
-            const num = document.getElementById('customNum').value;
+            const num = plugins.customNumInput?.getValue() || 1;
             const singular = document.getElementById('singularForm').value;
             const plural = document.getElementById('pluralForm').value;
 
             if (!singular || !plural) {
-                alert('请输入单数和复数形式');
+                showNotification('请输入单数和复数形式', 'warning');
                 return;
             }
 
@@ -436,77 +504,80 @@
 
             stats.totalCount++;
             document.getElementById('totalCount').textContent = stats.totalCount;
+            showNotification(`自定义转换成功: ${num} ${result}`, 'success');
         }
 
         // 运行示例
         function runExample(type) {
             const examples = {
                 shopping: () => {
-                    alert('🛒 购物清单示例:\n\n' +
-                        '1 ' + pluralize(1, 'book') + '\n' +
-                        '3 ' + pluralize(3, 'book') + '\n' +
-                        '10 ' + pluralize(10, 'book') + '\n' +
-                        '购买清单已生成！');
-                    document.getElementById('basicNum').value = 3;
+                    const content = `🛒 购物清单示例:\n\n` +
+                        `1 ${pluralize(1, 'book')}\n` +
+                        `3 ${pluralize(3, 'book')}\n` +
+                        `10 ${pluralize(10, 'book')}\n\n` +
+                        `购买清单已生成！`;
+                    showModal(content);
+                    plugins.basicNumInput?.setValue(3);
                     document.getElementById('basicWord').value = 'book';
                     performBasicPluralize();
                 },
 
                 library: () => {
                     const quantities = [1, 2, 5];
-                    let msg = '📚 图书馆借阅统计:\n\n';
+                    let content = '📚 图书馆借阅统计:\n\n';
                     quantities.forEach(q => {
-                        msg += `- 已借阅 ${q} 本 ${pluralize(q, 'book')}\n`;
+                        content += `- 已借阅 ${q} 本 ${pluralize(q, 'book')}\n`;
                     });
-                    alert(msg);
-                    document.getElementById('basicNum').value = 2;
+                    showModal(content);
+                    plugins.basicNumInput?.setValue(2);
                     document.getElementById('basicWord').value = 'book';
                     performBasicPluralize();
                 },
 
                 notification: () => {
                     const counts = [0, 1, 5, 100];
-                    let msg = '🔔 通知消息:\n\n';
+                    let content = '🔔 通知消息:\n\n';
                     counts.forEach(c => {
-                        msg += `您有 ${c} 条${pluralize(c, 'message')}\n`;
+                        content += `您有 ${c} 条${pluralize(c, 'message')}\n`;
                     });
-                    alert(msg);
-                    document.getElementById('basicNum').value = 5;
+                    showModal(content);
+                    plugins.basicNumInput?.setValue(5);
                     document.getElementById('basicWord').value = 'message';
                     performBasicPluralize();
                 },
 
                 irregular: () => {
-                    document.getElementById('customNum').value = 2;
+                    plugins.customNumInput?.setValue(2);
                     document.getElementById('singularForm').value = 'child';
                     document.getElementById('pluralForm').value = 'children';
                     performCustomPluralize();
-                    alert('✅ 不规则复数转换成功！\n\n' +
-                        '1 child\n' +
-                        '2 children\n\n' +
-                        'child/children 是不规则复数形式');
+                    const content = `✅ 不规则复数转换成功！\n\n` +
+                        `1 child\n` +
+                        `2 children\n\n` +
+                        `child/children 是不规则复数形式`;
+                    showModal(content);
                 },
 
                 custom: () => {
                     const customRules = { mouse: 'mice', man: 'men', person: 'people' };
                     const pluralizer = pluralize(customRules);
                     
-                    let msg = '🎨 自定义复数规则:\n\n';
-                    msg += '1 ' + pluralizer(1, 'mouse') + '\n';
-                    msg += '5 ' + pluralizer(5, 'mouse') + '\n';
-                    msg += '1 ' + pluralizer(1, 'man') + '\n';
-                    msg += '3 ' + pluralizer(3, 'man') + '\n';
-                    alert(msg);
+                    let content = '🎨 自定义复数规则:\n\n';
+                    content += '1 ' + pluralizer(1, 'mouse') + '\n';
+                    content += '5 ' + pluralizer(5, 'mouse') + '\n';
+                    content += '1 ' + pluralizer(1, 'man') + '\n';
+                    content += '3 ' + pluralizer(3, 'man') + '\n';
+                    showModal(content);
                 },
 
                 dynamic: () => {
                     const items = ['apple', 'orange', 'strawberry'];
-                    let msg = '⚙️ 动态生成复数:\n\n';
+                    let content = '⚙️ 动态生成复数:\n\n';
                     items.forEach(item => {
-                        msg += `1 ${pluralize(1, item)}\n`;
-                        msg += `5 ${pluralize(5, item)}\n\n`;
+                        content += `1 ${pluralize(1, item)}\n`;
+                        content += `5 ${pluralize(5, item)}\n\n`;
                     });
-                    alert(msg);
+                    showModal(content);
                 }
             };
 
@@ -517,6 +588,7 @@
 
         // 初始化
         window.addEventListener('load', () => {
+            initPlugins();
             performBasicPluralize();
         });
     </script>

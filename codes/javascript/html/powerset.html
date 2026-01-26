@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>powerset - 幂集生成工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #667eea;
+            margin-top: 16px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .result-value {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .subset-item {
+            padding: 6px 8px;
+            background: #f3f4f6;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+
+        .example-section {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            margin-top: 24px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #667eea;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .tag-input {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Powerset - 幂集生成工具</h1>
+            <p>生成集合的所有子集（幂集），支持多种应用场景</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 基础幂集生成 -->
+            <div class="card">
+                <h2>📊 基础幂集生成</h2>
+                
+                <div class="input-group">
+                    <label>输入元素（用逗号分隔）：</label>
+                    <input type="text" id="basicInput" placeholder="例如: A,B,C" value="A,B,C">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="generateBasicPowerset()">生成幂集</button>
+                    <button class="btn btn-success" onclick="clearBasicResults()">清除</button>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">幂集结果：</div>
+                    <div class="result-value" id="basicResult">-</div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">元素个数</div>
+                        <div class="stat-value" id="basicElementCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">子集总数</div>
+                        <div class="stat-value" id="basicSubsetCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数字幂集 -->
+            <div class="card">
+                <h2>🔢 数字幂集</h2>
+                
+                <div class="input-group">
+                    <label>输入数字（用逗号分隔）：</label>
+                    <input type="text" id="numberInput" placeholder="例如: 1,2,3,4" value="1,2,3">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="generateNumberPowerset()">生成幂集</button>
+                    <button class="btn btn-success" onclick="clearNumberResults()">清除</button>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">数字幂集：</div>
+                    <div class="result-value" id="numberResult">-</div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">生成次数</div>
+                        <div class="stat-value" id="generateCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('topping')">
+                    <h3>🍕 披萨配料组合</h3>
+                    <div class="example-desc">生成所有可能的披萨配料组合</div>
+                    <div class="example-code">powerset(['cheese','pepperoni','mushroom'])</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('features')">
+                    <h3>⚙️ 功能组合</h3>
+                    <div class="example-desc">列出所有可能的功能组合</div>
+                    <div class="example-code">powerset(['登录','分享','评论'])</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('permissions')">
+                    <h3>🔐 权限组合</h3>
+                    <div class="example-desc">生成所有可能的权限组合</div>
+                    <div class="example-code">powerset(['read','write','delete'])</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('items')">
+                    <h3>📦 背包组合</h3>
+                    <div class="example-desc">背包中物品的所有可能组合</div>
+                    <div class="example-code">powerset(['剑','盾','药瓶'])</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('courses')">
+                    <h3>📚 课程选择</h3>
+                    <div class="example-desc">学生可选课程的所有组合</div>
+                    <div class="example-code">powerset(['数学','英语','科学'])</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('devices')">
+                    <h3>📱 设备组合</h3>
+                    <div class="example-desc">可用设备的所有可能组合</div>
+                    <div class="example-code">powerset(['手机','平板','电脑'])</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // Core powerset function
+        const powerset = arr =>
+            arr.reduce((a, v) => a.concat(a.map(r => r.concat(v))), [[]]);
+
+        let stats = {
+            generateCount: 0
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 格式化幂集结果
+        function formatPowerset(subsets) {
+            if (subsets.length === 0) return '[]';
+            return subsets.map(subset => {
+                if (subset.length === 0) return '∅';
+                return `{${subset.join(', ')}}`;
+            }).join('\n');
+        }
+
+        // 生成基础幂集
+        function generateBasicPowerset() {
+            const input = document.getElementById('basicInput').value.trim();
+            if (!input) {
+                showNotification('请输入元素', 'warning');
+                return;
+            }
+
+            const elements = input.split(',').map(e => e.trim()).filter(e => e);
+            if (elements.length === 0) {
+                showNotification('请输入有效的元素', 'warning');
+                return;
+            }
+
+            if (elements.length > 10) {
+                showNotification('元素个数不能超过10个（避免生成过多子集）', 'warning');
+                return;
+            }
+
+            const result = powerset(elements);
+            const formatted = formatPowerset(result);
+            
+            document.getElementById('basicResult').textContent = formatted;
+            document.getElementById('basicElementCount').textContent = elements.length;
+            document.getElementById('basicSubsetCount').textContent = result.length;
+
+            stats.generateCount++;
+            document.getElementById('generateCount').textContent = stats.generateCount;
+            
+            showNotification(`生成成功！共 ${result.length} 个子集`, 'success');
+        }
+
+        // 生成数字幂集
+        function generateNumberPowerset() {
+            const input = document.getElementById('numberInput').value.trim();
+            if (!input) {
+                showNotification('请输入数字', 'warning');
+                return;
+            }
+
+            const numbers = input.split(',').map(n => n.trim()).map(n => parseInt(n)).filter(n => !isNaN(n));
+            if (numbers.length === 0) {
+                showNotification('请输入有效的数字', 'warning');
+                return;
+            }
+
+            if (numbers.length > 10) {
+                showNotification('数字个数不能超过10个（避免生成过多子集）', 'warning');
+                return;
+            }
+
+            const result = powerset(numbers);
+            const formatted = formatPowerset(result);
+            
+            document.getElementById('numberResult').textContent = formatted;
+            stats.generateCount++;
+            document.getElementById('generateCount').textContent = stats.generateCount;
+            
+            showNotification(`数字幂集生成成功！共 ${result.length} 个子集`, 'success');
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                topping: () => {
+                    const items = ['cheese', 'pepperoni', 'mushroom'];
+                    const result = powerset(items);
+                    let msg = '🍕 披萨配料的所有可能组合:\n\n';
+                    result.forEach((subset, idx) => {
+                        const display = subset.length === 0 ? '(无配料)' : subset.join(' + ');
+                        msg += `${idx + 1}. ${display}\n`;
+                    });
+                    showModal(msg);
+                    document.getElementById('basicInput').value = items.join(',');
+                    generateBasicPowerset();
+                },
+
+                features: () => {
+                    const items = ['登录', '分享', '评论'];
+                    const result = powerset(items);
+                    let msg = '⚙️ 应用功能的所有可能组合:\n\n';
+                    result.forEach((subset, idx) => {
+                        const display = subset.length === 0 ? '(无功能)' : subset.join(' | ');
+                        msg += `${idx + 1}. ${display}\n`;
+                    });
+                    showModal(msg);
+                    document.getElementById('basicInput').value = items.join(',');
+                    generateBasicPowerset();
+                },
+
+                permissions: () => {
+                    const items = ['read', 'write', 'delete'];
+                    const result = powerset(items);
+                    let msg = '🔐 用户权限的所有可能组合:\n\n';
+                    result.forEach((subset, idx) => {
+                        const display = subset.length === 0 ? '(无权限)' : subset.join(' + ');
+                        msg += `${idx + 1}. ${display}\n`;
+                    });
+                    showModal(msg);
+                    document.getElementById('basicInput').value = items.join(',');
+                    generateBasicPowerset();
+                },
+
+                items: () => {
+                    const items = ['剑', '盾', '药瓶'];
+                    const result = powerset(items);
+                    let msg = '📦 背包中物品的所有可能组合:\n\n';
+                    result.forEach((subset, idx) => {
+                        const display = subset.length === 0 ? '(空背包)' : subset.join(' + ');
+                        msg += `${idx + 1}. [${display}]\n`;
+                    });
+                    showModal(msg);
+                    document.getElementById('basicInput').value = items.join(',');
+                    generateBasicPowerset();
+                },
+
+                courses: () => {
+                    const items = ['数学', '英语', '科学'];
+                    const result = powerset(items);
+                    let msg = '📚 学生可选课程的所有组合:\n\n';
+                    result.forEach((subset, idx) => {
+                        const display = subset.length === 0 ? '(不选课)' : subset.join('、');
+                        msg += `${idx + 1}. ${display}\n`;
+                    });
+                    showModal(msg);
+                    document.getElementById('basicInput').value = items.join(',');
+                    generateBasicPowerset();
+                },
+
+                devices: () => {
+                    const items = ['手机', '平板', '电脑'];
+                    const result = powerset(items);
+                    let msg = '📱 设备的所有可能组合:\n\n';
+                    result.forEach((subset, idx) => {
+                        const display = subset.length === 0 ? '(无设备)' : subset.join(' + ');
+                        msg += `${idx + 1}. {${display}}\n`;
+                    });
+                    showModal(msg);
+                    document.getElementById('basicInput').value = items.join(',');
+                    generateBasicPowerset();
+                }
+            };
+
+            examples[type]?.();
+            stats.generateCount++;
+            document.getElementById('generateCount').textContent = stats.generateCount;
+        }
+
+        // 清除结果
+        function clearBasicResults() {
+            document.getElementById('basicResult').textContent = '-';
+            document.getElementById('basicElementCount').textContent = '0';
+            document.getElementById('basicSubsetCount').textContent = '0';
+        }
+
+        function clearNumberResults() {
+            document.getElementById('numberResult').textContent = '-';
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            generateBasicPowerset();
+        });
+    </script>
+</body>
+
+</html>

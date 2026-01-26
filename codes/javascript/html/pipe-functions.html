@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pipe-functions - 函数管道示例</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
     <style>
         * {
             margin: 0;
@@ -319,7 +323,9 @@
                     <input type="text" id="textInput" placeholder="输入任意文本" value="Hello World">
                 </div>
 
-                <button class="btn btn-primary" onclick="processTextPipeline()">执行管道</button>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="processTextPipeline()">执行管道</button>
+                </div>
 
                 <div class="result-box">
                     <div class="result-label">处理结果：</div>
@@ -356,10 +362,12 @@
 
                 <div class="input-group">
                     <label>输入数字：</label>
-                    <input type="number" id="numberInput" placeholder="输入数字" value="5">
+                    <div id="numberInputContainer"></div>
                 </div>
 
-                <button class="btn btn-primary" onclick="processNumberPipeline()">执行管道</button>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="processNumberPipeline()">执行管道</button>
+                </div>
 
                 <div class="result-box">
                     <div class="result-label">计算结果：</div>
@@ -404,6 +412,11 @@
         </div>
     </div>
 
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
     <script>
         // 核心函数管道实现
         const pipeFunctions = (...fns) =>
@@ -418,6 +431,52 @@
             executionCount: 0,
             lastResult: null
         };
+
+        // 插件实例
+        let plugins = {
+            numberInput: null,
+            modal: null,
+            notification: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+                
+                plugins.numberInput = new InputNumber({
+                    min: -100,
+                    max: 1000,
+                    step: 0.1,
+                    value: 5,
+                    onChange: (value) => {
+                        // 可选的变更处理
+                    }
+                });
+                plugins.numberInput.mount(document.getElementById('numberInputContainer'));
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
 
         // 示例 1: 文本处理管道
         function processTextPipeline() {
@@ -444,7 +503,7 @@
 
         // 示例 2: 数学计算管道
         function processNumberPipeline() {
-            const input = parseFloat(document.getElementById('numberInput').value);
+            const input = parseFloat(plugins.numberInput?.getValue() || 5);
 
             // 定义计算函数
             const add10 = x => x + 10;
@@ -463,6 +522,7 @@
             document.getElementById('numberResult').textContent = result;
 
             updateStats(result);
+            showNotification(`计算结果: ${result}`, 'success');
         }
 
         // 更多示例
@@ -476,7 +536,7 @@
 
                 const pipeline = pipeFunctions(trim, uppercase, addExclamation);
                 result = pipeline('  hello world  ');
-                alert(`字符串处理结果: "${result}"`);
+                showModal(`字符串处理结果: "${result}"`);
             }
 
             else if (exampleType === 'validationExample') {
@@ -486,7 +546,7 @@
 
                 const validate = pipeFunctions(isNumber, isPositive, checkRange);
                 result = validate(500);
-                alert(`验证结果 (500): ${result}`);
+                showModal(`验证结果 (500): ${result}`);
             }
 
             else if (exampleType === 'arrayExample') {
@@ -500,7 +560,7 @@
                 );
 
                 result = pipeline([1, 2, 3, 4, 5, 6]);
-                alert(`数组处理结果: [${result}]`);
+                showModal(`数组处理结果: [${result}]`);
             }
 
             else if (exampleType === 'objectExample') {
@@ -511,7 +571,7 @@
 
                 const pipeline = pipeFunctions(getKeys, sortFn, joinFn);
                 result = pipeline(obj);
-                alert(`对象处理结果: ${result}`);
+                showModal(`对象处理结果: ${result}`);
             }
 
             updateStats(result);
@@ -528,6 +588,7 @@
 
         // 初始化
         window.addEventListener('load', () => {
+            initPlugins();
             processTextPipeline();
             processNumberPipeline();
         });

@@ -21,6 +21,8 @@ const pluralize = (val, word, plural = word + 's') => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/pluralize.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -38,3 +40,11 @@ autoPluralize(2, 'person'); // 'people'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/pluralize.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/pluralize.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/pluralize.html"></iframe>
