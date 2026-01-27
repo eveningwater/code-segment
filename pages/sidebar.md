@@ -495,7 +495,7 @@
 - [对象数组中提取值-2023-02-03](codes/javascript/pluck.md)
 - [字符串复数-2023-02-04](codes/javascript/pluralize.md)
 - [数组幂集-2023-02-05](codes/javascript/powerset.md)
-- [检查用户是否使用暗黑主题-2023-02-06](codes/javascript/prefersDarkColorScheme.md)
+- [检查用户是否使用暗黑主题-2023-02-06](codes/javascript/prefers-dark-color-scheme.md)
 - [检查用户是否使用明亮主题-2023-02-07](codes/javascript/prefersLightColorScheme.md)
 - [添加前缀-2023-02-08](codes/javascript/prefix.md)
 - [格式化字节数-2023-02-09](codes/javascript/prettyBytes.md)
