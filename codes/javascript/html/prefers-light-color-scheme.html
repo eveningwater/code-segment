@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>prefersLightColorScheme - 亮色主题检测工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #fbbf24;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #f59e0b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1f2937;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.light {
+            background: #fbbf24;
+        }
+
+        .status-dot.dark {
+            background: #6366f1;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: #22c55e;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1f2937;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .theme-preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .preview-box {
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .preview-light {
+            background: #ffffff;
+            color: #1f2937;
+            border: 2px solid #e5e7eb;
+        }
+
+        .preview-dark {
+            background: #1f2937;
+            color: #f9fafb;
+            border: 2px solid #374151;
+        }
+
+        .brightness-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--accent-color);
+            color: #1f2937;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☀️ 亮色主题检测工具</h1>
+            <p>检测用户系统亮色主题偏好，支持亮色/暗黑主题自动适配和手动切换</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 系统亮色主题检测 -->
+            <div class="card">
+                <h2>🔍 亮色主题检测</h2>
+                
+                <div class="info-box">
+                    <div class="info-label">当前系统主题：</div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                        <div class="status-indicator">
+                            <div class="status-dot" id="statusDot"></div>
+                            <span id="systemThemeText">检测中...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">是否为亮色主题：</div>
+                    <div class="info-value" id="detectResult">-</div>
+                </div>
+
+                <button class="btn btn-primary" onclick="detectSystemTheme()">🔄 刷新检测</button>
+
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">📊 检测详情：</h3>
+                    <ul class="feature-list">
+                        <li id="supportStatus">支持状态：检测中...</li>
+                        <li id="matchStatus">匹配状态：检测中...</li>
+                        <li id="detectionTime">检测时间：-</li>
+                        <li id="brightnessLevel">亮度级别：-</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 主题切换控制 -->
+            <div class="card">
+                <h2>🎨 主题切换控制</h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="autoTheme" checked onchange="toggleAutoTheme()">
+                    <label for="autoTheme" style="margin: 0; font-weight: 600;">自动适配系统主题</label>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="setLightTheme()">☀️ 亮色模式</button>
+                    <button class="btn btn-success" onclick="setDarkTheme()">🌙 暗黑模式</button>
+                </div>
+
+                <div class="theme-preview">
+                    <div class="preview-box preview-light">
+                        <div style="margin-bottom: 6px;">☀️</div>
+                        <div style="font-size: 0.9rem;">亮色预览</div>
+                    </div>
+                    <div class="preview-box preview-dark">
+                        <div style="margin-bottom: 6px;">🌙</div>
+                        <div style="font-size: 0.9rem;">暗黑预览</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">💾 当前设置：</h3>
+                    <div class="info-box">
+                        <div class="info-label">应用主题模式：</div>
+                        <div class="info-value" id="currentTheme">自动</div>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">切换次数</div>
+                        <div class="stat-value" id="switchCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('education')">
+                    <h3>📚 教育应用</h3>
+                    <div class="example-desc">长时间阅读选择亮色护眼模式</div>
+                    <div class="example-code">prefersLightColorScheme()</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('productivity')">
+                    <h3>📊 办公应用</h3>
+                    <div class="example-desc">白天工作时默认选择亮色主题</div>
+                    <div class="example-code">matchMedia('prefers-color-scheme: light')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('accessibility')">
+                    <h3>♿ 无障碍</h3>
+                    <div class="example-desc">高对比度亮色主题助力视力受损用户</div>
+                    <div class="example-code">prefers-contrast + 亮色方案</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('battery')">
+                    <h3>🔋 功耗优化</h3>
+                    <div class="example-desc">亮色模式在非OLED屏幕上更省电</div>
+                    <div class="example-code">根据屏幕类型选择方案</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('content')">
+                    <h3>📝 内容展示</h3>
+                    <div class="example-desc">白底黑字提高阅读体验和专业感</div>
+                    <div class="example-code">默认亮色 + 暗色可选</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('schedule')">
+                    <h3>⏰ 时间感知</h3>
+                    <div class="example-desc">根据时间自动切换亮色/暗黑主题</div>
+                    <div class="example-code">时间 + 用户偏好组合</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
+    <script>
+        // Core prefersLightColorScheme function
+        const prefersLightColorScheme = () =>
+            window &&
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: light)').matches;
+
+        // 系统亮色主题媒体查询
+        const lightModeQuery = window.matchMedia('(prefers-color-scheme: light)');
+
+        let stats = {
+            switchCount: 0
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null
+        };
+
+        let appState = {
+            autoTheme: true,
+            currentTheme: 'auto'
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 检测系统亮色主题
+        function detectSystemTheme() {
+            const isLight = prefersLightColorScheme();
+            const themeText = isLight ? '☀️ 亮色主题' : '🌙 暗黑主题';
+            const result = isLight ? '是' : '否';
+
+            document.getElementById('systemThemeText').textContent = themeText;
+            document.getElementById('detectResult').textContent = result;
+
+            const statusDot = document.getElementById('statusDot');
+            statusDot.className = `status-dot ${isLight ? 'light' : 'dark'}`;
+
+            // 更新检测详情
+            document.getElementById('supportStatus').textContent = 
+                `✓ 支持状态：${window.matchMedia ? '支持' : '不支持'}`;
+            document.getElementById('matchStatus').textContent = 
+                `✓ 匹配状态：${isLight ? '匹配亮色主题' : '匹配暗黑主题'}`;
+            document.getElementById('detectionTime').textContent = 
+                `✓ 检测时间：${new Date().toLocaleTimeString('zh-CN')}`;
+            document.getElementById('brightnessLevel').textContent = 
+                `✓ 亮度级别：${isLight ? '高亮 (>60%)' : '低亮 (<40%)'}`;
+
+            if (appState.autoTheme) {
+                isLight ? setLightTheme(true) : setDarkTheme(true);
+            }
+
+            showNotification(`系统主题为：${themeText}`, 'info');
+        }
+
+        // 设置亮色主题
+        function setLightTheme(silent = false) {
+            document.documentElement.removeAttribute('data-theme');
+            appState.currentTheme = '亮色';
+            document.getElementById('currentTheme').textContent = '☀️ 亮色主题';
+            stats.switchCount++;
+            document.getElementById('switchCount').textContent = stats.switchCount;
+            if (!silent) {
+                showNotification('已切换到亮色主题 ☀️，适合白天使用', 'success');
+            }
+        }
+
+        // 设置暗黑主题
+        function setDarkTheme(silent = false) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            appState.currentTheme = '暗黑';
+            document.getElementById('currentTheme').textContent = '🌙 暗黑主题';
+            stats.switchCount++;
+            document.getElementById('switchCount').textContent = stats.switchCount;
+            if (!silent) {
+                showNotification('已切换到暗黑主题 🌙，适合夜间使用', 'success');
+            }
+        }
+
+        // 切换自动主题
+        function toggleAutoTheme() {
+            appState.autoTheme = document.getElementById('autoTheme').checked;
+            if (appState.autoTheme) {
+                document.getElementById('currentTheme').textContent = '自动';
+                appState.currentTheme = '自动';
+                detectSystemTheme();
+                showNotification('已启用自动主题适配', 'success');
+            } else {
+                showNotification('已禁用自动主题适配，可手动选择主题', 'info');
+            }
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const isLight = prefersLightColorScheme();
+            const examples = {
+                education: () => {
+                    const msg = `📚 教育应用场景:\n\n` +
+                        `当前系统主题：${isLight ? '亮色' : '暗黑'}\n\n` +
+                        `应用场景：\n` +
+                        `• 在线课程平台\n` +
+                        `• 电子书阅读器\n` +
+                        `• 学习管理系统\n` +
+                        `• 作业提交系统\n\n` +
+                        `最佳实践：\n` +
+                        `1. 默认使用亮色（适合长时间阅读）\n` +
+                        `2. 提供暗黑模式选项\n` +
+                        `3. 支持色温调节\n` +
+                        `4. 字体大小自适应\n\n` +
+                        `实现方式：\n` +
+                        `const defaultTheme = prefersLightColorScheme() \n` +
+                        `  ? 'light' : 'dark';`;
+                    showModal(msg);
+                },
+
+                productivity: () => {
+                    const msg = `📊 办公应用场景:\n\n` +
+                        `当前系统主题：${isLight ? '亮色' : '暗黑'}\n\n` +
+                        `应用场景：\n` +
+                        `• 文档编辑器\n` +
+                        `• 电子表格\n` +
+                        `• 演示文稿\n` +
+                        `• 邮件客户端\n\n` +
+                        `白天工作优化：\n` +
+                        `1. 白底黑字（高对比度）\n` +
+                        `2. 清晰的功能区隔\n` +
+                        `3. 专业的色彩方案\n` +
+                        `4. 光线友好的界面\n\n` +
+                        `推荐配色：\n` +
+                        `背景: #FFFFFF\n` +
+                        `文字: #1F2937\n` +
+                        `强调: #FBBF24`;
+                    showModal(msg);
+                },
+
+                accessibility: () => {
+                    const msg = `♿ 无障碍应用:\n\n` +
+                        `当前系统主题：${isLight ? '亮色' : '暗黑'}\n\n` +
+                        `视力保护功能：\n` +
+                        `1. 高对比度亮色\n` +
+                        `   • 文本对比度 >= 7:1\n` +
+                        `   • WCAG AAA 级别\n\n` +
+                        `2. 可调节的亮度\n` +
+                        `   • 逐级增加对比度\n` +
+                        `   • 色盲模式支持\n\n` +
+                        `3. 字体优化\n` +
+                        `   • 更大的默认字体\n` +
+                        `   • 可读性更强的字体\n\n` +
+                        `实现代码：\n` +
+                        `@media (prefers-color-scheme: light) {\n` +
+                        `  body { background: #FFF; color: #000; }\n` +
+                        `}`;
+                    showModal(msg);
+                },
+
+                battery: () => {
+                    const msg = `🔋 功耗优化:\n\n` +
+                        `当前系统主题：${isLight ? '亮色' : '暗黑'}\n\n` +
+                        `亮色模式优势：\n` +
+                        `1. LCD/IPS屏幕\n` +
+                        `   • 亮色模式更省电\n` +
+                        `   • 可节省 10-15% 电力\n\n` +
+                        `暗黑模式优势：\n` +
+                        `2. OLED屏幕\n` +
+                        `   • 黑色像素不点亮\n` +
+                        `   • 可节省 30-40% 电力\n\n` +
+                        `最优策略：\n` +
+                        `const isDarkOLED = () => {\n` +
+                        `  if (prefersLightColorScheme()) return false;\n` +
+                        `  return isOLEDDisplay();\n` +
+                        `};`;
+                    showModal(msg);
+                },
+
+                content: () => {
+                    const msg = `📝 内容展示最佳实践:\n\n` +
+                        `当前系统主题：${isLight ? '亮色' : '暗黑'}\n\n` +
+                        `亮色主题优势：\n` +
+                        `1. 可读性最强\n` +
+                        `   • 白底黑字\n` +
+                        `   • 提高阅读速度\n\n` +
+                        `2. 专业形象\n` +
+                        `   • 适合企业应用\n` +
+                        `   • 增强可信度\n\n` +
+                        `3. 打印友好\n` +
+                        `   • 易于打印\n` +
+                        `   • 节省墨粉\n\n` +
+                        `推荐方案：\n` +
+                        `• 默认亮色\n` +
+                        `• 提供暗色选项\n` +
+                        `• 记住用户选择`;
+                    showModal(msg);
+                },
+
+                schedule: () => {
+                    const msg = `⏰ 时间感知主题:\n\n` +
+                        `当前系统主题：${isLight ? '亮色' : '暗黑'}\n\n` +
+                        `智能切换方案：\n` +
+                        `1. 基于时间\n` +
+                        `   • 早上 06:00-18:00 → 亮色\n` +
+                        `   • 晚上 18:00-06:00 → 暗色\n\n` +
+                        `2. 基于系统设置\n` +
+                        `   • 尊重用户偏好\n` +
+                        `   • 覆盖自动切换\n\n` +
+                        `3. 基于光线传感器\n` +
+                        `   • 移动设备检测\n` +
+                        `   • 实时响应变化\n\n` +
+                        `实现优先级：\n` +
+                        `用户选择 > 光线 > 时间 > 系统`;
+                    showModal(msg);
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 监听系统主题变化
+        function watchThemeChange() {
+            lightModeQuery.addEventListener('change', (e) => {
+                if (appState.autoTheme) {
+                    if (e.matches) {
+                        setLightTheme();
+                    } else {
+                        setDarkTheme();
+                    }
+                }
+            });
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            watchThemeChange();
+            detectSystemTheme();
+        });
+    </script>
+</body>
+
+</html>

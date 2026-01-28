@@ -13,6 +13,8 @@ const prefersLightColorScheme = () =>
   window.matchMedia('(prefers-color-scheme: light)').matches;
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/prefers-light-color-scheme.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -21,4 +23,10 @@ prefersLightColorScheme(); // true or false
 
 > 应用场景
 
-<iframe src="codes/javascript/html/prefersLightColorScheme.html"></iframe>
+以下是一个实战<a href="codes/javascript/html/prefers-light-color-scheme.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/prefers-light-color-scheme.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/prefers-light-color-scheme.html"></iframe>
