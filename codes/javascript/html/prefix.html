@@ -1,15 +1,525 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>prefix</title>
+    <title>prefix - CSS 厂商前缀检测工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #60a5fa;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .property-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .property-input input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .property-input input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .detection-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .detection-table th,
+        .detection-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detection-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .detection-table td {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning-color);
+            color: #1f2937;
+        }
+
+        .badge-info {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .animation-demo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .animation-demo.rotate {
+            animation: rotate 2s linear infinite;
+        }
+
+        .animation-demo.scale {
+            animation: scale 2s ease-in-out infinite;
+        }
+
+        .animation-demo.slide {
+            animation: slide 2s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes scale {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes slide {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+        }
+    </style>
 </head>
 
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 CSS 厂商前缀检测工具</h1>
+            <p>检测浏览器对 CSS 属性的支持情况，自动添加厂商前缀，实现跨浏览器兼容</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 前缀检测工具 -->
+            <div class="card">
+                <h2>🔍 前缀检测</h2>
+                
+                <div class="property-input">
+                    <input type="text" id="propertyInput" placeholder="输入 CSS 属性名（如：transform, appearance）" value="transform">
+                    <button class="btn btn-primary" style="flex: 0 0 auto;" onclick="detectProperty()">检测</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">检测结果：</div>
+                    <div class="info-value" id="detectionResult">-</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">支持状态：</div>
+                    <div style="margin-top: 8px;">
+                        <span class="badge badge-info" id="supportStatus">待检测</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">📋 检测详情：</h3>
+                    <ul class="feature-list">
+                        <li id="nativeSupport">原生支持：检测中...</li>
+                        <li id="prefixSupport">前缀支持：检测中...</li>
+                        <li id="detectionTime">检测时间：-</li>
+                        <li id="browserInfo">浏览器信息：-</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 批量前缀检测 -->
+            <div class="card">
+                <h2>📊 批量检测</h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="autoDetect" checked onchange="toggleAutoDetect()">
+                    <label for="autoDetect" style="margin: 0; font-weight: 600;">自动检测常用属性</label>
+                </div>
+
+                <button class="btn btn-success" onclick="detectCommonProperties()">🔄 检测常用属性</button>
+
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">✨ 常用属性支持情况：</h3>
+                    <table class="detection-table">
+                        <thead>
+                            <tr>
+                                <th>属性名</th>
+                                <th>前缀</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="propertyTable">
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: var(--text-secondary);">点击"检测常用属性"查看结果</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">检测次数</div>
+                        <div class="stat-value" id="detectionCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">支持属性</div>
+                        <div class="stat-value" id="supportedCount">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('animation')">
+                    <h3>🎬 动画支持检测</h3>
+                    <div class="example-desc">检测 transform 和 animation 支持情况</div>
+                    <div class="example-code">prefix('transform')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('transition')">
+                    <h3>✨ 过渡效果</h3>
+                    <div class="example-desc">智能应用 transition 及其前缀版本</div>
+                    <div class="example-code">prefix('transition')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('filter')">
+                    <h3>🎨 滤镜效果</h3>
+                    <div class="example-desc">检测 filter 和 backdrop-filter 支持</div>
+                    <div class="example-code">prefix('filter')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('appearance')">
+                    <h3>🎭 外观修改</h3>
+                    <div class="example-desc">应用 appearance 属性隐藏原生控件</div>
+                    <div class="example-code">prefix('appearance')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('flex')">
+                    <h3>📦 Flexbox 布局</h3>
+                    <div class="example-desc">检测 display:flex 及其前缀版本</div>
+                    <div class="example-code">prefix('display')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('userselect')">
+                    <h3>📝 用户选择</h3>
+                    <div class="example-desc">控制文本是否可被选中</div>
+                    <div class="example-code">prefix('userSelect')</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
     <script>
+        // Core prefix function
         const prefix = prop => {
             const capitalizedProp = prop.charAt(0).toUpperCase() + prop.slice(1);
             const prefixes = ['', 'webkit', 'moz', 'ms', 'o'];
@@ -20,7 +530,299 @@
             );
             return i !== -1 ? (i === 0 ? prop : prefixes[i] + capitalizedProp) : null;
         };
-        document.writeln(prefix('appearance'));
+
+        let stats = {
+            detectionCount: 0,
+            supportedCount: 0
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null
+        };
+
+        let appState = {
+            autoDetect: true
+        };
+
+        // 常用 CSS 属性列表
+        const commonProperties = [
+            'transform',
+            'transition',
+            'animation',
+            'filter',
+            'backdropFilter',
+            'appearance',
+            'userSelect',
+            'perspective',
+            'boxShadow',
+            'clipPath'
+        ];
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 获取浏览器信息
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            if (ua.indexOf('Chrome') > -1) return 'Chrome';
+            if (ua.indexOf('Safari') > -1) return 'Safari';
+            if (ua.indexOf('Firefox') > -1) return 'Firefox';
+            if (ua.indexOf('Edge') > -1) return 'Edge';
+            if (ua.indexOf('Opera') > -1) return 'Opera';
+            return '其他';
+        }
+
+        // 检测单个属性
+        function detectProperty() {
+            const prop = document.getElementById('propertyInput').value.trim();
+            
+            if (!prop) {
+                showNotification('请输入 CSS 属性名', 'warning');
+                return;
+            }
+
+            const result = prefix(prop);
+            stats.detectionCount++;
+            document.getElementById('detectionCount').textContent = stats.detectionCount;
+
+            const resultText = result ? `${result}` : '不支持';
+            const status = result ? '✓ 支持' : '✗ 不支持';
+            const badgeClass = result ? 'badge-success' : 'badge-warning';
+
+            document.getElementById('detectionResult').textContent = resultText;
+            document.getElementById('supportStatus').textContent = status;
+            document.getElementById('supportStatus').className = `badge ${badgeClass}`;
+
+            // 更新检测详情
+            const isNative = result === prop;
+            document.getElementById('nativeSupport').textContent = 
+                `✓ 原生支持：${isNative ? '是' : '否'}`;
+            document.getElementById('prefixSupport').textContent = 
+                `✓ 前缀支持：${result && !isNative ? result : '不需要'}`;
+            document.getElementById('detectionTime').textContent = 
+                `✓ 检测时间：${new Date().toLocaleTimeString('zh-CN')}`;
+            document.getElementById('browserInfo').textContent = 
+                `✓ 浏览器：${getBrowserInfo()}`;
+
+            showNotification(`已检测属性：${prop}，结果：${resultText}`, result ? 'success' : 'warning');
+        }
+
+        // 检测常用属性
+        function detectCommonProperties() {
+            const tableBody = document.getElementById('propertyTable');
+            tableBody.innerHTML = '';
+
+            let supportCount = 0;
+            commonProperties.forEach(prop => {
+                const result = prefix(prop);
+                if (result) supportCount++;
+
+                const row = document.createElement('tr');
+                const prefixText = result && result !== prop ? result : '原生';
+                const statusBadge = result 
+                    ? '<span class="badge badge-success">✓ 支持</span>'
+                    : '<span class="badge badge-warning">✗ 不支持</span>';
+
+                row.innerHTML = `
+                    <td><strong>${prop}</strong></td>
+                    <td>${prefixText}</td>
+                    <td>${statusBadge}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            stats.supportedCount = supportCount;
+            document.getElementById('supportedCount').textContent = `${supportCount}/${commonProperties.length}`;
+
+            showNotification(`批量检测完成：${supportCount}/${commonProperties.length} 个属性支持`, 'success');
+        }
+
+        // 切换自动检测
+        function toggleAutoDetect() {
+            appState.autoDetect = document.getElementById('autoDetect').checked;
+            if (appState.autoDetect) {
+                showNotification('已启用自动检测常用属性', 'success');
+            } else {
+                showNotification('已禁用自动检测', 'info');
+            }
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                animation: () => {
+                    const transformPrefix = prefix('transform');
+                    const animationPrefix = prefix('animation');
+                    const msg = `🎬 动画支持检测:\n\n` +
+                        `Transform 前缀：${transformPrefix || '不支持'}\n` +
+                        `Animation 前缀：${animationPrefix || '不支持'}\n\n` +
+                        `应用场景：\n` +
+                        `• 旋转动画\n` +
+                        `• 缩放效果\n` +
+                        `• 平移动画\n` +
+                        `• 3D 变换\n\n` +
+                        `实现方式：\n` +
+                        `const transPrefix = prefix('transform');\n` +
+                        `element.style[transPrefix] = 'rotate(45deg)';\n\n` +
+                        `兼容性：\n` +
+                        `Transform: ${transformPrefix ? '✓ 支持' : '✗ 不支持'}\n` +
+                        `Animation: ${animationPrefix ? '✓ 支持' : '✗ 不支持'}`;
+                    showModal(msg);
+                },
+
+                transition: () => {
+                    const transitionPrefix = prefix('transition');
+                    const msg = `✨ 过渡效果实现:\n\n` +
+                        `Transition 前缀：${transitionPrefix || '不支持'}\n\n` +
+                        `应用场景：\n` +
+                        `• 颜色平滑变化\n` +
+                        `• 尺寸逐步改变\n` +
+                        `• 位置流畅移动\n` +
+                        `• 透明度渐变\n\n` +
+                        `CSS 示例：\n` +
+                        `${transitionPrefix}.transition: \n` +
+                        `  all 0.3s ease;\n\n` +
+                        `前缀处理：\n` +
+                        `element.style[prefix('transition')] =\n` +
+                        `  'all 0.3s ease';\n\n` +
+                        `浏览器支持：\n` +
+                        `${transitionPrefix ? '✓ 此浏览器支持' : '✗ 需要 polyfill'}`;
+                    showModal(msg);
+                },
+
+                filter: () => {
+                    const filterPrefix = prefix('filter');
+                    const backdropPrefix = prefix('backdropFilter');
+                    const msg = `🎨 滤镜效果应用:\n\n` +
+                        `Filter 前缀：${filterPrefix || '不支持'}\n` +
+                        `Backdrop-Filter：${backdropPrefix || '不支持'}\n\n` +
+                        `常见滤镜：\n` +
+                        `• blur(5px) - 模糊\n` +
+                        `• brightness(150%) - 亮度\n` +
+                        `• contrast(120%) - 对比度\n` +
+                        `• grayscale(100%) - 灰度\n` +
+                        `• hue-rotate(90deg) - 色调旋转\n` +
+                        `• saturate(200%) - 饱和度\n\n` +
+                        `应用示例：\n` +
+                        `element.style.filter = \n` +
+                        `  'blur(5px) brightness(1.2)';\n\n` +
+                        `支持状态：\n` +
+                        `Filter: ${filterPrefix ? '✓ 支持' : '✗ 不支持'}\n` +
+                        `Backdrop: ${backdropPrefix ? '✓ 支持' : '✗ 不支持'}`;
+                    showModal(msg);
+                },
+
+                appearance: () => {
+                    const appearancePrefix = prefix('appearance');
+                    const msg = `🎭 外观修改与控制:\n\n` +
+                        `Appearance 前缀：${appearancePrefix || '不支持'}\n\n` +
+                        `功能说明：\n` +
+                        `• 隐藏原生控件\n` +
+                        `• 自定义按钮样式\n` +
+                        `• 美化输入框\n` +
+                        `• 修改复选框外观\n\n` +
+                        `常见用法：\n` +
+                        `input { appearance: none; }\n` +
+                        `button { appearance: none; }\n\n` +
+                        `典型应用：\n` +
+                        `const appearanceRule =\n` +
+                        `  prefix('appearance');\n` +
+                        `element.style[appearanceRule] = 'none';\n\n` +
+                        `兼容情况：\n` +
+                        `${appearancePrefix ? '✓ ' + appearancePrefix : '✗ 不支持'}`;
+                    showModal(msg);
+                },
+
+                flex: () => {
+                    const displayPrefix = prefix('display');
+                    const msg = `📦 Flexbox 布局系统:\n\n` +
+                        `Display 检测：${displayPrefix || '不支持'}\n\n` +
+                        `Flex 方案演进：\n` +
+                        `• 旧版本：display: box;\n` +
+                        `• 中间版：display: flexbox;\n` +
+                        `• 最新版：display: flex;\n\n` +
+                        `主要特性：\n` +
+                        `• 灵活布局\n` +
+                        `• 响应式设计\n` +
+                        `• 对齐控制\n` +
+                        `• 弹性伸缩\n\n` +
+                        `实现示例：\n` +
+                        `const displayProp = prefix('display');\n` +
+                        `container.style[displayProp] = 'flex';\n\n` +
+                        `现代浏览器：\n` +
+                        `✓ 完全支持 display: flex`;
+                    showModal(msg);
+                },
+
+                userselect: () => {
+                    const userSelectPrefix = prefix('userSelect');
+                    const msg = `📝 用户选择控制:\n\n` +
+                        `UserSelect 前缀：${userSelectPrefix || '不支持'}\n\n` +
+                        `可选值：\n` +
+                        `• none - 禁用选择\n` +
+                        `• auto - 自动选择\n` +
+                        `• text - 允许文本选择\n` +
+                        `• all - 全部选中\n` +
+                        `• contain - 限制范围\n\n` +
+                        `应用场景：\n` +
+                        `• 保护知识产权\n` +
+                        `• 优化用户体验\n` +
+                        `• 禁用按钮文本选中\n` +
+                        `• 防止意外选中\n\n` +
+                        `实现方式：\n` +
+                        `const prefix = prefix('userSelect');\n` +
+                        `element.style[prefix] = 'none';\n\n` +
+                        `兼容性：\n` +
+                        `${userSelectPrefix ? '✓ ' + userSelectPrefix : '✗ 需要处理'}`;
+                    showModal(msg);
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            if (appState.autoDetect) {
+                setTimeout(detectCommonProperties, 500);
+            }
+        });
+
+        // 回车检测
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('propertyInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    detectProperty();
+                }
+            });
+        });
     </script>
 </body>
 
