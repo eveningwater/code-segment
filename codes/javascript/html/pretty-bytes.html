@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>prettyBytes - 文件大小格式化工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #a78bfa;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .size-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .size-btn {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .size-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .size-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .size-comparison {
+            margin-top: 16px;
+        }
+
+        .comparison-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comparison-label {
+            flex: 0 0 120px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comparison-bar {
+            flex: 1;
+            height: 24px;
+            background: linear-gradient(90deg, #8b5cf6, #6d28d9);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .comparison-value {
+            flex: 0 0 80px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .precision-control {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .precision-btn {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .precision-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .precision-btn:hover {
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💾 文件大小格式化工具</h1>
+            <p>将字节数转换为易读的格式（B、KB、MB、GB 等），支持精度定制</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 文件大小转换 -->
+            <div class="card">
+                <h2>🔄 大小转换</h2>
+                
+                <div class="input-group">
+                    <input type="number" id="byteInput" placeholder="输入字节数" value="1048576">
+                    <button class="btn btn-primary" style="flex: 0 0 auto;" onclick="convertSize()">转换</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">转换结果：</div>
+                    <div class="info-value" id="conversionResult">-</div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div class="info-label">精度设置：</div>
+                    <div class="precision-control">
+                        <button class="precision-btn" onclick="setPrecision(2)">2 位</button>
+                        <button class="precision-btn active" onclick="setPrecision(3)">3 位</button>
+                        <button class="precision-btn" onclick="setPrecision(4)">4 位</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">⚡ 快速转换：</h3>
+                    <div class="size-selector">
+                        <button class="size-btn" onclick="quickConvert(1024)">1 KB</button>
+                        <button class="size-btn" onclick="quickConvert(1048576)">1 MB</button>
+                        <button class="size-btn" onclick="quickConvert(1073741824)">1 GB</button>
+                        <button class="size-btn" onclick="quickConvert(1099511627776)">1 TB</button>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">转换次数</div>
+                        <div class="stat-value" id="conversionCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 常见大小参考 -->
+            <div class="card">
+                <h2>📊 常见大小参考</h2>
+                
+                <div class="size-comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">文本文件</div>
+                        <div class="comparison-bar" style="width: 30%;">50 KB</div>
+                        <div class="comparison-value">50 KB</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">图片</div>
+                        <div class="comparison-bar" style="width: 60%;">5 MB</div>
+                        <div class="comparison-value">5 MB</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">视频</div>
+                        <div class="comparison-bar" style="width: 80%;">500 MB</div>
+                        <div class="comparison-value">500 MB</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">磁盘</div>
+                        <div class="comparison-bar" style="width: 100%;">256 GB</div>
+                        <div class="comparison-value">256 GB</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">📋 单位换算：</h3>
+                    <ul class="feature-list">
+                        <li>1 KB = 1,024 B（字节）</li>
+                        <li>1 MB = 1,024 KB</li>
+                        <li>1 GB = 1,024 MB</li>
+                        <li>1 TB = 1,024 GB</li>
+                        <li>1 PB = 1,024 TB</li>
+                        <li>1 EB = 1,024 PB</li>
+                    </ul>
+                </div>
+            </card>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('upload')">
+                    <h3>📤 文件上传显示</h3>
+                    <div class="example-desc">显示文件大小和上传进度</div>
+                    <div class="example-code">prettyBytes(fileSize)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('storage')">
+                    <h3>💾 存储空间管理</h3>
+                    <div class="example-desc">显示磁盘/云存储使用情况</div>
+                    <div class="example-code">prettyBytes(usedSpace)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('download')">
+                    <h3>📥 文件下载提示</h3>
+                    <div class="example-desc">下载前显示文件大小警告</div>
+                    <div class="example-code">prettyBytes(downloadSize)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('bandwidth')">
+                    <h3>📡 网络流量统计</h3>
+                    <div class="example-desc">展示数据使用量和流量费用</div>
+                    <div class="example-code">prettyBytes(trafficUsed)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('database')">
+                    <h3>🗄️ 数据库备份</h3>
+                    <div class="example-desc">备份大小显示和预估恢复时间</div>
+                    <div class="example-code">prettyBytes(backupSize)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('log')">
+                    <h3>📝 日志文件管理</h3>
+                    <div class="example-desc">日志大小监控和清理建议</div>
+                    <div class="example-code">prettyBytes(logFileSize)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // Core prettyBytes function
+        const prettyBytes = (num, precision = 3, addSpace = true) => {
+            const UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            if (Math.abs(num) < 1) return num + (addSpace ? ' ' : '') + UNITS[0];
+            const exponent = Math.min(
+                Math.floor(Math.log10(num < 0 ? -num : num) / 3),
+                UNITS.length - 1
+            );
+            const n = Number(
+                ((num < 0 ? -num : num) / 1000 ** exponent).toPrecision(precision)
+            );
+            return (num < 0 ? '-' : '') + n + (addSpace ? ' ' : '') + UNITS[exponent];
+        };
+
+        let stats = {
+            conversionCount: 0
+        };
+
+        let appState = {
+            precision: 3
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 转换大小
+        function convertSize() {
+            const bytes = parseInt(document.getElementById('byteInput').value);
+            
+            if (isNaN(bytes)) {
+                showNotification('请输入有效的字节数', 'warning');
+                return;
+            }
+
+            const result = prettyBytes(bytes, appState.precision);
+            document.getElementById('conversionResult').textContent = result;
+            stats.conversionCount++;
+            document.getElementById('conversionCount').textContent = stats.conversionCount;
+
+            showNotification(`已转换：${bytes.toLocaleString()} 字节 → ${result}`, 'success');
+        }
+
+        // 快速转换
+        function quickConvert(bytes) {
+            document.getElementById('byteInput').value = bytes;
+            convertSize();
+        }
+
+        // 设置精度
+        function setPrecision(precision) {
+            appState.precision = precision;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.precision-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 重新转换
+            convertSize();
+            showNotification(`已设置精度为 ${precision} 位`, 'info');
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                upload: () => {
+                    const msg = `📤 文件上传显示:\n\n` +
+                        `场景描述：\n` +
+                        `在上传页面显示选中文件的大小\n\n` +
+                        `常见文件大小：\n` +
+                        `• 文档 (50 KB): ${prettyBytes(51200)}\n` +
+                        `• 图片 (2 MB): ${prettyBytes(2097152)}\n` +
+                        `• 视频 (500 MB): ${prettyBytes(524288000)}\n` +
+                        `• 压缩包 (150 MB): ${prettyBytes(157286400)}\n\n` +
+                        `实现方式：\n` +
+                        `file.addEventListener('change', (e) => {\n` +
+                        `  const size = e.target.files[0].size;\n` +
+                        `  console.log(prettyBytes(size));\n` +
+                        `});\n\n` +
+                        `最佳实践：\n` +
+                        `1. 显示用户选中的文件大小\n` +
+                        `2. 检查是否超过限制\n` +
+                        `3. 显示上传进度\n` +
+                        `4. 提示上传完成`;
+                    showModal(msg);
+                },
+
+                storage: () => {
+                    const msg = `💾 存储空间管理:\n\n` +
+                        `场景描述：\n` +
+                        `显示磁盘或云存储使用情况\n\n` +
+                        `存储配置示例：\n` +
+                        `• 总容量: ${prettyBytes(107374182400)} (100 GB)\n` +
+                        `• 已使用: ${prettyBytes(53687091200)} (50 GB)\n` +
+                        `• 可用: ${prettyBytes(53687091200)} (50 GB)\n` +
+                        `• 使用率: 50%\n\n` +
+                        `实现代码：\n` +
+                        `const storage = {\n` +
+                        `  total: 107374182400,\n` +
+                        `  used: 53687091200\n` +
+                        `};\n` +
+                        `console.log(prettyBytes(storage.used));\n\n` +
+                        `应用场景：\n` +
+                        `• 云盘使用统计\n` +
+                        `• 存储配额管理\n` +
+                        `• 空间不足警告\n` +
+                        `• 清理建议`;
+                    showModal(msg);
+                },
+
+                download: () => {
+                    const msg = `📥 文件下载提示:\n\n` +
+                        `场景描述：\n` +
+                        `下载前显示文件大小和预估时间\n\n` +
+                        `下载案例：\n` +
+                        `• 小文件 (50 MB): ${prettyBytes(52428800)}\n` +
+                        `• 中文件 (500 MB): ${prettyBytes(524288000)}\n` +
+                        `• 大文件 (2 GB): ${prettyBytes(2147483648)}\n` +
+                        `• 超大 (5 GB): ${prettyBytes(5368709120)}\n\n` +
+                        `预估时间计算：\n` +
+                        `function estimateTime(bytes, speed) {\n` +
+                        `  const seconds = bytes / speed;\n` +
+                        `  return Math.ceil(seconds / 60); // 分钟\n` +
+                        `}\n\n` +
+                        `用户友好提示：\n` +
+                        `1. 显示下载文件大小\n` +
+                        `2. 根据网速预估时间\n` +
+                        `3. 提供暂停/继续选项\n` +
+                        `4. 显示下载进度`;
+                    showModal(msg);
+                },
+
+                bandwidth: () => {
+                    const msg = `📡 网络流量统计:\n\n` +
+                        `场景描述：\n` +
+                        `展示用户数据使用量和流量费用\n\n` +
+                        `月度流量示例：\n` +
+                        `• 本月使用: ${prettyBytes(10737418240)} (10 GB)\n` +
+                        `• 上月使用: ${prettyBytes(8589934592)} (8 GB)\n` +
+                        `• 套餐限额: ${prettyBytes(107374182400)} (100 GB)\n` +
+                        `• 剩余: ${prettyBytes(96636764160)} (90 GB)\n\n` +
+                        `实现示例：\n` +
+                        `const monthlyUsage = {\n` +
+                        `  current: 10737418240,\n` +
+                        `  limit: 107374182400,\n` +
+                        `  getCost() {\n` +
+                        `    return prettyBytes(this.current);\n` +
+                        `  }\n` +
+                        `};\n\n` +
+                        `适用场景：\n` +
+                        `• 移动运营商应用\n` +
+                        `• ISP 流量统计\n` +
+                        `• CDN 用量管理\n` +
+                        `• 成本控制`;
+                    showModal(msg);
+                },
+
+                database: () => {
+                    const msg = `🗄️ 数据库备份:\n\n` +
+                        `场景描述：\n` +
+                        `显示数据库备份大小和预估恢复时间\n\n` +
+                        `备份示例：\n` +
+                        `• 每日备份: ${prettyBytes(1073741824)} (1 GB)\n` +
+                        `• 周备份: ${prettyBytes(5368709120)} (5 GB)\n` +
+                        `• 月度备份: ${prettyBytes(21474836480)} (20 GB)\n` +
+                        `• 全量备份: ${prettyBytes(107374182400)} (100 GB)\n\n` +
+                        `实现逻辑：\n` +
+                        `const backups = [\n` +
+                        `  { date: '2024-01-30', size: 1073741824 },\n` +
+                        `  { date: '2024-01-29', size: 1060857830 }\n` +
+                        `].map(b => ({\n` +
+                        `  ...b,\n` +
+                        `  sizeStr: prettyBytes(b.size)\n` +
+                        `}));\n\n` +
+                        `管理功能：\n` +
+                        `• 查看备份清单\n` +
+                        `• 预估恢复时间\n` +
+                        `• 删除旧备份\n` +
+                        `• 手动触发备份`;
+                    showModal(msg);
+                },
+
+                log: () => {
+                    const msg = `📝 日志文件管理:\n\n` +
+                        `场景描述：\n` +
+                        `监控日志大小并提供清理建议\n\n` +
+                        `日志大小示例：\n` +
+                        `• 应用日志: ${prettyBytes(536870912)} (512 MB)\n` +
+                        `• 错误日志: ${prettyBytes(268435456)} (256 MB)\n` +
+                        `• 访问日志: ${prettyBytes(1073741824)} (1 GB)\n` +
+                        `• 总计: ${prettyBytes(1879048192)} (1.8 GB)\n\n` +
+                        `清理策略：\n` +
+                        `function shouldClean(size) {\n` +
+                        `  const limit = 2 * 1024 * 1024 * 1024; // 2GB\n` +
+                        `  if (size > limit) {\n` +
+                        `    alert('日志已达 ' + prettyBytes(size));\n` +
+                        `    return true;\n` +
+                        `  }\n` +
+                        `  return false;\n` +
+                        `}\n\n` +
+                        `建议操作：\n` +
+                        `1. 定期检查日志大小\n` +
+                        `2. 自动清理过期日志\n` +
+                        `3. 压缩历史日志\n` +
+                        `4. 定期备份重要日志`;
+                    showModal(msg);
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 回车转换
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('byteInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    convertSize();
+                }
+            });
+        });
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            convertSize();
+        });
+    </script>
+</body>
+
+</html>

@@ -25,6 +25,8 @@ const prettyBytes = (num, precision = 3, addSpace = true) => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/pretty-bytes.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -34,3 +36,11 @@ prettyBytes(123456789, 3, false); // '123MB'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/pretty-bytes.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/pretty-bytes.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/pretty-bytes.html"></iframe>
