@@ -499,7 +499,7 @@
 - [检查用户是否使用明亮主题-2023-02-07](codes/javascript/prefers-light-color-scheme.md)
 - [添加前缀-2023-02-08](codes/javascript/prefix.md)
 - [格式化字节数-2023-02-09](codes/javascript/pretty-bytes.md)
-- [质因数-2023-02-10](codes/javascript/primeFactors.md)
+- [质因数-2023-02-10](codes/javascript/prime-factors.md)
 - [质数-2023-02-11](codes/javascript/primes.md)
 - [求数值数组的乘积-2023-02-12](codes/javascript/prod.md)
 - [期约函数-2023-02-13](codes/javascript/promisify.md)

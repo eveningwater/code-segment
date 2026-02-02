@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>primeFactors - 质因数分解工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #ec4899;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #f472b6;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-size: 1.3rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .factor-display {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .factor-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .factor-operator {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .factor-analysis {
+            margin-top: 16px;
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .analysis-label {
+            flex: 0 0 100px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .analysis-value {
+            flex: 1;
+            color: var(--accent-color);
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        .quick-example {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quick-btn {
+            padding: 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .quick-btn:active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔢 质因数分解工具</h1>
+            <p>分解任意正整数的质因数（素因数），用于数学教学和算法优化</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 质因数分解 -->
+            <div class="card">
+                <h2>🔍 质因数分解</h2>
+                
+                <div class="input-group">
+                    <div id="numberInputContainer" style="flex: 1;"></div>
+                    <button class="btn btn-primary" style="flex: 0 0 auto;" onclick="factorize()">分解</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">输入数字：</div>
+                    <div class="info-value" id="inputNumber">-</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">质因数：</div>
+                    <div class="factor-display" id="factorDisplay">等待输入...</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">质因数式：</div>
+                    <div class="info-value" id="factorExpression">-</div>
+                </div>
+
+                <div class="quick-example">
+                    <button class="quick-btn" onclick="quickFactorize(12)">12</button>
+                    <button class="quick-btn" onclick="quickFactorize(60)">60</button>
+                    <button class="quick-btn" onclick="quickFactorize(100)">100</button>
+                    <button class="quick-btn" onclick="quickFactorize(360)">360</button>
+                    <button class="quick-btn" onclick="quickFactorize(1000)">1000</button>
+                    <button class="quick-btn" onclick="quickFactorize(97)">97</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">分解次数</div>
+                        <div class="stat-value" id="factorCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 因数分析 -->
+            <div class="card">
+                <h2>📊 因数分析</h2>
+                
+                <div class="factor-analysis">
+                    <div class="analysis-item">
+                        <div class="analysis-label">是否质数：</div>
+                        <div class="analysis-value" id="isPrime">待检测</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">不同质因数：</div>
+                        <div class="analysis-value" id="distinctCount">-</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">质因数个数：</div>
+                        <div class="analysis-value" id="totalFactorCount">-</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">最大质因数：</div>
+                        <div class="analysis-value" id="maxFactor">-</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">最小质因数：</div>
+                        <div class="analysis-value" id="minFactor">-</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">数字规律：</div>
+                        <div class="analysis-value" id="pattern">-</div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--text-primary); margin-top: 16px; margin-bottom: 12px;">📋 质因数知识：</h3>
+                <ul class="feature-list">
+                    <li>质数只能被 1 和自己整除</li>
+                    <li>每个正整数都有唯一的质因数分解</li>
+                    <li>质因数分解在密码学中很重要</li>
+                    <li>可用于求最大公约数和最小公倍数</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('gcd')">
+                    <h3>🔗 最大公约数</h3>
+                    <div class="example-desc">使用质因数分解求 GCD</div>
+                    <div class="example-code">primeFactors(a) 和 primeFactors(b)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('lcm')">
+                    <h3>⚡ 最小公倍数</h3>
+                    <div class="example-desc">利用质因数求 LCM</div>
+                    <div class="example-code">primeFactors() 结合集合</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('divisor')">
+                    <h3>🎯 因数个数</h3>
+                    <div class="example-desc">快速计算一个数的因数个数</div>
+                    <div class="example-code">质因数幂次 + 1</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('cryptography')">
+                    <h3>🔐 RSA 密码学</h3>
+                    <div class="example-desc">质因数分解是 RSA 的基础</div>
+                    <div class="example-code">大数质因数分解困难</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('fraction')">
+                    <h3>📐 分数化简</h3>
+                    <div class="example-desc">使用质因数化简分数</div>
+                    <div class="example-code">求分子分母的 GCD</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('perfect')">
+                    <h3>💎 完全数检测</h3>
+                    <div class="example-desc">检测完全数和亲密数</div>
+                    <div class="example-code">分解因数计算因数和</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // Core primeFactors function
+        const primeFactors = n => {
+            const a = [];
+            let f = 2;
+            while (n > 1) {
+                if (n % f === 0) {
+                    a.push(f);
+                    n /= f;
+                } else {
+                    f++;
+                }
+            }
+            return a;
+        };
+
+        let stats = {
+            factorCount: 0
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null,
+            numberInput: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+                plugins.numberInput = new InputNumber({
+                    container: '#numberInputContainer',
+                    min: 2,
+                    placeholder: '输入正整数',
+                    value: 360
+                });
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 获取因数统计
+        function getFactorStats(factors) {
+            if (factors.length === 0) return null;
+            
+            const stats = {};
+            factors.forEach(f => {
+                stats[f] = (stats[f] || 0) + 1;
+            });
+            return stats;
+        }
+
+        // 生成因数表达式
+        function generateExpression(factors) {
+            if (factors.length === 0) return '';
+            const stats = getFactorStats(factors);
+            const parts = Object.entries(stats)
+                .sort((a, b) => a[0] - b[0])
+                .map(([factor, count]) => count > 1 ? `${factor}^${count}` : factor);
+            return parts.join(' × ');
+        }
+
+        // 质数判断
+        function isPrimeNumber(n) {
+            if (n < 2) return false;
+            if (n === 2) return true;
+            if (n % 2 === 0) return false;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return false;
+            }
+            return true;
+        }
+
+        // 计算总因数个数
+        function countDivisors(factors) {
+            const stats = getFactorStats(factors);
+            let count = 1;
+            Object.values(stats).forEach(exp => {
+                count *= (exp + 1);
+            });
+            return count;
+        }
+
+        // 分解质因数
+        function factorize() {
+            const num = parseInt(plugins.numberInput ? plugins.numberInput.getValue() : document.getElementById('numberInput').value);
+            
+            if (isNaN(num) || num < 2) {
+                showNotification('请输入大于 1 的正整数', 'warning');
+                return;
+            }
+
+            const factors = primeFactors(num);
+            const distinct = new Set(factors);
+            const expression = generateExpression(factors);
+            const isPrime = factors.length === 1;
+            const divisorCount = countDivisors(factors);
+
+            // 更新显示
+            document.getElementById('inputNumber').textContent = num.toLocaleString();
+            
+            // 显示因数
+            const factorDisplay = document.getElementById('factorDisplay');
+            factorDisplay.innerHTML = factors
+                .map(f => `<span class="factor-badge">${f}</span>`)
+                .join('<span class="factor-operator">×</span>');
+
+            document.getElementById('factorExpression').textContent = expression;
+            
+            // 分析
+            document.getElementById('isPrime').textContent = isPrime ? '是 ✓' : '否 ✗';
+            document.getElementById('distinctCount').textContent = distinct.size;
+            document.getElementById('totalFactorCount').textContent = factors.length;
+            document.getElementById('maxFactor').textContent = Math.max(...factors);
+            document.getElementById('minFactor').textContent = Math.min(...factors);
+            document.getElementById('pattern').textContent = `共 ${divisorCount} 个因数`;
+
+            stats.factorCount++;
+            document.getElementById('factorCount').textContent = stats.factorCount;
+
+            const message = isPrime 
+                ? `${num} 是质数（只有 1 和 ${num} 两个因数）`
+                : `${num} = ${expression}`;
+            showNotification(message, isPrime ? 'warning' : 'success');
+        }
+
+        // 快速分解
+        function quickFactorize(num) {
+            if (plugins.numberInput) {
+                plugins.numberInput.setValue(num);
+            } else {
+                document.getElementById('numberInput').value = num;
+            }
+            factorize();
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                gcd: () => {
+                    const msg = `🔗 最大公约数 (GCD):\n\n` +
+                        `原理：\n` +
+                        `两个数的最大公约数是它们共有质因数的乘积\n\n` +
+                        `示例：\n` +
+                        `• GCD(12, 18)\n` +
+                        `  12 = 2² × 3\n` +
+                        `  18 = 2 × 3²\n` +
+                        `  GCD = 2 × 3 = 6\n\n` +
+                        `实现代码：\n` +
+                        `function gcd(a, b) {\n` +
+                        `  const factors1 = primeFactors(a);\n` +
+                        `  const factors2 = primeFactors(b);\n` +
+                        `  // 求共同质因数的乘积\n` +
+                        `}\n\n` +
+                        `应用场景：\n` +
+                        `• 化简分数\n` +
+                        `• 网格划分问题\n` +
+                        `• 最优分组`;
+                    showModal(msg);
+                },
+
+                lcm: () => {
+                    const msg = `⚡ 最小公倍数 (LCM):\n\n` +
+                        `原理：\n` +
+                        `最小公倍数包含所有质因数的最高幂次\n\n` +
+                        `示例：\n` +
+                        `• LCM(12, 18)\n` +
+                        `  12 = 2² × 3\n` +
+                        `  18 = 2 × 3²\n` +
+                        `  LCM = 2² × 3² = 36\n\n` +
+                        `关键公式：\n` +
+                        `LCM(a,b) × GCD(a,b) = a × b\n\n` +
+                        `实现思路：\n` +
+                        `1. 获取所有质因数\n` +
+                        `2. 对每个质因数取最高幂次\n` +
+                        `3. 将它们相乘\n\n` +
+                        `应用场景：\n` +
+                        `• 周期同步问题\n` +
+                        `• 工作分配\n` +
+                        `• 时间规划`;
+                    showModal(msg);
+                },
+
+                divisor: () => {
+                    const msg = `🎯 因数个数计算:\n\n` +
+                        `公式：\n` +
+                        `如果 n = p₁^a₁ × p₂^a₂ × ... × pₖ^aₖ\n` +
+                        `则因数个数 = (a₁+1) × (a₂+1) × ... × (aₖ+1)\n\n` +
+                        `示例：\n` +
+                        `• 12 = 2² × 3\n` +
+                        `  因数个数 = (2+1) × (1+1) = 6\n` +
+                        `  因数：1, 2, 3, 4, 6, 12\n\n` +
+                        `• 360 = 2³ × 3² × 5\n` +
+                        `  因数个数 = (3+1) × (2+1) × (1+1) = 24\n\n` +
+                        `实现代码：\n` +
+                        `function countDivisors(n) {\n` +
+                        `  const factors = primeFactors(n);\n` +
+                        `  const stats = {};\n` +
+                        `  factors.forEach(f => stats[f]++);\n` +
+                        `  return Object.values(stats)\n` +
+                        `    .reduce((a,b)=> a*(b+1), 1);\n` +
+                        `}\n\n` +
+                        `应用：\n` +
+                        `• 快速计算因数个数\n` +
+                        `• 无需列举所有因数`;
+                    showModal(msg);
+                },
+
+                cryptography: () => {
+                    const msg = `🔐 RSA 密码学:\n\n` +
+                        `RSA 原理：\n` +
+                        `1. 选择两个大质数 p 和 q\n` +
+                        `2. 计算 n = p × q\n` +
+                        `3. 质因数分解 n 很困难\n\n` +
+                        `安全基础：\n` +
+                        `大数的质因数分解是 NP 困难问题\n` +
+                        `• 1024 位数需要极长时间\n` +
+                        `• 2048 位数更加安全\n\n` +
+                        `实际例子：\n` +
+                        `• n = 91（小数字）\n` +
+                        `  91 = 7 × 13（容易分解）\n` +
+                        `• 巨大 n 无法在合理时间分解\n\n` +
+                        `公钥密码体制：\n` +
+                        `• 公开：n 和 e\n` +
+                        `• 保密：p 和 q（质因数）\n` +
+                        `• 攻击成本：分解 n\n\n` +
+                        `现状：\n` +
+                        `量子计算机可能威胁 RSA安全`;
+                    showModal(msg);
+                },
+
+                fraction: () => {
+                    const msg = `📐 分数化简:\n\n` +
+                        `原理：\n` +
+                        `分数化简 = 分子分母 ÷ 最大公约数\n\n` +
+                        `示例：\n` +
+                        `• 化简 12/18\n` +
+                        `  分子：12 = 2² × 3\n` +
+                        `  分母：18 = 2 × 3²\n` +
+                        `  GCD = 2 × 3 = 6\n` +
+                        `  结果：12/18 = 2/3\n\n` +
+                        `• 化简 60/90\n` +
+                        `  60 = 2² × 3 × 5\n` +
+                        `  90 = 2 × 3² × 5\n` +
+                        `  GCD = 2 × 3 × 5 = 30\n` +
+                        `  结果：60/90 = 2/3\n\n` +
+                        `实现步骤：\n` +
+                        `1. 分别分解分子分母\n` +
+                        `2. 找出共同质因数\n` +
+                        `3. 消除这些因数\n\n` +
+                        `应用：\n` +
+                        `• 数学计算\n` +
+                        `• 计算机图形学\n` +
+                        `• 工程计算`;
+                    showModal(msg);
+                },
+
+                perfect: () => {
+                    const msg = `💎 完全数检测:\n\n` +
+                        `定义：\n` +
+                        `完全数 = 除自身外所有因数之和\n\n` +
+                        `示例：\n` +
+                        `• 6 是完全数\n` +
+                        `  因数：1, 2, 3, 6\n` +
+                        `  除自身：1 + 2 + 3 = 6 ✓\n\n` +
+                        `• 28 是完全数\n` +
+                        `  因数：1, 2, 4, 7, 14, 28\n` +
+                        `  除自身：1 + 2 + 4 + 7 + 14 = 28 ✓\n\n` +
+                        `• 496 是完全数\n` +
+                        `  因数和 = 496\n\n` +
+                        `实现逻辑：\n` +
+                        `function isPerfect(n) {\n` +
+                        `  const factors = primeFactors(n);\n` +
+                        `  // 从因数求出所有因数\n` +
+                        `  // 求和与 n 比较\n` +
+                        `}\n\n` +
+                        `有趣性质：\n` +
+                        `• 已知完全数极少\n` +
+                        `• 所有已知完全数都是偶数\n` +
+                        `• 与梅森质数有关\n\n` +
+                        `亲密数：\n` +
+                        `• 220 = 2² × 5 × 11\n` +
+                        `• 284 = 2² × 71\n` +
+                        `• 220 的真因数和 = 284\n` +
+                        `• 284 的真因数和 = 220`;
+                    showModal(msg);
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 回车分解
+        document.addEventListener('DOMContentLoaded', () => {
+            const handleEnter = (e) => {
+                if (e.key === 'Enter') {
+                    factorize();
+                }
+            };
+            
+            // 支持原生 input 和插件 input
+            const inputEl = document.getElementById('numberInput');
+            if (inputEl) {
+                inputEl.addEventListener('keypress', handleEnter);
+            }
+            
+            // 等待插件初始化后再绑定事件
+            setTimeout(() => {
+                if (plugins.numberInput && plugins.numberInput.input) {
+                    plugins.numberInput.input.addEventListener('keypress', handleEnter);
+                }
+            }, 500);
+        });
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            factorize();
+        });
+    </script>
+</body>
+
+</html>

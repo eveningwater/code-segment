@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>primes - 质数查询工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #22d3ee;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .prime-display {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .prime-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .analysis-label {
+            flex: 0 0 120px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .analysis-value {
+            flex: 1;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .quick-example {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quick-btn {
+            padding: 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .quick-btn:active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .twin-primes-display {
+            display: grid;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .twin-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .twin-badge {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ 质数查询工具</h1>
+            <p>快速找出指定范围内的所有质数，支持质数统计和分析</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 质数生成 -->
+            <div class="card">
+                <h2>🔍 质数生成</h2>
+                
+                <div class="input-group">
+                    <div id="numberInputContainer" style="flex: 1;"></div>
+                    <button class="btn btn-primary" style="flex: 0 0 auto;" onclick="generatePrimes()">生成</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">质数个数：</div>
+                    <div class="info-value" id="primeCount">-</div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div class="info-label">质数列表：</div>
+                    <div class="prime-display" id="primeDisplay">等待输入...</div>
+                </div>
+
+                <div class="quick-example">
+                    <button class="quick-btn" onclick="quickGenerate(10)">10</button>
+                    <button class="quick-btn" onclick="quickGenerate(20)">20</button>
+                    <button class="quick-btn" onclick="quickGenerate(50)">50</button>
+                    <button class="quick-btn" onclick="quickGenerate(100)">100</button>
+                    <button class="quick-btn" onclick="quickGenerate(500)">500</button>
+                    <button class="quick-btn" onclick="quickGenerate(1000)">1000</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">生成次数</div>
+                        <div class="stat-value" id="generateCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 质数分析 -->
+            <div class="card">
+                <h2>📊 质数分析</h2>
+                
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">📈 统计信息：</h3>
+                    <div class="analysis-item">
+                        <div class="analysis-label">最小质数：</div>
+                        <div class="analysis-value" id="minPrime">-</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">最大质数：</div>
+                        <div class="analysis-value" id="maxPrime">-</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">质数密度：</div>
+                        <div class="analysis-value" id="primeDensity">-</div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="analysis-label">孪生质数对：</div>
+                        <div class="analysis-value" id="twinCount">-</div>
+                    </div>
+                </div>
+
+                <div id="twinPrimesBox" style="display: none;">
+                    <h3 style="color: var(--text-primary); margin-top: 16px; margin-bottom: 12px;">👯 孪生质数：</h3>
+                    <div class="twin-primes-display" id="twinPrimesDisplay"></div>
+                </div>
+
+                <h3 style="color: var(--text-primary); margin-top: 16px; margin-bottom: 12px;">📋 质数知识：</h3>
+                <ul class="feature-list">
+                    <li>质数只能被 1 和自己整除</li>
+                    <li>2 是唯一的偶质数</li>
+                    <li>孪生质数相差恰好为 2</li>
+                    <li>质数在密码学中至关重要</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('sieve')">
+                    <h3>⚡ 埃拉托斯特尼筛法</h3>
+                    <div class="example-desc">高效生成质数的经典算法</div>
+                    <div class="example-code">primes(num)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('cryptography')">
+                    <h3>🔐 密码学应用</h3>
+                    <div class="example-desc">RSA 和密钥生成基础</div>
+                    <div class="example-code">选择大质数</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('hash')">
+                    <h3>🗂️ 哈希表设计</h3>
+                    <div class="example-desc">哈希表大小通常为质数</div>
+                    <div class="example-code">table.length = prime</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('loadbalance')">
+                    <h3>⚖️ 负载均衡</h3>
+                    <div class="example-desc">使用质数分布请求</div>
+                    <div class="example-code">hash % prime</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('testing')">
+                    <h3>🧪 软件测试</h3>
+                    <div class="example-desc">生成测试数据集</div>
+                    <div class="example-code">primes() 生成边界</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('math')">
+                    <h3>📐 数学研究</h3>
+                    <div class="example-desc">质数分布和理论研究</div>
+                    <div class="example-code">π(n) 质数定理</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        // Core primes function
+        const primes = num => {
+            let arr = Array.from({ length: num - 1 }).map((x, i) => i + 2),
+                sqrtRoot = Math.floor(Math.sqrt(num)),
+                arrTillSqrRoot = Array.from({ length: sqrtRoot - 1 }).map((x, i) => i + 2);
+            arrTillSqrRoot.forEach(x => (arr = arr.filter(y => y === x || y % x !== 0)));
+            return arr;
+        };
+
+        let stats = {
+            generateCount: 0
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null,
+            numberInput: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+                plugins.numberInput = new InputNumber({
+                    container: '#numberInputContainer',
+                    min: 2,
+                    placeholder: '输入上限数字',
+                    value: 100
+                });
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 查找孪生质数
+        function findTwinPrimes(primeList) {
+            const twins = [];
+            for (let i = 0; i < primeList.length - 1; i++) {
+                if (primeList[i + 1] - primeList[i] === 2) {
+                    twins.push([primeList[i], primeList[i + 1]]);
+                }
+            }
+            return twins;
+        }
+
+        // 生成质数
+        function generatePrimes() {
+            const num = parseInt(plugins.numberInput ? plugins.numberInput.getValue() : document.getElementById('numberInput').value);
+            
+            if (isNaN(num) || num < 2) {
+                showNotification('请输入大于等于 2 的数字', 'warning');
+                return;
+            }
+
+            const primeList = primes(num);
+            const twinPrimes = findTwinPrimes(primeList);
+            const density = ((primeList.length / num) * 100).toFixed(2);
+
+            // 更新显示
+            document.getElementById('primeCount').textContent = primeList.length;
+            
+            // 显示质数
+            const primeDisplay = document.getElementById('primeDisplay');
+            primeDisplay.innerHTML = primeList
+                .map(p => `<span class="prime-badge">${p}</span>`)
+                .join('');
+
+            // 分析
+            document.getElementById('minPrime').textContent = primeList[0];
+            document.getElementById('maxPrime').textContent = primeList[primeList.length - 1];
+            document.getElementById('primeDensity').textContent = `${density}%`;
+            document.getElementById('twinCount').textContent = twinPrimes.length;
+
+            // 显示孪生质数
+            if (twinPrimes.length > 0) {
+                const twinBox = document.getElementById('twinPrimesBox');
+                const twinDisplay = document.getElementById('twinPrimesDisplay');
+                twinBox.style.display = 'block';
+                twinDisplay.innerHTML = twinPrimes
+                    .map(([a, b]) => `
+                        <div class="twin-item">
+                            <span class="twin-badge">${a}</span>
+                            <span style="color: var(--text-secondary);">和</span>
+                            <span class="twin-badge">${b}</span>
+                        </div>
+                    `).join('');
+            } else {
+                document.getElementById('twinPrimesBox').style.display = 'none';
+            }
+
+            stats.generateCount++;
+            document.getElementById('generateCount').textContent = stats.generateCount;
+
+            showNotification(`已生成 ${primeList.length} 个质数，共 ${twinPrimes.length} 对孪生质数`, 'success');
+        }
+
+        // 快速生成
+        function quickGenerate(num) {
+            if (plugins.numberInput) {
+                plugins.numberInput.setValue(num);
+            } else {
+                document.getElementById('numberInput').value = num;
+            }
+            generatePrimes();
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                sieve: () => {
+                    const msg = `⚡ 埃拉托斯特尼筛法:\n\n` +
+                        `原理：\n` +
+                        `1. 从 2 开始，标记为质数\n` +
+                        `2. 标记所有 2 的倍数为合数\n` +
+                        `3. 找下一个未标记的数，重复\n` +
+                        `4. 直到处理完 √n\n\n` +
+                        `时间复杂度：\n` +
+                        `O(n log log n)\n\n` +
+                        `示例 (生成 30 以内的质数)：\n` +
+                        `初始：2, 3, 4, 5, 6, 7, 8, 9, 10...\n` +
+                        `消除 2 的倍数：2, 3, 5, 7, 9, 11...\n` +
+                        `消除 3 的倍数：2, 3, 5, 7, 11...\n` +
+                        `结果：2, 3, 5, 7, 11, 13, 17, 19, 23, 29\n\n` +
+                        `实现代码思路：\n` +
+                        `const primes = (num) => {\n` +
+                        `  let arr = [2, 3, 4, ..., num];\n` +
+                        `  const sqrtRoot = Math.sqrt(num);\n` +
+                        `  for (let p of arr) {\n` +
+                        `    if (p <= sqrtRoot) {\n` +
+                        `      arr = arr.filter(x => x === p || x % p !== 0);\n` +
+                        `    }\n` +
+                        `  }\n` +
+                        `  return arr;\n` +
+                        `}\n\n` +
+                        `效率：\n` +
+                        `比逐个判断质数快得多`;
+                    showModal(msg);
+                },
+
+                cryptography: () => {
+                    const msg = `🔐 密码学应用:\n\n` +
+                        `RSA 算法基础：\n` +
+                        `1. 选择两个大质数 p 和 q\n` +
+                        `2. 计算 n = p × q\n` +
+                        `3. n 作为模数\n` +
+                        `4. 对 n 的因数分解是困难的\n\n` +
+                        `实际示例：\n` +
+                        `• p = 61, q = 53\n` +
+                        `• n = 61 × 53 = 3233\n` +
+                        `• 公钥：(e, n)\n` +
+                        `• 私钥：(d, n)\n\n` +
+                        `质数要求：\n` +
+                        `• 足够大（1024-4096 位）\n` +
+                        `• 难以因数分解\n` +
+                        `• 生成的 n 更安全\n\n` +
+                        `应用场景：\n` +
+                        `• HTTPS 加密\n` +
+                        `• 数字签名\n` +
+                        `• 邮件加密\n\n` +
+                        `实现步骤：\n` +
+                        `1. 生成大质数池\n` +
+                        `2. 随机选择两个质数\n` +
+                        `3. 计算公私钥\n` +
+                        `4. 加密/解密数据`;
+                    showModal(msg);
+                },
+
+                hash: () => {
+                    const msg = `🗂️ 哈希表设计:\n\n` +
+                        `为什么用质数：\n` +
+                        `• 哈希碰撞更少\n` +
+                        `• 散列分布更均匀\n` +
+                        `• 算法性能更优\n\n` +
+                        `实际例子：\n` +
+                        `• HashMap 初始容量：16\n` +
+                        `• 常用容量：32, 64, 128...\n` +
+                        `• 扩容时使用质数大小\n\n` +
+                        `质数选择策略：\n` +
+                        `const tableSizes = [\n` +
+                        `  7, 13, 31, 61, 127, 251,\n` +
+                        `  509, 1021, 2039, 4093\n` +
+                        `];\n\n` +
+                        `实现例子：\n` +
+                        `class HashMap {\n` +
+                        `  constructor(capacity) {\n` +
+                        `    this.size = nextPrime(capacity);\n` +
+                        `    this.table = new Array(this.size);\n` +
+                        `  }\n\n` +
+                        `  hash(key) {\n` +
+                        `    return hashCode(key) % this.size;\n` +
+                        `  }\n` +
+                        `}\n\n` +
+                        `性能对比：\n` +
+                        `• 质数大小：少量碰撞\n` +
+                        `• 2的幂次：更多碰撞`;
+                    showModal(msg);
+                },
+
+                loadbalance: () => {
+                    const msg = `⚖️ 负载均衡:\n\n` +
+                        `一致性哈希算法：\n` +
+                        `1. 使用质数作为模\n` +
+                        `2. 均匀分布服务器\n` +
+                        `3. 最小化节点变化影响\n\n` +
+                        `实现原理：\n` +
+                        `const mod = 31; // 质数\n` +
+                        `const routeRequest = (key) => {\n` +
+                        `  return hash(key) % mod;\n` +
+                        `};\n\n` +
+                        `分布示例：\n` +
+                        `• 31 个服务器节点\n` +
+                        `• 请求 hash % 31\n` +
+                        `• 均匀分配到各节点\n\n` +
+                        `优势：\n` +
+                        `• 减少缓存失效\n` +
+                        `• 提高性能\n` +
+                        `• 节点变化影响小\n\n` +
+                        `实际应用：\n` +
+                        `• 分布式缓存\n` +
+                        `• CDN 节点选择\n` +
+                        `• 消息队列分片\n\n` +
+                        `对比示例：\n` +
+                        `使用 2^n (如 32)：\n` +
+                        `hash & (32-1)\n\n` +
+                        `使用质数 (如 31)：\n` +
+                        `hash % 31`;
+                    showModal(msg);
+                },
+
+                testing: () => {
+                    const msg = `🧪 软件测试:\n\n` +
+                        `测试用例生成：\n` +
+                        `使用质数生成边界值\n\n` +
+                        `示例：\n` +
+                        `const testValues = primes(1000);\n` +
+                        `// 生成代表性测试数据\n\n` +
+                        `边界测试：\n` +
+                        `• 最小质数：2\n` +
+                        `• 最大质数：999983\n` +
+                        `• 中间值：各种规模\n\n` +
+                        `应用场景：\n` +
+                        `1. 容量测试\n` +
+                        `   const primes = primes(10000);\n` +
+                        `   testCapacity(primes);\n\n` +
+                        `2. 性能测试\n` +
+                        `   primes.forEach(p => {\n` +
+                        `     measureTime(p);\n` +
+                        `   });\n\n` +
+                        `3. 回归测试\n` +
+                        `   const testSet = primes(100);\n` +
+                        `   runRegressionTests(testSet);\n\n` +
+                        `优势：\n` +
+                        `• 覆盖率高\n` +
+                        `• 边界完整\n` +
+                        `• 代表性强`;
+                    showModal(msg);
+                },
+
+                math: () => {
+                    const msg = `📐 数学研究:\n\n` +
+                        `质数定理：\n` +
+                        `π(n) ≈ n / ln(n)\n\n` +
+                        `其中 π(n) 是小于等于 n 的质数个数\n\n` +
+                        `实际数据：\n` +
+                        `• π(100) = 25\n` +
+                        `• π(1000) = 168\n` +
+                        `• π(10000) = 1229\n` +
+                        `• π(100000) = 9592\n\n` +
+                        `哥德巴赫猜想：\n` +
+                        `任何大于 2 的偶数\n` +
+                        `都可表示为两个质数之和\n\n` +
+                        `例子：\n` +
+                        `• 4 = 2 + 2\n` +
+                        `• 6 = 3 + 3\n` +
+                        `• 8 = 3 + 5\n` +
+                        `• 10 = 5 + 5\n\n` +
+                        `孪生质数猜想：\n` +
+                        `存在无穷多对孪生质数\n` +
+                        `(相差为 2 的质数对)\n\n` +
+                        `已知孪生质数对：\n` +
+                        `(3,5), (5,7), (11,13),\n` +
+                        `(17,19), (29,31)...\n\n` +
+                        `研究意义：\n` +
+                        `• 数论基础\n` +
+                        `• 密码学理论\n` +
+                        `• 分布式系统优化`;
+                    showModal(msg);
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 回车生成
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('numberInput')) {
+                document.getElementById('numberInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        generatePrimes();
+                    }
+                });
+            }
+            
+            // 为插件输入框添加回车事件
+            setTimeout(() => {
+                if (plugins.numberInput && plugins.numberInput.input) {
+                    plugins.numberInput.input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            generatePrimes();
+                        }
+                    });
+                }
+            }, 500);
+        });
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            generatePrimes();
+        });
+    </script>
+</body>
+
+</html>
