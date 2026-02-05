@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pullAtIndex - 按索引移除元素工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #d946ef;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #ec4899;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #d946ef 0%, #ec4899 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        [data-theme="dark"] .card {
+            background: var(--bg-secondary);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: border-color 0.3s;
+        }
+
+        [data-theme="dark"] .input-field {
+            background: var(--bg-primary);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent-color);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 6px;
+        }
+
+        [data-theme="dark"] .info-box {
+            background: var(--bg-primary);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .array-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .array-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .array-item.removed {
+            background: var(--warning-color);
+            text-decoration: line-through;
+        }
+
+        .quick-example {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .quick-btn {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-color);
+            border-radius: 6px;
+            color: var(--accent-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .quick-btn {
+            background: var(--bg-primary);
+        }
+
+        .quick-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        [data-theme="dark"] .stat-item {
+            background: var(--bg-primary);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .example-section {
+            margin-top: 40px;
+        }
+
+        .example-section h3 {
+            color: var(--accent-color);
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .example-card {
+            background: var(--bg-primary);
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(217, 70, 239, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .example-card h4 {
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .example-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-example {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 按索引移除元素</h1>
+            <p>从数组中按指定索引位置移除元素，并返回被移除的元素</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>🔧 基础操作</h2>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 8px;">数组元素 (逗号分隔)</label>
+                    <input type="text" class="input-field" id="arrayInput" placeholder="e.g. a,b,c,d,e" value="a,b,c,d,e">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 8px;">移除索引 (逗号分隔)</label>
+                    <input type="text" class="input-field" id="indexInput" placeholder="e.g. 1,3" value="1,3">
+                </div>
+
+                <button class="btn btn-primary" onclick="performPullAtIndex()" style="width: 100%;">执行移除</button>
+
+                <div class="info-box">
+                    <div class="info-label">原始数组：</div>
+                    <div class="array-display" id="originalArray">等待输入...</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">移除的索引：</div>
+                    <div class="array-display" id="removedIndices">等待输入...</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">移除的元素：</div>
+                    <div class="array-display" id="removedElements">等待输入...</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">结果数组：</div>
+                    <div class="array-display" id="resultArray">等待输入...</div>
+                </div>
+
+                <div class="quick-example">
+                    <button class="quick-btn" onclick="quickExample('[1,2,3,4,5]', '[0,2,4]')">移除首中尾</button>
+                    <button class="quick-btn" onclick="quickExample('[a,b,c,d]', '[1,3]')">移除奇数索引</button>
+                    <button class="quick-btn" onclick="quickExample('[x,y,z]', '[0]')">移除首个</button>
+                    <button class="quick-btn" onclick="quickExample('[1,1,1,1]', '[1,2]')">移除中间</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="originalSize">0</div>
+                        <div class="stat-label">原始大小</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="removedCount">0</div>
+                        <div class="stat-label">移除个数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="resultSize">0</div>
+                        <div class="stat-label">结果大小</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📚 应用示例</h2>
+
+                <div class="quick-example" style="margin-top: 0;">
+                    <button class="quick-btn" onclick="showExample(1)">1️⃣ 删除列表项</button>
+                    <button class="quick-btn" onclick="showExample(2)">2️⃣ 数据备份</button>
+                    <button class="quick-btn" onclick="showExample(3)">3️⃣ 日程删除</button>
+                    <button class="quick-btn" onclick="showExample(4)">4️⃣ 购物清单</button>
+                    <button class="quick-btn" onclick="showExample(5)">5️⃣ 队列处理</button>
+                    <button class="quick-btn" onclick="showExample(6)">6️⃣ 权限撤销</button>
+                </div>
+
+                <div class="stats" style="margin-top: 20px;">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalExecutions">0</div>
+                        <div class="stat-label">总执行次数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="example-section">
+            <h3>📖 详细说明</h3>
+            <div class="examples-grid">
+                <div class="example-card" onclick="showExample(1)">
+                    <h4>🗑️ 删除列表项</h4>
+                    <p>从待办事项列表中删除多个已完成的项目，通过索引位置批量移除。</p>
+                </div>
+                <div class="example-card" onclick="showExample(2)">
+                    <h4>💾 数据备份恢复</h4>
+                    <p>从备份记录中移除特定位置的损坏备份，保留有效的备份版本。</p>
+                </div>
+                <div class="example-card" onclick="showExample(3)">
+                    <h4>📅 日程管理</h4>
+                    <p>从日程表中删除多个已取消的会议，按时间顺序移除指定位置。</p>
+                </div>
+                <div class="example-card" onclick="showExample(4)">
+                    <h4>🛒 购物清单</h4>
+                    <p>从购物清单中移除已购买的商品，返回被移除的商品列表。</p>
+                </div>
+                <div class="example-card" onclick="showExample(5)">
+                    <h4>📋 队列处理</h4>
+                    <p>从任务队列中移除已失败或已跳过的任务，保留待处理任务。</p>
+                </div>
+                <div class="example-card" onclick="showExample(6)">
+                    <h4>🔐 权限管理</h4>
+                    <p>从用户权限列表中撤销特定位置的权限，返回被撤销的权限。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        const pullAtIndex = (arr, pullArr) => {
+            let removed = [];
+            let pulled = arr
+                .map((v, i) => (pullArr.includes(i) ? removed.push(v) : v))
+                .filter((v, i) => !pullArr.includes(i));
+            arr.length = 0;
+            pulled.forEach(v => arr.push(v));
+            return removed;
+        };
+
+        let stats = {
+            totalExecutions: 0
+        };
+
+        function performPullAtIndex() {
+            try {
+                const arrayStr = document.getElementById('arrayInput').value.trim();
+                const indexStr = document.getElementById('indexInput').value.trim();
+
+                if (!arrayStr || !indexStr) {
+                    showNotification('⚠️ 请输入数组和索引', 'warning');
+                    return;
+                }
+
+                const arr = arrayStr.split(',').map(s => s.trim());
+                const indices = indexStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+
+                if (indices.length === 0) {
+                    showNotification('⚠️ 请输入有效的索引', 'warning');
+                    return;
+                }
+
+                // 验证索引有效性
+                const validIndices = indices.filter(i => i >= 0 && i < arr.length);
+                if (validIndices.length === 0) {
+                    showNotification('⚠️ 索引超出范围', 'warning');
+                    return;
+                }
+
+                const originalSize = arr.length;
+                const removed = pullAtIndex(arr, validIndices);
+                const resultSize = arr.length;
+
+                // 更新显示
+                displayArray('originalArray', arrayStr.split(',').map(s => s.trim()), validIndices);
+                displayIndices('removedIndices', validIndices);
+                displayArray('removedElements', removed);
+                displayArray('resultArray', arr);
+
+                // 更新统计
+                document.getElementById('originalSize').textContent = originalSize;
+                document.getElementById('removedCount').textContent = removed.length;
+                document.getElementById('resultSize').textContent = resultSize;
+
+                stats.totalExecutions++;
+                document.getElementById('totalExecutions').textContent = stats.totalExecutions;
+
+                showNotification(`✅ 成功移除 ${removed.length} 个元素！`, 'success');
+            } catch (error) {
+                showNotification(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+
+        function displayArray(elementId, items, removedIndices = []) {
+            const display = document.getElementById(elementId);
+            display.innerHTML = items.map((item, idx) => {
+                const isRemoved = removedIndices && removedIndices.includes(idx);
+                return `<span class="array-item ${isRemoved ? 'removed' : ''}">${item}</span>`;
+            }).join('');
+        }
+
+        function displayIndices(elementId, indices) {
+            const display = document.getElementById(elementId);
+            display.innerHTML = indices.map(idx => `<span class="array-item">[${idx}]</span>`).join('');
+        }
+
+        function quickExample(arrayStr, indexStr) {
+            document.getElementById('arrayInput').value = arrayStr.replace(/[\[\]]/g, '').split(',').join(',');
+            document.getElementById('indexInput').value = indexStr.replace(/[\[\]]/g, '');
+            performPullAtIndex();
+        }
+
+        function showExample(exampleNum) {
+            const examples = {
+                1: {
+                    title: '🗑️ 删除列表项',
+                    desc: '从待办事项列表中删除多个已完成的项目。',
+                    arr: ['学习', '购物', '运动', '阅读', '工作'],
+                    indices: [1, 3],
+                    explanation: '删除索引 1 (购物) 和索引 3 (阅读)，保留学习、运动、工作。'
+                },
+                2: {
+                    title: '💾 数据备份恢复',
+                    desc: '从备份记录中移除损坏的备份版本。',
+                    arr: ['v1.0', 'v1.1(损坏)', 'v1.2', 'v1.3(损坏)', 'v1.4'],
+                    indices: [1, 3],
+                    explanation: '移除索引 1 和 3 处的损坏备份，保留有效版本。'
+                },
+                3: {
+                    title: '📅 日程管理',
+                    desc: '从日程表中删除多个已取消的会议。',
+                    arr: ['周一会议', '周二取消', '周三会议', '周四取消', '周五会议'],
+                    indices: [1, 3],
+                    explanation: '删除索引 1 (周二) 和索引 3 (周四) 的已取消会议。'
+                },
+                4: {
+                    title: '🛒 购物清单',
+                    desc: '从购物清单中移除已购买的商品。',
+                    arr: ['苹果', '香蕉', '橙子', '葡萄', '西瓜'],
+                    indices: [0, 2, 4],
+                    explanation: '移除索引 0、2、4 处的已购商品（苹果、橙子、西瓜）。'
+                },
+                5: {
+                    title: '📋 队列处理',
+                    desc: '从任务队列中移除已失败的任务。',
+                    arr: ['task1', 'failed', 'task2', 'failed', 'task3'],
+                    indices: [1, 3],
+                    explanation: '移除索引 1 和 3 处的失败任务。'
+                },
+                6: {
+                    title: '🔐 权限管理',
+                    desc: '从用户权限列表中撤销特定权限。',
+                    arr: ['读', '写', '删除', '管理', '导出'],
+                    indices: [1, 3],
+                    explanation: '撤销索引 1 (写) 和索引 3 (管理) 的权限。'
+                }
+            };
+
+            const example = examples[exampleNum];
+            const content = `
+<div style="padding: 20px;">
+    <h3 style="color: var(--accent-color); margin-bottom: 16px;">${example.title}</h3>
+    <p style="margin-bottom: 16px; color: var(--text-secondary);">${example.desc}</p>
+    
+    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+        <div style="font-weight: 600; margin-bottom: 8px;">📝 原始数组：</div>
+        <div style="color: var(--accent-color);">${JSON.stringify(example.arr)}</div>
+    </div>
+    
+    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+        <div style="font-weight: 600; margin-bottom: 8px;">🎯 移除索引：</div>
+        <div style="color: var(--accent-color);">${JSON.stringify(example.indices)}</div>
+    </div>
+    
+    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px;">
+        <div style="font-weight: 600; margin-bottom: 8px;">💡 说明：</div>
+        <div style="color: var(--text-secondary);">${example.explanation}</div>
+    </div>
+</div>
+            `;
+            
+            showModal(content);
+        }
+
+        function showModal(content) {
+            if (window.plugins && window.plugins.modal) {
+                window.plugins.modal.alert(content);
+            } else {
+                alert(content.replace(/<[^>]*>/g, ''));
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            if (window.plugins && window.plugins.notification) {
+                window.plugins.notification.show(message, type);
+            }
+        }
+
+        function initPlugins() {
+            try {
+                if (window.Modal) {
+                    window.plugins = window.plugins || {};
+                    window.plugins.modal = new Modal();
+                }
+                if (window.Notification) {
+                    window.plugins = window.plugins || {};
+                    window.plugins.notification = new Notification();
+                }
+            } catch (error) {
+                console.log('插件初始化提示:', error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initPlugins();
+            document.getElementById('arrayInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') performPullAtIndex();
+            });
+            document.getElementById('indexInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') performPullAtIndex();
+            });
+        });
+    </script>
+</body>
+
+</html>

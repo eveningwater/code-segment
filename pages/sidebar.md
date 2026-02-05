@@ -504,7 +504,7 @@
 - [求数值数组的乘积-2023-02-12](codes/javascript/prod.md)
 - [期约函数-2023-02-13](codes/javascript/promisify.md)
 - [过滤数组-2023-02-14](codes/javascript/pull.md)
-- [根据索引过滤数组-2023-02-15](codes/javascript/pullAtIndex.md)
+- [根据索引过滤数组-2023-02-15](codes/javascript/pull-at-index.md)
 - [根据值过滤数组-2023-02-16](codes/javascript/pullAtValue.md)
 - [根据回调函数过滤数组-2023-02-17](codes/javascript/pullBy.md)
 - [季度-2023-02-18](codes/javascript/quarterOfYear.md)

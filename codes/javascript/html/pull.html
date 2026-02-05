@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pull - 数组元素移除工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #f97316;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #fb923c;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f97316 0%, #d2691e 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316, #d2691e);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .array-display {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .array-item {
+            background: var(--accent-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .array-item .remove-btn {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+            margin-left: 4px;
+        }
+
+        .array-item .remove-btn:hover {
+            opacity: 1;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #f97316, #d2691e);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .operation-log {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            border: 2px solid var(--border-color);
+        }
+
+        .log-item {
+            background: var(--bg-primary);
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .log-item.success {
+            border-left-color: var(--success-color);
+        }
+
+        .log-item.warning {
+            border-left-color: var(--warning-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ 数组元素移除工具</h1>
+            <p>基于 pull 函数的数组元素批量移除实战示例</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 数组操作 -->
+            <div class="card">
+                <h2>🔧 数组操作</h2>
+                
+                <div class="input-group">
+                    <label>初始数组</label>
+                    <input type="text" id="arrayInput" class="input-field" placeholder="用逗号分隔，如: 1,2,3,4,5" value="1,2,3,4,5,6,7,8,9,10">
+                </div>
+
+                <div class="input-group">
+                    <label>要移除的元素</label>
+                    <input type="text" id="removeInput" class="input-field" placeholder="用逗号分隔，如: 2,4,6">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="executeRemove()">执行移除</button>
+                    <button class="btn btn-secondary" onclick="resetArray()">重置</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">原始数组：</div>
+                    <div class="array-display" id="originalArray">[]</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">移除元素：</div>
+                    <div class="array-display" id="removeElements">[]</div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">原始大小</div>
+                        <div class="stat-value" id="originalSize">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">移除个数</div>
+                        <div class="stat-value" id="removedSize">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">保留个数</div>
+                        <div class="stat-value" id="remainSize">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果显示 -->
+            <div class="card">
+                <h2>📊 执行结果</h2>
+                
+                <div class="info-box">
+                    <div class="info-label">操作后的数组：</div>
+                    <div class="array-display" id="resultArray">[]</div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">📋 操作日志：</h3>
+                    <div class="operation-log" id="operationLog">
+                        <div class="log-item">准备就绪，输入数据并点击"执行移除"</div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--text-primary); margin-top: 16px; margin-bottom: 12px;">📋 基础知识：</h3>
+                <ul class="feature-list">
+                    <li>pull 函数从数组中移除指定元素</li>
+                    <li>原数组会被直接修改（可变操作）</li>
+                    <li>支持移除多个不同元素</li>
+                    <li>元素不存在时不产生错误</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('filter')">
+                    <h3>🔍 数据过滤</h3>
+                    <div class="example-desc">移除无效或重复数据</div>
+                    <div class="example-code">pull(users, invalid)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('blacklist')">
+                    <h3>⛔ 黑名单过滤</h3>
+                    <div class="example-desc">移除黑名单中的用户</div>
+                    <div class="example-code">pull(users, ...blacklist)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('cleanup')">
+                    <h3>🧹 数据清理</h3>
+                    <div class="example-desc">移除特定状态的数据</div>
+                    <div class="example-code">pull(items, deleted)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('permission')">
+                    <h3>🔐 权限管理</h3>
+                    <div class="example-desc">移除用户的特定权限</div>
+                    <div class="example-code">pull(perms, 'admin')</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('queue')">
+                    <h3>📦 队列处理</h3>
+                    <div class="example-desc">从处理队列中移除项目</div>
+                    <div class="example-code">pull(queue, ...done)</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('collection')">
+                    <h3>📚 集合运算</h3>
+                    <div class="example-desc">数组差集运算</div>
+                    <div class="example-code">A - B 差集</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
+    <script>
+        // pull 函数
+        const pull = (arr, ...args) => {
+            let argState = Array.isArray(args[0]) ? args[0] : args;
+            let pulled = arr.filter(v => !argState.includes(v));
+            arr.length = 0;
+            pulled.forEach(v => arr.push(v));
+        };
+
+        let currentArray = [];
+        let stats = {
+            operationCount: 0
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 添加日志
+        function addLog(message, type = 'info') {
+            const logEl = document.getElementById('operationLog');
+            const time = new Date().toLocaleTimeString('zh-CN');
+            const item = document.createElement('div');
+            item.className = `log-item ${type}`;
+            item.textContent = `[${time}] ${message}`;
+            logEl.appendChild(item);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // 解析数组字符串
+        function parseArray(str) {
+            return str
+                .split(',')
+                .map(s => {
+                    const num = Number(s.trim());
+                    return isNaN(num) ? s.trim() : num;
+                })
+                .filter(v => v !== '');
+        }
+
+        // 更新显示
+        function updateDisplay(arr, label) {
+            const display = document.getElementById(label);
+            if (arr.length === 0) {
+                display.innerHTML = '<span style="color: var(--text-secondary); opacity: 0.6;">[]</span>';
+            } else {
+                display.innerHTML = arr.map(item => `<span class="array-item">${item}</span>`).join('');
+            }
+        }
+
+        // 执行移除
+        function executeRemove() {
+            const arrayStr = document.getElementById('arrayInput').value.trim();
+            const removeStr = document.getElementById('removeInput').value.trim();
+
+            if (!arrayStr) {
+                showNotification('请输入初始数组', 'warning');
+                return;
+            }
+
+            if (!removeStr) {
+                showNotification('请输入要移除的元素', 'warning');
+                return;
+            }
+
+            currentArray = parseArray(arrayStr);
+            const removeElements = parseArray(removeStr);
+
+            const originalSize = currentArray.length;
+            
+            addLog(`原始数组: [${currentArray.join(', ')}]`, 'info');
+            addLog(`移除元素: [${removeElements.join(', ')}]`, 'warning');
+
+            // 执行 pull 操作
+            pull(currentArray, removeElements);
+
+            const removedSize = originalSize - currentArray.length;
+            const remainSize = currentArray.length;
+
+            // 更新显示
+            updateDisplay(parseArray(arrayStr), 'originalArray');
+            updateDisplay(removeElements, 'removeElements');
+            updateDisplay(currentArray, 'resultArray');
+
+            // 更新统计
+            document.getElementById('originalSize').textContent = originalSize;
+            document.getElementById('removedSize').textContent = removedSize;
+            document.getElementById('remainSize').textContent = remainSize;
+
+            stats.operationCount++;
+
+            addLog(`执行完成: 移除 ${removedSize} 个元素，保留 ${remainSize} 个元素`, 'success');
+            showNotification(`成功移除 ${removedSize} 个元素，保留 ${remainSize} 个元素`, 'success');
+        }
+
+        // 重置数组
+        function resetArray() {
+            document.getElementById('arrayInput').value = '1,2,3,4,5,6,7,8,9,10';
+            document.getElementById('removeInput').value = '';
+            document.getElementById('originalArray').innerHTML = '[]';
+            document.getElementById('removeElements').innerHTML = '[]';
+            document.getElementById('resultArray').innerHTML = '[]';
+            document.getElementById('originalSize').textContent = '0';
+            document.getElementById('removedSize').textContent = '0';
+            document.getElementById('remainSize').textContent = '0';
+            currentArray = [];
+            addLog('数组已重置', 'info');
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                filter: () => {
+                    const msg = `🔍 数据过滤:\n\n` +
+                        `场景：过滤用户列表中的无效账户\n\n` +
+                        `代码：\n` +
+                        `const users = ['user1', 'user2', 'INVALID', 'user3', 'INVALID', 'user4'];\n` +
+                        `pull(users, 'INVALID');\n` +
+                        `// users 现在是 ['user1', 'user2', 'user3', 'user4']\n\n` +
+                        `实际应用：\n` +
+                        `• 移除已删除的用户\n` +
+                        `• 清除无效的订单\n` +
+                        `• 过滤失败的操作\n\n` +
+                        `性能优势：\n` +
+                        `• 原地修改，不创建新数组\n` +
+                        `• 内存效率高\n` +
+                        `• 适合大数据集`;
+                    showModal(msg);
+                },
+
+                blacklist: () => {
+                    const msg = `⛔ 黑名单过滤:\n\n` +
+                        `场景：从活跃用户中移除黑名单用户\n\n` +
+                        `代码：\n` +
+                        `const activeUsers = ['alice', 'bob', 'hacker1', 'charlie', 'hacker2'];\n` +
+                        `const blacklist = ['hacker1', 'hacker2', 'spammer'];\n` +
+                        `pull(activeUsers, blacklist);\n` +
+                        `// activeUsers: ['alice', 'bob', 'charlie']\n\n` +
+                        `多参数移除：\n` +
+                        `pull(activeUsers, 'hacker1', 'hacker2', 'spammer');\n\n` +
+                        `应用场景：\n` +
+                        `• 内容审核系统\n` +
+                        `• 反欺诈机制\n` +
+                        `• 用户禁用管理\n` +
+                        `• IP 黑名单";`
+                    showModal(msg);
+                },
+
+                cleanup: () => {
+                    const msg = `🧹 数据清理:\n\n` +
+                        `场景：清理标记为已删除的项目\n\n` +
+                        `代码：\n` +
+                        `const items = [\n` +
+                        `  { id: 1, status: 'active' },\n` +
+                        `  { id: 2, status: 'deleted' },\n` +
+                        `  { id: 3, status: 'active' }\n` +
+                        `];\n\n` +
+                        `// 需要自定义实现\n` +
+                        `items = items.filter(item => item.status !== 'deleted');\n\n` +
+                        `批量清理：\n` +
+                        `const toDelete = items.filter(i => i.status === 'deleted');\n` +
+                        `pull(items, ...toDelete);\n\n` +
+                        `清理场景：\n` +
+                        `• 软删除恢复\n` +
+                        `• 临时数据清理\n` +
+                        `• 过期缓存移除`;
+                    showModal(msg);
+                },
+
+                permission: () => {
+                    const msg = `🔐 权限管理:\n\n` +
+                        `场景：撤销用户的特定权限\n\n` +
+                        `代码：\n` +
+                        `const userPerms = ['read', 'write', 'delete', 'admin'];\n` +
+                        `pull(userPerms, 'admin', 'delete');\n` +
+                        `// userPerms: ['read', 'write']\n\n` +
+                        `权限撤销流程：\n` +
+                        `function revokePermissions(user, permsToRevoke) {\n` +
+                        `  pull(user.permissions, permsToRevoke);\n` +
+                        `  saveUser(user);\n` +
+                        `}\n\n` +
+                        `实际应用：\n` +
+                        `• 降低用户等级\n` +
+                        `• 审查权限滥用\n` +
+                        `• 动态权限调整\n` +
+                        `• RBAC 系统`;
+                    showModal(msg);
+                },
+
+                queue: () => {
+                    const msg = `📦 队列处理:\n\n` +
+                        `场景：从处理队列中移除已完成项\n\n` +
+                        `代码：\n` +
+                        `const queue = [task1, task2, task3, task4];\n` +
+                        `const completed = [task1, task3];\n` +
+                        `pull(queue, ...completed);\n` +
+                        `// queue 现在只包含待处理任务\n\n` +
+                        `实现任务队列：\n` +
+                        `class TaskQueue {\n` +
+                        `  constructor() { this.tasks = []; }\n` +
+                        `  complete(tasks) {\n` +
+                        `    pull(this.tasks, ...tasks);\n` +
+                        `  }\n` +
+                        `}\n\n` +
+                        `队列应用：\n` +
+                        `• 下载队列管理\n` +
+                        `• 任务调度系统\n` +
+                        `• 消息队列处理\n` +
+                        `• 打印队列管理`;
+                    showModal(msg);
+                },
+
+                collection: () => {
+                    const msg = `📚 集合运算:\n\n` +
+                        `数组差集：移除 B 中包含的 A 元素\n\n` +
+                        `代码：\n` +
+                        `const setA = [1, 2, 3, 4, 5];\n` +
+                        `const setB = [2, 4, 6];\n` +
+                        `pull(setA, setB);\n` +
+                        `// setA: [1, 3, 5] (A - B)\n\n` +
+                        `其他集合运算：\n` +
+                        `// 交集 (A ∩ B)\n` +
+                        `A.filter(x => B.includes(x));\n\n` +
+                        `// 并集 (A ∪ B)\n` +
+                        `[...new Set([...A, ...B])];\n\n` +
+                        `// 补集 (B - A)\n` +
+                        `B.filter(x => !A.includes(x));\n\n` +
+                        `应用场景：\n` +
+                        `• 数据去重\n` +
+                        `• 关系数据库查询\n` +
+                        `• 集合论算法`;
+                    showModal(msg);
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            updateDisplay([], 'originalArray');
+            updateDisplay([], 'removeElements');
+            updateDisplay([], 'resultArray');
+            addLog('系统已初始化，可以开始操作', 'info');
+        });
+    </script>
+</body>
+
+</html>
