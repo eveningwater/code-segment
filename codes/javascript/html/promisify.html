@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>promisify - 回调函数转 Promise 工具</title>
+    <!-- 引入插件样式 -->
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --accent-color: #60a5fa;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+            --error-color: #f87171;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .result-display {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .result-item {
+            background: var(--bg-primary);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .result-item.success {
+            border-left-color: var(--success-color);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .result-item.error {
+            border-left-color: var(--error-color);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .result-item.warning {
+            border-left-color: var(--warning-color);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .example-section {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-top: 24px;
+        }
+
+        .example-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .example-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .example-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ 回调函数转 Promise 工具</h1>
+            <p>基于 promisify 函数的回调转 Promise 实战示例 - 让异步代码更优雅</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 函数输入 -->
+            <div class="card">
+                <h2>🔄 回调转 Promise</h2>
+                
+                <div class="input-group">
+                    <label>延迟时间 (毫秒)</label>
+                    <div id="delayInputContainer" style="margin-bottom: 16px;"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>操作结果 (选择)</label>
+                    <div id="resultSelectContainer" style="margin-bottom: 16px;"></div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="testCallback()">测试回调</button>
+                    <button class="btn btn-success" onclick="testPromise()">测试 Promise</button>
+                    <button class="btn btn-danger" onclick="testError()">测试错误</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">执行状态：</div>
+                    <div class="info-value" id="statusDisplay">就绪</div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">总执行次数</div>
+                        <div class="stat-value" id="totalCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">成功次数</div>
+                        <div class="stat-value" id="successCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">失败次数</div>
+                        <div class="stat-value" id="failCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果显示 -->
+            <div class="card">
+                <h2>📊 执行结果</h2>
+                
+                <div style="margin-top: 16px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 12px;">📈 执行日志：</h3>
+                    <div class="result-display" id="resultLog">
+                        <div class="result-item">准备就绪，点击按钮开始测试</div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--text-primary); margin-top: 16px; margin-bottom: 12px;">📋 基础知识：</h3>
+                <ul class="feature-list">
+                    <li>promisify 将回调函数转换为 Promise</li>
+                    <li>支持 Node.js 风格的 (err, result) 回调</li>
+                    <li>自动处理错误和成功情况</li>
+                    <li>使用 async/await 可以更优雅地处理异步代码</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 应用示例 -->
+        <div class="example-section">
+            <h2>📚 实战应用示例</h2>
+            <div class="example-grid">
+                <div class="example-card" onclick="runExample('fileIO')">
+                    <h3>📁 文件 I/O 操作</h3>
+                    <div class="example-desc">将 fs.readFile 转为 Promise</div>
+                    <div class="example-code">fs.readFile → Promise</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('timer')">
+                    <h3>⏱️ 定时操作</h3>
+                    <div class="example-desc">将 setTimeout 转为 Promise 延迟</div>
+                    <div class="example-code">delay(ms) Promise</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('network')">
+                    <h3>🌐 网络请求</h3>
+                    <div class="example-desc">将回调式请求转为 Promise</div>
+                    <div class="example-code">request → Promise</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('database')">
+                    <h3>🗄️ 数据库查询</h3>
+                    <div class="example-desc">将 db.query 回调转为 Promise</div>
+                    <div class="example-code">db.query → Promise</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('errorHandle')">
+                    <h3>⚠️ 错误处理</h3>
+                    <div class="example-desc">Promise 中的错误捕获</div>
+                    <div class="example-code">try/catch 处理</div>
+                </div>
+
+                <div class="example-card" onclick="runExample('parallel')">
+                    <h3>🚀 并行执行</h3>
+                    <div class="example-desc">使用 Promise.all 并行处理</div>
+                    <div class="example-code">Promise.all()</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入插件脚本 -->
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
+    <script src="../../demo/plugins/select/index.js"></script>
+
+    <script>
+        // promisify 函数
+        const promisify = func => (...args) =>
+            new Promise((resolve, reject) =>
+                func(...args, (err, result) => (err ? reject(err) : resolve(result)))
+            );
+
+        let stats = {
+            totalCount: 0,
+            successCount: 0,
+            failCount: 0
+        };
+
+        let plugins = {
+            modal: null,
+            notification: null,
+            delayInput: null,
+            resultSelect: null
+        };
+
+        // 初始化插件
+        function initPlugins() {
+            try {
+                plugins.modal = new Modal();
+                plugins.notification = new Notification();
+                
+                plugins.delayInput = new InputNumber({
+                    container: '#delayInputContainer',
+                    min: 0,
+                    max: 5000,
+                    step: 100,
+                    value: 1000,
+                    placeholder: '输入延迟时间'
+                });
+
+                plugins.resultSelect = new Select({
+                    container: '#resultSelectContainer',
+                    options: [
+                        { value: 'success', label: '✓ 成功' },
+                        { value: 'error', label: '✗ 错误' }
+                    ],
+                    placeholder: '选择操作结果'
+                });
+                plugins.resultSelect.setValue('success');
+            } catch (error) {
+                console.warn('插件加载失败:', error);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            if (plugins.notification) {
+                plugins.notification.show(message, type);
+            } else {
+                alert(message);
+            }
+        }
+
+        // 显示模态框
+        function showModal(content) {
+            if (plugins.modal) {
+                plugins.modal.alert(content);
+            } else {
+                alert(content);
+            }
+        }
+
+        // 添加日志
+        function addLog(message, type = 'info') {
+            const logEl = document.getElementById('resultLog');
+            const time = new Date().toLocaleTimeString('zh-CN');
+            const item = document.createElement('div');
+            item.className = `result-item ${type}`;
+            item.textContent = `[${time}] ${message}`;
+            logEl.appendChild(item);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // 示例回调函数
+        function exampleCallback(delay, shouldError, callback) {
+            setTimeout(() => {
+                if (shouldError) {
+                    callback(new Error('操作失败'));
+                } else {
+                    callback(null, `操作成功 (延迟 ${delay}ms)`);
+                }
+            }, delay);
+        }
+
+        // 测试回调方式
+        function testCallback() {
+            const delay = parseInt(plugins.delayInput ? plugins.delayInput.getValue() : 1000);
+            const resultType = plugins.resultSelect ? plugins.resultSelect.getValue() : 'success';
+            const shouldError = resultType === 'error';
+
+            document.getElementById('statusDisplay').textContent = '执行中...';
+            addLog(`[回调方式] 开始执行，延迟: ${delay}ms`, 'warning');
+
+            exampleCallback(delay, shouldError, (err, result) => {
+                stats.totalCount++;
+                
+                if (err) {
+                    stats.failCount++;
+                    document.getElementById('statusDisplay').textContent = '❌ 执行失败';
+                    addLog(`[回调方式] 错误: ${err.message}`, 'error');
+                } else {
+                    stats.successCount++;
+                    document.getElementById('statusDisplay').textContent = '✓ 执行成功';
+                    addLog(`[回调方式] ${result}`, 'success');
+                }
+
+                updateStats();
+            });
+        }
+
+        // 测试 Promise 方式
+        async function testPromise() {
+            const delay = parseInt(plugins.delayInput ? plugins.delayInput.getValue() : 1000);
+            const resultType = plugins.resultSelect ? plugins.resultSelect.getValue() : 'success';
+            const shouldError = resultType === 'error';
+
+            document.getElementById('statusDisplay').textContent = '执行中...';
+            addLog(`[Promise 方式] 开始执行，延迟: ${delay}ms`, 'warning');
+
+            const promisifiedCallback = promisify(exampleCallback);
+
+            try {
+                const result = await promisifiedCallback(delay, shouldError);
+                stats.totalCount++;
+                stats.successCount++;
+                document.getElementById('statusDisplay').textContent = '✓ 执行成功';
+                addLog(`[Promise 方式] ${result}`, 'success');
+            } catch (error) {
+                stats.totalCount++;
+                stats.failCount++;
+                document.getElementById('statusDisplay').textContent = '❌ 执行失败';
+                addLog(`[Promise 方式] 错误: ${error.message}`, 'error');
+            }
+
+            updateStats();
+        }
+
+        // 测试错误处理
+        async function testError() {
+            const delay = parseInt(plugins.delayInput ? plugins.delayInput.getValue() : 1000);
+            
+            document.getElementById('statusDisplay').textContent = '测试错误处理中...';
+            addLog(`[错误测试] 开始测试错误处理`, 'warning');
+
+            const promisifiedCallback = promisify(exampleCallback);
+
+            try {
+                const result = await promisifiedCallback(delay, true);
+                addLog(`[错误测试] 这不应该显示`, 'info');
+            } catch (error) {
+                stats.totalCount++;
+                stats.failCount++;
+                document.getElementById('statusDisplay').textContent = '✓ 错误已正确捕获';
+                addLog(`[错误测试] 成功捕获错误: ${error.message}`, 'success');
+            }
+
+            updateStats();
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('totalCount').textContent = stats.totalCount;
+            document.getElementById('successCount').textContent = stats.successCount;
+            document.getElementById('failCount').textContent = stats.failCount;
+        }
+
+        // 运行示例
+        function runExample(type) {
+            const examples = {
+                fileIO: () => {
+                    const msg = `📁 文件 I/O 操作:\n\n` +
+                        `原始回调方式：\n` +
+                        `fs.readFile('file.txt', 'utf8', (err, data) => {\n` +
+                        `  if (err) console.error(err);\n` +
+                        `  else console.log(data);\n` +
+                        `});\n\n` +
+                        `使用 promisify：\n` +
+                        `const readFile = promisify(fs.readFile);\n` +
+                        `const data = await readFile('file.txt', 'utf8');\n\n` +
+                        `优势：\n` +
+                        `• 支持 async/await\n` +
+                        `• 错误处理更清晰\n` +
+                        `• 可以使用 Promise.all/race\n` +
+                        `• 代码更易读易维护`;
+                    showModal(msg);
+                },
+
+                timer: () => {
+                    const msg = `⏱️ 定时操作:\n\n` +
+                        `创建 Promise 延迟：\n` +
+                        `function delay(ms, callback) {\n` +
+                        `  setTimeout(() => callback(null, ms), ms);\n` +
+                        `}\n\n` +
+                        `转换为 Promise：\n` +
+                        `const delayPromise = promisify(delay);\n` +
+                        `await delayPromise(1000);\n\n` +
+                        `实际应用：\n` +
+                        `async function workflow() {\n` +
+                        `  await delayPromise(1000); // 等待 1 秒\n` +
+                        `  await doSomething();\n` +
+                        `  await delayPromise(500);\n` +
+                        `  await doMore();\n` +
+                        `}\n\n` +
+                        `使用场景：\n` +
+                        `• 控制异步流程\n` +
+                        `• 实现重试机制\n` +
+                        `• 流量控制`;
+                    showModal(msg);
+                },
+
+                network: () => {
+                    const msg = `🌐 网络请求:\n\n` +
+                        `原始回调方式：\n` +
+                        `request(url, (err, res, body) => {\n` +
+                        `  if (err) handleError(err);\n` +
+                        `  else processData(body);\n` +
+                        `});\n\n` +
+                        `使用 promisify：\n` +
+                        `const requestPromise = promisify(request);\n` +
+                        `const res = await requestPromise(url);\n\n` +
+                        `与 fetch 对比：\n` +
+                        `// Fetch 已是原生 Promise API\n` +
+                        `const res = await fetch(url);\n` +
+                        `const data = await res.json();\n\n` +
+                        `应用场景：\n` +
+                        `• 旧项目升级\n` +
+                        `• 依赖库适配\n` +
+                        `• 渐进式迁移`;
+                    showModal(msg);
+                },
+
+                database: () => {
+                    const msg = `🗄️ 数据库查询:\n\n` +
+                        `MongoDB 回调方式：\n` +
+                        `db.collection('users').findOne({id: 1}, (err, doc) => {\n` +
+                        `  if (err) throw err;\n` +
+                        `  console.log(doc);\n` +
+                        `});\n\n` +
+                        `使用 promisify：\n` +
+                        `const findOne = promisify(db.collection('users').findOne.bind(db.collection('users')));\n` +
+                        `const doc = await findOne({id: 1});\n\n` +
+                        `MySQL 示例：\n` +
+                        `const query = promisify(connection.query.bind(connection));\n` +
+                        `const results = await query('SELECT * FROM users');\n\n` +
+                        `优势：\n` +
+                        `• 统一接口\n` +
+                        `• 事务处理更易\n` +
+                        `• 连接池管理\n` +
+                        `• 错误处理一致`;
+                    showModal(msg);
+                },
+
+                errorHandle: () => {
+                    const msg = `⚠️ 错误处理:\n\n` +
+                        `基本 try/catch：\n` +
+                        `try {\n` +
+                        `  const result = await promisifiedFunc();\n` +
+                        `} catch (error) {\n` +
+                        `  console.error('错误:', error.message);\n` +
+                        `}\n\n` +
+                        `多操作错误处理：\n` +
+                        `try {\n` +
+                        `  const [user, post] = await Promise.all([\n` +
+                        `    getUser(),\n` +
+                        `    getPost()\n` +
+                        `  ]);\n` +
+                        `} catch (error) {\n` +
+                        `  // 任何一个失败都会捕获\n` +
+                        `}\n\n` +
+                        `错误恢复：\n` +
+                        `async function withRetry(fn, retries = 3) {\n` +
+                        `  for (let i = 0; i < retries; i++) {\n` +
+                        `    try {\n` +
+                        `      return await fn();\n` +
+                        `    } catch (e) {\n` +
+                        `      if (i === retries - 1) throw e;\n` +
+                        `    }\n` +
+                        `  }\n` +
+                        `}\n\n` +
+                        `最佳实践：\n` +
+                        `• 总是使用 try/catch\n` +
+                        `• 区分可恢复和不可恢复错误\n` +
+                        `• 记录完整错误信息`;
+                    showModal(msg);
+                },
+
+                parallel: () => {
+                    const msg = `🚀 并行执行:\n\n` +
+                        `Promise.all - 全部成功才成功：\n` +
+                        `const [user, posts, comments] = await Promise.all([\n` +
+                        `  getUser(id),\n` +
+                        `  getPosts(id),\n` +
+                        `  getComments(id)\n` +
+                        `]);\n\n` +
+                        `Promise.race - 竞速，谁先完成用谁：\n` +
+                        `const fastest = await Promise.race([\n` +
+                        `  fetchFromServer1(),\n` +
+                        `  fetchFromServer2(),\n` +
+                        `  fetchFromServer3()\n` +
+                        `]);\n\n` +
+                        `Promise.allSettled - 全部完成，不论成败：\n` +
+                        `const results = await Promise.allSettled([\n` +
+                        `  operation1(),\n` +
+                        `  operation2(),\n` +
+                        `  operation3()\n` +
+                        `]);\n\n` +
+                        `实际应用：\n` +
+                        `• 多个 API 并行请求\n` +
+                        `• 超时控制\n` +
+                        `• 负载均衡\n` +
+                        `• 容错机制`;
+                    showModal(msg);
+                }
+            };
+
+            examples[type]?.();
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initPlugins();
+            addLog('系统已初始化，可以开始测试', 'info');
+        });
+    </script>
+</body>
+
+</html>
