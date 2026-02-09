@@ -16,6 +16,8 @@ const queryStringToObject = url =>
   );
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/query-string-to-object.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,3 +26,11 @@ queryStringToObject('https://google.com?page=1&count=10');
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/query-string-to-object.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/query-string-to-object.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/query-string-to-object.html"></iframe>

@@ -508,7 +508,7 @@
 - [根据值过滤数组-2023-02-16](codes/javascript/pull-at-value.md)
 - [根据回调函数过滤数组-2023-02-17](codes/javascript/pull-by.md)
 - [季度-2023-02-18](codes/javascript/quarter-of-year.md)
-- [序列化字符串-2023-02-19](codes/javascript/queryStringToObject.md)
+- [序列化字符串-2023-02-19](codes/javascript/query-string-to-object.md)
 - [快速排序算法-2023-02-20](codes/javascript/quickSort.md)
 - [弧度转度-2023-02-21](codes/javascript/radsToDegrees.md)
 - [随机验证码-2023-02-22](codes/javascript/randomAlphaNumeric.md)
