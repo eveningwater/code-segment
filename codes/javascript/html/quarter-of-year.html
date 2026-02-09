@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>quarterOfYear - 季度计算示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #2563eb;
+            --accent-strong: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 18px 38px rgba(15, 23, 42, 0.14);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #111827;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #1f2937;
+            --accent: #60a5fa;
+            --accent-strong: #3b82f6;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --shadow: 0 20px 42px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 24px;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #111827 0%, #0b1222 100%);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .header {
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            text-shadow: 0 6px 18px rgba(15, 23, 42, 0.35);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.92;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .stat {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--text-primary);
+        }
+
+        .value-text {
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            padding: 12px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .muted {
+            color: var(--text-secondary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .example-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: left;
+            cursor: pointer;
+            font-weight: 800;
+            color: var(--text-primary);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .example-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .example-desc {
+            margin-top: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 720px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title-row">
+                <h1>quarterOfYear 季度计算演示</h1>
+                <div id="themeToggle"></div>
+            </div>
+            <div class="subtitle">使用自定义 DateTimePicker / Select / InputNumber / Checkbox / Modal / Notification 完成交互</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>输入与选项</h2>
+
+                <div class="input-group">
+                    <label>选择日期时间</label>
+                    <div id="datePicker"></div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>输出格式</label>
+                        <div id="outputSelect"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>月份偏移（用于计算）</label>
+                        <div id="monthOffsetInput"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>生成样本数量</label>
+                        <div id="sampleCountInput"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>开关</label>
+                        <div id="optionToggles" style="display:flex; flex-wrap:wrap; gap:12px;"></div>
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn btn-secondary" id="todayBtn">使用今天</button>
+                    <button class="btn btn-primary" id="calcBtn">计算季度</button>
+                    <button class="btn btn-secondary" id="samplesBtn">生成样本</button>
+                    <button class="btn btn-secondary" id="detailBtn">查看详情</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>结果</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">季度</div>
+                        <div class="stat-value" id="quarterValue">-</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">年份</div>
+                        <div class="stat-value" id="yearValue">-</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">起始日期</div>
+                        <div class="stat-value" id="startValue" style="font-size:1.1rem;">-</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">结束日期</div>
+                        <div class="stat-value" id="endValue" style="font-size:1.1rem;">-</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>quarterOfYear 返回值</label>
+                    <div id="outputValue" class="value-text"><span class="muted">等待计算</span></div>
+                </div>
+
+                <div class="input-group">
+                    <label>计算说明</label>
+                    <div id="noteValue" class="value-text"><span class="muted">选择日期后点击“计算季度”</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>示例场景</h2>
+            <div class="example-grid">
+                <button class="example-card" data-example="q1">Q1：2026-01-15 10:30<div class="example-desc">季度应为 1</div></button>
+                <button class="example-card" data-example="q2">Q2：2026-04-01 00:00<div class="example-desc">季度应为 2</div></button>
+                <button class="example-card" data-example="q3">Q3：2026-07-30 18:20<div class="example-desc">季度应为 3</div></button>
+                <button class="example-card" data-example="q4">Q4：2026-10-31 23:59<div class="example-desc">季度应为 4</div></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        const quarterOfYear = (date = new Date(), useUTC = false) => {
+            const month = useUTC ? date.getUTCMonth() : date.getMonth();
+            const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
+            return [Math.ceil((month + 1) / 3), year];
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null
+            },
+            picker: null,
+            select: null,
+            inputs: {
+                monthOffset: null,
+                sampleCount: null
+            },
+            toggles: {
+                useUTC: null,
+                autoCalc: null,
+                darkMode: null
+            },
+            lastResult: null
+        };
+
+        function showNotification(message, type = 'info') {
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(String(content).replace(/<[^>]*>/g, ''));
+            }
+        }
+
+        function pad2(value) {
+            return String(value).padStart(2, '0');
+        }
+
+        function formatDate(date, useUTC = false, withTime = true) {
+            if (!date) return '-';
+            const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
+            const month = (useUTC ? date.getUTCMonth() : date.getMonth()) + 1;
+            const day = useUTC ? date.getUTCDate() : date.getDate();
+            const hour = useUTC ? date.getUTCHours() : date.getHours();
+            const minute = useUTC ? date.getUTCMinutes() : date.getMinutes();
+            if (!withTime) {
+                return `${year}-${pad2(month)}-${pad2(day)}`;
+            }
+            return `${year}-${pad2(month)}-${pad2(day)} ${pad2(hour)}:${pad2(minute)}`;
+        }
+
+        function cloneDate(date) {
+            return new Date(date.getTime());
+        }
+
+        function addMonths(date, offset) {
+            const result = cloneDate(date);
+            const originalDate = result.getDate();
+            result.setDate(1);
+            result.setMonth(result.getMonth() + offset);
+            const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
+            result.setDate(Math.min(originalDate, lastDay));
+            return result;
+        }
+
+        function getQuarterRange(date, useUTC = false) {
+            const [quarter, year] = quarterOfYear(date, useUTC);
+            const startMonth = (quarter - 1) * 3;
+            const endMonth = startMonth + 2;
+
+            if (useUTC) {
+                const start = new Date(Date.UTC(year, startMonth, 1, 0, 0, 0));
+                const end = new Date(Date.UTC(year, endMonth + 1, 0, 23, 59, 59));
+                return { start, end, quarter, year };
+            }
+
+            const start = new Date(year, startMonth, 1, 0, 0, 0);
+            const end = new Date(year, endMonth + 1, 0, 23, 59, 59);
+            return { start, end, quarter, year };
+        }
+
+        function formatOutput([quarter, year]) {
+            const mode = state.select.getValue();
+            if (mode === 'object') {
+                return JSON.stringify({ quarter, year }, null, 2);
+            }
+            if (mode === 'string') {
+                return `Q${quarter} ${year}`;
+            }
+            return JSON.stringify([quarter, year]);
+        }
+
+        function getEffectiveDate() {
+            const baseDate = state.picker.getValue() || new Date();
+            const offset = state.inputs.monthOffset.getValue();
+            if (!offset) return { baseDate, calcDate: baseDate, offset };
+            return { baseDate, calcDate: addMonths(baseDate, offset), offset };
+        }
+
+        function updateUI(result) {
+            document.getElementById('quarterValue').textContent = result.quarter;
+            document.getElementById('yearValue').textContent = result.year;
+            document.getElementById('startValue').textContent = formatDate(result.start, result.useUTC, false);
+            document.getElementById('endValue').textContent = formatDate(result.end, result.useUTC, false);
+            document.getElementById('outputValue').textContent = formatOutput([result.quarter, result.year]);
+            document.getElementById('noteValue').textContent = result.note;
+        }
+
+        function calculate() {
+            const useUTC = state.toggles.useUTC.isChecked();
+            const { baseDate, calcDate, offset } = getEffectiveDate();
+            if (!calcDate) {
+                showNotification('请先选择日期', 'warning');
+                return;
+            }
+
+            const range = getQuarterRange(calcDate, useUTC);
+            const note = [
+                `输入日期：${formatDate(baseDate, useUTC)}${offset ? `（月份偏移 ${offset}）` : ''}`,
+                `用于计算：${formatDate(calcDate, useUTC)}`,
+                `模式：${useUTC ? 'UTC 月份/年份' : '本地月份/年份'}`
+            ].join('\n');
+
+            const result = {
+                ...range,
+                useUTC,
+                baseDate,
+                calcDate,
+                offset,
+                note
+            };
+
+            state.lastResult = result;
+            updateUI(result);
+            showNotification('季度计算完成', 'success');
+        }
+
+        function setToday() {
+            const now = new Date();
+            state.picker.setValue(now);
+            showNotification('已设置为今天', 'info');
+        }
+
+        function showDetail() {
+            if (!state.lastResult) {
+                showNotification('请先计算一次季度', 'warning');
+                return;
+            }
+            const detail = state.lastResult;
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:800; margin-bottom:10px;">执行详情</div>
+                    <div style="margin-bottom:8px;">quarterOfYear(date) => <strong>[${detail.quarter}, ${detail.year}]</strong></div>
+                    <div style="margin-bottom:8px;">季度范围：<strong>${formatDate(detail.start, detail.useUTC, false)}</strong> ~ <strong>${formatDate(detail.end, detail.useUTC, false)}</strong></div>
+                    <div style="margin-bottom:8px;">输入日期：${formatDate(detail.baseDate, detail.useUTC)}</div>
+                    <div style="margin-bottom:8px;">用于计算：${formatDate(detail.calcDate, detail.useUTC)}</div>
+                    <div style="margin-bottom:8px;">模式：${detail.useUTC ? 'UTC' : '本地时间'}</div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateSamples() {
+            const base = state.picker.getValue() || new Date();
+            const offset = state.inputs.monthOffset.getValue();
+            const useUTC = state.toggles.useUTC.isChecked();
+            const count = state.inputs.sampleCount.getValue();
+            const year = useUTC ? base.getUTCFullYear() : base.getFullYear();
+
+            const items = Array.from({ length: count }, () => {
+                const month = randomInt(0, 11);
+                const day = randomInt(1, 28);
+                const hour = randomInt(0, 23);
+                const minute = randomInt(0, 59);
+                const date = useUTC
+                    ? new Date(Date.UTC(year, month, day, hour, minute, 0))
+                    : new Date(year, month, day, hour, minute, 0);
+                const calcDate = offset ? addMonths(date, offset) : date;
+                const [q] = quarterOfYear(calcDate, useUTC);
+                return { date, calcDate, q };
+            });
+
+            const counts = items.reduce((acc, item) => {
+                acc[item.q] = (acc[item.q] || 0) + 1;
+                return acc;
+            }, {});
+
+            const rows = items
+                .map((item, index) => `
+                    <tr>
+                        <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb;">${index + 1}</td>
+                        <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb;">${formatDate(item.date, useUTC)}</td>
+                        <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb;">${formatDate(item.calcDate, useUTC)}</td>
+                        <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; font-weight:800;">Q${item.q}</td>
+                    </tr>
+                `)
+                .join('');
+
+            const summary = [1, 2, 3, 4]
+                .map((q) => `<span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid #e5e7eb; margin-right:8px;">Q${q}: <strong>${counts[q] || 0}</strong></span>`)
+                .join('');
+
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">样本生成（${year} 年）</div>
+                    <div style="margin-bottom:10px;">${summary}</div>
+                    <div style="margin-bottom:10px; color:#6b7280;">说明：按所选模式（${useUTC ? 'UTC' : '本地时间'}）生成日期；月份偏移：${offset || 0}</div>
+                    <div style="max-height:340px; overflow:auto; border:1px solid #e5e7eb; border-radius:12px;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left; padding:10px; border-bottom:1px solid #e5e7eb; background:#f9fafb;">#</th>
+                                    <th style="text-align:left; padding:10px; border-bottom:1px solid #e5e7eb; background:#f9fafb;">输入日期</th>
+                                    <th style="text-align:left; padding:10px; border-bottom:1px solid #e5e7eb; background:#f9fafb;">用于计算</th>
+                                    <th style="text-align:left; padding:10px; border-bottom:1px solid #e5e7eb; background:#f9fafb;">季度</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+            showNotification('已生成样本并打开详情', 'info');
+        }
+
+        function applyExample(key) {
+            const examples = {
+                q1: new Date('2026-01-15T10:30:00'),
+                q2: new Date('2026-04-01T00:00:00'),
+                q3: new Date('2026-07-30T18:20:00'),
+                q4: new Date('2026-10-31T23:59:00')
+            };
+            const value = examples[key];
+            if (!value) return;
+            state.picker.setValue(value);
+            showNotification('已应用示例日期', 'info');
+        }
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (error) {
+                console.log('插件初始化失败');
+            }
+        }
+
+        function initControls() {
+            state.picker = new DateTimePicker({
+                container: '#datePicker',
+                value: new Date(),
+                placeholder: '选择日期时间',
+                onChange: () => {
+                    if (state.toggles.autoCalc.isChecked()) {
+                        calculate();
+                    }
+                }
+            });
+
+            state.select = new Select({
+                container: '#outputSelect',
+                placeholder: '选择输出格式',
+                onChange: () => {
+                    if (state.lastResult) {
+                        document.getElementById('outputValue').textContent = formatOutput([state.lastResult.quarter, state.lastResult.year]);
+                    }
+                }
+            });
+            state.select.setOptions([
+                { value: 'array', label: '数组 [quarter, year]' },
+                { value: 'object', label: '对象 { quarter, year }' },
+                { value: 'string', label: '字符串 Qx YYYY' }
+            ]);
+            state.select.setValue('array');
+
+            state.inputs.monthOffset = new InputNumber({
+                container: '#monthOffsetInput',
+                min: -24,
+                max: 24,
+                step: 1,
+                value: 0,
+                onChange: () => {
+                    if (state.toggles.autoCalc.isChecked()) {
+                        calculate();
+                    }
+                }
+            });
+
+            state.inputs.sampleCount = new InputNumber({
+                container: '#sampleCountInput',
+                min: 1,
+                max: 50,
+                step: 1,
+                value: 12
+            });
+
+            const optionRoot = document.getElementById('optionToggles');
+            state.toggles.useUTC = new Checkbox({
+                label: '使用 UTC',
+                checked: false,
+                onChange: () => {
+                    if (state.toggles.autoCalc.isChecked()) {
+                        calculate();
+                    }
+                }
+            });
+            state.toggles.autoCalc = new Checkbox({
+                label: '自动计算',
+                checked: true
+            });
+            state.toggles.useUTC.mount(optionRoot);
+            state.toggles.autoCalc.mount(optionRoot);
+
+            state.toggles.darkMode = new Checkbox({
+                label: '暗色模式',
+                checked: false,
+                onChange: (checked) => {
+                    document.documentElement.dataset.theme = checked ? 'dark' : 'light';
+                }
+            });
+            state.toggles.darkMode.mount(document.getElementById('themeToggle'));
+        }
+
+        function bindEvents() {
+            document.getElementById('calcBtn').addEventListener('click', calculate);
+            document.getElementById('todayBtn').addEventListener('click', setToday);
+            document.getElementById('detailBtn').addEventListener('click', showDetail);
+            document.getElementById('samplesBtn').addEventListener('click', generateSamples);
+            document.querySelectorAll('[data-example]').forEach((button) => {
+                button.addEventListener('click', () => applyExample(button.dataset.example));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPlugins();
+            initControls();
+            bindEvents();
+            calculate();
+        });
+    </script>
+</body>
+
+</html>
