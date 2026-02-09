@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pullBy - 自定义映射移除示例</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #6366f1;
+            --accent-strong: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --card-shadow: 0 18px 38px rgba(15, 23, 42, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #111827;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5f5;
+            --border-color: #1f2937;
+            --accent: #a5b4fc;
+            --accent-strong: #818cf8;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --card-shadow: 0 20px 42px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 24px;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .title-row h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            text-shadow: 0 6px 18px rgba(15, 23, 42, 0.35);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input-field {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #ffffff;
+        }
+
+        .textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--accent-strong);
+            border: 1px dashed var(--accent);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .checkbox-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .result-block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .result-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+
+        .muted {
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        .mapping-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .mapping-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .mapping-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .stat {
+            background: var(--bg-secondary);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .example-card {
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .example-card:hover {
+            border-color: var(--accent);
+            color: var(--accent-strong);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title-row">
+                <h1>pullBy 自定义映射移除演示</h1>
+                <div id="themeToggle"></div>
+            </div>
+            <p class="subtitle">使用自定义 Select、InputNumber、Checkbox、Modal、Notification 插件完成交互流程</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>数据输入</h2>
+                <div class="input-group">
+                    <label>数据类型</label>
+                    <div id="dataTypeSelect"></div>
+                </div>
+                <div class="input-group">
+                    <label>迭代函数</label>
+                    <div id="iterateeSelect"></div>
+                </div>
+                <div class="input-group">
+                    <label>数组数据</label>
+                    <textarea id="arrayInput" class="input-field textarea" placeholder="请输入数组内容"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>要移除的映射值</label>
+                    <input id="removeInput" class="input-field" type="text" placeholder="例如：1, 3, 5">
+                </div>
+                <div class="input-group">
+                    <label>示例数量</label>
+                    <div id="sampleCountInput"></div>
+                </div>
+                <div class="input-group">
+                    <label>移除数量</label>
+                    <div id="removeCountInput"></div>
+                </div>
+                <div class="input-group">
+                    <label>选项</label>
+                    <div id="optionCheckboxes" class="checkbox-row"></div>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="generateBtn">生成示例</button>
+                    <button class="btn btn-primary" id="runBtn">执行 pullBy</button>
+                    <button class="btn btn-ghost" id="detailBtn">查看详情</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>结果展示</h2>
+                <div class="result-block">
+                    <div class="result-title">原始数组</div>
+                    <div id="originalDisplay" class="badge-list"></div>
+                </div>
+                <div class="result-block">
+                    <div class="result-title">移除值</div>
+                    <div id="removeDisplay" class="badge-list"></div>
+                </div>
+                <div class="result-block">
+                    <div class="result-title">结果数组</div>
+                    <div id="resultDisplay" class="badge-list"></div>
+                </div>
+                <div class="result-block">
+                    <div class="result-title">映射对比</div>
+                    <div id="mappingDisplay" class="mapping-grid"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">原始数量</div>
+                        <div class="stat-value" id="originCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">移除数量</div>
+                        <div class="stat-value" id="removedCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">剩余数量</div>
+                        <div class="stat-value" id="remainCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>示例场景</h2>
+            <div class="example-grid">
+                <button class="example-card" data-example="objectScore">对象分数映射</button>
+                <button class="example-card" data-example="objectGroup">对象分组映射</button>
+                <button class="example-card" data-example="numberFloor">数字取整映射</button>
+                <button class="example-card" data-example="stringLength">字符串长度映射</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+
+    <script>
+        const pullBy = (arr, ...args) => {
+            const length = args.length;
+            let fn = length > 1 ? args[length - 1] : undefined;
+            fn = typeof fn === 'function' ? (args.pop(), fn) : undefined;
+            const resolver = fn || ((value) => value);
+            const values = Array.isArray(args[0]) ? args[0] : args;
+            const argState = values.map((val) => resolver(val));
+            const pulled = arr.filter((value) => !argState.includes(resolver(value)));
+            arr.length = 0;
+            pulled.forEach((value) => arr.push(value));
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null
+            },
+            selects: {
+                dataType: null,
+                iteratee: null
+            },
+            inputs: {
+                sampleCount: null,
+                removeCount: null
+            },
+            checkboxes: {
+                keepOriginal: null,
+                dedupe: null,
+                showMapping: null,
+                darkMode: null
+            },
+            lastRun: null
+        };
+
+        const iterateeOptions = {
+            number: [
+                { value: 'identity', label: '直接匹配' },
+                { value: 'floor', label: '取整匹配' },
+                { value: 'abs', label: '绝对值匹配' }
+            ],
+            string: [
+                { value: 'identity', label: '原样匹配' },
+                { value: 'length', label: '长度匹配' },
+                { value: 'lower', label: '忽略大小写' }
+            ],
+            object: [
+                { value: 'id', label: '按 id 匹配' },
+                { value: 'name', label: '按 name 匹配' },
+                { value: 'group', label: '按 group 匹配' },
+                { value: 'scoreFloor', label: '按 score 取整' }
+            ]
+        };
+
+        const exampleSets = {
+            objectScore: {
+                dataType: 'object',
+                iteratee: 'scoreFloor',
+                array: [
+                    { id: 1, name: 'Ava', group: 'alpha', score: 88.3 },
+                    { id: 2, name: 'Ben', group: 'alpha', score: 72.1 },
+                    { id: 3, name: 'Cora', group: 'beta', score: 91.4 },
+                    { id: 4, name: 'Duke', group: 'beta', score: 76.8 },
+                    { id: 5, name: 'Eli', group: 'gamma', score: 84.2 }
+                ],
+                remove: '72, 76'
+            },
+            objectGroup: {
+                dataType: 'object',
+                iteratee: 'group',
+                array: [
+                    { id: 11, name: 'Nova', group: 'ops', score: 66.4 },
+                    { id: 12, name: 'Jin', group: 'design', score: 85.9 },
+                    { id: 13, name: 'Mira', group: 'ops', score: 74.5 },
+                    { id: 14, name: 'Kai', group: 'growth', score: 91.2 }
+                ],
+                remove: 'ops'
+            },
+            numberFloor: {
+                dataType: 'number',
+                iteratee: 'floor',
+                array: [1.2, 1.7, 2.4, 3.1, 3.9, 4.2],
+                remove: '1, 3'
+            },
+            stringLength: {
+                dataType: 'string',
+                iteratee: 'length',
+                array: ['alpha', 'bee', 'charlie', 'dee', 'echo'],
+                remove: '3, 5'
+            }
+        };
+
+        function showNotification(message, type = 'info') {
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(String(content).replace(/<[^>]*>/g, ''));
+            }
+        }
+
+        function formatValue(value) {
+            if (typeof value === 'string') {
+                return value;
+            }
+            if (typeof value === 'number' || typeof value === 'boolean') {
+                return String(value);
+            }
+            return JSON.stringify(value);
+        }
+
+        function toBadgeList(values) {
+            if (!values || values.length === 0) {
+                return '<span class="muted">[]</span>';
+            }
+            return values.map((item) => `<span class="badge">${formatValue(item)}</span>`).join('');
+        }
+
+        function parseCommaList(raw) {
+            return raw.split(',').map((item) => item.trim()).filter(Boolean);
+        }
+
+        function parseArrayInput(dataType, raw) {
+            if (!raw) {
+                return { value: [], error: '请输入数组数据' };
+            }
+            if (dataType === 'object') {
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed)) {
+                        return { value: [], error: '对象数据需要是数组 JSON' };
+                    }
+                    return { value: parsed, error: '' };
+                } catch (error) {
+                    return { value: [], error: '对象数据解析失败，请确认 JSON 格式' };
+                }
+            }
+            const list = parseCommaList(raw);
+            if (dataType === 'number') {
+                const numbers = list.map((item) => Number(item));
+                if (numbers.some((item) => Number.isNaN(item))) {
+                    return { value: [], error: '数字数组包含无效数字' };
+                }
+                return { value: numbers, error: '' };
+            }
+            return { value: list, error: '' };
+        }
+
+        function parseRemoveValues(dataType, iterateeKey, raw) {
+            if (!raw) {
+                return { value: [], error: '请输入移除值' };
+            }
+            const list = parseCommaList(raw);
+            const needNumber = dataType === 'number' || ['id', 'scoreFloor', 'length'].includes(iterateeKey);
+            if (needNumber) {
+                const numbers = list.map((item) => Number(item));
+                if (numbers.some((item) => Number.isNaN(item))) {
+                    return { value: [], error: '移除值需要为数字列表' };
+                }
+                return { value: numbers, error: '' };
+            }
+            return { value: list, error: '' };
+        }
+
+        function getIteratee(dataType, iterateeKey) {
+            if (dataType === 'number') {
+                if (iterateeKey === 'floor') return (value) => Math.floor(value);
+                if (iterateeKey === 'abs') return (value) => Math.abs(value);
+                return (value) => value;
+            }
+            if (dataType === 'string') {
+                if (iterateeKey === 'length') return (value) => value.length;
+                if (iterateeKey === 'lower') return (value) => value.toLowerCase();
+                return (value) => value;
+            }
+            if (iterateeKey === 'name') return (item) => item?.name;
+            if (iterateeKey === 'group') return (item) => item?.group;
+            if (iterateeKey === 'scoreFloor') return (item) => Math.floor(item?.score ?? 0);
+            return (item) => item?.id;
+        }
+
+        function updateIterateeOptions(dataType) {
+            const options = iterateeOptions[dataType] || [];
+            state.selects.iteratee.setOptions(options);
+            state.selects.iteratee.setValue(options[0]?.value || '');
+            updatePlaceholders();
+        }
+
+        function updatePlaceholders() {
+            const dataType = state.selects.dataType.getValue();
+            const iterateeKey = state.selects.iteratee.getValue();
+            const arrayInput = document.getElementById('arrayInput');
+            const removeInput = document.getElementById('removeInput');
+
+            if (dataType === 'object') {
+                arrayInput.placeholder = '例如：[{"id":1,"name":"Ava","group":"alpha","score":88.6}]';
+            } else if (dataType === 'string') {
+                arrayInput.placeholder = '例如：alpha, beta, gamma';
+            } else {
+                arrayInput.placeholder = '例如：1, 2, 3.5, 4.2';
+            }
+
+            if (dataType === 'object') {
+                if (['name', 'group'].includes(iterateeKey)) {
+                    removeInput.placeholder = '例如：alpha, beta';
+                } else {
+                    removeInput.placeholder = '例如：1, 3, 5';
+                }
+            } else if (dataType === 'string' && iterateeKey === 'length') {
+                removeInput.placeholder = '例如：3, 5, 8';
+            } else {
+                removeInput.placeholder = '例如：1, 3, 5';
+            }
+        }
+
+        function updateDisplay(data) {
+            document.getElementById('originalDisplay').innerHTML = toBadgeList(data.original);
+            document.getElementById('removeDisplay').innerHTML = toBadgeList(data.removeValues);
+            document.getElementById('resultDisplay').innerHTML = toBadgeList(data.result);
+            document.getElementById('originCount').textContent = data.original.length;
+            document.getElementById('removedCount').textContent = data.removedCount;
+            document.getElementById('remainCount').textContent = data.result.length;
+
+            const mappingDisplay = document.getElementById('mappingDisplay');
+            if (state.checkboxes.showMapping.isChecked()) {
+                mappingDisplay.innerHTML = `
+                    <div class="mapping-card">
+                        <div class="mapping-title">原始映射值</div>
+                        <div class="badge-list">${toBadgeList(data.originalMapped)}</div>
+                    </div>
+                    <div class="mapping-card">
+                        <div class="mapping-title">移除映射值</div>
+                        <div class="badge-list">${toBadgeList(data.removeMapped)}</div>
+                    </div>
+                `;
+            } else {
+                mappingDisplay.innerHTML = '<span class="muted">映射显示已关闭</span>';
+            }
+        }
+
+        function getUniqueValues(values) {
+            const seen = new Set();
+            const result = [];
+            values.forEach((item) => {
+                const key = typeof item === 'object' ? JSON.stringify(item) : String(item);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    result.push(item);
+                }
+            });
+            return result;
+        }
+
+        function executePullBy() {
+            const dataType = state.selects.dataType.getValue();
+            const iterateeKey = state.selects.iteratee.getValue();
+            const arrayRaw = document.getElementById('arrayInput').value.trim();
+            const removeRaw = document.getElementById('removeInput').value.trim();
+
+            const arrayParsed = parseArrayInput(dataType, arrayRaw);
+            if (arrayParsed.error) {
+                showNotification(arrayParsed.error, 'warning');
+                return;
+            }
+
+            const removeParsed = parseRemoveValues(dataType, iterateeKey, removeRaw);
+            if (removeParsed.error) {
+                showNotification(removeParsed.error, 'warning');
+                return;
+            }
+
+            const iteratee = getIteratee(dataType, iterateeKey);
+            const original = arrayParsed.value;
+            const source = state.checkboxes.keepOriginal.isChecked()
+                ? JSON.parse(JSON.stringify(original))
+                : original;
+            const removeValues = removeParsed.value;
+            const beforeLength = source.length;
+
+            pullBy(source, removeValues, iteratee);
+
+            let result = source;
+            if (state.checkboxes.dedupe.isChecked()) {
+                result = getUniqueValues(result);
+            }
+
+            const originalMapped = original.map((item) => iteratee(item));
+            const removeMapped = removeValues.map((item) => iteratee(item));
+
+            const data = {
+                original,
+                removeValues,
+                result,
+                originalMapped,
+                removeMapped,
+                removedCount: beforeLength - result.length,
+                dataType,
+                iterateeKey
+            };
+
+            updateDisplay(data);
+            state.lastRun = data;
+            showNotification(`pullBy 执行完成，移除 ${data.removedCount} 个元素`, 'success');
+        }
+
+        function generateSample() {
+            const dataType = state.selects.dataType.getValue();
+            const iterateeKey = state.selects.iteratee.getValue();
+            const count = state.inputs.sampleCount.getValue();
+            const removeCount = state.inputs.removeCount.getValue();
+
+            let array = [];
+
+            if (dataType === 'number') {
+                array = Array.from({ length: count }, (_, index) => (index + 1) + (index % 3) * 0.3);
+            } else if (dataType === 'string') {
+                const pool = ['alpha', 'beta', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'india', 'juliet'];
+                array = Array.from({ length: count }, (_, index) => pool[index] || `item-${index + 1}`);
+            } else {
+                array = Array.from({ length: count }, (_, index) => ({
+                    id: index + 1,
+                    name: `User${index + 1}`,
+                    group: ['alpha', 'beta', 'gamma'][index % 3],
+                    score: 60 + (index * 7) % 40 + 0.4
+                }));
+            }
+
+            const iteratee = getIteratee(dataType, iterateeKey);
+            const mappedValues = array.map((item) => iteratee(item));
+            const removeValues = mappedValues.slice(0, Math.max(1, Math.min(removeCount, mappedValues.length)));
+
+            if (dataType === 'object') {
+                document.getElementById('arrayInput').value = JSON.stringify(array, null, 2);
+            } else {
+                document.getElementById('arrayInput').value = array.join(', ');
+            }
+
+            document.getElementById('removeInput').value = removeValues.join(', ');
+            showNotification('已生成示例数据', 'info');
+        }
+
+        function applyExample(key) {
+            const example = exampleSets[key];
+            if (!example) return;
+            state.selects.dataType.setValue(example.dataType);
+            updateIterateeOptions(example.dataType);
+            state.selects.iteratee.setValue(example.iteratee);
+            if (example.dataType === 'object') {
+                document.getElementById('arrayInput').value = JSON.stringify(example.array, null, 2);
+            } else {
+                document.getElementById('arrayInput').value = example.array.join(', ');
+            }
+            document.getElementById('removeInput').value = example.remove;
+            showNotification('已应用示例场景', 'info');
+        }
+
+        function showDetail() {
+            if (!state.lastRun) {
+                showNotification('请先执行一次 pullBy', 'warning');
+                return;
+            }
+            const detail = state.lastRun;
+            const iterateeLabel = iterateeOptions[detail.dataType].find((item) => item.value === detail.iterateeKey)?.label || detail.iterateeKey;
+            const content = `
+                <div style="padding:12px 6px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:700; margin-bottom:8px;">执行详情</div>
+                    <div style="margin-bottom:8px;">数据类型：${detail.dataType}</div>
+                    <div style="margin-bottom:8px;">迭代策略：${iterateeLabel}</div>
+                    <div style="margin-bottom:8px;">原始数量：${detail.original.length}</div>
+                    <div style="margin-bottom:8px;">移除数量：${detail.removedCount}</div>
+                    <div style="margin-bottom:8px;">结果数量：${detail.result.length}</div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (error) {
+                console.log('插件加载失败');
+            }
+        }
+
+        function initSelects() {
+            state.selects.dataType = new Select({
+                container: '#dataTypeSelect',
+                placeholder: '选择数据类型',
+                onChange: (value) => {
+                    updateIterateeOptions(value);
+                    updatePlaceholders();
+                }
+            });
+            state.selects.dataType.setOptions([
+                { value: 'number', label: '数字数组' },
+                { value: 'string', label: '字符串数组' },
+                { value: 'object', label: '对象数组' }
+            ]);
+            state.selects.dataType.setValue('number');
+
+            state.selects.iteratee = new Select({
+                container: '#iterateeSelect',
+                placeholder: '选择迭代函数',
+                onChange: () => updatePlaceholders()
+            });
+            updateIterateeOptions('number');
+        }
+
+        function initInputs() {
+            state.inputs.sampleCount = new InputNumber({
+                container: '#sampleCountInput',
+                min: 3,
+                max: 20,
+                step: 1,
+                value: 8
+            });
+            state.inputs.removeCount = new InputNumber({
+                container: '#removeCountInput',
+                min: 1,
+                max: 10,
+                step: 1,
+                value: 3
+            });
+        }
+
+        function initCheckboxes() {
+            const optionsContainer = document.getElementById('optionCheckboxes');
+            state.checkboxes.keepOriginal = new Checkbox({
+                label: '保留原数组',
+                checked: true
+            });
+            state.checkboxes.dedupe = new Checkbox({
+                label: '结果去重',
+                checked: false
+            });
+            state.checkboxes.showMapping = new Checkbox({
+                label: '显示映射值',
+                checked: true
+            });
+            state.checkboxes.keepOriginal.mount(optionsContainer);
+            state.checkboxes.dedupe.mount(optionsContainer);
+            state.checkboxes.showMapping.mount(optionsContainer);
+
+            const themeContainer = document.getElementById('themeToggle');
+            state.checkboxes.darkMode = new Checkbox({
+                label: '暗色模式',
+                checked: false,
+                onChange: (checked) => {
+                    document.documentElement.dataset.theme = checked ? 'dark' : 'light';
+                }
+            });
+            state.checkboxes.darkMode.mount(themeContainer);
+        }
+
+        function bindEvents() {
+            document.getElementById('generateBtn').addEventListener('click', generateSample);
+            document.getElementById('runBtn').addEventListener('click', executePullBy);
+            document.getElementById('detailBtn').addEventListener('click', showDetail);
+            document.querySelectorAll('[data-example]').forEach((button) => {
+                button.addEventListener('click', () => applyExample(button.dataset.example));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPlugins();
+            initSelects();
+            initInputs();
+            initCheckboxes();
+            bindEvents();
+            updateDisplay({
+                original: [],
+                removeValues: [],
+                result: [],
+                originalMapped: [],
+                removeMapped: [],
+                removedCount: 0
+            });
+        });
+    </script>
+</body>
+
+</html>

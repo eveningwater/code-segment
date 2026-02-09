@@ -22,6 +22,8 @@ const pullBy = (arr, ...args) => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/pull-by.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -30,3 +32,11 @@ pullBy(myArray, [{ x: 1 }, { x: 3 }], o => o.x); // myArray = [{ x: 2 }]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/pull-by.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/pull-by.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/pull-by.html"></iframe>
