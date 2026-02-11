@@ -520,7 +520,7 @@
 - [季度-2023-02-18](codes/javascript/quarter-of-year.md)
 - [序列化字符串-2023-02-19](codes/javascript/query-string-to-object.md)
 - [快速排序算法-2023-02-20](codes/javascript/quick-sort.md)
-- [弧度转度-2023-02-21](codes/javascript/radsToDegrees.md)
+- [弧度转度-2023-02-21](codes/javascript/rads-to-degrees.md)
 - [随机验证码-2023-02-22](codes/javascript/randomAlphaNumeric.md)
 - [随机布尔值-2023-02-23](codes/javascript/randomBoolean.md)
 - [随机生成颜色-2023-02-24](codes/javascript/randomHexColorCode.md)
