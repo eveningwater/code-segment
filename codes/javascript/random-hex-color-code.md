@@ -14,6 +14,9 @@ const randomHexColorCode = () => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/random-hex-color-code.ts" data-language="typescript"></div>
+
+
 > 调用方式:
 
 ```js
@@ -21,3 +24,11 @@ randomHexColorCode(); // '#e34155'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/random-hex-color-code.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/random-hex-color-code.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/random-hex-color-code.html"></iframe>
