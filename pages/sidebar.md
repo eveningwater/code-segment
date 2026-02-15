@@ -514,7 +514,7 @@
 - [随机验证码-2023-02-22](codes/javascript/random-alpha-numeric.md)
 - [随机布尔值-2023-02-23](codes/javascript/random-boolean.md)
 - [随机生成颜色-2023-02-24](codes/javascript/random-hex-color-code.md)
-- [随机生成范围内的整数数组-2023-02-25](codes/javascript/randomIntArrayInRange.md)
+- [随机生成范围内的整数数组-2023-02-25](codes/javascript/random-int-array-in-range.md)
 - [随机生成范围内的整数-2023-02-26](codes/javascript/randomIntegerInRange.md)
 - [随机生成范围内的数值-2023-02-27](codes/javascript/randomNumberInRange.md)
 - [范围生成器-2023-02-28](codes/javascript/rangeGenerator.md)
