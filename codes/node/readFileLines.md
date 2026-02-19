@@ -11,7 +11,7 @@
 ```js
 const fs = require('fs');
 const readFileLines = filename => {
-  fs.readFileSync(filename).toString('UTF8').split('\n');
+  return fs.readFileSync(filename).toString('UTF8').split('\n');
 };
 ```
 
@@ -30,3 +30,5 @@ console.log(arr); // ['line1', 'line2', 'line3']
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/node/demo/readFileLines.js" data-language="javascript"></div>

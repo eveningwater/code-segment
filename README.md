@@ -529,7 +529,6 @@
 - [随机生成范围内的数值-2023-02-27](codes/javascript/random-number-in-range.md)
 - [范围生成器-2023-02-28](codes/javascript/range-generator.md)
 - [数组比较-2023-03-01](codes/javascript/ranking.md)
-- [读取文件行-2023-03-02](codes/javascript/readFileLines.md)
 - [重新排列函数参数-2023-03-03](codes/javascript/rearg.md)
 - [记录动画帧-2023-03-04](codes/javascript/recordAnimationFrames.md)
 - [重定向-2023-03-05](codes/javascript/redirect.md)
@@ -884,6 +883,7 @@
 - [是否是 Travis CI-2022-10-30](codes/node/isTravisCI.md)
 - [是否是可写流-2022-11-05](codes/node/isWritableStream.md)
 - [是否是 node 环境-2024-06-18](codes/node/isNode.md)
+- [读取文件行-2023-03-02](codes/javascript/readFileLines.md)
 
 ## git 代码段
 
