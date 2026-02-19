@@ -517,7 +517,7 @@
 - [随机生成范围内的整数数组-2023-02-25](codes/javascript/random-int-array-in-range.md)
 - [随机生成范围内的整数-2023-02-26](codes/javascript/random-integer-in-range.md)
 - [随机生成范围内的数值-2023-02-27](codes/javascript/random-number-in-range.md)
-- [范围生成器-2023-02-28](codes/javascript/rangeGenerator.md)
+- [范围生成器-2023-02-28](codes/javascript/range-generator.md)
 - [数组比较-2023-03-01](codes/javascript/ranking.md)
 - [读取文件行-2023-03-02](codes/javascript/readFileLines.md)
 - [重新排列函数参数-2023-03-03](codes/javascript/rearg.md)
