@@ -520,7 +520,7 @@
 - [范围生成器-2023-02-28](codes/javascript/range-generator.md)
 - [数组比较-2023-03-01](codes/javascript/ranking.md)
 - [重新排列函数参数-2023-03-03](codes/javascript/rearg.md)
-- [记录动画帧-2023-03-04](codes/javascript/recordAnimationFrames.md)
+- [记录动画帧-2023-03-04](codes/javascript/record-animation-frames.md)
 - [重定向-2023-03-05](codes/javascript/redirect.md)
 - [对数组每个元素执行相应的回调-2023-03-06](codes/javascript/reduceSuccessive.md)
 - [根据提供的回调函数对数组元素重新排列-2023-03-07](codes/javascript/reduceWhich.md)
