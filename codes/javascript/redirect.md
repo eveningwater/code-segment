@@ -12,6 +12,8 @@ const redirect = (url, asLink = true) =>
   asLink ? (window.location.href = url) : window.location.replace(url);
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/redirect.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,3 +21,11 @@ redirect('https://google.com');
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/redirect.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/redirect.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/redirect.html"></iframe>
