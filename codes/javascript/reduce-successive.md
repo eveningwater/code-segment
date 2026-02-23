@@ -14,6 +14,8 @@ const reduceSuccessive = (arr, fn, acc) =>
   );
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/reduce-successive.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -22,3 +24,11 @@ reduceSuccessive([1, 2, 3, 4, 5, 6], (acc, val) => acc + val, 0);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/reduce-successive.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/reduce-successive.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/reduce-successive.html"></iframe>

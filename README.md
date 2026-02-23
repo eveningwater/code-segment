@@ -532,7 +532,7 @@
 - [重新排列函数参数-2023-03-03](codes/javascript/rearg.md)
 - [记录动画帧-2023-03-04](codes/javascript/record-animation-frames.md)
 - [重定向-2023-03-05](codes/javascript/redirect.md)
-- [对数组每个元素执行相应的回调-2023-03-06](codes/javascript/reduceSuccessive.md)
+- [对数组每个元素执行相应的回调-2023-03-06](codes/javascript/reduce-successive.md)
 - [匹配不符合条件的数组元素-2023-03-09](codes/javascript/reject.md)
 - [移除数组元素-2023-03-10](codes/javascript/remove.md)
 - [从字符串中删除重音-2023-03-11](codes/javascript/removeAccents.md)
