@@ -10,6 +10,8 @@
 const reject = (pred, arr) => arr.filter((...args) => !pred(...args));
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/reject.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,3 +21,11 @@ reject(word => word.length > 4, ['Apple', 'Pear', 'Kiwi', 'Banana']);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/reject.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/reject.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/reject.html"></iframe>
