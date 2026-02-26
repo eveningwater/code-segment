@@ -535,7 +535,7 @@
 - [对数组每个元素执行相应的回调-2023-03-06](codes/javascript/reduce-successive.md)
 - [匹配不符合条件的数组元素-2023-03-09](codes/javascript/reject.md)
 - [移除数组元素-2023-03-10](codes/javascript/remove.md)
-- [从字符串中删除重音-2023-03-11](codes/javascript/removeAccents.md)
+- [从字符串中删除重音-2023-03-11](codes/javascript/remove-accents.md)
 - [移除元素的所有属性-2023-03-12](codes/javascript/removeAttributes.md)
 - [移除元素类名-2023-03-13](codes/javascript/removeClass.md)
 - [移除元素-2023-03-14](codes/javascript/removeElement.md)
