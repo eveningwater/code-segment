@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>remove-event-listener-all</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .title-row h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .subtitle {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .actions button {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .actions button.secondary {
+            background: #0f766e;
+        }
+        .actions button.ghost {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .targets {
+            border-radius: 16px;
+            background: #e2e8f0;
+            padding: 14px;
+            min-height: 240px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            align-content: start;
+        }
+        .target {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 12px 10px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            user-select: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .target:hover {
+            transform: translateY(-1px);
+        }
+        .target.is-active {
+            background: #dbeafe;
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.18);
+        }
+        .target-title {
+            font-weight: 900;
+            font-size: 0.95rem;
+            color: #0f172a;
+        }
+        .target-meta {
+            font-size: 0.82rem;
+            color: #64748b;
+            word-break: break-all;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .stat {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+            word-break: break-all;
+        }
+        .empty {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 12px;
+            color: #64748b;
+            font-weight: 700;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .tag.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+        .tag.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>removeEventListenerAll 自定义插件演示</h1>
+            </div>
+            <div class="subtitle">用 InputNumber / Select / Checkbox / Modal / Notification 做批量事件解绑示例</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>控制面板</h2>
+
+                <div class="form-row">
+                    <label>目标数量</label>
+                    <div id="countInput"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>事件类型</label>
+                    <div id="eventSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>监听器行为</label>
+                    <div id="handlerSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="renderBtn">渲染目标</button>
+                    <button id="addBtn" class="secondary">批量绑定</button>
+                    <button id="removeBtn" class="secondary">批量解绑</button>
+                    <button id="reportBtn" class="ghost">查看报告</button>
+                    <button id="resetBtn" class="ghost">重置</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>演示区</h2>
+                <div class="hint" id="hintText">
+                    操作建议：先点击「批量绑定」，再在右侧任意目标上触发事件；然后点击「批量解绑」验证事件是否失效。
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <span class="tag" id="bindTag">未绑定</span>
+                    <span class="tag" id="captureTag">capture: false</span>
+                </div>
+                <div class="targets" id="targets"></div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">目标数量</div>
+                        <div class="stat-value" id="targetsValue">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">当前绑定</div>
+                        <div class="stat-value" id="boundValue">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">触发次数</div>
+                        <div class="stat-value" id="firedValue">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">最近触发</div>
+                        <div class="stat-value" id="lastValue">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script>
+        const removeEventListenerAll = (
+            targets,
+            type,
+            listener,
+            options
+        ) => {
+            targets.forEach(target => {
+                target.removeEventListener(type, listener, options);
+            });
+        };
+
+        const eventOptions = [
+            { value: 'click', label: 'click（点击）' },
+            { value: 'mouseenter', label: 'mouseenter（移入）' },
+            { value: 'mouseleave', label: 'mouseleave（移出）' },
+            { value: 'dblclick', label: 'dblclick（双击）' }
+        ];
+
+        const handlerOptions = [
+            { value: 'count', label: '计数 + 高亮' },
+            { value: 'toggle', label: '切换高亮' },
+            { value: 'notify', label: '通知提示' }
+        ];
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                event: null,
+                eventNative: null,
+                handler: null,
+                handlerNative: null
+            },
+            inputs: {
+                count: null
+            },
+            checkboxOptions: [],
+            targets: [],
+            bound: false,
+            boundType: null,
+            boundCapture: false,
+            boundOptions: null,
+            listener: null,
+            stats: {
+                fired: 0,
+                last: null
+            },
+            history: []
+        };
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (error) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(content);
+            }
+        }
+
+        function setupInputNumber() {
+            const container = document.getElementById('countInput');
+            if (!container) return;
+            try {
+                state.inputs.count = new InputNumber({
+                    container,
+                    min: 1,
+                    max: 30,
+                    step: 1,
+                    value: 12,
+                    onChange: () => {
+                        if (getCheckboxValue('autoRender')) renderTargets();
+                    }
+                });
+            } catch (error) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '1';
+                input.max = '30';
+                input.step = '1';
+                input.value = '12';
+                input.className = 'input-field';
+                input.id = 'countInputNative';
+                container.appendChild(input);
+                input.addEventListener('input', () => {
+                    if (getCheckboxValue('autoRender')) renderTargets();
+                });
+            }
+        }
+
+        function getCountValue() {
+            if (state.inputs.count && typeof state.inputs.count.getValue === 'function') {
+                try {
+                    return Number(state.inputs.count.getValue());
+                } catch (error) {}
+            }
+            const native = document.getElementById('countInputNative');
+            return native ? Number(native.value) : 0;
+        }
+
+        function setupSelects() {
+            const eventContainer = document.getElementById('eventSelect');
+            const handlerContainer = document.getElementById('handlerSelect');
+
+            if (eventContainer) {
+                try {
+                    state.selects.event = new Select({
+                        container: eventContainer,
+                        options: eventOptions,
+                        placeholder: '选择事件类型',
+                        onChange: () => {
+                            if (getCheckboxValue('autoRebind') && state.bound) {
+                                bindAll();
+                            }
+                        }
+                    });
+                    state.selects.event.setValue('click');
+                } catch (error) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    eventOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'click';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoRebind') && state.bound) {
+                            bindAll();
+                        }
+                    });
+                    eventContainer.appendChild(select);
+                    state.selects.eventNative = select;
+                }
+            }
+
+            if (handlerContainer) {
+                try {
+                    state.selects.handler = new Select({
+                        container: handlerContainer,
+                        options: handlerOptions,
+                        placeholder: '选择监听器行为',
+                        onChange: () => {}
+                    });
+                    state.selects.handler.setValue('count');
+                } catch (error) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    handlerOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'count';
+                    handlerContainer.appendChild(select);
+                    state.selects.handlerNative = select;
+                }
+            }
+        }
+
+        function getEventType() {
+            if (state.selects.event && typeof state.selects.event.getValue === 'function') {
+                return state.selects.event.getValue() || 'click';
+            }
+            return state.selects.eventNative ? state.selects.eventNative.value : 'click';
+        }
+
+        function getHandlerType() {
+            if (state.selects.handler && typeof state.selects.handler.getValue === 'function') {
+                return state.selects.handler.getValue() || 'count';
+            }
+            return state.selects.handlerNative ? state.selects.handlerNative.value : 'count';
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+
+            const options = [
+                { id: 'useCapture', label: '使用 capture', checked: false },
+                { id: 'confirmUnbind', label: '解绑前确认', checked: true },
+                { id: 'autoRender', label: '改数量自动渲染', checked: true },
+                { id: 'autoRebind', label: '切事件自动重绑', checked: false },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalReport', label: '用弹窗展示报告', checked: true }
+            ];
+
+            state.checkboxOptions = options;
+
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {
+                        syncTags();
+                    }
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (error) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (error) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setTag(el, text, variant) {
+            if (!el) return;
+            el.textContent = text;
+            el.className = `tag${variant ? ' ' + variant : ''}`;
+        }
+
+        function syncTags() {
+            const bindTag = document.getElementById('bindTag');
+            const captureTag = document.getElementById('captureTag');
+            setTag(bindTag, state.bound ? '已绑定' : '未绑定', state.bound ? 'success' : 'warn');
+            setTag(captureTag, `capture: ${getCheckboxValue('useCapture') ? 'true' : 'false'}`);
+        }
+
+        function renderEmpty(container) {
+            container.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'empty';
+            div.textContent = '暂无目标，点击「渲染目标」开始';
+            container.appendChild(div);
+        }
+
+        function createTarget(index) {
+            const div = document.createElement('div');
+            div.className = 'target';
+            div.dataset.index = String(index);
+            div.dataset.id = `target_${index + 1}`;
+            div.innerHTML = `
+                <div class="target-title">目标 #${index + 1}</div>
+                <div class="target-meta">data-id: target_${index + 1}</div>
+            `;
+            return div;
+        }
+
+        function getTargetsContainer() {
+            return document.getElementById('targets');
+        }
+
+        function getAllTargets() {
+            const container = getTargetsContainer();
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.target'));
+        }
+
+        function updateStatsView() {
+            document.getElementById('targetsValue').textContent = String(getAllTargets().length);
+            document.getElementById('boundValue').textContent = String(state.bound ? getAllTargets().length : 0);
+            document.getElementById('firedValue').textContent = String(state.stats.fired);
+            document.getElementById('lastValue').textContent = state.stats.last ?? '-';
+            syncTags();
+        }
+
+        function clearListenerState() {
+            state.bound = false;
+            state.boundType = null;
+            state.boundCapture = false;
+            state.boundOptions = null;
+            state.listener = null;
+            getAllTargets().forEach(el => el.classList.remove('is-active'));
+        }
+
+        function renderTargets() {
+            const container = getTargetsContainer();
+            if (!container) return;
+
+            let count = getCountValue();
+            if (!Number.isFinite(count)) count = 0;
+            count = Math.min(Math.max(0, Math.round(count)), 30);
+
+            if (state.bound) {
+                unbindAll(false);
+            }
+
+            container.innerHTML = '';
+            if (count === 0) {
+                renderEmpty(container);
+                clearListenerState();
+                state.stats.fired = 0;
+                state.stats.last = null;
+                state.history = [];
+                updateStatsView();
+                return;
+            }
+
+            for (let i = 0; i < count; i++) {
+                container.appendChild(createTarget(i));
+            }
+
+            clearListenerState();
+            state.stats.fired = 0;
+            state.stats.last = null;
+            state.history = [];
+            updateStatsView();
+            showNotification(`已渲染 ${count} 个目标`, 'success');
+        }
+
+        function buildListener(handlerType) {
+            return function (e) {
+                const el = e.currentTarget || e.target;
+                const id = el?.dataset?.id || el?.id || 'unknown';
+                state.stats.fired += 1;
+                state.stats.last = `${getEventType()} @ ${id}`;
+                if (handlerType === 'toggle') {
+                    el.classList.toggle('is-active');
+                } else if (handlerType === 'notify') {
+                    showNotification(`触发：${id}`, 'info');
+                } else {
+                    el.classList.add('is-active');
+                }
+                state.history.unshift({
+                    time: new Date().toLocaleTimeString('zh-CN'),
+                    event: getEventType(),
+                    id,
+                    handler: handlerType
+                });
+                if (state.history.length > 20) state.history.length = 20;
+                updateStatsView();
+            };
+        }
+
+        function getAddOptions() {
+            const capture = getCheckboxValue('useCapture');
+            return { capture };
+        }
+
+        function addEventListenerCompat(target, type, listener, options) {
+            const capture = !!options?.capture;
+            try {
+                target.addEventListener(type, listener, options);
+            } catch (error) {
+                target.addEventListener(type, listener, capture);
+            }
+        }
+
+        function bindAll() {
+            const targets = getAllTargets();
+            if (!targets.length) {
+                showNotification('请先渲染目标', 'warning');
+                return;
+            }
+
+            if (state.bound) {
+                unbindAll(false);
+            }
+
+            const type = getEventType();
+            const handlerType = getHandlerType();
+            const options = getAddOptions();
+            const listener = buildListener(handlerType);
+
+            targets.forEach(target => {
+                addEventListenerCompat(target, type, listener, options);
+            });
+
+            state.bound = true;
+            state.boundType = type;
+            state.boundCapture = !!options.capture;
+            state.boundOptions = options;
+            state.listener = listener;
+
+            updateStatsView();
+            showNotification(`已为 ${targets.length} 个目标绑定 ${type}`, 'success');
+        }
+
+        async function confirmUnbind(message) {
+            if (!getCheckboxValue('confirmUnbind')) return true;
+            if (state.plugins.modal && typeof state.plugins.modal.confirm === 'function') {
+                return await state.plugins.modal.confirm(message);
+            }
+            return true;
+        }
+
+        function unbindAll(needConfirm = true) {
+            const targets = getAllTargets();
+            if (!targets.length) {
+                showNotification('没有目标可解绑', 'warning');
+                return Promise.resolve(false);
+            }
+            if (!state.bound || !state.listener || !state.boundType) {
+                showNotification('当前没有已绑定的监听器', 'warning');
+                return Promise.resolve(false);
+            }
+
+            const proceed = async () => {
+                const ok = needConfirm ? await confirmUnbind(`确定要为 ${targets.length} 个目标解绑事件吗？`) : true;
+                if (!ok) return false;
+
+                const useCapture = state.boundCapture;
+                const options = state.boundOptions;
+                removeEventListenerAll(targets, state.boundType, state.listener, options, useCapture);
+                clearListenerState();
+                updateStatsView();
+                showNotification('批量解绑已完成', 'info');
+                return true;
+            };
+            return proceed();
+        }
+
+        function buildReportHtml() {
+            const rows = state.history.slice(0, 10).map(item => `
+                <div style="display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid #e5e7eb;">
+                    <div style="width:72px; color:#64748b; font-size:12px;">${item.time}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:900; color:#0f172a; margin-bottom:4px;">${item.event} @ ${item.id}</div>
+                        <div style="color:#64748b; font-size:12px;">handler: ${item.handler}</div>
+                    </div>
+                </div>
+            `).join('');
+            return `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">触发报告</div>
+                    <div style="margin-bottom:8px;">目标数：<strong>${getAllTargets().length}</strong>，当前绑定：<strong>${state.bound ? getAllTargets().length : 0}</strong></div>
+                    <div style="margin-bottom:8px;">事件类型：<strong>${state.boundType ?? '-'}</strong>，capture：<strong>${state.boundCapture ? 'true' : 'false'}</strong></div>
+                    <div style="margin-bottom:8px;">触发次数：<strong>${state.stats.fired}</strong>，最近触发：<span style="font-family:JetBrains Mono, monospace;">${state.stats.last ?? '无'}</span></div>
+                    <div style="margin-top:12px; font-weight:900;">最近 10 条</div>
+                    <div style="margin-top:8px;">${rows || '<div style="color:#64748b;">暂无记录</div>'}</div>
+                </div>
+            `;
+        }
+
+        function showReport() {
+            const content = buildReportHtml();
+            if (getCheckboxValue('showModalReport')) {
+                showModal(content);
+                return;
+            }
+            showNotification('报告弹窗已关闭，可在控制台查看', 'info');
+            console.log(content);
+        }
+
+        function resetAll() {
+            const container = getTargetsContainer();
+            if (container) renderEmpty(container);
+            clearListenerState();
+            state.stats.fired = 0;
+            state.stats.last = null;
+            state.history = [];
+            updateStatsView();
+            showNotification('已重置', 'info');
+        }
+
+        function bindActions() {
+            const renderBtn = document.getElementById('renderBtn');
+            const addBtn = document.getElementById('addBtn');
+            const removeBtn = document.getElementById('removeBtn');
+            const reportBtn = document.getElementById('reportBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            if (renderBtn) renderBtn.addEventListener('click', renderTargets);
+            if (addBtn) addBtn.addEventListener('click', bindAll);
+            if (removeBtn) removeBtn.addEventListener('click', () => unbindAll(true));
+            if (reportBtn) reportBtn.addEventListener('click', showReport);
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupInputNumber();
+            setupSelects();
+            bindActions();
+            resetAll();
+            renderTargets();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

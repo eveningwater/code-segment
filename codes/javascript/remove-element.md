@@ -11,6 +11,8 @@
 const removeElement = el => el.parentNode.removeChild(el);
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts//remove-element.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -20,4 +22,10 @@ removeElement(document.querySelector('#my-element'));
 
 > 应用场景
 
-<iframe src="codes/javascript/html/removeElement.html"></iframe>
+以下是一个实战<a href="codes/javascript/html//remove-element.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html//remove-element.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/remove-element.html"></iframe>
