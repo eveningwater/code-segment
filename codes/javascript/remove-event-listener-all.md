@@ -20,7 +20,7 @@ const removeEventListenerAll = (
 };
 ```
 
-<div class="code-editor" data-url="codes/javascript/ts//remove-event-listener-all.ts" data-language="typescript"></div>
+<div class="code-editor" data-url="codes/javascript/ts/remove-event-listener-all.ts" data-language="typescript"></div>
 
 > 调用方式:
 
@@ -32,9 +32,9 @@ removeEventListenerAll(document.querySelectorAll('a'), 'click', linkListener);
 
 > 应用场景
 
-以下是一个实战<a href="codes/javascript/html//remove-event-listener-all.html" target="_blank" rel="noopener noreferrer">示例</a>:
+以下是一个实战<a href="codes/javascript/html/remove-event-listener-all.html" target="_blank" rel="noopener noreferrer">示例</a>:
 
-<div class="code-editor" data-url="codes/javascript/html//remove-event-listener-all.html" data-language="html"></div>
+<div class="code-editor" data-url="codes/javascript/html/remove-event-listener-all.html" data-language="html"></div>
 
 结果如下:
 
