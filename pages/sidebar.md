@@ -533,7 +533,7 @@
 - [移除元素-2023-03-14](codes/javascript/remove-element.md)
 - [移除元素的所有事件-2023-03-15](codes/javascript/remove-event-listener-all.md)
 - [移除 ASCII 字符-2023-03-16](codes/javascript/remove-non-ascii.md)
-- [移除字符串的空白-2023-03-17](codes/javascript/removeWhitespace.md)
+- [移除字符串的空白-2023-03-17](codes/javascript/remove-whitespace.md)
 - [重命名对象属性-2023-03-18](codes/javascript/renameKeys.md)
 - [重复生成器-2023-03-20](codes/javascript/repeatGenerator.md)
 - [替换最后一个匹配字符-2023-03-21](codes/javascript/replaceLast.md)
