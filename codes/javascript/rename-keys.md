@@ -17,6 +17,8 @@ const renameKeys = (keysMap, obj) =>
   );
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/rename-keys.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -26,3 +28,11 @@ renameKeys({ name: 'firstName', job: 'passion' }, obj);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/rename-keys.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/rename-keys.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/rename-keys.html"></iframe>

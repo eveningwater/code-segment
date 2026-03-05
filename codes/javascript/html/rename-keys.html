@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rename-keys</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .title-row h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .subtitle {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 860px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        textarea.input {
+            width: 100%;
+            min-height: 160px;
+            resize: vertical;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            outline: none;
+            background: #f8fafc;
+            color: #0f172a;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        textarea.input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+            background: #ffffff;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .actions button {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .actions button.secondary {
+            background: #0f766e;
+        }
+        .actions button.ghost {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .stat {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+            word-break: break-all;
+        }
+        .output {
+            background: #0f172a;
+            color: #f8fafc;
+            border-radius: 14px;
+            padding: 12px 14px;
+            overflow: auto;
+            white-space: pre;
+            line-height: 1.6;
+            font-size: 13px;
+            min-height: 220px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .pill.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+        .pill.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>renameKeys 自定义插件演示</h1>
+            </div>
+            <div class="subtitle">用 InputNumber / Select / Checkbox / Modal / Notification 构建“对象键重命名”示例</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>输入与配置</h2>
+
+                <div class="form-row">
+                    <label>示例选择</label>
+                    <div id="exampleSelect"></div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>随机字段数</label>
+                        <div id="fieldCountInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>映射条数</label>
+                        <div id="mapCountInput"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>输出模式</label>
+                    <div id="modeSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="applyExampleBtn">应用示例</button>
+                    <button id="generateRandomBtn" class="secondary">生成随机</button>
+                    <button id="runBtn" class="secondary">执行重命名</button>
+                    <button id="detailBtn" class="ghost">查看详情</button>
+                    <button id="resetBtn" class="ghost">重置</button>
+                </div>
+
+                <div class="hint">
+                    说明：renameKeys 会遍历对象的 key，用 keysMap 将 key 映射成新 key（未命中的 key 保持不变）。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>对象与映射</h2>
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>输入对象（JSON）</label>
+                        <textarea id="objInput" class="input" placeholder='例如：{"firstName":"Ada","age":18}'></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>keysMap（JSON）</label>
+                        <textarea id="mapInput" class="input" placeholder='例如：{"firstName":"first_name","age":"age"}'></textarea>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <span id="conflictPill" class="pill ok">无冲突</span>
+                    <span id="parsePill" class="pill ok">解析正常</span>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">原始键数量</div>
+                        <div class="stat-value" id="beforeKeys">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">输出键数量</div>
+                        <div class="stat-value" id="afterKeys">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">发生重命名</div>
+                        <div class="stat-value" id="renamedCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">状态</div>
+                        <div class="stat-value" id="statusValue">等待执行</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>输出结果</h2>
+                <div id="outputBox" class="output">{}</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script>
+        const renameKeys = (keysMap, obj) =>
+            Object.keys(obj).reduce(
+                (acc, key) => ({
+                    ...acc,
+                    ...{ [keysMap[key] || key]: obj[key] }
+                }),
+                {}
+            );
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                example: null,
+                exampleNative: null,
+                mode: null,
+                modeNative: null
+            },
+            inputs: {
+                fieldCount: null,
+                mapCount: null
+            },
+            checkboxOptions: [],
+            last: null
+        };
+
+        const examples = {
+            user: {
+                label: '用户对象（snake_case）',
+                obj: { firstName: 'Ada', lastName: 'Lovelace', age: 28, isMember: true },
+                map: { firstName: 'first_name', lastName: 'last_name', isMember: 'is_member' }
+            },
+            product: {
+                label: '商品对象（前端→后端）',
+                obj: { productId: 1001, productName: 'Keyboard', price: 199.9, inStock: true },
+                map: { productId: 'product_id', productName: 'product_name', inStock: 'in_stock' }
+            },
+            conflict: {
+                label: '冲突示例（同名覆盖）',
+                obj: { a: 1, b: 2, c: 3 },
+                map: { a: 'x', b: 'x' }
+            },
+            nested: {
+                label: '嵌套对象（仅浅层）',
+                obj: { userName: 'Lin', profile: { cityName: 'Hangzhou' }, tags: ['a', 'b'] },
+                map: { userName: 'user_name', profile: 'profile' }
+            },
+            random: {
+                label: '随机生成（按配置）',
+                obj: {},
+                map: {}
+            }
+        };
+
+        const modeOptions = [
+            { value: 'default', label: '默认：保留未映射键' },
+            { value: 'mappedOnly', label: '仅输出映射后的键' }
+        ];
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (error) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(content);
+            }
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+
+            const options = [
+                { id: 'autoApplyExample', label: '选择示例自动应用', checked: true },
+                { id: 'autoRun', label: '输入变化自动执行', checked: true },
+                { id: 'detectConflicts', label: '检测映射冲突', checked: true },
+                { id: 'forceConflict', label: '随机映射制造冲突', checked: false },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '用弹窗展示详情', checked: true }
+            ];
+
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (error) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (error) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const exampleContainer = document.getElementById('exampleSelect');
+            const modeContainer = document.getElementById('modeSelect');
+
+            if (exampleContainer) {
+                const options = Object.entries(examples).map(([value, item]) => ({ value, label: item.label }));
+                try {
+                    state.selects.example = new Select({
+                        container: exampleContainer,
+                        options,
+                        placeholder: '选择示例',
+                        onChange: () => {
+                            if (getCheckboxValue('autoApplyExample')) applySelectedExample();
+                        }
+                    });
+                    state.selects.example.setValue('user');
+                } catch (error) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'user';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoApplyExample')) applySelectedExample();
+                    });
+                    exampleContainer.appendChild(select);
+                    state.selects.exampleNative = select;
+                }
+            }
+
+            if (modeContainer) {
+                try {
+                    state.selects.mode = new Select({
+                        container: modeContainer,
+                        options: modeOptions,
+                        placeholder: '选择输出模式',
+                        onChange: () => {
+                            if (getCheckboxValue('autoRun')) run();
+                        }
+                    });
+                    state.selects.mode.setValue('default');
+                } catch (error) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    modeOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'default';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoRun')) run();
+                    });
+                    modeContainer.appendChild(select);
+                    state.selects.modeNative = select;
+                }
+            }
+        }
+
+        function getExampleKey() {
+            if (state.selects.example && typeof state.selects.example.getValue === 'function') {
+                return state.selects.example.getValue() || 'user';
+            }
+            return state.selects.exampleNative ? state.selects.exampleNative.value : 'user';
+        }
+
+        function getModeKey() {
+            if (state.selects.mode && typeof state.selects.mode.getValue === 'function') {
+                return state.selects.mode.getValue() || 'default';
+            }
+            return state.selects.modeNative ? state.selects.modeNative.value : 'default';
+        }
+
+        function setupInputNumbers() {
+            const fieldContainer = document.getElementById('fieldCountInput');
+            const mapContainer = document.getElementById('mapCountInput');
+
+            if (fieldContainer) {
+                try {
+                    state.inputs.fieldCount = new InputNumber({
+                        container: fieldContainer,
+                        min: 1,
+                        max: 30,
+                        step: 1,
+                        value: 8,
+                        onChange: () => {}
+                    });
+                } catch (error) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '30';
+                    input.step = '1';
+                    input.value = '8';
+                    input.className = 'input-field';
+                    input.id = 'fieldCountNative';
+                    fieldContainer.appendChild(input);
+                }
+            }
+
+            if (mapContainer) {
+                try {
+                    state.inputs.mapCount = new InputNumber({
+                        container: mapContainer,
+                        min: 0,
+                        max: 30,
+                        step: 1,
+                        value: 5,
+                        onChange: () => {}
+                    });
+                } catch (error) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '30';
+                    input.step = '1';
+                    input.value = '5';
+                    input.className = 'input-field';
+                    input.id = 'mapCountNative';
+                    mapContainer.appendChild(input);
+                }
+            }
+        }
+
+        function getFieldCountValue() {
+            if (state.inputs.fieldCount && typeof state.inputs.fieldCount.getValue === 'function') {
+                try {
+                    return Number(state.inputs.fieldCount.getValue());
+                } catch (error) {}
+            }
+            const native = document.getElementById('fieldCountNative');
+            return native ? Number(native.value) : 0;
+        }
+
+        function getMapCountValue() {
+            if (state.inputs.mapCount && typeof state.inputs.mapCount.getValue === 'function') {
+                try {
+                    return Number(state.inputs.mapCount.getValue());
+                } catch (error) {}
+            }
+            const native = document.getElementById('mapCountNative');
+            return native ? Number(native.value) : 0;
+        }
+
+        function stringify(obj) {
+            return JSON.stringify(obj, null, 2);
+        }
+
+        function setPill(el, text, variant) {
+            if (!el) return;
+            el.textContent = text;
+            el.className = `pill ${variant || ''}`.trim();
+        }
+
+        function setParseStatus(ok, message) {
+            const pill = document.getElementById('parsePill');
+            setPill(pill, ok ? '解析正常' : '解析失败', ok ? 'ok' : 'warn');
+            if (!ok && message) showNotification(message, 'warning');
+        }
+
+        function setConflictStatus(conflicts) {
+            const pill = document.getElementById('conflictPill');
+            if (!getCheckboxValue('detectConflicts')) {
+                setPill(pill, '未检测', 'ok');
+                return;
+            }
+            if (!conflicts.length) {
+                setPill(pill, '无冲突', 'ok');
+                return;
+            }
+            setPill(pill, `冲突 ${conflicts.length} 处`, 'warn');
+        }
+
+        function parseJson(text, label) {
+            const trimmed = (text || '').trim();
+            if (!trimmed) return { ok: true, value: {}, empty: true };
+            try {
+                const parsed = JSON.parse(trimmed);
+                return { ok: true, value: parsed };
+            } catch (e) {
+                return { ok: false, error: `${label} 不是合法 JSON` };
+            }
+        }
+
+        function isPlainObject(val) {
+            return !!val && typeof val === 'object' && val.constructor === Object;
+        }
+
+        function collectConflicts(keysMap) {
+            if (!isPlainObject(keysMap)) return [];
+            const reverse = new Map();
+            Object.keys(keysMap).forEach(fromKey => {
+                const toKey = keysMap[fromKey];
+                if (typeof toKey !== 'string' || !toKey) return;
+                const list = reverse.get(toKey) || [];
+                list.push(fromKey);
+                reverse.set(toKey, list);
+            });
+            const conflicts = [];
+            reverse.forEach((fromKeys, toKey) => {
+                if (fromKeys.length > 1) conflicts.push({ toKey, fromKeys });
+            });
+            return conflicts;
+        }
+
+        function applySelectedExample() {
+            const key = getExampleKey();
+            const objArea = document.getElementById('objInput');
+            const mapArea = document.getElementById('mapInput');
+            if (!objArea || !mapArea) return;
+
+            if (key === 'random') {
+                generateRandom();
+                return;
+            }
+            objArea.value = stringify(examples[key].obj);
+            mapArea.value = stringify(examples[key].map);
+            showNotification('已应用示例', 'info');
+            if (getCheckboxValue('autoRun')) run();
+        }
+
+        function randomKey(index) {
+            const base = 'abcdefghijklmnopqrstuvwxyz';
+            const a = base[index % base.length];
+            const b = base[Math.floor(index / base.length) % base.length];
+            return `${a}${b}_${index}`;
+        }
+
+        function randomValue() {
+            const r = Math.random();
+            if (r < 0.4) return Math.floor(Math.random() * 1000);
+            if (r < 0.7) return Math.random() > 0.5;
+            if (r < 0.9) return `v_${Math.random().toString(16).slice(2, 8)}`;
+            return null;
+        }
+
+        function pickUniqueIndices(n, max) {
+            const set = new Set();
+            const limit = Math.max(0, Math.min(n, max));
+            while (set.size < limit) {
+                set.add(Math.floor(Math.random() * max));
+            }
+            return Array.from(set);
+        }
+
+        function generateRandom() {
+            const objArea = document.getElementById('objInput');
+            const mapArea = document.getElementById('mapInput');
+            if (!objArea || !mapArea) return;
+
+            let fieldCount = getFieldCountValue();
+            let mapCount = getMapCountValue();
+            if (!Number.isFinite(fieldCount)) fieldCount = 0;
+            if (!Number.isFinite(mapCount)) mapCount = 0;
+            fieldCount = Math.min(Math.max(1, Math.round(fieldCount)), 30);
+            mapCount = Math.min(Math.max(0, Math.round(mapCount)), fieldCount);
+
+            const obj = {};
+            const keys = [];
+            for (let i = 0; i < fieldCount; i++) {
+                const key = randomKey(i);
+                obj[key] = randomValue();
+                keys.push(key);
+            }
+
+            const indices = pickUniqueIndices(mapCount, keys.length);
+            const keysMap = {};
+            indices.forEach((idx, i) => {
+                keysMap[keys[idx]] = `field_${i + 1}`;
+            });
+
+            if (getCheckboxValue('forceConflict') && indices.length >= 2) {
+                const a = keys[indices[0]];
+                const b = keys[indices[1]];
+                keysMap[a] = 'dup_key';
+                keysMap[b] = 'dup_key';
+            }
+
+            objArea.value = stringify(obj);
+            mapArea.value = stringify(keysMap);
+            showNotification('已生成随机数据', 'success');
+            if (getCheckboxValue('autoRun')) run();
+        }
+
+        function updateUI(payload) {
+            document.getElementById('beforeKeys').textContent = payload.beforeKeysText;
+            document.getElementById('afterKeys').textContent = payload.afterKeysText;
+            document.getElementById('renamedCount').textContent = payload.renamedCountText;
+            document.getElementById('statusValue').textContent = payload.statusText;
+            document.getElementById('outputBox').textContent = payload.outputText;
+        }
+
+        function run() {
+            const objArea = document.getElementById('objInput');
+            const mapArea = document.getElementById('mapInput');
+            if (!objArea || !mapArea) return;
+
+            const objParsed = parseJson(objArea.value, '输入对象');
+            if (!objParsed.ok) {
+                setParseStatus(false, objParsed.error);
+                updateUI({
+                    beforeKeysText: '0',
+                    afterKeysText: '0',
+                    renamedCountText: '0',
+                    statusText: '输入对象解析失败',
+                    outputText: '{}'
+                });
+                state.last = null;
+                return;
+            }
+            const mapParsed = parseJson(mapArea.value, 'keysMap');
+            if (!mapParsed.ok) {
+                setParseStatus(false, mapParsed.error);
+                updateUI({
+                    beforeKeysText: '0',
+                    afterKeysText: '0',
+                    renamedCountText: '0',
+                    statusText: 'keysMap 解析失败',
+                    outputText: '{}'
+                });
+                state.last = null;
+                return;
+            }
+            setParseStatus(true);
+
+            const obj = objParsed.value;
+            const keysMap = mapParsed.value;
+            if (!isPlainObject(obj)) {
+                updateUI({
+                    beforeKeysText: '0',
+                    afterKeysText: '0',
+                    renamedCountText: '0',
+                    statusText: '输入对象必须是普通对象',
+                    outputText: '{}'
+                });
+                state.last = null;
+                showNotification('输入对象必须是普通对象（{}）', 'warning');
+                return;
+            }
+            if (!isPlainObject(keysMap)) {
+                updateUI({
+                    beforeKeysText: String(Object.keys(obj).length),
+                    afterKeysText: '0',
+                    renamedCountText: '0',
+                    statusText: 'keysMap 必须是普通对象',
+                    outputText: '{}'
+                });
+                state.last = null;
+                showNotification('keysMap 必须是普通对象（{}）', 'warning');
+                return;
+            }
+
+            const conflicts = collectConflicts(keysMap);
+            setConflictStatus(conflicts);
+
+            const renamed = renameKeys(keysMap, obj);
+            const mode = getModeKey();
+            let output = renamed;
+            if (mode === 'mappedOnly') {
+                const allowedNewKeys = new Set(
+                    Object.keys(obj)
+                        .map(key => keysMap[key])
+                        .filter(val => typeof val === 'string' && val.length)
+                );
+                output = Object.fromEntries(Object.entries(renamed).filter(([key]) => allowedNewKeys.has(key)));
+            }
+
+            const beforeKeys = Object.keys(obj);
+            const afterKeys = Object.keys(output);
+            const renamedCount = beforeKeys.reduce((acc, key) => {
+                const next = keysMap[key];
+                if (typeof next === 'string' && next && next !== key) return acc + 1;
+                return acc;
+            }, 0);
+
+            state.last = {
+                obj,
+                keysMap,
+                renamed,
+                output,
+                mode,
+                conflicts,
+                beforeKeysCount: beforeKeys.length,
+                afterKeysCount: afterKeys.length,
+                renamedCount
+            };
+
+            updateUI({
+                beforeKeysText: String(beforeKeys.length),
+                afterKeysText: String(afterKeys.length),
+                renamedCountText: String(renamedCount),
+                statusText: conflicts.length && getCheckboxValue('detectConflicts') ? '存在冲突（可能发生覆盖）' : '已完成',
+                outputText: stringify(output)
+            });
+
+            if (conflicts.length && getCheckboxValue('detectConflicts')) {
+                showNotification(`检测到 ${conflicts.length} 处冲突，可能发生覆盖`, 'warning');
+            } else {
+                showNotification('已执行重命名', 'success');
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function buildDetailHtml(last) {
+            const conflictsHtml = last.conflicts.length
+                ? last.conflicts.map(item => `
+                    <div style="padding:8px 0; border-bottom:1px solid #e5e7eb;">
+                        <div style="font-weight:900;">${escapeHtml(item.toKey)}</div>
+                        <div style="color:#64748b; font-size:12px;">from: ${escapeHtml(item.fromKeys.join(', '))}</div>
+                    </div>
+                `).join('')
+                : '<div style="color:#64748b;">无冲突</div>';
+
+            const modeText = last.mode === 'mappedOnly' ? '仅输出映射后的键' : '默认保留未映射键';
+
+            return `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">执行详情</div>
+                    <div style="margin-bottom:8px;">模式：<strong>${escapeHtml(modeText)}</strong></div>
+                    <div style="margin-bottom:8px;">原始键数：<strong>${last.beforeKeysCount}</strong>，输出键数：<strong>${last.afterKeysCount}</strong></div>
+                    <div style="margin-bottom:8px;">发生重命名：<strong>${last.renamedCount}</strong></div>
+                    <div style="margin-top:12px; font-weight:900;">冲突检测</div>
+                    <div style="margin-top:6px;">${conflictsHtml}</div>
+                    <div style="margin-top:12px; font-weight:900;">输出 JSON</div>
+                    <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:JetBrains Mono, monospace; white-space:pre; overflow:auto;">${escapeHtml(stringify(last.output))}</div>
+                </div>
+            `;
+        }
+
+        function showDetail() {
+            if (!getCheckboxValue('showModalDetail')) {
+                showNotification('详情弹窗已关闭', 'info');
+                return;
+            }
+            const last = state.last;
+            if (!last) {
+                showNotification('请先执行重命名', 'warning');
+                return;
+            }
+            showModal(buildDetailHtml(last));
+        }
+
+        function resetAll() {
+            const objArea = document.getElementById('objInput');
+            const mapArea = document.getElementById('mapInput');
+            if (objArea) objArea.value = '';
+            if (mapArea) mapArea.value = '';
+            state.last = null;
+            setParseStatus(true);
+            setConflictStatus([]);
+            updateUI({
+                beforeKeysText: '0',
+                afterKeysText: '0',
+                renamedCountText: '0',
+                statusText: '已重置',
+                outputText: '{}'
+            });
+            showNotification('已重置', 'info');
+        }
+
+        function bindEvents() {
+            const applyBtn = document.getElementById('applyExampleBtn');
+            const randomBtn = document.getElementById('generateRandomBtn');
+            const runBtn = document.getElementById('runBtn');
+            const detailBtn = document.getElementById('detailBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const objArea = document.getElementById('objInput');
+            const mapArea = document.getElementById('mapInput');
+
+            if (applyBtn) applyBtn.addEventListener('click', applySelectedExample);
+            if (randomBtn) randomBtn.addEventListener('click', generateRandom);
+            if (runBtn) runBtn.addEventListener('click', run);
+            if (detailBtn) detailBtn.addEventListener('click', showDetail);
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+
+            const onChange = () => {
+                if (getCheckboxValue('autoRun')) run();
+            };
+            if (objArea) objArea.addEventListener('input', onChange);
+            if (mapArea) mapArea.addEventListener('input', onChange);
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputNumbers();
+            bindEvents();
+            resetAll();
+            applySelectedExample();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
