@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>render-element</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+        .page {
+            max-width: 1220px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .title-row h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .subtitle {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 560px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        textarea.input {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            outline: none;
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        textarea.input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .actions button {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .actions button.secondary {
+            background: #0f766e;
+        }
+        .actions button.ghost {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .stage {
+            min-height: 440px;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .stage-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+        .stage-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .preview-area {
+            flex: 1;
+            border-radius: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+            overflow: auto;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 900;
+        }
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+        .chip.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+        .panel {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: min(420px, calc(100% - 24px));
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            z-index: 10;
+        }
+        .panel.show {
+            display: flex;
+        }
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .panel-title {
+            font-weight: 900;
+            color: #0f172a;
+        }
+        .panel-close {
+            border: none;
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: 6px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+        .panel-body {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .kv {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 10px;
+            align-items: center;
+            font-size: 13px;
+            color: #334155;
+        }
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>renderElement + onClickOutside 插件化演示</h1>
+            </div>
+            <div class="subtitle">用自定义插件替代原生交互，并演示点击外部关闭面板</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>配置面板</h2>
+
+                <div class="form-row">
+                    <label>示例选择</label>
+                    <div id="exampleSelect"></div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>按钮数量</label>
+                        <div id="btnCountInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>段落数量</label>
+                        <div id="textCountInput"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>容器标签</label>
+                    <div id="containerTagSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="renderBtn" class="secondary">渲染到舞台</button>
+                    <button id="openPanelBtn" class="ghost">打开检查面板</button>
+                    <button id="clearBtn" class="ghost">清空舞台</button>
+                    <button id="detailBtn" class="ghost">查看 JSON</button>
+                </div>
+
+                <div class="form-row">
+                    <label>VNode JSON（可编辑）</label>
+                    <textarea id="vnodeInput" class="input"></textarea>
+                </div>
+
+                <div class="hint">
+                    说明：renderElement 会根据 props 中以 on 开头的字段绑定事件（例如 onClick）。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>渲染舞台</h2>
+                <div class="stage" id="stage">
+                    <div class="stage-head">
+                        <div>
+                            <div class="stage-title">Stage</div>
+                            <div class="stage-sub">在这里渲染 vNode 生成的真实 DOM</div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <span id="parseChip" class="chip ok">JSON 正常</span>
+                            <span id="panelChip" class="chip">面板关闭</span>
+                        </div>
+                    </div>
+                    <div id="previewArea" class="preview-area"></div>
+
+                    <div id="inspectorPanel" class="panel">
+                        <div class="panel-head">
+                            <div class="panel-title">检查面板</div>
+                            <button id="panelCloseBtn" class="panel-close">关闭</button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="kv"><span>节点数</span><span id="nodeCount" class="mono">0</span></div>
+                            <div class="kv"><span>按钮数</span><span id="btnCount" class="mono">0</span></div>
+                            <div class="kv"><span>段落数</span><span id="pCount" class="mono">0</span></div>
+                            <div class="kv"><span>最近点击</span><span id="lastClick" class="mono">-</span></div>
+                            <div class="kv"><span>提示</span><span class="mono">点击面板外部区域关闭</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script>
+        const renderElement = (vNodeObj, container = document.body) => {
+            let _container = typeof container === 'string' ? document.querySelector(container) : container;
+            if (!_container) {
+                _container = document.body;
+            }
+            const { type, children, props = {} } = vNodeObj || {};
+            const isTextElement = !type || type === 'text';
+            const element = isTextElement ? document.createTextNode('') : document.createElement(type);
+            const isListener = p => p.startsWith('on');
+            const isAttribute = p => p !== 'children' && !isListener(p);
+            Object.keys(props).forEach(p => {
+                if (isAttribute(p)) {
+                    element[p] = props[p];
+                }
+                if (!isTextElement && isListener(p)) {
+                    element.addEventListener(p.toLowerCase().slice(2), props[p]);
+                }
+            });
+            if (isTextElement && props && Object.prototype.hasOwnProperty.call(props, 'nodeValue')) {
+                element.nodeValue = String(props.nodeValue);
+            }
+            if (!isTextElement && Array.isArray(children) && children.length) {
+                children.forEach(child => renderElement(child, element));
+            }
+            _container.appendChild(element);
+        };
+
+        const onClickOutside = (element, callback) => {
+            document.addEventListener('click', e => {
+                if (element && !element.contains(e.target)) {
+                    callback();
+                }
+            });
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                example: null,
+                exampleNative: null,
+                containerTag: null,
+                containerTagNative: null
+            },
+            inputs: {
+                btnCount: null,
+                textCount: null
+            },
+            checkboxOptions: [],
+            lastVNode: null
+        };
+
+        const exampleOptions = [
+            { value: 'basic', label: '基础按钮' },
+            { value: 'list', label: '按钮 + 段落' },
+            { value: 'nested', label: '嵌套结构' },
+            { value: 'custom', label: '使用编辑区 JSON' }
+        ];
+
+        const containerTagOptions = [
+            { value: 'div', label: 'div' },
+            { value: 'section', label: 'section' },
+            { value: 'article', label: 'article' }
+        ];
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(content);
+            }
+        }
+
+        function setupSelects() {
+            const exampleContainer = document.getElementById('exampleSelect');
+            const tagContainer = document.getElementById('containerTagSelect');
+
+            if (exampleContainer) {
+                try {
+                    state.selects.example = new Select({
+                        container: exampleContainer,
+                        options: exampleOptions,
+                        placeholder: '选择示例',
+                        onChange: () => {
+                            if (getCheckboxValue('autoApplyExample')) applyExample();
+                        }
+                    });
+                    state.selects.example.setValue('list');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    exampleOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'list';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoApplyExample')) applyExample();
+                    });
+                    exampleContainer.appendChild(select);
+                    state.selects.exampleNative = select;
+                }
+            }
+
+            if (tagContainer) {
+                try {
+                    state.selects.containerTag = new Select({
+                        container: tagContainer,
+                        options: containerTagOptions,
+                        placeholder: '选择容器标签',
+                        onChange: () => {
+                            if (getCheckboxValue('autoRender')) renderNow();
+                        }
+                    });
+                    state.selects.containerTag.setValue('div');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    containerTagOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'div';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoRender')) renderNow();
+                    });
+                    tagContainer.appendChild(select);
+                    state.selects.containerTagNative = select;
+                }
+            }
+        }
+
+        function getExampleKey() {
+            if (state.selects.example && typeof state.selects.example.getValue === 'function') {
+                return state.selects.example.getValue() || 'list';
+            }
+            return state.selects.exampleNative ? state.selects.exampleNative.value : 'list';
+        }
+
+        function getContainerTag() {
+            if (state.selects.containerTag && typeof state.selects.containerTag.getValue === 'function') {
+                return state.selects.containerTag.getValue() || 'div';
+            }
+            return state.selects.containerTagNative ? state.selects.containerTagNative.value : 'div';
+        }
+
+        function setupInputs() {
+            const btnContainer = document.getElementById('btnCountInput');
+            const textContainer = document.getElementById('textCountInput');
+
+            if (btnContainer) {
+                try {
+                    state.inputs.btnCount = new InputNumber({
+                        container: btnContainer,
+                        min: 1,
+                        max: 12,
+                        step: 1,
+                        value: 3,
+                        onChange: () => {
+                            if (getCheckboxValue('autoApplyExample')) applyExample();
+                        }
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '12';
+                    input.step = '1';
+                    input.value = '3';
+                    input.className = 'input-field';
+                    input.id = 'btnCountNative';
+                    btnContainer.appendChild(input);
+                    input.addEventListener('input', () => {
+                        if (getCheckboxValue('autoApplyExample')) applyExample();
+                    });
+                }
+            }
+
+            if (textContainer) {
+                try {
+                    state.inputs.textCount = new InputNumber({
+                        container: textContainer,
+                        min: 0,
+                        max: 12,
+                        step: 1,
+                        value: 2,
+                        onChange: () => {
+                            if (getCheckboxValue('autoApplyExample')) applyExample();
+                        }
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '12';
+                    input.step = '1';
+                    input.value = '2';
+                    input.className = 'input-field';
+                    input.id = 'textCountNative';
+                    textContainer.appendChild(input);
+                    input.addEventListener('input', () => {
+                        if (getCheckboxValue('autoApplyExample')) applyExample();
+                    });
+                }
+            }
+        }
+
+        function getBtnCount() {
+            if (state.inputs.btnCount && typeof state.inputs.btnCount.getValue === 'function') {
+                try {
+                    return Number(state.inputs.btnCount.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('btnCountNative');
+            return native ? Number(native.value) : 0;
+        }
+
+        function getTextCount() {
+            if (state.inputs.textCount && typeof state.inputs.textCount.getValue === 'function') {
+                try {
+                    return Number(state.inputs.textCount.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('textCountNative');
+            return native ? Number(native.value) : 0;
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+
+            const options = [
+                { id: 'autoApplyExample', label: '选择示例自动更新 JSON', checked: true },
+                { id: 'autoRender', label: '配置变化自动渲染', checked: true },
+                { id: 'clickOutsideClosePanel', label: '点击外部关闭面板', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '用弹窗展示 JSON', checked: true }
+            ];
+
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function stringify(obj) {
+            return JSON.stringify(obj, null, 2);
+        }
+
+        function parseJson(text) {
+            try {
+                return { ok: true, value: JSON.parse(text) };
+            } catch (e) {
+                return { ok: false };
+            }
+        }
+
+        function makeTextNode(value) {
+            return { props: { nodeValue: value } };
+        }
+
+        function makeButton(index) {
+            return {
+                type: 'button',
+                props: {
+                    type: 'button',
+                    className: 'btn',
+                    style: 'margin:8px; padding:10px 12px; border-radius:12px; border:1px solid #e2e8f0; background:#ffffff; cursor:pointer; font-weight:800;',
+                    onClick: () => {
+                        const msg = `你点击了按钮 #${index + 1}`;
+                        setInspectorValue('lastClick', msg);
+                        if (state.plugins.modal) {
+                            state.plugins.modal.alert(msg);
+                        } else {
+                            console.log(msg);
+                        }
+                        showNotification(msg, 'info');
+                    }
+                },
+                children: [makeTextNode(`Button #${index + 1}`)]
+            };
+        }
+
+        function makeParagraph(index) {
+            return {
+                type: 'p',
+                props: {
+                    style: 'margin:8px; padding:10px 12px; border-radius:12px; background:#eff6ff; color:#1d4ed8; font-weight:800;'
+                },
+                children: [makeTextNode(`Paragraph #${index + 1}`)]
+            };
+        }
+
+        function buildVNodeByExample() {
+            const tag = getContainerTag();
+            const btnCount = Math.min(Math.max(1, Math.round(getBtnCount())), 12);
+            const textCount = Math.min(Math.max(0, Math.round(getTextCount())), 12);
+            const key = getExampleKey();
+            const base = {
+                type: tag,
+                props: {
+                    className: 'container',
+                    style: 'padding:12px; border-radius:16px; border:1px solid #e2e8f0; background:#ffffff;'
+                },
+                children: []
+            };
+
+            if (key === 'basic') {
+                base.children = [makeButton(0)];
+                return base;
+            }
+            if (key === 'nested') {
+                base.children = [
+                    {
+                        type: 'div',
+                        props: { style: 'padding:12px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0;' },
+                        children: [
+                            {
+                                type: 'h3',
+                                props: { style: 'margin:6px 8px; font-weight:900; color:#0f172a;' },
+                                children: [makeTextNode('Nested Card')]
+                            },
+                            makeParagraph(0),
+                            makeButton(0),
+                            makeButton(1)
+                        ]
+                    }
+                ];
+                return base;
+            }
+
+            const children = [];
+            for (let i = 0; i < textCount; i++) children.push(makeParagraph(i));
+            for (let i = 0; i < btnCount; i++) children.push(makeButton(i));
+            base.children = children.length ? children : [makeButton(0)];
+            return base;
+        }
+
+        function applyExample() {
+            const input = document.getElementById('vnodeInput');
+            if (!input) return;
+            const key = getExampleKey();
+            if (key === 'custom') return;
+            const vNode = buildVNodeByExample();
+            input.value = stringify(vNode);
+            showNotification('已更新 VNode JSON', 'success');
+            if (getCheckboxValue('autoRender')) renderNow();
+        }
+
+        function clearStage() {
+            const preview = document.getElementById('previewArea');
+            if (preview) preview.innerHTML = '';
+            setInspectorValue('nodeCount', '0');
+            setInspectorValue('btnCount', '0');
+            setInspectorValue('pCount', '0');
+            setInspectorValue('lastClick', '-');
+            state.lastVNode = null;
+            showNotification('舞台已清空', 'info');
+        }
+
+        function countInPreview() {
+            const preview = document.getElementById('previewArea');
+            if (!preview) return { nodes: 0, buttons: 0, ps: 0 };
+            return {
+                nodes: preview.querySelectorAll('*').length,
+                buttons: preview.querySelectorAll('button').length,
+                ps: preview.querySelectorAll('p').length
+            };
+        }
+
+        function setInspectorValue(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = String(value);
+        }
+
+        function openPanel() {
+            const panel = document.getElementById('inspectorPanel');
+            if (!panel) return;
+            panel.classList.add('show');
+            setChip('panelChip', '面板打开', 'ok');
+        }
+
+        function closePanel() {
+            const panel = document.getElementById('inspectorPanel');
+            if (!panel) return;
+            panel.classList.remove('show');
+            setChip('panelChip', '面板关闭');
+        }
+
+        function renderNow() {
+            const input = document.getElementById('vnodeInput');
+            const preview = document.getElementById('previewArea');
+            if (!input || !preview) return;
+            const parsed = parseJson(input.value);
+            if (!parsed.ok || !parsed.value) {
+                setChip('parseChip', 'JSON 错误', 'warn');
+                showNotification('VNode JSON 解析失败', 'warning');
+                return;
+            }
+            setChip('parseChip', 'JSON 正常', 'ok');
+            preview.innerHTML = '';
+            try {
+                renderElement(parsed.value, preview);
+            } catch (e) {
+                showNotification('渲染失败', 'error');
+                return;
+            }
+            state.lastVNode = parsed.value;
+            const counts = countInPreview();
+            setInspectorValue('nodeCount', counts.nodes);
+            setInspectorValue('btnCount', counts.buttons);
+            setInspectorValue('pCount', counts.ps);
+            showNotification('已渲染到舞台', 'success');
+        }
+
+        function showDetail() {
+            if (!getCheckboxValue('showModalDetail')) {
+                showNotification('弹窗已关闭，可查看左侧 JSON', 'info');
+                return;
+            }
+            const input = document.getElementById('vnodeInput');
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">VNode JSON</div>
+                    <div style="padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:JetBrains Mono, monospace; white-space:pre; overflow:auto;">${(input ? input.value : '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}</div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function bindEvents() {
+            const renderBtn = document.getElementById('renderBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const openPanelBtn = document.getElementById('openPanelBtn');
+            const panelCloseBtn = document.getElementById('panelCloseBtn');
+            const detailBtn = document.getElementById('detailBtn');
+            const input = document.getElementById('vnodeInput');
+
+            if (renderBtn) renderBtn.addEventListener('click', renderNow);
+            if (clearBtn) clearBtn.addEventListener('click', clearStage);
+            if (openPanelBtn) openPanelBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openPanel();
+            });
+            if (panelCloseBtn) panelCloseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closePanel();
+            });
+            if (detailBtn) detailBtn.addEventListener('click', showDetail);
+
+            if (input) {
+                input.addEventListener('input', () => {
+                    const parsed = parseJson(input.value);
+                    setChip('parseChip', parsed.ok ? 'JSON 正常' : 'JSON 错误', parsed.ok ? 'ok' : 'warn');
+                    if (parsed.ok && getCheckboxValue('autoRender')) renderNow();
+                });
+            }
+
+            const panel = document.getElementById('inspectorPanel');
+            if (panel) {
+                onClickOutside(panel, () => {
+                    if (!getCheckboxValue('clickOutsideClosePanel')) return;
+                    if (!panel.classList.contains('show')) return;
+                    closePanel();
+                });
+            }
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputs();
+            bindEvents();
+            applyExample();
+            renderNow();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
