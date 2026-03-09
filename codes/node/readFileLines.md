@@ -31,4 +31,11 @@ console.log(arr); // ['line1', 'line2', 'line3']
 
 > 应用场景
 
-<div class="code-editor" data-url="codes/node/demo/readFileLines.js" data-language="javascript"></div>
+
+<div class="code-editor" data-url="codes/node/demo/readFileLines.js" data-language="javascript" style="min-height:150px;"></div>
+
+在当前文件路径下打开终端，执行命令:
+
+```shell
+node readFileLines.js
+```

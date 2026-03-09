@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>replace-or-append</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+        .page {
+            max-width: 1220px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .title-row h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .subtitle {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 560px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .actions button {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .actions button.secondary {
+            background: #0f766e;
+        }
+        .actions button.ghost {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .stage {
+            min-height: 520px;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .stage-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+        .stage-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 900;
+        }
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+        .chip.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+        .list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            align-content: start;
+        }
+        .item {
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 14px;
+            padding: 12px 12px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.10);
+        }
+        .item-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .item-name {
+            font-weight: 900;
+            color: #0f172a;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            background: rgba(100, 116, 139, 0.14);
+            color: #334155;
+            flex-shrink: 0;
+        }
+        .badge.primary {
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+        }
+        .meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .meta strong {
+            color: #0f172a;
+        }
+        .panel {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: min(460px, calc(100% - 24px));
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px;
+            z-index: 10;
+        }
+        .panel.show {
+            display: flex;
+        }
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .panel-title {
+            font-weight: 900;
+            color: #0f172a;
+        }
+        .panel-close {
+            border: none;
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: 6px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+        .kv {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            align-items: center;
+            font-size: 13px;
+            color: #334155;
+        }
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .stat {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+            word-break: break-all;
+        }
+        .empty {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 12px;
+            color: #64748b;
+            font-weight: 700;
+            border-radius: 16px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>replaceOrAppend + onClickOutside 插件化演示</h1>
+            </div>
+            <div class="subtitle">用自定义插件驱动“按比较函数替换或追加”逻辑，并提供点击外部关闭编辑面板</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>控制面板</h2>
+
+                <div class="form-row">
+                    <label>示例数据</label>
+                    <div id="exampleSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>比较策略（compFn）</label>
+                    <div id="compSelect"></div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>id</label>
+                        <div id="idInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>score</label>
+                        <div id="scoreInput"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>name（通过 Modal 输入）</label>
+                    <div class="actions">
+                        <button id="pickNameBtn" class="ghost">设置/修改 name</button>
+                        <button id="quickAddBtn" class="secondary">replaceOrAppend 执行</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="openEditorBtn" class="ghost">打开编辑面板</button>
+                    <button id="resetBtn" class="ghost">重置数据</button>
+                    <button id="detailBtn" class="ghost">查看详情</button>
+                    <button id="clearBtn" class="secondary">清空数组</button>
+                </div>
+
+                <div class="hint">
+                    说明：点击右侧任意卡片会把它填充到“编辑面板”，可用 replaceOrAppend 进行替换或追加。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>结果区</h2>
+                <div class="stage" id="stage">
+                    <div class="stage-head">
+                        <div>
+                            <div class="stage-title">Array Preview</div>
+                            <div class="stage-sub">每次操作都返回新数组，不修改原数组引用</div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <span id="stateChip" class="chip">面板关闭</span>
+                            <span id="actionChip" class="chip ok">等待操作</span>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-label">长度</div>
+                            <div class="stat-value" id="lenValue">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">最近动作</div>
+                            <div class="stat-value" id="lastAction">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">最近命中索引</div>
+                            <div class="stat-value" id="lastIndex">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">选中项</div>
+                            <div class="stat-value" id="selectedValue">-</div>
+                        </div>
+                    </div>
+
+                    <div id="list" class="list"></div>
+
+                    <div id="editorPanel" class="panel">
+                        <div class="panel-head">
+                            <div class="panel-title">编辑面板</div>
+                            <button id="panelCloseBtn" class="panel-close">关闭</button>
+                        </div>
+                        <div class="kv"><span>当前 name</span><span id="panelName" class="mono">-</span></div>
+                        <div class="kv"><span>当前 id</span><span id="panelId" class="mono">-</span></div>
+                        <div class="kv"><span>当前 score</span><span id="panelScore" class="mono">-</span></div>
+                        <div class="actions">
+                            <button id="panelPickNameBtn" class="ghost">修改 name</button>
+                            <button id="panelRunBtn" class="secondary">replaceOrAppend</button>
+                        </div>
+                        <div class="hint">点击面板外部区域可关闭（可通过选项关闭）。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script>
+        const replaceOrAppend = (arr, val, compFn) => {
+            const res = [...arr];
+            const i = res.findIndex(v => compFn(v, val));
+            if (i === -1) {
+                res.push(val);
+            } else {
+                res.splice(i, 1, val);
+            }
+            return res;
+        };
+
+        const onClickOutside = (element, callback) => {
+            document.addEventListener('click', e => {
+                if (element && !element.contains(e.target)) {
+                    callback();
+                }
+            });
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                example: null,
+                exampleNative: null,
+                comp: null,
+                compNative: null
+            },
+            inputs: {
+                id: null,
+                score: null
+            },
+            checkboxOptions: [],
+            list: [],
+            selected: null,
+            draft: {
+                id: 1,
+                name: 'alpha',
+                score: 60
+            },
+            last: {
+                action: null,
+                index: null
+            }
+        };
+
+        const preset = {
+            small: [
+                { id: 1, name: 'alpha', score: 60 },
+                { id: 2, name: 'beta', score: 80 },
+                { id: 3, name: 'gamma', score: 75 }
+            ],
+            users: [
+                { id: 101, name: 'Ada', score: 98 },
+                { id: 102, name: 'Lin', score: 86 },
+                { id: 103, name: 'Kai', score: 91 }
+            ],
+            dupName: [
+                { id: 1, name: 'same', score: 10 },
+                { id: 2, name: 'same', score: 20 },
+                { id: 3, name: 'other', score: 30 }
+            ]
+        };
+
+        const exampleOptions = [
+            { value: 'small', label: '小数组 (id 1~3)' },
+            { value: 'users', label: '用户列表 (id 101~103)' },
+            { value: 'dupName', label: '重复 name（演示按 name 比较）' }
+        ];
+
+        const compOptions = [
+            { value: 'id', label: 'compFn: v.id === val.id' },
+            { value: 'name', label: 'compFn: v.name === val.name' }
+        ];
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(content);
+            }
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+            const options = [
+                { id: 'autoApplyExample', label: '选择示例自动重置', checked: true },
+                { id: 'autoOpenEditorOnPick', label: '点击卡片自动打开面板', checked: true },
+                { id: 'clickOutsideClosePanel', label: '点击外部关闭面板', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '用弹窗展示详情', checked: true }
+            ];
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const exampleContainer = document.getElementById('exampleSelect');
+            const compContainer = document.getElementById('compSelect');
+
+            if (exampleContainer) {
+                try {
+                    state.selects.example = new Select({
+                        container: exampleContainer,
+                        options: exampleOptions,
+                        placeholder: '选择示例',
+                        onChange: () => {
+                            if (getCheckboxValue('autoApplyExample')) applyExample();
+                        }
+                    });
+                    state.selects.example.setValue('small');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    exampleOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'small';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoApplyExample')) applyExample();
+                    });
+                    exampleContainer.appendChild(select);
+                    state.selects.exampleNative = select;
+                }
+            }
+
+            if (compContainer) {
+                try {
+                    state.selects.comp = new Select({
+                        container: compContainer,
+                        options: compOptions,
+                        placeholder: '选择 compFn',
+                        onChange: () => {}
+                    });
+                    state.selects.comp.setValue('id');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    compOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'id';
+                    compContainer.appendChild(select);
+                    state.selects.compNative = select;
+                }
+            }
+        }
+
+        function getExampleKey() {
+            if (state.selects.example && typeof state.selects.example.getValue === 'function') {
+                return state.selects.example.getValue() || 'small';
+            }
+            return state.selects.exampleNative ? state.selects.exampleNative.value : 'small';
+        }
+
+        function getCompKey() {
+            if (state.selects.comp && typeof state.selects.comp.getValue === 'function') {
+                return state.selects.comp.getValue() || 'id';
+            }
+            return state.selects.compNative ? state.selects.compNative.value : 'id';
+        }
+
+        function setupInputs() {
+            const idContainer = document.getElementById('idInput');
+            const scoreContainer = document.getElementById('scoreInput');
+
+            if (idContainer) {
+                try {
+                    state.inputs.id = new InputNumber({
+                        container: idContainer,
+                        min: 0,
+                        max: 9999,
+                        step: 1,
+                        value: state.draft.id,
+                        onChange: (value) => {
+                            state.draft.id = Number(value);
+                            syncPanelDraft();
+                        }
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '9999';
+                    input.step = '1';
+                    input.value = String(state.draft.id);
+                    input.className = 'input-field';
+                    input.id = 'idInputNative';
+                    idContainer.appendChild(input);
+                    input.addEventListener('input', () => {
+                        state.draft.id = Number(input.value);
+                        syncPanelDraft();
+                    });
+                }
+            }
+
+            if (scoreContainer) {
+                try {
+                    state.inputs.score = new InputNumber({
+                        container: scoreContainer,
+                        min: 0,
+                        max: 100,
+                        step: 1,
+                        value: state.draft.score,
+                        onChange: (value) => {
+                            state.draft.score = Number(value);
+                            syncPanelDraft();
+                        }
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '100';
+                    input.step = '1';
+                    input.value = String(state.draft.score);
+                    input.className = 'input-field';
+                    input.id = 'scoreInputNative';
+                    scoreContainer.appendChild(input);
+                    input.addEventListener('input', () => {
+                        state.draft.score = Number(input.value);
+                        syncPanelDraft();
+                    });
+                }
+            }
+        }
+
+        function setInputValue(input, value) {
+            if (!input) return;
+            try {
+                input.setValue(value);
+            } catch (e) {}
+        }
+
+        function syncInputsFromDraft() {
+            setInputValue(state.inputs.id, state.draft.id);
+            setInputValue(state.inputs.score, state.draft.score);
+            const idNative = document.getElementById('idInputNative');
+            if (idNative) idNative.value = String(state.draft.id);
+            const scoreNative = document.getElementById('scoreInputNative');
+            if (scoreNative) scoreNative.value = String(state.draft.score);
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function updateStats() {
+            document.getElementById('lenValue').textContent = String(state.list.length);
+            document.getElementById('lastAction').textContent = state.last.action || '-';
+            document.getElementById('lastIndex').textContent = state.last.index === null || state.last.index === undefined ? '-' : String(state.last.index);
+            document.getElementById('selectedValue').textContent = state.selected ? `${state.selected.name} (#${state.selected.id})` : '-';
+        }
+
+        function renderList() {
+            const listEl = document.getElementById('list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            if (!state.list.length) {
+                const div = document.createElement('div');
+                div.className = 'empty';
+                div.textContent = '数组为空，先重置或执行一次 replaceOrAppend';
+                listEl.appendChild(div);
+                updateStats();
+                return;
+            }
+            state.list.forEach((item, idx) => {
+                const el = document.createElement('div');
+                el.className = 'item';
+                el.dataset.index = String(idx);
+                el.innerHTML = `
+                    <div class="item-title">
+                        <div class="item-name">${String(item.name)}</div>
+                        <span class="badge primary">#${item.id}</span>
+                    </div>
+                    <div class="meta">
+                        <div>score: <strong>${item.score}</strong></div>
+                        <div>index: <strong>${idx}</strong></div>
+                    </div>
+                `;
+                el.addEventListener('click', () => {
+                    pickItem(idx);
+                });
+                listEl.appendChild(el);
+            });
+            updateStats();
+        }
+
+        function openPanel() {
+            const panel = document.getElementById('editorPanel');
+            if (!panel) return;
+            panel.classList.add('show');
+            setChip('stateChip', '面板打开', 'ok');
+        }
+
+        function closePanel() {
+            const panel = document.getElementById('editorPanel');
+            if (!panel) return;
+            panel.classList.remove('show');
+            setChip('stateChip', '面板关闭');
+        }
+
+        function syncPanelDraft() {
+            document.getElementById('panelName').textContent = state.draft.name ?? '-';
+            document.getElementById('panelId').textContent = String(state.draft.id ?? '-');
+            document.getElementById('panelScore').textContent = String(state.draft.score ?? '-');
+        }
+
+        function setSelected(item) {
+            state.selected = item ? { ...item } : null;
+            updateStats();
+        }
+
+        function pickItem(index) {
+            const item = state.list[index];
+            if (!item) return;
+            state.draft = { ...item };
+            setSelected(item);
+            syncInputsFromDraft();
+            syncPanelDraft();
+            showNotification(`已选中 index ${index}`, 'info');
+            if (getCheckboxValue('autoOpenEditorOnPick')) {
+                openPanel();
+            }
+        }
+
+        function getCompFn() {
+            const key = getCompKey();
+            if (key === 'name') return (a, b) => a.name === b.name;
+            return (a, b) => a.id === b.id;
+        }
+
+        function findMatchIndex(val) {
+            const compFn = getCompFn();
+            return state.list.findIndex(v => compFn(v, val));
+        }
+
+        function runReplaceOrAppend(source, val) {
+            const beforeIndex = findMatchIndex(val);
+            const next = replaceOrAppend(source, val, getCompFn());
+            const afterIndex = findMatchIndex(val);
+            const action = beforeIndex === -1 ? 'append' : 'replace';
+            return { next, action, beforeIndex, afterIndex };
+        }
+
+        function run() {
+            const val = { ...state.draft };
+            if (typeof val.name !== 'string' || !val.name.trim()) {
+                showNotification('请先设置 name', 'warning');
+                return;
+            }
+            const result = runReplaceOrAppend(state.list, val);
+            state.list = result.next;
+            state.last.action = result.action;
+            state.last.index = result.action === 'append' ? state.list.length - 1 : result.beforeIndex;
+            setChip('actionChip', result.action === 'append' ? 'append' : 'replace', result.action === 'append' ? 'ok' : 'ok');
+            renderList();
+            showNotification(`操作完成：${result.action}`, 'success');
+        }
+
+        async function pickName() {
+            if (!state.plugins.modal || typeof state.plugins.modal.prompt !== 'function') {
+                showNotification('Modal 未加载，无法输入 name', 'warning');
+                return;
+            }
+            const current = state.draft.name ?? '';
+            const name = await state.plugins.modal.prompt('输入 name', String(current));
+            if (name === null) return;
+            state.draft.name = String(name).trim();
+            syncPanelDraft();
+            showNotification('已更新 name', 'info');
+        }
+
+        function applyExample() {
+            const key = getExampleKey();
+            state.list = preset[key] ? preset[key].map(item => ({ ...item })) : [];
+            state.selected = null;
+            state.last.action = null;
+            state.last.index = null;
+            const first = state.list[0];
+            state.draft = first ? { ...first } : { id: 1, name: 'alpha', score: 60 };
+            syncInputsFromDraft();
+            syncPanelDraft();
+            setSelected(null);
+            setChip('actionChip', '等待操作', 'ok');
+            renderList();
+            showNotification('已重置为示例数据', 'success');
+        }
+
+        async function clearAll() {
+            const doClear = async () => {
+                state.list = [];
+                state.selected = null;
+                state.last.action = null;
+                state.last.index = null;
+                setSelected(null);
+                setChip('actionChip', '已清空', 'warn');
+                renderList();
+                closePanel();
+                showNotification('数组已清空', 'info');
+            };
+            if (state.plugins.modal && typeof state.plugins.modal.confirm === 'function') {
+                const ok = await state.plugins.modal.confirm('确定要清空数组吗？');
+                if (!ok) return;
+            }
+            await doClear();
+        }
+
+        function showDetail() {
+            if (!getCheckboxValue('showModalDetail')) {
+                showNotification('详情弹窗已关闭', 'info');
+                return;
+            }
+            const compText = getCompKey() === 'name' ? 'v.name === val.name' : 'v.id === val.id';
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">详情</div>
+                    <div style="margin-bottom:8px;">compFn：<strong>${compText}</strong></div>
+                    <div style="margin-bottom:8px;">draft：<span style="font-family:JetBrains Mono, monospace;">${String(state.draft.name)} (#${state.draft.id}) score=${state.draft.score}</span></div>
+                    <div style="margin-top:12px; font-weight:900;">当前数组</div>
+                    <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:JetBrains Mono, monospace; white-space:pre; overflow:auto;">${JSON.stringify(state.list, null, 2).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}</div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function bindEvents() {
+            const pickNameBtn = document.getElementById('pickNameBtn');
+            const quickAddBtn = document.getElementById('quickAddBtn');
+            const openEditorBtn = document.getElementById('openEditorBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const detailBtn = document.getElementById('detailBtn');
+            const clearBtn = document.getElementById('clearBtn');
+
+            const panel = document.getElementById('editorPanel');
+            const panelCloseBtn = document.getElementById('panelCloseBtn');
+            const panelPickNameBtn = document.getElementById('panelPickNameBtn');
+            const panelRunBtn = document.getElementById('panelRunBtn');
+
+            if (pickNameBtn) pickNameBtn.addEventListener('click', pickName);
+            if (quickAddBtn) quickAddBtn.addEventListener('click', run);
+
+            if (openEditorBtn) openEditorBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openPanel();
+            });
+            if (resetBtn) resetBtn.addEventListener('click', applyExample);
+            if (detailBtn) detailBtn.addEventListener('click', showDetail);
+            if (clearBtn) clearBtn.addEventListener('click', clearAll);
+
+            if (panelCloseBtn) panelCloseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closePanel();
+            });
+            if (panelPickNameBtn) panelPickNameBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                pickName();
+            });
+            if (panelRunBtn) panelRunBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                run();
+            });
+
+            if (panel) {
+                onClickOutside(panel, () => {
+                    if (!getCheckboxValue('clickOutsideClosePanel')) return;
+                    if (!panel.classList.contains('show')) return;
+                    closePanel();
+                });
+            }
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputs();
+            bindEvents();
+            applyExample();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

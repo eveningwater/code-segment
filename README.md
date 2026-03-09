@@ -546,8 +546,7 @@
 - [渲染元素-2023-03-19](codes/javascript/render-element.md)
 - [重复生成器-2023-03-20](codes/javascript/repeat-generator.md)
 - [替换最后一个匹配字符-2023-03-21](codes/javascript/replace-last.md)
-- [添加或替换数组的值-2023-03-22](codes/javascript/replaceOrAppend.md)
-- [加载未缓存模块-2023-03-23](codes/javascript/requireUncached.md)
+- [添加或替换数组的值-2023-03-22](codes/javascript/replace-or-append.md)
 - [延迟加载期约的解决-2023-03-24](codes/javascript/resolveAfter.md)
 - [反转数字-2023-03-25](codes/javascript/reverseNumber.md)
 - [反转字符串-2023-03-26](codes/javascript/reverseString.md)
@@ -883,7 +882,8 @@
 - [是否是 Travis CI-2022-10-30](codes/node/isTravisCI.md)
 - [是否是可写流-2022-11-05](codes/node/isWritableStream.md)
 - [是否是 node 环境-2024-06-18](codes/node/isNode.md)
-- [读取文件行-2023-03-02](codes/javascript/readFileLines.md)
+- [读取文件行-2023-03-02](codes/node/readFileLines.md)
+- [加载未缓存模块-2023-03-23](codes/node/requireUncached.md)
 
 ## git 代码段
 

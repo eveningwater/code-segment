@@ -22,6 +22,8 @@ const replaceOrAppend = (arr, val, compFn) => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/replace-or-append.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -42,3 +44,11 @@ replaceOrAppend(people, jack, (a, b) => a.name === b.name);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/replace-or-append.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/replace-or-append.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/replace-or-append.html"></iframe>

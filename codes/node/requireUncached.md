@@ -21,3 +21,11 @@ const fs = requireUncached('fs'); // 'fs' will be loaded fresh every time
 ```
 
 > 应用场景
+
+<div class="code-editor" data-url="codes/node/demo/requireUncached.js" data-language="javascript" style="min-height:150px;"></div>
+
+在当前文件路径下打开终端，执行命令:
+
+```shell
+node requireUncached.js
+```
