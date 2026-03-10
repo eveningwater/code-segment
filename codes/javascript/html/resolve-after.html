@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>resolve-after</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+        .page {
+            max-width: 1220px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .title-row h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .subtitle {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 560px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .actions button {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .actions button.secondary {
+            background: #0f766e;
+        }
+        .actions button.ghost {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .stage {
+            min-height: 520px;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            overflow: hidden;
+        }
+        .stage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .stage-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+        .stage-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 900;
+        }
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+        .chip.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .stat {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+            word-break: break-all;
+        }
+        .log {
+            background: #0f172a;
+            color: #f8fafc;
+            border-radius: 14px;
+            padding: 12px 14px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.65;
+            font-size: 13px;
+            min-height: 220px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .progress {
+            height: 10px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2563eb 0%, #14b8a6 100%);
+            transition: width 0.12s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>resolveAfter 自定义插件演示</h1>
+            </div>
+            <div class="subtitle">用 InputNumber / Select / Checkbox / Modal / Notification 驱动延迟 Promise</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>配置面板</h2>
+
+                <div class="form-row">
+                    <label>示例选择</label>
+                    <div id="exampleSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>值类型</label>
+                    <div id="valueTypeSelect"></div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>delay (ms)</label>
+                        <div id="delayInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>并发数</label>
+                        <div id="countInput"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="startBtn" class="secondary">开始</button>
+                    <button id="startAllBtn" class="secondary">并发开始</button>
+                    <button id="showValueBtn" class="ghost">查看 value</button>
+                    <button id="resetBtn" class="ghost">重置</button>
+                </div>
+
+                <div class="hint">
+                    提示：resolveAfter(value, delay) 会在 delay 后 resolve value。并发开始会触发多次 resolveAfter，并用 runId 忽略旧结果。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>执行状态</h2>
+                <div class="stage">
+                    <div class="stage-head">
+                        <div>
+                            <div class="stage-title">Runs</div>
+                            <div class="stage-sub">观察“等待中 / 完成 / 被忽略”的状态变化</div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <span id="statusChip" class="chip ok">空闲</span>
+                            <span id="modeChip" class="chip">单次</span>
+                        </div>
+                    </div>
+
+                    <div class="progress"><div id="progressBar" class="bar"></div></div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-label">总执行数</div>
+                            <div class="stat-value" id="totalRuns">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">完成数</div>
+                            <div class="stat-value" id="doneRuns">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">忽略数</div>
+                            <div class="stat-value" id="ignoredRuns">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">最近结果</div>
+                            <div class="stat-value" id="lastResult">-</div>
+                        </div>
+                    </div>
+
+                    <div id="logBox" class="log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script>
+        const resolveAfter = (value, delay) =>
+            new Promise(resolve => {
+                setTimeout(() => resolve(value), delay);
+            });
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                example: null,
+                exampleNative: null,
+                valueType: null,
+                valueTypeNative: null
+            },
+            inputs: {
+                delay: null,
+                count: null
+            },
+            checkboxOptions: [],
+            runId: 0,
+            counters: {
+                total: 0,
+                done: 0,
+                ignored: 0
+            },
+            lastValue: null,
+            lastResult: null,
+            progressTimer: null
+        };
+
+        const examples = {
+            quick: { label: '快速 (200ms)', delay: 200, count: 3, type: 'string' },
+            normal: { label: '普通 (1200ms)', delay: 1200, count: 5, type: 'object' },
+            slow: { label: '慢速 (3000ms)', delay: 3000, count: 6, type: 'number' }
+        };
+
+        const exampleOptions = Object.entries(examples).map(([value, item]) => ({ value, label: item.label }));
+        const valueTypeOptions = [
+            { value: 'string', label: 'string' },
+            { value: 'number', label: 'number' },
+            { value: 'object', label: 'object' },
+            { value: 'array', label: 'array' },
+            { value: 'boolean', label: 'boolean' }
+        ];
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(content);
+            }
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+            const options = [
+                { id: 'autoApplyExample', label: '选择示例自动应用', checked: true },
+                { id: 'autoScrollLog', label: '日志自动滚动', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '用弹窗展示 value', checked: true }
+            ];
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const exampleContainer = document.getElementById('exampleSelect');
+            const typeContainer = document.getElementById('valueTypeSelect');
+
+            if (exampleContainer) {
+                try {
+                    state.selects.example = new Select({
+                        container: exampleContainer,
+                        options: exampleOptions,
+                        placeholder: '选择示例',
+                        onChange: () => {
+                            if (getCheckboxValue('autoApplyExample')) applyExample();
+                        }
+                    });
+                    state.selects.example.setValue('normal');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    exampleOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'normal';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoApplyExample')) applyExample();
+                    });
+                    exampleContainer.appendChild(select);
+                    state.selects.exampleNative = select;
+                }
+            }
+
+            if (typeContainer) {
+                try {
+                    state.selects.valueType = new Select({
+                        container: typeContainer,
+                        options: valueTypeOptions,
+                        placeholder: '选择值类型',
+                        onChange: () => {}
+                    });
+                    state.selects.valueType.setValue('object');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    valueTypeOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'object';
+                    typeContainer.appendChild(select);
+                    state.selects.valueTypeNative = select;
+                }
+            }
+        }
+
+        function getExampleKey() {
+            if (state.selects.example && typeof state.selects.example.getValue === 'function') {
+                return state.selects.example.getValue() || 'normal';
+            }
+            return state.selects.exampleNative ? state.selects.exampleNative.value : 'normal';
+        }
+
+        function getValueType() {
+            if (state.selects.valueType && typeof state.selects.valueType.getValue === 'function') {
+                return state.selects.valueType.getValue() || 'object';
+            }
+            return state.selects.valueTypeNative ? state.selects.valueTypeNative.value : 'object';
+        }
+
+        function setupInputs() {
+            const delayContainer = document.getElementById('delayInput');
+            const countContainer = document.getElementById('countInput');
+
+            if (delayContainer) {
+                try {
+                    state.inputs.delay = new InputNumber({
+                        container: delayContainer,
+                        min: 0,
+                        max: 10000,
+                        step: 50,
+                        value: 1200,
+                        onChange: () => {}
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '10000';
+                    input.step = '50';
+                    input.value = '1200';
+                    input.className = 'input-field';
+                    input.id = 'delayNative';
+                    delayContainer.appendChild(input);
+                }
+            }
+
+            if (countContainer) {
+                try {
+                    state.inputs.count = new InputNumber({
+                        container: countContainer,
+                        min: 1,
+                        max: 20,
+                        step: 1,
+                        value: 5,
+                        onChange: () => {}
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '20';
+                    input.step = '1';
+                    input.value = '5';
+                    input.className = 'input-field';
+                    input.id = 'countNative';
+                    countContainer.appendChild(input);
+                }
+            }
+        }
+
+        function getDelayValue() {
+            if (state.inputs.delay && typeof state.inputs.delay.getValue === 'function') {
+                try {
+                    return Number(state.inputs.delay.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('delayNative');
+            return native ? Number(native.value) : 0;
+        }
+
+        function getCountValue() {
+            if (state.inputs.count && typeof state.inputs.count.getValue === 'function') {
+                try {
+                    return Number(state.inputs.count.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('countNative');
+            return native ? Number(native.value) : 1;
+        }
+
+        function setInputValue(plugin, fallbackId, value) {
+            if (plugin && typeof plugin.setValue === 'function') {
+                try {
+                    plugin.setValue(value);
+                } catch (e) {}
+            }
+            const native = document.getElementById(fallbackId);
+            if (native) native.value = String(value);
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function addLog(line) {
+            const box = document.getElementById('logBox');
+            if (!box) return;
+            const t = new Date().toLocaleTimeString('zh-CN');
+            box.textContent += `[${t}] ${line}\n`;
+            if (getCheckboxValue('autoScrollLog')) {
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalRuns').textContent = String(state.counters.total);
+            document.getElementById('doneRuns').textContent = String(state.counters.done);
+            document.getElementById('ignoredRuns').textContent = String(state.counters.ignored);
+            document.getElementById('lastResult').textContent = state.lastResult === null || state.lastResult === undefined ? '-' : String(state.lastResult);
+        }
+
+        function resetProgress() {
+            const bar = document.getElementById('progressBar');
+            if (bar) bar.style.width = '0%';
+            if (state.progressTimer) {
+                clearInterval(state.progressTimer);
+                state.progressTimer = null;
+            }
+        }
+
+        function startProgress(delay, runId) {
+            resetProgress();
+            const bar = document.getElementById('progressBar');
+            if (!bar) return;
+            const start = performance.now();
+            const total = Math.max(1, delay);
+            state.progressTimer = setInterval(() => {
+                if (runId !== state.runId) return;
+                const elapsed = performance.now() - start;
+                const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+                bar.style.width = `${pct.toFixed(1)}%`;
+                if (pct >= 100) {
+                    clearInterval(state.progressTimer);
+                    state.progressTimer = null;
+                }
+            }, 60);
+        }
+
+        function buildValue(type) {
+            const t = new Date().toLocaleTimeString('zh-CN');
+            if (type === 'number') return Math.floor(Math.random() * 10000);
+            if (type === 'boolean') return Math.random() > 0.5;
+            if (type === 'array') return [t, Math.random().toString(16).slice(2, 6), Math.floor(Math.random() * 100)];
+            if (type === 'string') return `value@${t}`;
+            return { time: t, token: Math.random().toString(16).slice(2, 10), n: Math.floor(Math.random() * 1000) };
+        }
+
+        function applyExample() {
+            const key = getExampleKey();
+            const cfg = examples[key] || examples.normal;
+            setInputValue(state.inputs.delay, 'delayNative', cfg.delay);
+            setInputValue(state.inputs.count, 'countNative', cfg.count);
+            if (state.selects.valueType && typeof state.selects.valueType.setValue === 'function') {
+                try {
+                    state.selects.valueType.setValue(cfg.type);
+                } catch (e) {}
+            } else if (state.selects.valueTypeNative) {
+                state.selects.valueTypeNative.value = cfg.type;
+            }
+            showNotification('已应用示例', 'info');
+        }
+
+        async function showValue() {
+            if (!getCheckboxValue('showModalDetail')) {
+                showNotification('弹窗已关闭', 'info');
+                return;
+            }
+            const value = state.lastValue;
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">当前 value</div>
+                    <div style="margin-bottom:8px;">类型：<strong>${getValueType()}</strong></div>
+                    <div style="padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:JetBrains Mono, monospace; white-space:pre; overflow:auto;">${JSON.stringify(value, null, 2)}</div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        async function startOne() {
+            const delay = Math.max(0, Math.round(getDelayValue()));
+            const type = getValueType();
+            const value = buildValue(type);
+            state.lastValue = value;
+
+            state.runId += 1;
+            const runId = state.runId;
+            state.counters.total += 1;
+            updateStats();
+
+            setChip('statusChip', '等待中', 'warn');
+            setChip('modeChip', '单次');
+            addLog(`run#${runId} start (delay=${delay}ms, type=${type})`);
+            startProgress(delay, runId);
+            showNotification('已开始', 'info');
+
+            const result = await resolveAfter(value, delay);
+            if (runId !== state.runId) {
+                state.counters.ignored += 1;
+                updateStats();
+                addLog(`run#${runId} ignored`);
+                return;
+            }
+            resetProgress();
+            state.counters.done += 1;
+            state.lastResult = typeof result === 'object' ? JSON.stringify(result) : String(result);
+            updateStats();
+            setChip('statusChip', '完成', 'ok');
+            addLog(`run#${runId} done -> ${state.lastResult}`);
+            showNotification('已完成', 'success');
+        }
+
+        async function startMany() {
+            const delay = Math.max(0, Math.round(getDelayValue()));
+            const type = getValueType();
+            const count = Math.min(20, Math.max(1, Math.round(getCountValue())));
+            state.runId += 1;
+            const runId = state.runId;
+
+            setChip('statusChip', '等待中', 'warn');
+            setChip('modeChip', `并发 x${count}`);
+            addLog(`run#${runId} batch start (count=${count}, delay=${delay}ms, type=${type})`);
+            startProgress(delay, runId);
+
+            state.counters.total += count;
+            updateStats();
+
+            const values = Array.from({ length: count }).map(() => buildValue(type));
+            state.lastValue = values[0] ?? null;
+
+            const promises = values.map((v, idx) =>
+                resolveAfter(v, delay).then(res => ({ idx, res }))
+            );
+
+            const results = await Promise.all(promises);
+            if (runId !== state.runId) {
+                state.counters.ignored += count;
+                updateStats();
+                addLog(`run#${runId} batch ignored`);
+                return;
+            }
+
+            resetProgress();
+            state.counters.done += count;
+            updateStats();
+            setChip('statusChip', '完成', 'ok');
+
+            const sample = results.slice(0, 3).map(item => `${item.idx}:${typeof item.res === 'object' ? JSON.stringify(item.res) : String(item.res)}`).join(' | ');
+            state.lastResult = sample || '-';
+            updateStats();
+            addLog(`run#${runId} batch done -> ${sample}`);
+            showNotification(`并发完成：${count} 个`, 'success');
+        }
+
+        function resetAll() {
+            state.runId += 1;
+            state.counters.total = 0;
+            state.counters.done = 0;
+            state.counters.ignored = 0;
+            state.lastValue = null;
+            state.lastResult = null;
+            resetProgress();
+            const box = document.getElementById('logBox');
+            if (box) box.textContent = '';
+            setChip('statusChip', '空闲', 'ok');
+            setChip('modeChip', '单次');
+            updateStats();
+            showNotification('已重置', 'info');
+        }
+
+        function bindEvents() {
+            const startBtn = document.getElementById('startBtn');
+            const startAllBtn = document.getElementById('startAllBtn');
+            const showValueBtn = document.getElementById('showValueBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            if (startBtn) startBtn.addEventListener('click', startOne);
+            if (startAllBtn) startAllBtn.addEventListener('click', startMany);
+            if (showValueBtn) showValueBtn.addEventListener('click', showValue);
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputs();
+            bindEvents();
+            applyExample();
+            resetAll();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
