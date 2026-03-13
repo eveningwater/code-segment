@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>right-substr-generator</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+        .page {
+            max-width: 1220px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .title-row h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .subtitle {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 560px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        textarea.input {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            outline: none;
+            background: #f8fafc;
+            color: #0f172a;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        textarea.input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+            background: #ffffff;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .actions button {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .actions button.secondary {
+            background: #0f766e;
+        }
+        .actions button.ghost {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .stage {
+            min-height: 520px;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .stage-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+        .stage-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 900;
+        }
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+        .chip.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .stat {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+            word-break: break-all;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .log {
+            background: #0f172a;
+            color: #f8fafc;
+            border-radius: 14px;
+            padding: 12px 14px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.65;
+            font-size: 13px;
+            min-height: 220px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            align-content: start;
+        }
+        .item {
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 14px;
+            padding: 12px 12px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.10);
+        }
+        .item-title {
+            font-weight: 900;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            flex-shrink: 0;
+        }
+        .item-value {
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .panel {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: min(460px, calc(100% - 24px));
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px;
+            z-index: 10;
+        }
+        .panel.show {
+            display: flex;
+        }
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .panel-title {
+            font-weight: 900;
+            color: #0f172a;
+        }
+        .panel-close {
+            border: none;
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: 6px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>rightSubstrGenerator 插件化演示</h1>
+            </div>
+            <div class="subtitle">用 InputNumber / Select / Checkbox / Modal / Notification 展示生成器步进输出</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>输入与配置</h2>
+
+                <div class="form-row">
+                    <label>示例选择</label>
+                    <div id="exampleSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>迭代模式</label>
+                    <div id="modeSelect"></div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>每次步进数量</label>
+                        <div id="stepInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>最大输出条数</label>
+                        <div id="limitInput"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="applyExampleBtn">应用示例</button>
+                    <button id="resetGenBtn" class="ghost">重置生成器</button>
+                    <button id="nextBtn" class="secondary">Next()</button>
+                    <button id="stepBtn" class="secondary">步进</button>
+                    <button id="runAllBtn" class="ghost">输出全部</button>
+                    <button id="detailBtn" class="ghost">查看详情</button>
+                </div>
+
+                <div class="form-row">
+                    <label>输入字符串</label>
+                    <textarea id="inputText" class="input" placeholder="输入字符串..."></textarea>
+                </div>
+
+                <div class="hint">
+                    说明：生成器会依次 yield：str.slice(-1), str.slice(-2), ... 直到完整字符串。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>输出与状态</h2>
+                <div class="stage">
+                    <div class="stage-head">
+                        <div>
+                            <div class="stage-title">Yield List</div>
+                            <div class="stage-sub">点击某条输出可用 Modal 查看详情</div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <span id="statusChip" class="chip ok">就绪</span>
+                            <span id="posChip" class="chip">pos 0</span>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-label">输入长度</div>
+                            <div class="stat-value" id="lenValue">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">已输出</div>
+                            <div class="stat-value" id="outValue">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">剩余</div>
+                            <div class="stat-value" id="remainValue">0</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">最近输出</div>
+                            <div class="stat-value" id="lastValue">-</div>
+                        </div>
+                    </div>
+
+                    <div id="list" class="list"></div>
+                    <div id="logBox" class="log"></div>
+
+                    <div id="detailPanel" class="panel">
+                        <div class="panel-head">
+                            <div class="panel-title">详情面板</div>
+                            <button id="panelCloseBtn" class="panel-close">关闭</button>
+                        </div>
+                        <div class="hint" id="panelContent">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script>
+        const rightSubstrGenerator = function* (str) {
+            if (!str.length) {
+                return;
+            }
+            for (let i in str) yield str.slice(-i - 1);
+        };
+
+        const on = (el, type, handler, opts = {}) => {
+            const delegatorFn = e => e.target.matches(opts.target) && handler.call(e.target, e);
+            if (el && type && typeof handler === 'function') {
+                el.addEventListener(type, opts.target ? delegatorFn : handler, opts.capture || false);
+                if (opts.target) return delegatorFn;
+            }
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                example: null,
+                exampleNative: null,
+                mode: null,
+                modeNative: null
+            },
+            inputs: {
+                step: null,
+                limit: null
+            },
+            checkboxOptions: [],
+            iter: null,
+            pos: 0,
+            output: []
+        };
+
+        const examples = {
+            hello: { label: 'Hello', value: 'Hello' },
+            zh: { label: '中文', value: '你好世界' },
+            emoji: { label: 'Emoji', value: '🙂🙃😉😊' },
+            mix: { label: '混合', value: 'A🇨🇳B é 👨‍👩‍👧‍👦' }
+        };
+
+        const exampleOptions = Object.entries(examples).map(([value, item]) => ({ value, label: item.label }));
+        const modeOptions = [
+            { value: 'step', label: '步进（Next/步进）' },
+            { value: 'auto', label: '自动（输入变化自动重置）' }
+        ];
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(content);
+            }
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+            const options = [
+                { id: 'autoApplyExample', label: '选择示例自动应用', checked: true },
+                { id: 'autoResetOnInput', label: '输入变化自动重置生成器', checked: true },
+                { id: 'openPanelOnClick', label: '点击输出打开详情面板', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '用弹窗展示详情', checked: true }
+            ];
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const exampleContainer = document.getElementById('exampleSelect');
+            const modeContainer = document.getElementById('modeSelect');
+
+            if (exampleContainer) {
+                try {
+                    state.selects.example = new Select({
+                        container: exampleContainer,
+                        options: exampleOptions,
+                        placeholder: '选择示例',
+                        onChange: () => {
+                            if (getCheckboxValue('autoApplyExample')) applyExample();
+                        }
+                    });
+                    state.selects.example.setValue('hello');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    exampleOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'hello';
+                    select.addEventListener('change', () => {
+                        if (getCheckboxValue('autoApplyExample')) applyExample();
+                    });
+                    exampleContainer.appendChild(select);
+                    state.selects.exampleNative = select;
+                }
+            }
+
+            if (modeContainer) {
+                try {
+                    state.selects.mode = new Select({
+                        container: modeContainer,
+                        options: modeOptions,
+                        placeholder: '选择模式',
+                        onChange: () => {
+                            syncModeChip();
+                        }
+                    });
+                    state.selects.mode.setValue('step');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    modeOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'step';
+                    select.addEventListener('change', () => syncModeChip());
+                    modeContainer.appendChild(select);
+                    state.selects.modeNative = select;
+                }
+            }
+        }
+
+        function getExampleKey() {
+            if (state.selects.example && typeof state.selects.example.getValue === 'function') {
+                return state.selects.example.getValue() || 'hello';
+            }
+            return state.selects.exampleNative ? state.selects.exampleNative.value : 'hello';
+        }
+
+        function getModeKey() {
+            if (state.selects.mode && typeof state.selects.mode.getValue === 'function') {
+                return state.selects.mode.getValue() || 'step';
+            }
+            return state.selects.modeNative ? state.selects.modeNative.value : 'step';
+        }
+
+        function setupInputs() {
+            const stepContainer = document.getElementById('stepInput');
+            const limitContainer = document.getElementById('limitInput');
+
+            if (stepContainer) {
+                try {
+                    state.inputs.step = new InputNumber({
+                        container: stepContainer,
+                        min: 1,
+                        max: 20,
+                        step: 1,
+                        value: 3,
+                        onChange: () => {}
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '20';
+                    input.step = '1';
+                    input.value = '3';
+                    input.className = 'input-field';
+                    input.id = 'stepNative';
+                    stepContainer.appendChild(input);
+                }
+            }
+
+            if (limitContainer) {
+                try {
+                    state.inputs.limit = new InputNumber({
+                        container: limitContainer,
+                        min: 1,
+                        max: 500,
+                        step: 1,
+                        value: 120,
+                        onChange: () => {}
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '500';
+                    input.step = '1';
+                    input.value = '120';
+                    input.className = 'input-field';
+                    input.id = 'limitNative';
+                    limitContainer.appendChild(input);
+                }
+            }
+        }
+
+        function getStepValue() {
+            if (state.inputs.step && typeof state.inputs.step.getValue === 'function') {
+                try {
+                    return Number(state.inputs.step.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('stepNative');
+            return native ? Number(native.value) : 1;
+        }
+
+        function getLimitValue() {
+            if (state.inputs.limit && typeof state.inputs.limit.getValue === 'function') {
+                try {
+                    return Number(state.inputs.limit.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('limitNative');
+            return native ? Number(native.value) : 120;
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = String(text);
+        }
+
+        function addLog(line) {
+            const box = document.getElementById('logBox');
+            if (!box) return;
+            const t = new Date().toLocaleTimeString('zh-CN');
+            box.textContent += `[${t}] ${line}\n`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function clearLog() {
+            const box = document.getElementById('logBox');
+            if (box) box.textContent = '';
+        }
+
+        function syncModeChip() {
+            const mode = getModeKey();
+            setChip('statusChip', '就绪', 'ok');
+            setChip('posChip', `pos ${state.pos}`);
+            setText('lenValue', (document.getElementById('inputText')?.value || '').length);
+            setText('outValue', state.output.length);
+            setText('remainValue', Math.max(0, (document.getElementById('inputText')?.value || '').length - state.output.length));
+            if (mode === 'auto') {
+                showNotification('已切换为自动模式', 'info');
+            } else {
+                showNotification('已切换为步进模式', 'info');
+            }
+        }
+
+        function renderList() {
+            const list = document.getElementById('list');
+            if (!list) return;
+            list.innerHTML = '';
+            state.output.forEach((val, idx) => {
+                const el = document.createElement('div');
+                el.className = 'item';
+                el.dataset.index = String(idx);
+                el.innerHTML = `
+                    <div class="item-title">
+                        <span>yield</span>
+                        <span class="badge">#${idx + 1}</span>
+                    </div>
+                    <div class="item-value">${val}</div>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        function openPanel(text) {
+            const panel = document.getElementById('detailPanel');
+            const content = document.getElementById('panelContent');
+            if (!panel || !content) return;
+            content.textContent = text;
+            panel.classList.add('show');
+        }
+
+        function closePanel() {
+            const panel = document.getElementById('detailPanel');
+            if (!panel) return;
+            panel.classList.remove('show');
+        }
+
+        function resetGenerator() {
+            const str = document.getElementById('inputText')?.value || '';
+            state.iter = rightSubstrGenerator(str);
+            state.pos = 0;
+            state.output = [];
+            clearLog();
+            setChip('statusChip', str.length ? '就绪' : '空输入', str.length ? 'ok' : 'warn');
+            setChip('posChip', 'pos 0');
+            setText('lenValue', str.length);
+            setText('outValue', 0);
+            setText('remainValue', str.length);
+            setText('lastValue', '-');
+            renderList();
+            closePanel();
+        }
+
+        function nextOne() {
+            if (!state.iter) resetGenerator();
+            const str = document.getElementById('inputText')?.value || '';
+            if (!str.length) {
+                showNotification('请输入字符串', 'warning');
+                setChip('statusChip', '空输入', 'warn');
+                return;
+            }
+            const limit = Math.max(1, Math.round(getLimitValue()));
+            if (state.output.length >= limit) {
+                showNotification(`已达到最大输出条数：${limit}`, 'warning');
+                return;
+            }
+            const { value, done } = state.iter.next();
+            if (done) {
+                setChip('statusChip', '已结束', 'ok');
+                showNotification('生成器已结束', 'info');
+                return;
+            }
+            state.output.push(String(value));
+            state.pos += 1;
+            setChip('statusChip', '已输出', 'ok');
+            setChip('posChip', `pos ${state.pos}`);
+            setText('outValue', state.output.length);
+            setText('remainValue', Math.max(0, str.length - state.output.length));
+            setText('lastValue', String(value).slice(0, 60));
+            renderList();
+            addLog(`yield#${state.pos}: ${String(value)}`);
+            if (getCheckboxValue('showNotifications')) {
+                showNotification(`yield: ${String(value)}`, 'info');
+            }
+        }
+
+        function stepMany() {
+            const step = Math.min(20, Math.max(1, Math.round(getStepValue())));
+            for (let i = 0; i < step; i++) {
+                const before = state.output.length;
+                nextOne();
+                if (state.output.length === before) break;
+                if (document.getElementById('statusChip')?.textContent === '已结束') break;
+            }
+        }
+
+        function runAll() {
+            const str = document.getElementById('inputText')?.value || '';
+            if (!str.length) {
+                showNotification('请输入字符串', 'warning');
+                return;
+            }
+            resetGenerator();
+            const limit = Math.max(1, Math.round(getLimitValue()));
+            while (state.output.length < limit) {
+                const { value, done } = state.iter.next();
+                if (done) break;
+                state.output.push(String(value));
+                state.pos += 1;
+            }
+            setChip('statusChip', state.output.length >= str.length ? '已结束' : '已达上限', 'ok');
+            setChip('posChip', `pos ${state.pos}`);
+            setText('outValue', state.output.length);
+            setText('remainValue', Math.max(0, str.length - state.output.length));
+            setText('lastValue', state.output.length ? state.output[state.output.length - 1].slice(0, 60) : '-');
+            renderList();
+            addLog(`runAll -> out=${state.output.length}, limit=${limit}`);
+            showNotification('已输出全部（或达到上限）', 'success');
+        }
+
+        function applyExample() {
+            const key = getExampleKey();
+            const ex = examples[key] || examples.hello;
+            const input = document.getElementById('inputText');
+            if (!input) return;
+            input.value = ex.value;
+            showNotification('已应用示例', 'info');
+            resetGenerator();
+            if (getModeKey() === 'auto') runAll();
+        }
+
+        function showDetail() {
+            if (!getCheckboxValue('showModalDetail')) {
+                showNotification('弹窗已关闭', 'info');
+                return;
+            }
+            const str = document.getElementById('inputText')?.value || '';
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">详情</div>
+                    <div style="margin-bottom:8px;">输入长度：<strong>${str.length}</strong></div>
+                    <div style="margin-bottom:8px;">已输出：<strong>${state.output.length}</strong></div>
+                    <div style="margin-top:12px; font-weight:900;">输入</div>
+                    <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:JetBrains Mono, monospace; white-space:pre-wrap; word-break:break-word;">${str}</div>
+                    <div style="margin-top:12px; font-weight:900;">输出（前 20 条）</div>
+                    <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-family:JetBrains Mono, monospace; white-space:pre; overflow:auto;">${state.output.slice(0, 20).map((s, i) => `${i + 1}. ${s}`).join('\n') || '-'}</div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function bindEvents() {
+            const applyExampleBtn = document.getElementById('applyExampleBtn');
+            const resetGenBtn = document.getElementById('resetGenBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const stepBtn = document.getElementById('stepBtn');
+            const runAllBtn = document.getElementById('runAllBtn');
+            const detailBtn = document.getElementById('detailBtn');
+            const input = document.getElementById('inputText');
+            const panelCloseBtn = document.getElementById('panelCloseBtn');
+
+            if (applyExampleBtn) applyExampleBtn.addEventListener('click', applyExample);
+            if (resetGenBtn) resetGenBtn.addEventListener('click', resetGenerator);
+            if (nextBtn) nextBtn.addEventListener('click', nextOne);
+            if (stepBtn) stepBtn.addEventListener('click', stepMany);
+            if (runAllBtn) runAllBtn.addEventListener('click', runAll);
+            if (detailBtn) detailBtn.addEventListener('click', showDetail);
+            if (panelCloseBtn) panelCloseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closePanel();
+            });
+
+            if (input) {
+                input.addEventListener('input', () => {
+                    if (!getCheckboxValue('autoResetOnInput')) return;
+                    resetGenerator();
+                    if (getModeKey() === 'auto') runAll();
+                });
+            }
+
+            on(document, 'click', (e) => {
+                if (!getCheckboxValue('openPanelOnClick')) return;
+                const idx = Number(e.currentTarget.dataset.index);
+                const val = state.output[idx];
+                if (val === undefined) return;
+                const text = `#${idx + 1}\n${val}`;
+                openPanel(text);
+                showNotification(`打开第 ${idx + 1} 条详情`, 'info');
+            }, { target: '.item' });
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputs();
+            bindEvents();
+            applyExample();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

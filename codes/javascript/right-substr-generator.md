@@ -16,6 +16,8 @@ const rightSubstrGenerator = function* (str) {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/right-substr-generator.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,3 +26,11 @@ const rightSubstrGenerator = function* (str) {
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/right-substr-generator.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/right-substr-generator.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/right-substr-generator.html"></iframe>
