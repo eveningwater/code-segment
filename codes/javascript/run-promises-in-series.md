@@ -12,6 +12,7 @@ const runPromisesInSeries = ps =>
 ```
 
 <div class="code-editor" data-url="codes/javascript/ts/run-promises-in-series.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
