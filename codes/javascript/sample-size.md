@@ -19,6 +19,8 @@ const sampleSize = ([...arr], n = 1) => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/sample-size.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -27,3 +29,11 @@ sampleSize([1, 2, 3], 4); // [2, 3, 1]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/sample-size.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/sample-size.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/sample-size.html"></iframe>
