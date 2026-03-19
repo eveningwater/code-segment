@@ -549,7 +549,7 @@
 - [连续运行期约-2023-03-30](codes/javascript/run-promises-in-series.md)
 - [随机从数组中取元素-2023-03-31](codes/javascript/sample.md)
 - [随机从数组中取出 n 个元素-2023-04-01](codes/javascript/sample-size.md)
-- [回到顶部-2023-04-02](codes/javascript/scrollToTop.md)
+- [回到顶部-2023-04-02](codes/javascript/scroll-to-top.md)
 - [hash 字符串转数字-2023-04-03](codes/javascript/sdbm.md)
 - [选择排序算法-2023-04-04](codes/javascript/selectionSort.md)
 - [序列化 cookie-2023-04-05](codes/javascript/serializeCookie.md)

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>scroll-to-top</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+        }
+
+        .scroll-container {
+            height: 100%;
+        }
+
+        .page {
+            height: 100%;
+            width: 100%;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+            letter-spacing: 2px;
+        }
+
+        .page-1 {
+            background-color: #2396ef;
+        }
+
+        .page-2 {
+            background-color: #3bef23;
+        }
+
+        .page-3 {
+            background-color: #ef23c3;
+        }
+
+        .page-4 {
+            background-color: #efca23;
+        }
+
+        .to-top {
+            font-size: 2rem;
+            color: #2396ef;
+            width: 35px;
+            height: 35px;
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            transition: all .3s cubic-bezier(0.075, 0.82, 0.165, 1);
+            border-radius: 50%;
+            background-color: #1f252b;
+            text-align: center;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            line-height: 35px;
+        }
+
+        .to-top:hover {
+            background-color: #010e1b;
+            color: #3ca3f1;
+            box-shadow: 0 0 13px rgba(0, 0, 0, .5);
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: min(380px, calc(100% - 32px));
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(15, 23, 42, 0.10);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.14);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 20;
+        }
+
+        .control-title {
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .control-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-row label {
+            font-size: 0.9rem;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .actions button {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 800;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .actions button.secondary {
+            background: #0f766e;
+        }
+
+        .actions button.ghost {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .chip.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+            background-color: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            width: 5px;
+            height: 5px;
+            background-color: #4651e6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="scroll-container">
+        <section class="page-1 page">页面一</section>
+        <section class="page-2 page">页面二</section>
+        <section class="page-3 page">页面三</section>
+        <section class="page-4 page">页面四</section>
+    </div>
+
+    <div class="control-panel">
+        <div class="control-title">
+            <span>scrollToTop 演示</span>
+            <span id="statusChip" class="chip ok">空闲</span>
+        </div>
+        <div class="control-sub">用 InputNumber / Select / Checkbox / Modal / Notification 控制回到顶部动画。</div>
+
+        <div class="row-2">
+            <div class="form-row">
+                <label>阈值 (px)</label>
+                <div id="thresholdInput"></div>
+            </div>
+            <div class="form-row">
+                <label>减速系数</label>
+                <div id="divisorInput"></div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>滚动模式</label>
+            <div id="modeSelect"></div>
+        </div>
+
+        <div class="form-row">
+            <label>选项</label>
+            <div id="optionCheckbox"></div>
+        </div>
+
+        <div class="actions">
+            <button id="toTopBtn" class="secondary">回到顶部</button>
+            <button id="showCodeBtn" class="ghost">查看代码</button>
+        </div>
+    </div>
+
+    <div class="to-top" id="floatToTop">↑</div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const scrollContainer = document.querySelector('.scroll-container');
+        const floatToTop = document.getElementById('floatToTop');
+
+        const on = (el, type, handler, opts = {}) => {
+            const delegatorFn = e => e.target.matches(opts.target) && handler.call(e.target, e);
+            if (el && type && typeof handler === 'function') {
+                el.addEventListener(type, opts.target ? delegatorFn : handler, opts.capture || false);
+                if (opts.target) return delegatorFn;
+            }
+        };
+
+        const scrollToTop = (opts = {}) => {
+            const divisor = Number.isFinite(opts.divisor) ? opts.divisor : 8;
+            const mode = opts.mode || 'ease';
+            const stepPx = Number.isFinite(opts.stepPx) ? opts.stepPx : 60;
+            const doneCb = typeof opts.onDone === 'function' ? opts.onDone : null;
+
+            const tick = () => {
+                const c = document.documentElement.scrollTop || document.body.scrollTop;
+                if (c <= 0) {
+                    doneCb && doneCb();
+                    return;
+                }
+                window.requestAnimationFrame(tick);
+                if (mode === 'fixed') {
+                    window.scrollTo(0, Math.max(0, c - stepPx));
+                } else {
+                    window.scrollTo(0, c - c / divisor);
+                }
+            };
+            tick();
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                mode: null,
+                modeNative: null
+            },
+            inputs: {
+                threshold: null,
+                divisor: null
+            },
+            checkboxOptions: []
+        };
+
+        const modeOptions = [
+            { value: 'ease', label: 'ease（c - c/divisor）' },
+            { value: 'fixed', label: 'fixed（每帧减固定像素）' }
+        ];
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(content);
+            }
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+            const options = [
+                { id: 'showFloatButton', label: '显示右下角按钮', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '弹窗展示代码', checked: true }
+            ];
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {
+                        syncFloatButton();
+                    }
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const container = document.getElementById('modeSelect');
+            if (!container) return;
+            try {
+                state.selects.mode = new Select({
+                    container,
+                    options: modeOptions,
+                    placeholder: '选择滚动模式',
+                    onChange: () => {}
+                });
+                state.selects.mode.setValue('ease');
+            } catch (e) {
+                const select = document.createElement('select');
+                select.className = 'input-field';
+                modeOptions.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.label;
+                    select.appendChild(opt);
+                });
+                select.value = 'ease';
+                container.appendChild(select);
+                state.selects.modeNative = select;
+            }
+        }
+
+        function getMode() {
+            if (state.selects.mode && typeof state.selects.mode.getValue === 'function') {
+                return state.selects.mode.getValue() || 'ease';
+            }
+            return state.selects.modeNative ? state.selects.modeNative.value : 'ease';
+        }
+
+        function setupInputs() {
+            const thresholdContainer = document.getElementById('thresholdInput');
+            const divisorContainer = document.getElementById('divisorInput');
+
+            if (thresholdContainer) {
+                try {
+                    state.inputs.threshold = new InputNumber({
+                        container: thresholdContainer,
+                        min: 0,
+                        max: 4000,
+                        step: 50,
+                        value: 200,
+                        onChange: () => {
+                            syncFloatButton();
+                        }
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '4000';
+                    input.step = '50';
+                    input.value = '200';
+                    input.className = 'input-field';
+                    input.id = 'thresholdNative';
+                    thresholdContainer.appendChild(input);
+                    input.addEventListener('input', () => syncFloatButton());
+                }
+            }
+
+            if (divisorContainer) {
+                try {
+                    state.inputs.divisor = new InputNumber({
+                        container: divisorContainer,
+                        min: 2,
+                        max: 30,
+                        step: 1,
+                        value: 8,
+                        onChange: () => {}
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '2';
+                    input.max = '30';
+                    input.step = '1';
+                    input.value = '8';
+                    input.className = 'input-field';
+                    input.id = 'divisorNative';
+                    divisorContainer.appendChild(input);
+                }
+            }
+        }
+
+        function getThreshold() {
+            if (state.inputs.threshold && typeof state.inputs.threshold.getValue === 'function') {
+                try {
+                    return Number(state.inputs.threshold.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('thresholdNative');
+            return native ? Number(native.value) : 200;
+        }
+
+        function getDivisor() {
+            if (state.inputs.divisor && typeof state.inputs.divisor.getValue === 'function') {
+                try {
+                    return Number(state.inputs.divisor.getValue());
+                } catch (e) {}
+            }
+            const native = document.getElementById('divisorNative');
+            return native ? Number(native.value) : 8;
+        }
+
+        function setChip(text, variant) {
+            const el = document.getElementById('statusChip');
+            if (!el) return;
+            el.textContent = text;
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function normalizeCode(code) {
+            const raw = String(code ?? '');
+            const lines = raw.replace(/\r\n/g, '\n').split('\n');
+            while (lines.length && !lines[0].trim()) lines.shift();
+            while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+            const indents = lines
+                .filter(line => line.trim())
+                .map(line => (line.match(/^\s+/) ? line.match(/^\s+/)[0].length : 0));
+            const minIndent = indents.length ? Math.min(...indents) : 0;
+            return lines.map(line => line.slice(minIndent)).join('\n');
+        }
+
+        function showCode() {
+            if (!getCheckboxValue('showModalDetail')) {
+                showNotification('弹窗已关闭', 'info');
+                return;
+            }
+            const code = normalizeCode(scrollToTop.toString());
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">scrollToTop</div>
+                    <pre style="margin:0; padding:10px 12px; border-radius:10px; border:1px solid #e2e8f0; overflow:auto; max-height:420px;"><code data-highlight="scrollToTop" class="language-javascript">${escapeHtml(code)}</code></pre>
+                </div>
+            `;
+            showModal(content);
+            setTimeout(() => {
+                if (!window.hljs) return;
+                document.querySelectorAll('code[data-highlight="scrollToTop"]').forEach((el) => window.hljs.highlightElement(el));
+            }, 0);
+        }
+
+        function getScrollTop() {
+            return document.documentElement.scrollTop || document.body.scrollTop || 0;
+        }
+
+        function syncFloatButton() {
+            const show = getCheckboxValue('showFloatButton');
+            const threshold = Math.max(0, Math.round(getThreshold()));
+            const shouldShow = show && getScrollTop() > threshold;
+            floatToTop.style.display = shouldShow ? 'flex' : 'none';
+        }
+
+        function doScrollToTop() {
+            const divisor = Math.min(30, Math.max(2, Math.round(getDivisor())));
+            const mode = getMode();
+            setChip('滚动中', 'warn');
+            showNotification('开始滚动', 'info');
+            scrollToTop({
+                divisor,
+                mode,
+                stepPx: 80,
+                onDone: () => {
+                    setChip('空闲', 'ok');
+                    showNotification('已到顶部', 'success');
+                    syncFloatButton();
+                }
+            });
+        }
+
+        function bindEvents() {
+            const toTopBtn = document.getElementById('toTopBtn');
+            const showCodeBtn = document.getElementById('showCodeBtn');
+            if (toTopBtn) toTopBtn.addEventListener('click', doScrollToTop);
+            if (showCodeBtn) showCodeBtn.addEventListener('click', showCode);
+            if (floatToTop) floatToTop.addEventListener('click', doScrollToTop);
+
+            window.addEventListener('scroll', () => {
+                syncFloatButton();
+            }, { passive: true });
+
+            on(document, 'click', () => {
+                const threshold = Math.max(0, Math.round(getThreshold()));
+                showNotification(`当前 scrollTop=${getScrollTop()} / threshold=${threshold}`, 'info');
+            }, { target: '.page' });
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputs();
+            bindEvents();
+            syncFloatButton();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+
+</html>
