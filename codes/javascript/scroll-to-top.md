@@ -34,6 +34,6 @@ scrollToTop(); // Smooth-scrolls to the top of the page
 
 结果如下:
 
-<iframe src="codes/javascript/html/scrollToTop.html"></iframe>
+<iframe src="codes/javascript/html/scroll-to-top.html"></iframe>
 
 > ps: 以上是一个不错的实用函数
