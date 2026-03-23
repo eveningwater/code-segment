@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>selection-sort</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 28px;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px 26px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.2px;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 108px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .form-row label {
+            font-size: 13px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.08s ease, filter 0.12s ease;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .secondary {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .ghost {
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+        }
+
+        .muted {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .item-cell {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .item-cell .item-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #334155;
+        }
+
+        .result {
+            background: #0b1220;
+            color: #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            min-height: 160px;
+            overflow: auto;
+            line-height: 1.55;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 800;
+        }
+
+        .stat-value {
+            margin-top: 8px;
+            font-size: 18px;
+            font-weight: 950;
+            color: #0f172a;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .items-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>selectionSort 自定义插件演示</h1>
+            <div class="subtitle">用 InputNumber / Select / Checkbox / Modal 组合一个可交互示例</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>配置</h2>
+
+                <div class="form-row">
+                    <label>数组长度</label>
+                    <div id="lenInput"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>数据集</label>
+                    <div id="datasetSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="genBtn" class="secondary">生成数组</button>
+                    <button id="sortBtn" class="primary">选择排序</button>
+                    <button id="showCodeBtn" class="ghost">查看算法代码</button>
+                    <button id="resetBtn" class="ghost">重置</button>
+                </div>
+
+                <div class="muted">提示：改动任何输入后再点击“选择排序”，结果会根据当前数组计算。</div>
+            </div>
+
+            <div class="card">
+                <h2>数组输入</h2>
+                <div id="itemsGrid" class="items-grid"></div>
+            </div>
+
+            <div class="card">
+                <h2>结果</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">比较次数</div>
+                        <div class="stat-value" id="compareCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">交换次数</div>
+                        <div class="stat-value" id="swapCount">0</div>
+                    </div>
+                </div>
+                <pre id="resultBox" class="result"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script>
+        const selectionSort = arr => {
+            const a = [...arr];
+            for (let i = 0; i < a.length; i++) {
+                const min = a
+                    .slice(i + 1)
+                    .reduce((acc, val, j) => (val < a[acc] ? j + i + 1 : acc), i);
+                if (min !== i) [a[i], a[min]] = [a[min], a[i]];
+            }
+            return a;
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                dataset: null,
+                datasetNative: null
+            },
+            inputs: {
+                len: null,
+                lenNative: null,
+                items: []
+            },
+            checkboxOptions: [],
+            lastArray: [],
+            lastSorted: [],
+            lastTrace: { compares: 0, swaps: 0, steps: [] }
+        };
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (state.plugins.notification) {
+                try {
+                    state.plugins.notification.show(message, type);
+                    return;
+                } catch (e) {}
+            }
+            console.log(message);
+        }
+
+        function showModal(html) {
+            if (state.plugins.modal) {
+                try {
+                    state.plugins.modal.alert(html);
+                    return;
+                } catch (e) {}
+            }
+            console.log(html);
+        }
+
+        function setupSelect() {
+            const container = document.getElementById('datasetSelect');
+            if (!container) return;
+            const options = [
+                { value: 'random', label: '随机数组' },
+                { value: 'nearly', label: '近似有序' },
+                { value: 'reversed', label: '完全逆序' },
+                { value: 'duplicates', label: '包含大量重复' }
+            ];
+
+            try {
+                state.selects.dataset = new Select({
+                    container,
+                    options,
+                    placeholder: '选择数据集',
+                    onChange: () => {}
+                });
+                state.selects.dataset.setValue('random');
+            } catch (e) {
+                const select = document.createElement('select');
+                select.className = 'input-field';
+                options.forEach(opt => {
+                    const o = document.createElement('option');
+                    o.value = opt.value;
+                    o.textContent = opt.label;
+                    select.appendChild(o);
+                });
+                select.value = 'random';
+                container.appendChild(select);
+                state.selects.datasetNative = select;
+            }
+        }
+
+        function getDatasetKey() {
+            if (state.selects.dataset && typeof state.selects.dataset.getValue === 'function') {
+                try {
+                    return state.selects.dataset.getValue() || 'random';
+                } catch (e) {}
+            }
+            return state.selects.datasetNative ? state.selects.datasetNative.value : 'random';
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+
+            const options = [
+                { id: 'desc', label: '结果降序（先升序再反转）', checked: false },
+                { id: 'showSteps', label: '显示步骤（精简）', checked: true },
+                { id: 'showModal', label: '用弹窗展示结果', checked: true }
+            ];
+
+            state.checkboxOptions = options;
+
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const idx = state.checkboxOptions.findIndex(o => o.id === id);
+                    if (idx !== -1) return states[idx] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupLenInput() {
+            const container = document.getElementById('lenInput');
+            if (!container) return;
+            try {
+                state.inputs.len = new InputNumber({
+                    container,
+                    min: 2,
+                    max: 20,
+                    step: 1,
+                    value: 8,
+                    onChange: () => {
+                        const len = getLenValue();
+                        rebuildItems(len, generateArray(len, getDatasetKey()));
+                        renderResult();
+                    }
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '2';
+                input.max = '20';
+                input.step = '1';
+                input.value = '8';
+                input.className = 'input-field';
+                input.id = 'lenNative';
+                input.addEventListener('input', () => {
+                    const len = getLenValue();
+                    rebuildItems(len, generateArray(len, getDatasetKey()));
+                    renderResult();
+                });
+                container.appendChild(input);
+                state.inputs.lenNative = input;
+            }
+        }
+
+        function getLenValue() {
+            if (state.inputs.len && typeof state.inputs.len.getValue === 'function') {
+                try {
+                    return Math.max(2, Math.min(20, Number(state.inputs.len.getValue()) || 8));
+                } catch (e) {}
+            }
+            if (state.inputs.lenNative) {
+                const v = Number(state.inputs.lenNative.value);
+                return Math.max(2, Math.min(20, Number.isFinite(v) ? v : 8));
+            }
+            return 8;
+        }
+
+        function rebuildItems(len, values) {
+            const grid = document.getElementById('itemsGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            state.inputs.items = [];
+
+            for (let i = 0; i < len; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'item-cell';
+
+                const label = document.createElement('div');
+                label.className = 'item-label';
+                label.textContent = `a[${i}]`;
+
+                const holder = document.createElement('div');
+                holder.id = `item_${i}`;
+
+                cell.appendChild(label);
+                cell.appendChild(holder);
+                grid.appendChild(cell);
+
+                try {
+                    const plugin = new InputNumber({
+                        container: holder,
+                        min: -999,
+                        max: 999,
+                        step: 1,
+                        value: Number(values[i] ?? 0),
+                        onChange: () => {}
+                    });
+                    state.inputs.items.push({ plugin, nativeId: null });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '-999';
+                    input.max = '999';
+                    input.step = '1';
+                    input.value = String(Number(values[i] ?? 0));
+                    input.className = 'input-field';
+                    const nativeId = `itemNative_${i}`;
+                    input.id = nativeId;
+                    holder.appendChild(input);
+                    state.inputs.items.push({ plugin: null, nativeId });
+                }
+            }
+        }
+
+        function getArrayFromInputs() {
+            const nums = state.inputs.items.map((it, idx) => {
+                if (it.plugin && typeof it.plugin.getValue === 'function') {
+                    try {
+                        return Number(it.plugin.getValue()) || 0;
+                    } catch (e) {}
+                }
+                if (it.nativeId) {
+                    const el = document.getElementById(it.nativeId);
+                    if (el) return Number(el.value) || 0;
+                }
+                return 0;
+            });
+            return nums;
+        }
+
+        function setInputValue(plugin, nativeId, value) {
+            if (plugin && typeof plugin.setValue === 'function') {
+                try {
+                    plugin.setValue(value);
+                    return;
+                } catch (e) {}
+            }
+            if (nativeId) {
+                const el = document.getElementById(nativeId);
+                if (el) el.value = String(value);
+            }
+        }
+
+        function fillInputs(values) {
+            const len = Math.min(values.length, state.inputs.items.length);
+            for (let i = 0; i < len; i++) {
+                const it = state.inputs.items[i];
+                setInputValue(it.plugin, it.nativeId, Number(values[i] ?? 0));
+            }
+        }
+
+        function generateArray(len, type) {
+            const rnd = () => Math.floor(Math.random() * 100);
+
+            if (type === 'reversed') {
+                const base = Array.from({ length: len }, (_, i) => i + 1);
+                return base.reverse();
+            }
+
+            if (type === 'nearly') {
+                const base = Array.from({ length: len }, (_, i) => i + 1);
+                const swaps = Math.max(1, Math.floor(len / 4));
+                for (let i = 0; i < swaps; i++) {
+                    const a = Math.floor(Math.random() * len);
+                    const b = Math.floor(Math.random() * len);
+                    [base[a], base[b]] = [base[b], base[a]];
+                }
+                return base;
+            }
+
+            if (type === 'duplicates') {
+                const pool = [0, 1, 2, 3, 5, 8, 13, 21];
+                return Array.from({ length: len }, () => pool[Math.floor(Math.random() * pool.length)]);
+            }
+
+            return Array.from({ length: len }, () => rnd());
+        }
+
+        function selectionSortTrace(arr) {
+            const a = [...arr];
+            let compares = 0;
+            let swaps = 0;
+            const steps = [];
+
+            for (let i = 0; i < a.length; i++) {
+                let min = i;
+                for (let j = i + 1; j < a.length; j++) {
+                    compares += 1;
+                    if (a[j] < a[min]) min = j;
+                }
+                if (min !== i) {
+                    swaps += 1;
+                    const before = getCheckboxValue('showSteps') ? [...a] : null;
+                    [a[i], a[min]] = [a[min], a[i]];
+                    if (getCheckboxValue('showSteps')) {
+                        steps.push({ i, min, before, after: [...a] });
+                    }
+                }
+            }
+
+            return { sorted: a, compares, swaps, steps };
+        }
+
+        function renderResult() {
+            const inputArr = getArrayFromInputs();
+            state.lastArray = inputArr;
+
+            const sortedAsc = selectionSort(inputArr);
+            const desc = getCheckboxValue('desc');
+            const finalSorted = desc ? [...sortedAsc].reverse() : sortedAsc;
+            state.lastSorted = finalSorted;
+
+            const traceAsc = selectionSortTrace(inputArr);
+            const trace = desc ? { ...traceAsc, sorted: [...traceAsc.sorted].reverse() } : traceAsc;
+            state.lastTrace = trace;
+
+            const compareCountEl = document.getElementById('compareCount');
+            const swapCountEl = document.getElementById('swapCount');
+            if (compareCountEl) compareCountEl.textContent = String(trace.compares);
+            if (swapCountEl) swapCountEl.textContent = String(trace.swaps);
+
+            const box = document.getElementById('resultBox');
+            if (box) {
+                const lines = [];
+                lines.push(`输入:   [${inputArr.join(', ')}]`);
+                lines.push(`输出:   [${finalSorted.join(', ')}]`);
+                lines.push(`顺序:   ${desc ? '降序（升序后反转）' : '升序'}`);
+                lines.push(`比较:   ${trace.compares}`);
+                lines.push(`交换:   ${trace.swaps}`);
+                if (getCheckboxValue('showSteps')) {
+                    const steps = trace.steps.slice(0, 12);
+                    if (steps.length) {
+                        lines.push('');
+                        lines.push('步骤(最多展示 12 次交换):');
+                        steps.forEach((s, idx) => {
+                            lines.push(`${idx + 1}. i=${s.i}, min=${s.min}`);
+                            lines.push(`   ${s.before.join(', ')}`);
+                            lines.push(`-> ${s.after.join(', ')}`);
+                        });
+                        if (trace.steps.length > steps.length) {
+                            lines.push(`... 省略 ${trace.steps.length - steps.length} 次交换`);
+                        }
+                    }
+                }
+                box.textContent = lines.join('\n');
+            }
+        }
+
+        function showResultModal() {
+            const inputArr = state.lastArray || [];
+            const sorted = state.lastSorted || [];
+            const html = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">selectionSort 结果</div>
+                    <div style="margin-bottom:8px;"><span style="color:#64748b;">输入：</span><code>[${escapeHtml(inputArr.join(', '))}]</code></div>
+                    <div style="margin-bottom:8px;"><span style="color:#64748b;">输出：</span><code>[${escapeHtml(sorted.join(', '))}]</code></div>
+                    <div style="color:#64748b; font-size:12px;">比较：${state.lastTrace.compares}，交换：${state.lastTrace.swaps}</div>
+                </div>
+            `;
+            showModal(html);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function showCode() {
+            const code = String(selectionSort);
+            const html = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">selectionSort 源码</div>
+                    <pre style="margin:0; padding:12px; border-radius:12px; background:#0b1220; color:#e2e8f0; overflow:auto; line-height:1.55; font-size:12px;">${escapeHtml(code)}</pre>
+                </div>
+            `;
+            showModal(html);
+        }
+
+        function generateAndFill() {
+            const len = getLenValue();
+            const arr = generateArray(len, getDatasetKey());
+            rebuildItems(len, arr);
+            state.lastArray = arr;
+            renderResult();
+            showNotification('数组已生成', 'success');
+        }
+
+        function resetAll() {
+            const len = 8;
+            if (state.inputs.len && typeof state.inputs.len.setValue === 'function') {
+                try {
+                    state.inputs.len.setValue(len);
+                } catch (e) {}
+            }
+            if (state.inputs.lenNative) state.inputs.lenNative.value = String(len);
+
+            if (state.selects.dataset && typeof state.selects.dataset.setValue === 'function') {
+                try {
+                    state.selects.dataset.setValue('random');
+                } catch (e) {}
+            }
+            if (state.selects.datasetNative) state.selects.datasetNative.value = 'random';
+
+            const arr = generateArray(len, 'random');
+            rebuildItems(len, arr);
+            renderResult();
+            showNotification('已重置', 'info');
+        }
+
+        function bindEvents() {
+            const genBtn = document.getElementById('genBtn');
+            const sortBtn = document.getElementById('sortBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const showCodeBtn = document.getElementById('showCodeBtn');
+
+            if (genBtn) genBtn.addEventListener('click', generateAndFill);
+            if (sortBtn) sortBtn.addEventListener('click', () => {
+                renderResult();
+                showNotification('排序完成', 'success');
+                if (getCheckboxValue('showModal')) showResultModal();
+            });
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+            if (showCodeBtn) showCodeBtn.addEventListener('click', showCode);
+
+            const dsNative = state.selects.datasetNative;
+            if (dsNative) {
+                dsNative.addEventListener('change', () => {
+                    generateAndFill();
+                });
+            }
+        }
+
+        function init() {
+            initPlugins();
+            setupSelect();
+            setupCheckboxes();
+            setupLenInput();
+            const len = getLenValue();
+            rebuildItems(len, generateArray(len, getDatasetKey()));
+            renderResult();
+            bindEvents();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>serializeForm</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 28px;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px 26px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.2px;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 108px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .form-row label {
+            font-size: 13px;
+            color: #334155;
+            font-weight: 800;
+        }
+
+        .text-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .text-input:focus {
+            border-color: rgba(37, 99, 235, 0.65);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.08s ease, filter 0.12s ease;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .secondary {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .ghost {
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .chip {
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+        }
+
+        .chip.ok {
+            background: rgba(34, 197, 94, 0.14);
+            color: #166534;
+        }
+
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.16);
+            color: #92400e;
+        }
+
+        .result {
+            background: #0b1220;
+            color: #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            min-height: 240px;
+            overflow: auto;
+            line-height: 1.55;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+
+        .muted {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.55;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>serializeForm 自定义插件演示</h1>
+            <div class="subtitle">基于 <code>FormData</code> 把表单序列化为 querystring，并用 Modal / Select / Checkbox / InputNumber / Notification 组织交互。</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>表单</h2>
+
+                <form id="form">
+                    <div class="form-row">
+                        <label>昵称</label>
+                        <input id="nicknameInput" type="text" class="text-input" placeholder="请输入昵称" name="nickname" value="夕水">
+                    </div>
+
+                    <div class="form-row">
+                        <label>密码</label>
+                        <input id="passwordInput" type="password" name="password" class="text-input" placeholder="请输入密码" value="123456">
+                    </div>
+
+                    <div class="form-row">
+                        <label>年龄</label>
+                        <div id="ageInput"></div>
+                        <input id="ageHidden" type="hidden" name="age" value="18">
+                    </div>
+
+                    <div class="form-row">
+                        <label>角色</label>
+                        <div id="roleSelect"></div>
+                        <input id="roleHidden" type="hidden" name="role" value="user">
+                    </div>
+
+                    <div class="form-row">
+                        <label>兴趣</label>
+                        <div id="interestCheckbox"></div>
+                        <input id="interestHidden" type="hidden" name="interests" value="js,css">
+                    </div>
+                </form>
+
+                <div class="form-row" style="margin-top: 6px;">
+                    <label>行为</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="submitBtn" type="button" class="primary">序列化</button>
+                    <button id="copyBtn" type="button" class="secondary">复制结果</button>
+                    <button id="showCodeBtn" type="button" class="ghost">查看源码</button>
+                    <button id="resetBtn" type="button" class="ghost">重置</button>
+                </div>
+
+                <div class="muted">说明：自定义 Select / Checkbox 并不是原生 form control，所以这里用隐藏字段同步到 FormData。</div>
+            </div>
+
+            <div class="card">
+                <h2>输出</h2>
+                <div class="chip-row">
+                    <div class="chip" id="fieldChip">字段数：-</div>
+                    <div class="chip" id="lenChip">长度：-</div>
+                    <div class="chip" id="statusChip">状态：-</div>
+                </div>
+                <pre id="resultBox" class="result"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const serializeForm = form => Array.from(new FormData(form), field => field.map(decodeURIComponent).join('=')).join('&');
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                optionGroup: null,
+                interestGroup: null
+            },
+            inputs: {
+                age: null,
+                ageNative: null
+            },
+            selects: {
+                role: null,
+                roleNative: null
+            },
+            checkboxOptions: [],
+            checkboxInterests: [],
+            lastOutput: ''
+        };
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (state.plugins.notification) {
+                try {
+                    state.plugins.notification.show(message, type);
+                    return;
+                } catch (e) {}
+            }
+            console.log(message);
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                try {
+                    state.plugins.modal.alert(content);
+                    return;
+                } catch (e) {}
+            }
+            console.log(content);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function normalizeCode(code) {
+            const raw = String(code ?? '');
+            const lines = raw.replace(/\r\n/g, '\n').split('\n');
+            while (lines.length && !lines[0].trim()) lines.shift();
+            while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+            const indents = lines
+                .filter(line => line.trim())
+                .map(line => (line.match(/^\s+/) ? line.match(/^\s+/)[0].length : 0));
+            const minIndent = indents.length ? Math.min(...indents) : 0;
+            return lines.map(line => line.slice(minIndent)).join('\n');
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function setupAgeInput() {
+            const container = document.getElementById('ageInput');
+            if (!container) return;
+            try {
+                state.inputs.age = new InputNumber({
+                    container,
+                    min: 0,
+                    max: 120,
+                    step: 1,
+                    value: 18,
+                    onChange: (v) => {
+                        const hidden = document.getElementById('ageHidden');
+                        if (hidden) hidden.value = String(Number(v) || 0);
+                    }
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.max = '120';
+                input.step = '1';
+                input.value = '18';
+                input.className = 'text-input';
+                input.id = 'ageNative';
+                input.addEventListener('input', () => {
+                    const hidden = document.getElementById('ageHidden');
+                    if (hidden) hidden.value = String(Number(input.value) || 0);
+                });
+                container.appendChild(input);
+                state.inputs.ageNative = input;
+            }
+        }
+
+        function setupRoleSelect() {
+            const container = document.getElementById('roleSelect');
+            if (!container) return;
+
+            const options = [
+                { value: 'user', label: '普通用户' },
+                { value: 'admin', label: '管理员' },
+                { value: 'guest', label: '游客' }
+            ];
+
+            try {
+                state.selects.role = new Select({
+                    container,
+                    options,
+                    placeholder: '选择角色',
+                    onChange: (v) => {
+                        const hidden = document.getElementById('roleHidden');
+                        if (hidden) hidden.value = String(v || '');
+                    }
+                });
+                state.selects.role.setValue('user');
+            } catch (e) {
+                const select = document.createElement('select');
+                select.className = 'text-input';
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.label;
+                    select.appendChild(opt);
+                });
+                select.value = 'user';
+                select.addEventListener('change', () => {
+                    const hidden = document.getElementById('roleHidden');
+                    if (hidden) hidden.value = select.value;
+                });
+                container.appendChild(select);
+                state.selects.roleNative = select;
+            }
+        }
+
+        function setupInterestCheckboxes() {
+            const container = document.getElementById('interestCheckbox');
+            if (!container) return;
+
+            const items = [
+                { id: 'it_js', label: 'JavaScript', checked: true, value: 'js' },
+                { id: 'it_css', label: 'CSS', checked: true, value: 'css' },
+                { id: 'it_node', label: 'Node.js', checked: false, value: 'node' },
+                { id: 'it_ai', label: 'AI', checked: false, value: 'ai' }
+            ];
+            state.checkboxInterests = items;
+
+            const updateHidden = () => {
+                const values = getCheckedValues(state.plugins.interestGroup, state.checkboxInterests);
+                const hidden = document.getElementById('interestHidden');
+                if (hidden) hidden.value = values.join(',');
+            };
+
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: items.map(it => ({
+                        id: it.id,
+                        label: it.label,
+                        checked: it.checked
+                    })),
+                    onChange: () => {
+                        updateHidden();
+                    }
+                });
+                container.appendChild(group.container);
+                state.plugins.interestGroup = group;
+                updateHidden();
+            } catch (e) {
+                items.forEach(it => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${it.id}" ${it.checked ? 'checked' : ''}><label for="${it.id}" style="margin-left:8px; cursor:pointer;">${it.label}</label>`;
+                    container.appendChild(div);
+                    const native = div.querySelector('input');
+                    if (native) native.addEventListener('change', updateHidden);
+                });
+                updateHidden();
+            }
+        }
+
+        function setupOptionCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+
+            const options = [
+                { id: 'showModal', label: '用弹窗展示结果', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'pretty', label: '展示字段明细', checked: true }
+            ];
+            state.checkboxOptions = options;
+
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.optionGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getOptionValue(id) {
+            if (state.plugins.optionGroup) {
+                try {
+                    const states = state.plugins.optionGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function getCheckedValues(group, defs) {
+            if (group) {
+                try {
+                    const states = group.getAllChecked();
+                    return defs.filter((_, idx) => Boolean(states[idx])).map(d => d.value);
+                } catch (e) {}
+            }
+            return defs.filter(d => {
+                const el = document.getElementById(d.id);
+                return el ? el.checked : false;
+            }).map(d => d.value);
+        }
+
+        function syncHiddenFields() {
+            const ageHidden = document.getElementById('ageHidden');
+            if (ageHidden) {
+                if (state.inputs.age && typeof state.inputs.age.getValue === 'function') {
+                    try {
+                        ageHidden.value = String(Number(state.inputs.age.getValue()) || 0);
+                    } catch (e) {}
+                } else if (state.inputs.ageNative) {
+                    ageHidden.value = String(Number(state.inputs.ageNative.value) || 0);
+                }
+            }
+
+            const roleHidden = document.getElementById('roleHidden');
+            if (roleHidden) {
+                if (state.selects.role && typeof state.selects.role.getValue === 'function') {
+                    try {
+                        roleHidden.value = String(state.selects.role.getValue() || '');
+                    } catch (e) {}
+                } else if (state.selects.roleNative) {
+                    roleHidden.value = String(state.selects.roleNative.value || '');
+                }
+            }
+
+            const interestHidden = document.getElementById('interestHidden');
+            if (interestHidden) {
+                const values = getCheckedValues(state.plugins.interestGroup, state.checkboxInterests);
+                interestHidden.value = values.join(',');
+            }
+        }
+
+        function safeSerialize(form) {
+            try {
+                return { ok: true, data: serializeForm(form) };
+            } catch (e) {
+                return { ok: false, error: e };
+            }
+        }
+
+        function buildFieldSummary(form) {
+            const pairs = Array.from(new FormData(form).entries());
+            const lines = pairs.map(([k, v]) => `${k}=${String(v)}`);
+            return { count: pairs.length, lines };
+        }
+
+        function renderOutput(query, fieldSummary) {
+            state.lastOutput = query || '';
+            setChip('fieldChip', `字段数：${fieldSummary.count}`, fieldSummary.count ? ' ok' : ' warn');
+            setChip('lenChip', `长度：${String(query || '').length}`, query ? ' ok' : ' warn');
+            setChip('statusChip', query ? '状态：成功' : '状态：-', query ? ' ok' : '');
+
+            const box = document.getElementById('resultBox');
+            if (!box) return;
+
+            const lines = [];
+            lines.push('serializeForm(form):');
+            lines.push(query || '(empty)');
+
+            if (getOptionValue('pretty')) {
+                lines.push('');
+                lines.push('FormData 字段:');
+                if (fieldSummary.lines.length) {
+                    fieldSummary.lines.forEach(line => lines.push(line));
+                } else {
+                    lines.push('(empty)');
+                }
+            }
+
+            box.textContent = lines.join('\n');
+        }
+
+        async function copyResult() {
+            const text = state.lastOutput || '';
+            if (!text) {
+                if (getOptionValue('showNotifications')) showNotification('没有可复制的结果', 'warning');
+                showModal('<div style="padding:12px 8px; font-size:14px; color:#1f2937; font-weight:900;">没有可复制的结果</div>');
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(text);
+                if (getOptionValue('showNotifications')) showNotification('已复制到剪贴板', 'success');
+            } catch (e) {
+                showModal(`
+                    <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                        <div style="font-weight:900; margin-bottom:10px;">复制失败</div>
+                        <div style="color:#64748b; font-size:12px; margin-bottom:10px;">可手动复制下面的内容：</div>
+                        <pre style="margin:0; padding:12px; border-radius:12px; background:#0b1220; color:#e2e8f0; overflow:auto; line-height:1.55; font-size:12px;">${escapeHtml(text)}</pre>
+                    </div>
+                `);
+            }
+        }
+
+        function showCode() {
+            const code = normalizeCode(String(serializeForm));
+            showModal(`
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">serializeForm 源码</div>
+                    <pre style="margin:0; padding:10px 12px; border-radius:12px; border:1px solid #e2e8f0; overflow:auto; max-height:420px;"><code data-highlight="serializeForm" class="language-javascript">${escapeHtml(code)}</code></pre>
+                </div>
+            `);
+            setTimeout(() => {
+                if (!window.hljs) return;
+                document.querySelectorAll('code[data-highlight="serializeForm"]').forEach((el) => window.hljs.highlightElement(el));
+            }, 0);
+        }
+
+        function resetAll() {
+            const nickname = document.getElementById('nicknameInput');
+            const password = document.getElementById('passwordInput');
+            const ageHidden = document.getElementById('ageHidden');
+            const roleHidden = document.getElementById('roleHidden');
+            const interestHidden = document.getElementById('interestHidden');
+
+            if (nickname) nickname.value = '夕水';
+            if (password) password.value = '123456';
+            if (ageHidden) ageHidden.value = '18';
+            if (roleHidden) roleHidden.value = 'user';
+            if (interestHidden) interestHidden.value = 'js,css';
+
+            if (state.inputs.age && typeof state.inputs.age.setValue === 'function') {
+                try {
+                    state.inputs.age.setValue(18);
+                } catch (e) {}
+            }
+            if (state.inputs.ageNative) state.inputs.ageNative.value = '18';
+
+            if (state.selects.role && typeof state.selects.role.setValue === 'function') {
+                try {
+                    state.selects.role.setValue('user');
+                } catch (e) {}
+            }
+            if (state.selects.roleNative) state.selects.roleNative.value = 'user';
+
+            const box = document.getElementById('resultBox');
+            if (box) box.textContent = '';
+            state.lastOutput = '';
+            setChip('fieldChip', '字段数：-', '');
+            setChip('lenChip', '长度：-', '');
+            setChip('statusChip', '状态：-', '');
+            if (getOptionValue('showNotifications')) showNotification('已重置', 'info');
+        }
+
+        function handleSubmit() {
+            const form = document.getElementById('form');
+            if (!form) return;
+            syncHiddenFields();
+
+            const res = safeSerialize(form);
+            if (!res.ok) {
+                setChip('statusChip', '状态：失败', ' warn');
+                const msg = String(res.error && res.error.message ? res.error.message : res.error);
+                if (getOptionValue('showNotifications')) showNotification('序列化失败', 'error');
+                showModal(`
+                    <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                        <div style="font-weight:900; margin-bottom:10px;">序列化失败</div>
+                        <div style="color:#64748b; font-size:12px; margin-bottom:10px;">错误信息：</div>
+                        <pre style="margin:0; padding:12px; border-radius:12px; background:#0b1220; color:#e2e8f0; overflow:auto; line-height:1.55; font-size:12px;">${escapeHtml(msg)}</pre>
+                    </div>
+                `);
+                return;
+            }
+
+            const summary = buildFieldSummary(form);
+            renderOutput(res.data, summary);
+            if (getOptionValue('showNotifications')) showNotification('已序列化', 'success');
+            if (getOptionValue('showModal')) {
+                showModal(`
+                    <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                        <div style="font-weight:900; margin-bottom:10px;">serializeForm 输出</div>
+                        <pre style="margin:0; padding:12px; border-radius:12px; background:#0b1220; color:#e2e8f0; overflow:auto; line-height:1.55; font-size:12px;">${escapeHtml(res.data)}</pre>
+                    </div>
+                `);
+            }
+        }
+
+        function bindEvents() {
+            const submitBtn = document.getElementById('submitBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const showCodeBtn = document.getElementById('showCodeBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            if (submitBtn) submitBtn.addEventListener('click', handleSubmit);
+            if (copyBtn) copyBtn.addEventListener('click', copyResult);
+            if (showCodeBtn) showCodeBtn.addEventListener('click', showCode);
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+        }
+
+        function init() {
+            initPlugins();
+            setupAgeInput();
+            setupRoleSelect();
+            setupInterestCheckboxes();
+            setupOptionCheckboxes();
+            bindEvents();
+            resetAll();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>serialize-cookie</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 28px;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px 26px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.2px;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 108px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .form-row label {
+            font-size: 13px;
+            color: #334155;
+            font-weight: 800;
+        }
+
+        .text-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .text-input:focus {
+            border-color: rgba(37, 99, 235, 0.65);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.08s ease, filter 0.12s ease;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .secondary {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .ghost {
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+        }
+
+        .result {
+            background: #0b1220;
+            color: #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            min-height: 180px;
+            overflow: auto;
+            line-height: 1.55;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .chip {
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+        }
+
+        .chip.ok {
+            background: rgba(34, 197, 94, 0.14);
+            color: #166534;
+        }
+
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.16);
+            color: #92400e;
+        }
+
+        .muted {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.55;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>serializeCookie 自定义插件演示</h1>
+            <div class="subtitle">将 cookie 的 name/value 做 URL 编码并拼成 <code>name=value</code>，同时用 Modal / Select / Checkbox / InputNumber / Notification 组织交互。</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>配置</h2>
+
+                <div class="form-row">
+                    <label>名称模板</label>
+                    <div id="nameSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>名称</label>
+                    <input id="nameInput" class="text-input" placeholder="例如：session_id" value="session_id" />
+                </div>
+
+                <div class="form-row">
+                    <label>值模板</label>
+                    <div id="valueSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>值</label>
+                    <input id="valueInput" class="text-input" placeholder="例如：abc 123" value="abc 123" />
+                </div>
+
+                <div class="form-row">
+                    <label>Max-Age</label>
+                    <div id="maxAgeInput"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="buildBtn" class="primary">生成 Cookie 字符串</button>
+                    <button id="copyBtn" class="secondary">复制结果</button>
+                    <button id="showCodeBtn" class="ghost">查看源码</button>
+                    <button id="resetBtn" class="ghost">重置</button>
+                </div>
+
+                <div class="muted">注意：这里只生成字符串示例，不会真的写入 document.cookie。</div>
+            </div>
+
+            <div class="card">
+                <h2>输出</h2>
+                <div class="chip-row">
+                    <div class="chip" id="encodedChip">编码：-</div>
+                    <div class="chip" id="attrChip">属性：-</div>
+                </div>
+                <pre id="resultBox" class="result"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script>
+        const serializeCookie = (name, val) =>
+            `${encodeURIComponent(name)}=${encodeURIComponent(val)}`;
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                name: null,
+                nameNative: null,
+                value: null,
+                valueNative: null
+            },
+            inputs: {
+                maxAge: null,
+                maxAgeNative: null
+            },
+            checkboxOptions: [],
+            lastOutput: ''
+        };
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (state.plugins.notification) {
+                try {
+                    state.plugins.notification.show(message, type);
+                    return;
+                } catch (e) {}
+            }
+            console.log(message);
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                try {
+                    state.plugins.modal.alert(content);
+                    return;
+                } catch (e) {}
+            }
+            console.log(content);
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+            const options = [
+                { id: 'appendAttrs', label: '拼接属性（演示）', checked: true },
+                { id: 'secure', label: 'Secure', checked: false },
+                { id: 'httpOnly', label: 'HttpOnly', checked: false },
+                { id: 'sameSiteStrict', label: 'SameSite=Strict', checked: true }
+            ];
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const nameContainer = document.getElementById('nameSelect');
+            const valueContainer = document.getElementById('valueSelect');
+
+            const nameOptions = [
+                { value: 'session_id', label: 'session_id' },
+                { value: 'uid', label: 'uid' },
+                { value: 'ab_test', label: 'ab_test' },
+                { value: 'theme', label: 'theme' }
+            ];
+
+            const valueOptions = [
+                { value: 'abc 123', label: '包含空格（abc 123）' },
+                { value: 'a=b&c=d', label: '包含符号（a=b&c=d）' },
+                { value: '中文 值', label: '包含中文（中文 值）' },
+                { value: 'email=test@example.com', label: '邮箱（email=test@example.com）' }
+            ];
+
+            if (nameContainer) {
+                try {
+                    state.selects.name = new Select({
+                        container: nameContainer,
+                        options: nameOptions,
+                        placeholder: '选择名称',
+                        onChange: (v) => {
+                            const input = document.getElementById('nameInput');
+                            if (input) input.value = String(v || '');
+                        }
+                    });
+                    state.selects.name.setValue('session_id');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    nameOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'session_id';
+                    select.addEventListener('change', () => {
+                        const input = document.getElementById('nameInput');
+                        if (input) input.value = select.value;
+                    });
+                    nameContainer.appendChild(select);
+                    state.selects.nameNative = select;
+                }
+            }
+
+            if (valueContainer) {
+                try {
+                    state.selects.value = new Select({
+                        container: valueContainer,
+                        options: valueOptions,
+                        placeholder: '选择值',
+                        onChange: (v) => {
+                            const input = document.getElementById('valueInput');
+                            if (input) input.value = String(v || '');
+                        }
+                    });
+                    state.selects.value.setValue('abc 123');
+                } catch (e) {
+                    const select = document.createElement('select');
+                    select.className = 'input-field';
+                    valueOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label;
+                        select.appendChild(opt);
+                    });
+                    select.value = 'abc 123';
+                    select.addEventListener('change', () => {
+                        const input = document.getElementById('valueInput');
+                        if (input) input.value = select.value;
+                    });
+                    valueContainer.appendChild(select);
+                    state.selects.valueNative = select;
+                }
+            }
+        }
+
+        function setupMaxAgeInput() {
+            const container = document.getElementById('maxAgeInput');
+            if (!container) return;
+            try {
+                state.inputs.maxAge = new InputNumber({
+                    container,
+                    min: 0,
+                    max: 86400,
+                    step: 60,
+                    value: 3600,
+                    onChange: () => {}
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.max = '86400';
+                input.step = '60';
+                input.value = '3600';
+                input.className = 'input-field';
+                input.id = 'maxAgeNative';
+                container.appendChild(input);
+                state.inputs.maxAgeNative = input;
+            }
+        }
+
+        function getMaxAgeValue() {
+            if (state.inputs.maxAge && typeof state.inputs.maxAge.getValue === 'function') {
+                try {
+                    return Math.max(0, Math.min(86400, Number(state.inputs.maxAge.getValue()) || 0));
+                } catch (e) {}
+            }
+            if (state.inputs.maxAgeNative) {
+                const v = Number(state.inputs.maxAgeNative.value);
+                return Math.max(0, Math.min(86400, Number.isFinite(v) ? v : 0));
+            }
+            return 0;
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function buildCookieString() {
+            const name = (document.getElementById('nameInput')?.value ?? '').trim();
+            const value = (document.getElementById('valueInput')?.value ?? '');
+
+            if (!name) {
+                showNotification('Cookie 名称不能为空', 'warning');
+                showModal('<div style="padding:12px 8px; font-size:14px; color:#1f2937; font-weight:900;">Cookie 名称不能为空</div>');
+                return '';
+            }
+
+            const base = serializeCookie(name, value);
+            const attrs = [];
+
+            if (getCheckboxValue('appendAttrs')) {
+                const maxAge = getMaxAgeValue();
+                if (maxAge > 0) attrs.push(`Max-Age=${Math.round(maxAge)}`);
+                if (getCheckboxValue('sameSiteStrict')) attrs.push('SameSite=Strict');
+                if (getCheckboxValue('secure')) attrs.push('Secure');
+                if (getCheckboxValue('httpOnly')) attrs.push('HttpOnly');
+            }
+
+            const full = attrs.length ? `${base}; ${attrs.join('; ')}` : base;
+            state.lastOutput = full;
+
+            const encodedStatus = base.includes('%') ? '已编码' : '无需编码';
+            setChip('encodedChip', `编码：${encodedStatus}`, base.includes('%') ? ' ok' : '');
+            setChip('attrChip', `属性：${attrs.length ? attrs.length + ' 个' : '0 个'}`, attrs.length ? ' ok' : ' warn');
+
+            const box = document.getElementById('resultBox');
+            if (box) {
+                const lines = [];
+                lines.push(`name:  ${name}`);
+                lines.push(`value: ${value}`);
+                lines.push('');
+                lines.push(`serializeCookie(name, value):`);
+                lines.push(base);
+                lines.push('');
+                lines.push(`最终输出:`);
+                lines.push(full);
+                box.textContent = lines.join('\n');
+            }
+
+            return full;
+        }
+
+        async function copyResult() {
+            const text = state.lastOutput || buildCookieString();
+            if (!text) return;
+            try {
+                await navigator.clipboard.writeText(text);
+                showNotification('已复制到剪贴板', 'success');
+            } catch (e) {
+                showModal(`
+                    <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                        <div style="font-weight:900; margin-bottom:10px;">复制失败</div>
+                        <div style="color:#64748b; font-size:12px; margin-bottom:10px;">可手动复制下面的内容：</div>
+                        <pre style="margin:0; padding:12px; border-radius:12px; background:#0b1220; color:#e2e8f0; overflow:auto; line-height:1.55; font-size:12px;">${escapeHtml(text)}</pre>
+                    </div>
+                `);
+            }
+        }
+
+        function showCode() {
+            const code = String(serializeCookie);
+            showModal(`
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">serializeCookie 源码</div>
+                    <pre style="margin:0; padding:12px; border-radius:12px; background:#0b1220; color:#e2e8f0; overflow:auto; line-height:1.55; font-size:12px;">${escapeHtml(code)}</pre>
+                </div>
+            `);
+        }
+
+        function resetAll() {
+            const nameInput = document.getElementById('nameInput');
+            const valueInput = document.getElementById('valueInput');
+            if (nameInput) nameInput.value = 'session_id';
+            if (valueInput) valueInput.value = 'abc 123';
+
+            if (state.selects.name && typeof state.selects.name.setValue === 'function') {
+                try {
+                    state.selects.name.setValue('session_id');
+                } catch (e) {}
+            }
+            if (state.selects.nameNative) state.selects.nameNative.value = 'session_id';
+
+            if (state.selects.value && typeof state.selects.value.setValue === 'function') {
+                try {
+                    state.selects.value.setValue('abc 123');
+                } catch (e) {}
+            }
+            if (state.selects.valueNative) state.selects.valueNative.value = 'abc 123';
+
+            if (state.inputs.maxAge && typeof state.inputs.maxAge.setValue === 'function') {
+                try {
+                    state.inputs.maxAge.setValue(3600);
+                } catch (e) {}
+            }
+            if (state.inputs.maxAgeNative) state.inputs.maxAgeNative.value = '3600';
+
+            setChip('encodedChip', '编码：-', '');
+            setChip('attrChip', '属性：-', '');
+            const box = document.getElementById('resultBox');
+            if (box) box.textContent = '';
+            state.lastOutput = '';
+            showNotification('已重置', 'info');
+        }
+
+        function bindEvents() {
+            const buildBtn = document.getElementById('buildBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const showCodeBtn = document.getElementById('showCodeBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            if (buildBtn) buildBtn.addEventListener('click', () => {
+                const out = buildCookieString();
+                if (!out) return;
+                showNotification('已生成 Cookie 字符串', 'success');
+                showModal(`
+                    <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                        <div style="font-weight:900; margin-bottom:10px;">Cookie 字符串</div>
+                        <pre style="margin:0; padding:12px; border-radius:12px; background:#0b1220; color:#e2e8f0; overflow:auto; line-height:1.55; font-size:12px;">${escapeHtml(out)}</pre>
+                    </div>
+                `);
+            });
+            if (copyBtn) copyBtn.addEventListener('click', copyResult);
+            if (showCodeBtn) showCodeBtn.addEventListener('click', showCode);
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+
+            const nameInput = document.getElementById('nameInput');
+            const valueInput = document.getElementById('valueInput');
+            if (nameInput) nameInput.addEventListener('input', () => {});
+            if (valueInput) valueInput.addEventListener('input', () => {});
+        }
+
+        function init() {
+            initPlugins();
+            setupSelects();
+            setupMaxAgeInput();
+            setupCheckboxes();
+            bindEvents();
+            resetAll();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+
+</html>

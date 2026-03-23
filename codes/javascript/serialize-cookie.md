@@ -11,6 +11,8 @@ const serializeCookie = (name, val) =>
   `${encodeURIComponent(name)}=${encodeURIComponent(val)}`;
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/serialize-cookie.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -18,3 +20,11 @@ serializeCookie('foo', 'bar'); // 'foo=bar'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/serialize-cookie.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/serialize-cookie.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/serialize-cookie.html"></iframe>
