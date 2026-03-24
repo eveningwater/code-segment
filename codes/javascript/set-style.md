@@ -10,6 +10,14 @@
 const setStyle = (el, prop, val) => (el.style[prop] = val);
 ```
 
+更好的写法：
+
+```js
+const setStyle = (el, prop, val) => el.style.setProperty(prop, val);
+```
+
+<div class="code-editor" data-url="codes/javascript/ts/set-style.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -19,6 +27,12 @@ setStyle(document.querySelector('p'), 'font-size', '20px');
 
 > 应用场景
 
-<iframe src="codes/javascript/html/setStyle.html"></iframe>
+以下是一个实战<a href="codes/javascript/html/set-style.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/set-style.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/set-style.html"></iframe>
 
 > ps: 以上是一个不错的实用函数

@@ -554,7 +554,7 @@
 - [选择排序算法-2023-04-04](codes/javascript/selection-sort.md)
 - [序列化 cookie-2023-04-05](codes/javascript/serialize-cookie.md)
 - [序列化表单对象-2023-04-06](codes/javascript/serialize-form.md)
-- [设置样式-2023-04-07](codes/javascript/setStyle.md)
+- [设置样式-2023-04-07](codes/javascript/set-style.md)
 - [浅复制对象-2023-04-08](codes/javascript/shallowClone.md)
 - [实现数组的 splice 方法,但不改变原数组--2023-04-09](codes/javascript/shank.md)
 - [显示所有元素--2023-04-10](codes/javascript/show.md)
