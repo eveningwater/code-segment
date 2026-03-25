@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shallow-clone</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+
+        .page {
+            max-width: 1220px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 108px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .form-row label {
+            font-size: 13px;
+            color: #334155;
+            font-weight: 800;
+        }
+
+        .text-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .text-input:focus {
+            border-color: rgba(37, 99, 235, 0.65);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.08s ease, filter 0.12s ease;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .secondary {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .ghost {
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+        }
+
+        .stage {
+            min-height: 520px;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            overflow: hidden;
+        }
+
+        .stage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .stage-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+
+        .stage-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+
+        .chip.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .stat {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+            word-break: break-all;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .json {
+            background: #0b1220;
+            color: #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            min-height: 220px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.65;
+            font-size: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .split {
+                grid-template-columns: 1fr;
+            }
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>shallowClone 自定义插件演示</h1>
+            </div>
+            <div class="subtitle">观察“浅拷贝只复制第一层引用”——外层对象不同、但嵌套对象/数组依旧共享同一个引用。</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>配置面板</h2>
+
+                <div class="form-row">
+                    <label>示例对象</label>
+                    <div id="presetSelect"></div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>age</label>
+                        <div id="ageInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>score</label>
+                        <div id="scoreInput"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>name</label>
+                    <input id="nameInput" class="text-input" value="Alice" />
+                </div>
+
+                <div class="form-row">
+                    <label>tags</label>
+                    <input id="tagsInput" class="text-input" value="js,css" />
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="cloneBtn" class="secondary">执行浅拷贝</button>
+                    <button id="mutateBtn" class="primary">修改嵌套字段</button>
+                    <button id="showCodeBtn" class="ghost">查看代码</button>
+                    <button id="resetBtn" class="ghost">重置</button>
+                </div>
+
+                <div class="hint">“修改嵌套字段”会改动 <code>original.meta.score</code> 与 <code>original.list[0]</code>，用于观察 clone 是否被连带影响。</div>
+            </div>
+
+            <div class="card">
+                <h2>结果对比</h2>
+                <div class="stage">
+                    <div class="stage-head">
+                        <div>
+                            <div class="stage-title">Compare</div>
+                            <div class="stage-sub">original / clone 的结构与引用关系</div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <span id="statusChip" class="chip ok">就绪</span>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-label">original === clone</div>
+                            <div class="stat-value" id="eqRoot">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">original.meta === clone.meta</div>
+                            <div class="stat-value" id="eqMeta">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">original.list === clone.list</div>
+                            <div class="stat-value" id="eqList">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">最近操作</div>
+                            <div class="stat-value" id="lastAction">-</div>
+                        </div>
+                    </div>
+
+                    <div class="split">
+                        <div>
+                            <div style="font-weight:900; margin: 4px 0 8px;">original</div>
+                            <pre id="originalBox" class="json"></pre>
+                        </div>
+                        <div>
+                            <div style="font-weight:900; margin: 4px 0 8px;">clone</div>
+                            <pre id="cloneBox" class="json"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const shallowClone = obj => Object.assign({}, obj);
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                preset: null,
+                presetNative: null
+            },
+            inputs: {
+                age: null,
+                ageNative: null,
+                score: null,
+                scoreNative: null
+            },
+            checkboxOptions: [],
+            original: null,
+            clone: null,
+            lastAction: '-'
+        };
+
+        const presets = {
+            user: {
+                label: '用户对象（嵌套 meta + 数组 list）',
+                value: { id: 1, name: 'Alice', age: 18, meta: { score: 80 }, list: [1, 2, 3], tags: ['js', 'css'] }
+            },
+            order: {
+                label: '订单对象（items 为数组）',
+                value: { orderId: 'NO_1001', name: 'Order', age: 2, meta: { score: 10 }, list: [{ sku: 'A', qty: 1 }], tags: ['sale'] }
+            },
+            shallowTrap: {
+                label: '浅拷贝陷阱（多层嵌套）',
+                value: { name: 'Trap', age: 20, meta: { score: 60, deep: { level: 2 } }, list: [{ x: 1 }, { x: 2 }], tags: ['nested'] }
+            }
+        };
+
+        const presetOptions = Object.entries(presets).map(([value, item]) => ({ value, label: item.label }));
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getCheckboxValue('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(String(content).replace(/<[^>]*>/g, ''));
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function normalizeCode(code) {
+            const raw = String(code ?? '');
+            const lines = raw.replace(/\r\n/g, '\n').split('\n');
+            while (lines.length && !lines[0].trim()) lines.shift();
+            while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+            const indents = lines
+                .filter(line => line.trim())
+                .map(line => (line.match(/^\s+/) ? line.match(/^\s+/)[0].length : 0));
+            const minIndent = indents.length ? Math.min(...indents) : 0;
+            return lines.map(line => line.slice(minIndent)).join('\n');
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = String(text);
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = String(text);
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+            const options = [
+                { id: 'autoClone', label: '配置变化自动浅拷贝', checked: true },
+                { id: 'autoScroll', label: '自动滚动（对比区）', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '弹窗展示代码', checked: true }
+            ];
+            state.checkboxOptions = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getCheckboxValue(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.checkboxOptions.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const container = document.getElementById('presetSelect');
+            if (!container) return;
+            try {
+                state.selects.preset = new Select({
+                    container,
+                    options: presetOptions,
+                    placeholder: '选择示例',
+                    onChange: () => {
+                        applyPreset();
+                    }
+                });
+                state.selects.preset.setValue('user');
+            } catch (e) {
+                const select = document.createElement('select');
+                select.className = 'text-input';
+                presetOptions.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.label;
+                    select.appendChild(opt);
+                });
+                select.value = 'user';
+                select.addEventListener('change', applyPreset);
+                container.appendChild(select);
+                state.selects.presetNative = select;
+            }
+        }
+
+        function getPresetKey() {
+            if (state.selects.preset && typeof state.selects.preset.getValue === 'function') {
+                return state.selects.preset.getValue() || 'user';
+            }
+            return state.selects.presetNative ? state.selects.presetNative.value : 'user';
+        }
+
+        function setupInputs() {
+            const ageContainer = document.getElementById('ageInput');
+            const scoreContainer = document.getElementById('scoreInput');
+
+            if (ageContainer) {
+                try {
+                    state.inputs.age = new InputNumber({
+                        container: ageContainer,
+                        min: 0,
+                        max: 120,
+                        step: 1,
+                        value: 18,
+                        onChange: () => {
+                            syncDraftToOriginal();
+                            if (getCheckboxValue('autoClone')) doClone('auto');
+                        }
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '120';
+                    input.step = '1';
+                    input.value = '18';
+                    input.className = 'text-input';
+                    input.id = 'ageNative';
+                    input.addEventListener('input', () => {
+                        syncDraftToOriginal();
+                        if (getCheckboxValue('autoClone')) doClone('auto');
+                    });
+                    ageContainer.appendChild(input);
+                    state.inputs.ageNative = input;
+                }
+            }
+
+            if (scoreContainer) {
+                try {
+                    state.inputs.score = new InputNumber({
+                        container: scoreContainer,
+                        min: 0,
+                        max: 100,
+                        step: 1,
+                        value: 80,
+                        onChange: () => {
+                            syncDraftToOriginal();
+                            if (getCheckboxValue('autoClone')) doClone('auto');
+                        }
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '100';
+                    input.step = '1';
+                    input.value = '80';
+                    input.className = 'text-input';
+                    input.id = 'scoreNative';
+                    input.addEventListener('input', () => {
+                        syncDraftToOriginal();
+                        if (getCheckboxValue('autoClone')) doClone('auto');
+                    });
+                    scoreContainer.appendChild(input);
+                    state.inputs.scoreNative = input;
+                }
+            }
+        }
+
+        function getNumberFromInput(plugin, nativeEl, fallback) {
+            if (plugin && typeof plugin.getValue === 'function') {
+                try {
+                    const n = Number(plugin.getValue());
+                    if (Number.isFinite(n)) return n;
+                } catch (e) {}
+            }
+            if (nativeEl) {
+                const n = Number(nativeEl.value);
+                if (Number.isFinite(n)) return n;
+            }
+            return fallback;
+        }
+
+        function setInputValue(plugin, nativeEl, value) {
+            if (plugin && typeof plugin.setValue === 'function') {
+                try {
+                    plugin.setValue(value);
+                    return;
+                } catch (e) {}
+            }
+            if (nativeEl) nativeEl.value = String(value);
+        }
+
+        function getDraft() {
+            const name = (document.getElementById('nameInput')?.value ?? '').trim();
+            const tagsRaw = (document.getElementById('tagsInput')?.value ?? '').trim();
+            const age = Math.max(0, Math.min(120, Math.round(getNumberFromInput(state.inputs.age, state.inputs.ageNative, 18))));
+            const score = Math.max(0, Math.min(100, Math.round(getNumberFromInput(state.inputs.score, state.inputs.scoreNative, 80))));
+            const tags = tagsRaw ? tagsRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+            return { name, tags, age, score };
+        }
+
+        function createOriginalFromPreset(key) {
+            const preset = presets[key] || presets.user;
+            const base = preset.value;
+            const copy = {
+                ...base,
+                meta: base.meta,
+                list: base.list,
+                tags: Array.isArray(base.tags) ? base.tags : []
+            };
+            return copy;
+        }
+
+        function syncDraftToOriginal() {
+            if (!state.original) return;
+            const d = getDraft();
+            state.original.name = d.name;
+            state.original.age = d.age;
+            if (state.original.meta && typeof state.original.meta === 'object') {
+                state.original.meta.score = d.score;
+            }
+            state.original.tags = d.tags;
+        }
+
+        function applyPreset() {
+            const key = getPresetKey();
+            state.original = createOriginalFromPreset(key);
+            state.clone = null;
+            state.lastAction = `preset:${key}`;
+            const d = {
+                name: String(state.original.name ?? ''),
+                tags: Array.isArray(state.original.tags) ? state.original.tags.join(',') : '',
+                age: Number(state.original.age ?? 0) || 0,
+                score: Number(state.original.meta && state.original.meta.score != null ? state.original.meta.score : 0) || 0
+            };
+
+            const nameInput = document.getElementById('nameInput');
+            const tagsInput = document.getElementById('tagsInput');
+            if (nameInput) nameInput.value = d.name;
+            if (tagsInput) tagsInput.value = d.tags;
+            setInputValue(state.inputs.age, state.inputs.ageNative, d.age);
+            setInputValue(state.inputs.score, state.inputs.scoreNative, d.score);
+
+            render();
+            if (getCheckboxValue('autoClone')) doClone('auto');
+            showNotification('已应用示例', 'info');
+        }
+
+        function doClone(mode = 'manual') {
+            if (!state.original) return;
+            syncDraftToOriginal();
+            state.clone = shallowClone(state.original);
+            state.lastAction = mode === 'auto' ? 'clone:auto' : 'clone';
+            setChip('statusChip', '已浅拷贝', 'ok');
+            render();
+            showNotification('已浅拷贝', 'success');
+        }
+
+        function mutateNested() {
+            if (!state.original) return;
+            if (!state.clone) doClone('auto');
+            if (!state.original) return;
+            if (state.original.meta && typeof state.original.meta === 'object') {
+                state.original.meta.score = Number(state.original.meta.score || 0) + 1;
+            }
+            if (Array.isArray(state.original.list) && state.original.list.length) {
+                const first = state.original.list[0];
+                if (typeof first === 'number') {
+                    state.original.list[0] = first + 1;
+                } else if (first && typeof first === 'object') {
+                    if ('qty' in first) first.qty = Number(first.qty || 0) + 1;
+                    else if ('x' in first) first.x = Number(first.x || 0) + 1;
+                    else first.mutated = true;
+                } else {
+                    state.original.list[0] = { mutated: true };
+                }
+            }
+            state.lastAction = 'mutate:nested';
+            setChip('statusChip', '已修改嵌套', 'warn');
+            render();
+            showNotification('已修改嵌套字段（观察 clone 是否同步变化）', 'warning');
+
+            if (getCheckboxValue('showNotifications') && state.clone && state.original) {
+                const msg = `metaRef=${state.original.meta === state.clone.meta}, listRef=${state.original.list === state.clone.list}`;
+                showNotification(msg, 'info');
+            }
+        }
+
+        function safeStringify(obj) {
+            try {
+                return JSON.stringify(obj, null, 2);
+            } catch (e) {
+                return String(obj);
+            }
+        }
+
+        function render() {
+            setText('lastAction', state.lastAction || '-');
+            if (!state.original) {
+                setText('eqRoot', '-');
+                setText('eqMeta', '-');
+                setText('eqList', '-');
+                setText('originalBox', '');
+                setText('cloneBox', '');
+                return;
+            }
+            const clone = state.clone;
+            setText('originalBox', safeStringify(state.original));
+            setText('cloneBox', clone ? safeStringify(clone) : '(clone 为空，请先执行浅拷贝)');
+
+            if (!clone) {
+                setText('eqRoot', '-');
+                setText('eqMeta', '-');
+                setText('eqList', '-');
+            } else {
+                setText('eqRoot', String(state.original === clone));
+                setText('eqMeta', String(state.original.meta === clone.meta));
+                setText('eqList', String(state.original.list === clone.list));
+            }
+
+            if (getCheckboxValue('autoScroll')) {
+                const ob = document.getElementById('originalBox');
+                const cb = document.getElementById('cloneBox');
+                if (ob) ob.scrollTop = ob.scrollHeight;
+                if (cb) cb.scrollTop = cb.scrollHeight;
+            }
+        }
+
+        function showCode() {
+            if (!getCheckboxValue('showModalDetail')) {
+                showNotification('弹窗已关闭', 'info');
+                return;
+            }
+            const code = normalizeCode(shallowClone.toString());
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">shallowClone</div>
+                    <pre style="margin:0; padding:10px 12px; border-radius:10px; border:1px solid #e2e8f0; overflow:auto; max-height:420px;"><code data-highlight="shallow" class="language-javascript">${escapeHtml(code)}</code></pre>
+                </div>
+            `;
+            showModal(content);
+            setTimeout(() => {
+                if (!window.hljs) return;
+                document.querySelectorAll('code[data-highlight="shallow"]').forEach((el) => window.hljs.highlightElement(el));
+            }, 0);
+        }
+
+        function resetAll() {
+            if (state.selects.preset && typeof state.selects.preset.setValue === 'function') {
+                try {
+                    state.selects.preset.setValue('user');
+                } catch (e) {}
+            }
+            if (state.selects.presetNative) state.selects.presetNative.value = 'user';
+            applyPreset();
+            setChip('statusChip', '就绪', 'ok');
+            showNotification('已重置', 'info');
+        }
+
+        function bindEvents() {
+            const cloneBtn = document.getElementById('cloneBtn');
+            const mutateBtn = document.getElementById('mutateBtn');
+            const showCodeBtn = document.getElementById('showCodeBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const nameInput = document.getElementById('nameInput');
+            const tagsInput = document.getElementById('tagsInput');
+
+            if (cloneBtn) cloneBtn.addEventListener('click', () => doClone('manual'));
+            if (mutateBtn) mutateBtn.addEventListener('click', mutateNested);
+            if (showCodeBtn) showCodeBtn.addEventListener('click', showCode);
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+            if (nameInput) nameInput.addEventListener('input', () => {
+                syncDraftToOriginal();
+                render();
+                if (getCheckboxValue('autoClone')) doClone('auto');
+            });
+            if (tagsInput) tagsInput.addEventListener('input', () => {
+                syncDraftToOriginal();
+                render();
+                if (getCheckboxValue('autoClone')) doClone('auto');
+            });
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputs();
+            bindEvents();
+            applyPreset();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
