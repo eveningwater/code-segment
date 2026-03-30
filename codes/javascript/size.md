@@ -20,6 +20,8 @@ const size = val =>
     : 0;
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/size.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -29,3 +31,11 @@ size({ one: 1, two: 2, three: 3 }); // 3
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/size.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/size.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/size.html"></iframe>
