@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shuffle</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 32px;
+        }
+
+        .page {
+            max-width: 1220px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 108px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-row label {
+            font-size: 13px;
+            color: #334155;
+            font-weight: 800;
+        }
+
+        .text-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+            outline: none;
+            background: #ffffff;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .text-input:focus {
+            border-color: rgba(37, 99, 235, 0.65);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.08s ease, filter 0.12s ease;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .secondary {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .ghost {
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-top: 12px;
+        }
+
+        .stage {
+            min-height: 560px;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            overflow: hidden;
+        }
+
+        .stage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .stage-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+
+        .stage-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.55;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .chip.warn {
+            background: rgba(245, 158, 11, 0.18);
+            color: #92400e;
+        }
+
+        .chip.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #065f46;
+        }
+
+        .board {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            align-content: start;
+        }
+
+        .tile {
+            position: relative;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            min-height: 78px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.08s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .tile:active {
+            transform: translateY(1px);
+        }
+
+        .tile.face-up {
+            border-color: rgba(37, 99, 235, 0.35);
+            box-shadow: 0 16px 28px rgba(37, 99, 235, 0.12);
+        }
+
+        .tile.matched {
+            border-color: rgba(16, 185, 129, 0.35);
+            box-shadow: 0 16px 28px rgba(16, 185, 129, 0.12);
+        }
+
+        .tile .front {
+            font-size: 30px;
+            font-weight: 950;
+            letter-spacing: 0.6px;
+        }
+
+        .tile .back {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(15, 23, 42, 0.10));
+            font-weight: 950;
+            color: rgba(15, 23, 42, 0.75);
+            letter-spacing: 1.2px;
+            font-size: 14px;
+        }
+
+        .tile.face-up .back,
+        .tile.matched .back {
+            display: none;
+        }
+
+        .log {
+            background: #0b1220;
+            color: #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            min-height: 140px;
+            max-height: 220px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.65;
+            font-size: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title-row">
+                <h1>shuffle 小游戏：记忆翻牌</h1>
+            </div>
+            <div class="subtitle">基于当前的 <code>shuffle</code> 扩展：用 Fisher–Yates 洗牌生成卡牌布局，点击翻牌匹配相同图案。用自定义插件替代原生输入/提示，并支持代码高亮查看实现。</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>配置</h2>
+
+                <div class="form-row">
+                    <label>主题</label>
+                    <div id="themeSelect"></div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>配对数</label>
+                        <div id="pairInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>预览(ms)</label>
+                        <div id="previewInput"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="startBtn" class="primary">开始新局</button>
+                    <button id="reshuffleBtn" class="secondary">重新洗牌</button>
+                    <button id="showCodeBtn" class="ghost">查看 shuffle 代码</button>
+                    <button id="resetBtn" class="ghost">重置</button>
+                </div>
+
+                <div class="hint">玩法：翻开两张相同图案即匹配成功。预览会在开局短暂展示所有牌面（可设为 0 关闭）。</div>
+            </div>
+
+            <div class="card">
+                <h2>游戏</h2>
+                <div class="stage">
+                    <div class="stage-head">
+                        <div>
+                            <div class="stage-title">Board</div>
+                            <div class="stage-sub">点击卡片翻面。匹配完成后会弹窗展示成绩。</div>
+                        </div>
+                        <div class="chip-row">
+                            <span id="statusChip" class="chip ok">就绪</span>
+                            <span id="moveChip" class="chip">步数 0</span>
+                            <span id="matchChip" class="chip">匹配 0/0</span>
+                            <span id="timeChip" class="chip">用时 0.0s</span>
+                        </div>
+                    </div>
+
+                    <div id="board" class="board"></div>
+                    <div id="logBox" class="log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const shuffle = ([...arr]) => {
+            let m = arr.length;
+            while (m) {
+                const i = Math.floor(Math.random() * m--);
+                [arr[m], arr[i]] = [arr[i], arr[m]];
+            }
+            return arr;
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                theme: null,
+                themeNative: null
+            },
+            inputs: {
+                pairs: null,
+                pairsNative: null,
+                preview: null,
+                previewNative: null
+            },
+            optionDefs: [],
+            deck: [],
+            first: null,
+            second: null,
+            locked: false,
+            moves: 0,
+            matches: 0,
+            totalPairs: 0,
+            startedAt: 0,
+            timer: null
+        };
+
+        const themes = {
+            emoji: { label: 'Emoji', list: ['🍎', '🍌', '🍇', '🍉', '🍒', '🍋', '🥝', '🍑', '🍍', '🥥', '🍓', '🥕', '🧀', '🍪', '🍩', '🍿', '🌶️', '🍔', '🍟', '🍣'] },
+            letters: { label: '字母', list: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') },
+            numbers: { label: '数字', list: Array.from({ length: 30 }, (_, i) => String(i + 1)) }
+        };
+
+        const themeOptions = Object.entries(themes).map(([value, item]) => ({ value, label: item.label }));
+
+        function initPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function showNotification(message, type = 'info') {
+            if (!getOption('showNotifications')) return;
+            if (state.plugins.notification) {
+                state.plugins.notification.show(message, type);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function showModal(content) {
+            if (state.plugins.modal) {
+                state.plugins.modal.alert(content);
+            } else {
+                console.log(String(content).replace(/<[^>]*>/g, ''));
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function normalizeCode(code) {
+            const raw = String(code ?? '');
+            const lines = raw.replace(/\r\n/g, '\n').split('\n');
+            while (lines.length && !lines[0].trim()) lines.shift();
+            while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+            const indents = lines
+                .filter(line => line.trim())
+                .map(line => (line.match(/^\s+/) ? line.match(/^\s+/)[0].length : 0));
+            const minIndent = indents.length ? Math.min(...indents) : 0;
+            return lines.map(line => line.slice(minIndent)).join('\n');
+        }
+
+        function setChip(id, text, variant) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = String(text);
+            el.className = `chip${variant ? ' ' + variant : ''}`;
+        }
+
+        function addLog(line) {
+            const box = document.getElementById('logBox');
+            if (!box) return;
+            const t = new Date().toLocaleTimeString('zh-CN');
+            box.textContent += `[${t}] ${line}\n`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function setupCheckboxes() {
+            const container = document.getElementById('optionCheckbox');
+            if (!container) return;
+            const options = [
+                { id: 'autoPreview', label: '开局自动预览', checked: true },
+                { id: 'showTimer', label: '显示计时', checked: true },
+                { id: 'showNotifications', label: '显示通知', checked: true },
+                { id: 'showModalDetail', label: '弹窗展示代码', checked: true }
+            ];
+            state.optionDefs = options;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map(option => ({
+                        id: option.id,
+                        label: option.label,
+                        checked: option.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach(option => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<input type="checkbox" id="${option.id}" ${option.checked ? 'checked' : ''}><label for="${option.id}" style="margin-left:8px; cursor:pointer;">${option.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function getOption(id) {
+            if (state.plugins.checkboxGroup) {
+                try {
+                    const states = state.plugins.checkboxGroup.getAllChecked();
+                    const index = state.optionDefs.findIndex(option => option.id === id);
+                    if (index !== -1) return states[index] || false;
+                } catch (e) {}
+            }
+            const native = document.getElementById(id);
+            return native ? native.checked : false;
+        }
+
+        function setupSelects() {
+            const container = document.getElementById('themeSelect');
+            if (!container) return;
+            try {
+                state.selects.theme = new Select({
+                    container,
+                    options: themeOptions,
+                    placeholder: '选择主题',
+                    onChange: () => {}
+                });
+                state.selects.theme.setValue('emoji');
+            } catch (e) {
+                const select = document.createElement('select');
+                select.className = 'text-input';
+                themeOptions.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.label;
+                    select.appendChild(opt);
+                });
+                select.value = 'emoji';
+                container.appendChild(select);
+                state.selects.themeNative = select;
+            }
+        }
+
+        function getThemeKey() {
+            if (state.selects.theme && typeof state.selects.theme.getValue === 'function') {
+                try {
+                    return state.selects.theme.getValue() || 'emoji';
+                } catch (e) {}
+            }
+            return state.selects.themeNative ? state.selects.themeNative.value : 'emoji';
+        }
+
+        function setupInputs() {
+            const pairContainer = document.getElementById('pairInput');
+            const previewContainer = document.getElementById('previewInput');
+
+            if (pairContainer) {
+                try {
+                    state.inputs.pairs = new InputNumber({
+                        container: pairContainer,
+                        min: 2,
+                        max: 12,
+                        step: 1,
+                        value: 6,
+                        onChange: () => {}
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '2';
+                    input.max = '12';
+                    input.step = '1';
+                    input.value = '6';
+                    input.className = 'text-input';
+                    input.id = 'pairsNative';
+                    pairContainer.appendChild(input);
+                    state.inputs.pairsNative = input;
+                }
+            }
+
+            if (previewContainer) {
+                try {
+                    state.inputs.preview = new InputNumber({
+                        container: previewContainer,
+                        min: 0,
+                        max: 5000,
+                        step: 100,
+                        value: 800,
+                        onChange: () => {}
+                    });
+                } catch (e) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '5000';
+                    input.step = '100';
+                    input.value = '800';
+                    input.className = 'text-input';
+                    input.id = 'previewNative';
+                    previewContainer.appendChild(input);
+                    state.inputs.previewNative = input;
+                }
+            }
+        }
+
+        function getPairs() {
+            if (state.inputs.pairs && typeof state.inputs.pairs.getValue === 'function') {
+                try {
+                    const n = Number(state.inputs.pairs.getValue());
+                    if (Number.isFinite(n)) return Math.max(2, Math.min(12, Math.round(n)));
+                } catch (e) {}
+            }
+            if (state.inputs.pairsNative) {
+                const n = Number(state.inputs.pairsNative.value);
+                if (Number.isFinite(n)) return Math.max(2, Math.min(12, Math.round(n)));
+            }
+            return 6;
+        }
+
+        function getPreviewMs() {
+            if (state.inputs.preview && typeof state.inputs.preview.getValue === 'function') {
+                try {
+                    const n = Number(state.inputs.preview.getValue());
+                    if (Number.isFinite(n)) return Math.max(0, Math.min(5000, Math.round(n)));
+                } catch (e) {}
+            }
+            if (state.inputs.previewNative) {
+                const n = Number(state.inputs.previewNative.value);
+                if (Number.isFinite(n)) return Math.max(0, Math.min(5000, Math.round(n)));
+            }
+            return 800;
+        }
+
+        function computeColumns(total) {
+            if (total <= 8) return 4;
+            if (total <= 12) return 4;
+            if (total <= 16) return 4;
+            if (total <= 20) return 5;
+            return 6;
+        }
+
+        function updateChips() {
+            setChip('moveChip', `步数 ${state.moves}`);
+            setChip('matchChip', `匹配 ${state.matches}/${state.totalPairs}`);
+        }
+
+        function updateTimer() {
+            if (!getOption('showTimer')) {
+                setChip('timeChip', `用时 -`);
+                return;
+            }
+            const t = state.startedAt ? (performance.now() - state.startedAt) / 1000 : 0;
+            setChip('timeChip', `用时 ${t.toFixed(1)}s`);
+        }
+
+        function startTimer() {
+            stopTimer();
+            state.startedAt = performance.now();
+            updateTimer();
+            state.timer = setInterval(updateTimer, 120);
+        }
+
+        function stopTimer() {
+            if (state.timer) {
+                clearInterval(state.timer);
+                state.timer = null;
+            }
+        }
+
+        function buildDeck(pairs, themeKey) {
+            const list = themes[themeKey]?.list || themes.emoji.list;
+            const picked = list.slice(0, Math.min(pairs, list.length));
+            const raw = picked.concat(picked);
+            const shuffled = shuffle(raw);
+            return shuffled.map((v, idx) => ({
+                id: `${themeKey}_${idx}_${String(v)}`,
+                value: v,
+                faceUp: false,
+                matched: false
+            }));
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('board');
+            if (!board) return;
+            const cols = computeColumns(state.deck.length);
+            board.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+            board.innerHTML = state.deck.map((card, idx) => {
+                const cls = `tile${card.faceUp ? ' face-up' : ''}${card.matched ? ' matched' : ''}`;
+                return `
+                    <div class="${cls}" data-idx="${idx}">
+                        <div class="front">${escapeHtml(card.value)}</div>
+                        <div class="back">?</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function flip(idx, faceUp) {
+            const card = state.deck[idx];
+            if (!card) return;
+            card.faceUp = faceUp;
+            const tile = document.querySelector(`.tile[data-idx="${idx}"]`);
+            if (tile) {
+                tile.classList.toggle('face-up', card.faceUp);
+                tile.classList.toggle('matched', card.matched);
+            }
+        }
+
+        function onTileClick(idx) {
+            if (state.locked) return;
+            const card = state.deck[idx];
+            if (!card || card.matched || card.faceUp) return;
+
+            if (!state.startedAt) startTimer();
+
+            flip(idx, true);
+            if (state.first === null) {
+                state.first = idx;
+                return;
+            }
+
+            state.second = idx;
+            state.moves += 1;
+            updateChips();
+
+            const a = state.deck[state.first];
+            const b = state.deck[state.second];
+            if (!a || !b) return;
+
+            if (a.value === b.value) {
+                a.matched = true;
+                b.matched = true;
+                state.matches += 1;
+                setChip('statusChip', '匹配成功', 'ok');
+                showNotification('匹配成功', 'success');
+                state.first = null;
+                state.second = null;
+                renderBoard();
+                updateChips();
+                if (state.matches >= state.totalPairs) {
+                    stopTimer();
+                    const t = state.startedAt ? (performance.now() - state.startedAt) / 1000 : 0;
+                    setChip('statusChip', '通关', 'ok');
+                    addLog(`win: moves=${state.moves}, time=${t.toFixed(1)}s`);
+                    showModal(`
+                        <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                            <div style="font-weight:900; margin-bottom:10px;">通关</div>
+                            <div style="margin-bottom:6px; color:#475569;">配对数：${state.totalPairs}</div>
+                            <div style="margin-bottom:6px; color:#475569;">步数：${state.moves}</div>
+                            <div style="margin-bottom:6px; color:#475569;">用时：${t.toFixed(1)}s</div>
+                        </div>
+                    `);
+                }
+                return;
+            }
+
+            state.locked = true;
+            setChip('statusChip', '不匹配', 'warn');
+            setTimeout(() => {
+                const first = state.first;
+                const second = state.second;
+                state.first = null;
+                state.second = null;
+                if (first !== null) flip(first, false);
+                if (second !== null) flip(second, false);
+                state.locked = false;
+            }, 650);
+        }
+
+        function previewAll(ms) {
+            if (ms <= 0) return;
+            state.deck.forEach((_, idx) => flip(idx, true));
+            state.locked = true;
+            setChip('statusChip', '预览中', 'warn');
+            setTimeout(() => {
+                state.deck.forEach((c, idx) => {
+                    if (!c.matched) flip(idx, false);
+                });
+                state.locked = false;
+                setChip('statusChip', '开始', 'ok');
+            }, ms);
+        }
+
+        function startNewGame(mode = 'new') {
+            stopTimer();
+            state.startedAt = 0;
+            state.locked = false;
+            state.first = null;
+            state.second = null;
+            state.moves = 0;
+            state.matches = 0;
+            state.totalPairs = getPairs();
+            const themeKey = getThemeKey();
+            state.deck = buildDeck(state.totalPairs, themeKey);
+            updateChips();
+            updateTimer();
+            setChip('statusChip', mode === 'reshuffle' ? '已洗牌' : '就绪', 'ok');
+            renderBoard();
+            addLog(`${mode}: theme=${themeKey}, pairs=${state.totalPairs}, cards=${state.deck.length}`);
+            if (getOption('autoPreview')) previewAll(getPreviewMs());
+        }
+
+        function onBoardClick(e) {
+            const target = e.target?.closest?.('.tile');
+            if (!target) return;
+            const idx = Number(target.getAttribute('data-idx'));
+            if (!Number.isFinite(idx)) return;
+            onTileClick(idx);
+        }
+
+        function showCode() {
+            if (!getOption('showModalDetail')) {
+                showNotification('弹窗已关闭', 'info');
+                return;
+            }
+            const code = normalizeCode(shuffle.toString());
+            const content = `
+                <div style="padding:12px 8px; font-size:14px; color:#1f2937;">
+                    <div style="font-weight:900; margin-bottom:10px;">shuffle</div>
+                    <pre style="margin:0; padding:10px 12px; border-radius:10px; border:1px solid #e2e8f0; overflow:auto; max-height:420px;"><code data-highlight="shuffle" class="language-javascript">${escapeHtml(code)}</code></pre>
+                </div>
+            `;
+            showModal(content);
+            setTimeout(() => {
+                if (!window.hljs) return;
+                document.querySelectorAll('code[data-highlight="shuffle"]').forEach((el) => window.hljs.highlightElement(el));
+            }, 0);
+        }
+
+        function resetAll() {
+            startNewGame('new');
+            showNotification('已重置', 'info');
+        }
+
+        function bindEvents() {
+            const startBtn = document.getElementById('startBtn');
+            const reshuffleBtn = document.getElementById('reshuffleBtn');
+            const showCodeBtn = document.getElementById('showCodeBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            if (startBtn) startBtn.addEventListener('click', () => startNewGame('new'));
+            if (reshuffleBtn) reshuffleBtn.addEventListener('click', () => startNewGame('reshuffle'));
+            if (showCodeBtn) showCodeBtn.addEventListener('click', showCode);
+            if (resetBtn) resetBtn.addEventListener('click', resetAll);
+        }
+
+        function init() {
+            initPlugins();
+            setupCheckboxes();
+            setupSelects();
+            setupInputs();
+            bindEvents();
+            const board = document.getElementById('board');
+            if (board) board.onclick = onBoardClick;
+            startNewGame('new');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
