@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slugify 实战：内容发布 / SEO Slug 生成器</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0b1020;
+            --panel: rgba(255, 255, 255, 0.06);
+            --panel-2: rgba(255, 255, 255, 0.08);
+            --border: rgba(148, 163, 184, 0.22);
+            --text: rgba(248, 250, 252, 0.92);
+            --muted: rgba(203, 213, 225, 0.75);
+            --brand: #60a5fa;
+            --brand-2: #34d399;
+            --warn: #fbbf24;
+            --danger: #fb7185;
+            --shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+            --radius: 18px;
+        }
+
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 700px at 15% 10%, rgba(96, 165, 250, 0.22), transparent 60%),
+                radial-gradient(900px 620px at 80% 25%, rgba(52, 211, 153, 0.18), transparent 58%),
+                radial-gradient(900px 620px at 50% 92%, rgba(251, 191, 36, 0.10), transparent 55%),
+                var(--bg);
+            min-height: 100vh;
+            padding: 30px 18px 48px;
+        }
+
+        .page {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            padding: 22px 22px;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .title h1 {
+            font-size: 1.55rem;
+            letter-spacing: 0.2px;
+            font-weight: 900;
+        }
+
+        .title p {
+            margin-top: 6px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            color: rgba(248, 250, 252, 0.92);
+            font-weight: 800;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--brand-2);
+            box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.14);
+        }
+
+        .dot.warn {
+            background: var(--warn);
+            box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.14);
+        }
+
+        .dot.danger {
+            background: var(--danger);
+            box-shadow: 0 0 0 6px rgba(251, 113, 133, 0.14);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 440px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        /* 让左右两侧面板可用 z-index 控制叠放 */
+        .grid > .panel {
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid > .panel.is-elevated {
+            z-index: 9000;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            border-radius: var(--radius);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05));
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .panel h2 {
+            font-size: 1.05rem;
+            font-weight: 900;
+            letter-spacing: 0.2px;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .row label {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: rgba(226, 232, 240, 0.92);
+        }
+
+        .row small {
+            color: rgba(203, 213, 225, 0.72);
+            line-height: 1.55;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 520px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        textarea,
+        input[type="text"],
+        input[type="url"] {
+            width: 100%;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            background: rgba(2, 6, 23, 0.50);
+            color: rgba(248, 250, 252, 0.92);
+            padding: 10px 12px;
+            outline: none;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus,
+        input[type="url"]:focus {
+            border-color: rgba(96, 165, 250, 0.8);
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.16);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 104px;
+            line-height: 1.55;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 520px) {
+            .actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 900;
+            letter-spacing: 0.2px;
+            color: rgba(248, 250, 252, 0.95);
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.92), rgba(52, 211, 153, 0.82));
+            box-shadow: 0 18px 30px rgba(2, 6, 23, 0.35);
+            transition: transform 0.12s ease, filter 0.12s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.02);
+        }
+
+        .btn.secondary {
+            background: rgba(148, 163, 184, 0.16);
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            color: rgba(226, 232, 240, 0.92);
+            box-shadow: none;
+        }
+
+        .btn.danger {
+            background: rgba(251, 113, 133, 0.16);
+            border: 1px solid rgba(251, 113, 133, 0.34);
+            box-shadow: none;
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .preview {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(2, 6, 23, 0.35);
+            padding: 14px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .card-title strong {
+            font-weight: 950;
+            letter-spacing: 0.2px;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            align-items: start;
+        }
+
+        @media (max-width: 520px) {
+            .kv {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .k {
+            color: rgba(203, 213, 225, 0.75);
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            padding-top: 2px;
+        }
+
+        .v {
+            word-break: break-word;
+        }
+
+        .pill-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .pill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(15, 23, 42, 0.35);
+            font-weight: 900;
+            font-size: 12px;
+            color: rgba(226, 232, 240, 0.92);
+            user-select: none;
+        }
+
+        .pill.good {
+            border-color: rgba(52, 211, 153, 0.35);
+            background: rgba(52, 211, 153, 0.12);
+        }
+
+        .pill.warn {
+            border-color: rgba(251, 191, 36, 0.42);
+            background: rgba(251, 191, 36, 0.12);
+        }
+
+        .pill.bad {
+            border-color: rgba(251, 113, 133, 0.42);
+            background: rgba(251, 113, 133, 0.12);
+        }
+
+        .history {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 320px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .item {
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.20);
+            background: rgba(2, 6, 23, 0.28);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .item-title {
+            font-weight: 950;
+        }
+
+        .item-sub {
+            color: rgba(203, 213, 225, 0.72);
+            font-size: 12px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mini {
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-weight: 900;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(148, 163, 184, 0.12);
+            color: rgba(226, 232, 240, 0.92);
+            cursor: pointer;
+        }
+
+        .mini:hover {
+            filter: brightness(1.03);
+        }
+
+        .mini.danger {
+            border-color: rgba(251, 113, 133, 0.35);
+            background: rgba(251, 113, 133, 0.12);
+        }
+
+        .footer-hint {
+            font-size: 12px;
+            color: rgba(203, 213, 225, 0.70);
+            line-height: 1.6;
+        }
+
+        .split {
+            height: 1px;
+            background: rgba(148, 163, 184, 0.18);
+            margin: 4px 0;
+        }
+
+        /* ===== 插件样式适配（深色背景） ===== */
+        .panel .ew-select {
+            width: 100%;
+        }
+
+        .panel .ew-select .select-header,
+        .panel .ew-select .select-options {
+            border-radius: 14px;
+        }
+
+        .panel .ew-select .select-header {
+            border-color: rgba(148, 163, 184, 0.26);
+            background: rgba(248, 250, 252, 0.95);
+            color: #0f172a;
+        }
+
+        .panel .ew-select .select-header span {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .panel .ew-select .select-header .arrow {
+            border-top-color: rgba(15, 23, 42, 0.65);
+        }
+
+        .panel .ew-select .select-options {
+            border-color: rgba(148, 163, 184, 0.26);
+            background: rgba(248, 250, 252, 0.98);
+            z-index: 6000; /* 避免被玻璃面板遮挡 */
+        }
+
+        .panel .ew-select .select-option {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .panel .ew-select .select-option:hover {
+            background: rgba(96, 165, 250, 0.16);
+        }
+
+        /* 日期时间面板层级提升：避免被右侧 .panel 盖住 */
+        .ew-datetime-picker.open {
+            z-index: 7000;
+        }
+
+        .ew-datetime-picker .datetime-panel {
+            z-index: 9001;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="header-top">
+                <div class="title">
+                    <h1>slugify 实战：内容发布 / SEO Slug 生成器</h1>
+                    <p>
+                        这是一个偏“真实业务”的小工具：输入标题/分类/发布时间等信息，自动生成 URL slug、永久链接、并支持批量生成、历史回溯、复制与导出。
+                    </p>
+                </div>
+                <div class="badge-row">
+                    <span class="badge"><span id="healthDot" class="dot"></span><span id="healthText">就绪</span></span>
+                    <span class="badge">模式：<span id="modeText">单条生成</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="panel">
+                <h2>内容信息</h2>
+
+                <div class="row">
+                    <label for="titleInput">标题 / 主题</label>
+                    <input id="titleInput" type="text" placeholder="例如：用 slugify 做一个真正能用的内容发布工具！" autocomplete="off" />
+                    <small>支持中文/英文/混合输入；会自动清理符号、压缩空格并生成 slug。</small>
+                </div>
+
+                <div class="row-2">
+                    <div class="row">
+                        <label>栏目（路径前缀）</label>
+                        <div id="categorySelect"></div>
+                        <small>会作为 URL 的第一段路径。</small>
+                    </div>
+                    <div class="row">
+                        <label>分隔符</label>
+                        <div id="separatorSelect"></div>
+                        <small>控制 slug 的连接符号。</small>
+                    </div>
+                </div>
+
+                <div class="row-2">
+                    <div class="row">
+                        <label>最大长度</label>
+                        <div id="maxLenInput"></div>
+                        <small>生成 slug 后会裁剪并清理边界分隔符。</small>
+                    </div>
+                    <div class="row">
+                        <label>发布时间</label>
+                        <div id="publishAtPicker"></div>
+                        <small>可选择是否把日期前缀写进 URL。</small>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label>生成选项</label>
+                    <div id="optionsCheckbox"></div>
+                    <small>使用插件时可多选；无插件会自动降级为原生复选框。</small>
+                </div>
+
+                <div class="actions">
+                    <button id="copyBtn" class="btn">复制永久链接</button>
+                    <button id="copySlugBtn" class="btn secondary">复制 slug</button>
+                    <button id="addToBatchBtn" class="btn secondary">加入批量区</button>
+                    <button id="exportBtn" class="btn secondary">导出 JSON</button>
+                    <button id="clearBtn" class="btn danger">清空</button>
+                    <button id="helpBtn" class="btn secondary">规则说明</button>
+                </div>
+
+                <div class="split"></div>
+                <div class="footer-hint">
+                    小提示：批量区支持一行一个标题，点“批量生成”会输出 slug 列表与冲突检测；历史记录会保存最近 12 条。
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>实时预览与批量处理</h2>
+
+                <div class="preview">
+                    <div class="card">
+                        <div class="card-title">
+                            <strong>预览</strong>
+                            <div class="pill-row">
+                                <span id="pillQuality" class="pill good">SEO：良好</span>
+                                <span id="pillCollision" class="pill">冲突：未检测</span>
+                            </div>
+                        </div>
+
+                        <div class="kv">
+                            <div class="k">slug</div>
+                            <div class="v mono" id="slugOut">-</div>
+                            <div class="k">permalink</div>
+                            <div class="v mono" id="urlOut">-</div>
+                            <div class="k">meta</div>
+                            <div class="v mono" id="metaOut">-</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">
+                            <strong>批量区（每行一个标题）</strong>
+                            <div class="pill-row">
+                                <span class="pill">输出：<span id="batchCount">0</span></span>
+                                <span class="pill">冲突：<span id="batchDupCount">0</span></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <textarea id="batchInput" placeholder="例如：
+如何写出可复用的 slug 规则
+Hello World! 这是第二条
+同名标题
+同名标题"></textarea>
+                            <div class="actions" style="grid-template-columns: repeat(3, 1fr);">
+                                <button id="batchRunBtn" class="btn">批量生成</button>
+                                <button id="batchCopyBtn" class="btn secondary">复制结果</button>
+                                <button id="batchClearBtn" class="btn danger">清空批量区</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="muted">批量结果（slug 列表）</label>
+                            <textarea id="batchOut" class="mono" readonly placeholder="这里会输出 slug 列表..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">
+                            <strong>历史记录</strong>
+                            <span class="pill">最近 <span id="historyCount">0</span> 条</span>
+                        </div>
+                        <div id="history" class="history"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script>
+        // 基础 slugify（可读、可扩展）
+        const slugify = (str, opts = {}) => {
+            const options = {
+                separator: '-',
+                lowercase: true,
+                strict: true,
+                trim: true,
+                allowCjk: true,
+                ...opts
+            };
+
+            let s = String(str ?? '');
+            if (options.trim) s = s.trim();
+            if (options.lowercase) s = s.toLowerCase();
+
+            // 先做一次“轻标准化”
+            s = s
+                .replace(/\u3000/g, ' ')
+                .replace(/\s+/g, ' ')
+                .replace(/[–—]/g, '-');
+
+            if (options.strict) {
+                // 保留：字母数字、下划线、空格、短横线；中文可选
+                const keep = options.allowCjk ? '\\u4e00-\\u9fff' : '';
+                const re = new RegExp(`[^\\w\\s${keep}-]`, 'g');
+                s = s.replace(re, '');
+            }
+
+            // 中文与英文/数字间加空格，避免“粘连”导致难读
+            s = s
+                .replace(/([\u4e00-\u9fff])([a-z0-9])/gi, '$1 $2')
+                .replace(/([a-z0-9])([\u4e00-\u9fff])/gi, '$1 $2');
+
+            const sep = String(options.separator || '-');
+            s = s
+                .replace(/[\s_-]+/g, sep)
+                .replace(new RegExp(`^${escapeRegExp(sep)}+|${escapeRegExp(sep)}+$`, 'g'), '');
+
+            return s;
+        };
+
+        const state = {
+            plugins: {
+                modal: null,
+                notification: null,
+                checkboxGroup: null
+            },
+            selects: {
+                category: null,
+                categoryNative: null,
+                separator: null,
+                separatorNative: null
+            },
+            inputs: {
+                maxLen: null
+            },
+            pickers: {
+                publishAt: null
+            },
+            options: [],
+            history: []
+        };
+
+        const categoryOptions = [
+            { value: 'blog', label: '博客 /blog' },
+            { value: 'docs', label: '文档 /docs' },
+            { value: 'weekly', label: '周刊 /weekly' },
+            { value: 'product', label: '产品 /product' }
+        ];
+
+        const separatorOptions = [
+            { value: '-', label: '短横线 -（推荐）' },
+            { value: '_', label: '下划线 _' },
+            { value: '.', label: '点号 .' }
+        ];
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function escapeRegExp(s) {
+            return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function nowLocalValue() {
+            const d = new Date();
+            const offset = d.getTimezoneOffset();
+            const local = new Date(d.getTime() - offset * 60 * 1000);
+            return local.toISOString().slice(0, 16);
+        }
+
+        function formatDatePrefix(value) {
+            // value: 'YYYY-MM-DDTHH:mm'
+            if (!value) return '';
+            const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})T/);
+            if (!m) return '';
+            return `${m[1]}/${m[2]}/${m[3]}`;
+        }
+
+        function safeText(s) {
+            return String(s ?? '');
+        }
+
+        function getOption(id) {
+            if (state.plugins.checkboxGroup && typeof state.plugins.checkboxGroup.getAllChecked === 'function') {
+                try {
+                    const arr = state.plugins.checkboxGroup.getAllChecked();
+                    const idx = state.options.findIndex((o) => o.id === id);
+                    return idx >= 0 ? Boolean(arr[idx]) : false;
+                } catch (e) {}
+            }
+            const el = $(id);
+            return el ? Boolean(el.checked) : false;
+        }
+
+        function getCategoryValue() {
+            if (state.selects.category && typeof state.selects.category.getValue === 'function') {
+                return state.selects.category.getValue() || 'blog';
+            }
+            return state.selects.categoryNative ? state.selects.categoryNative.value : 'blog';
+        }
+
+        function getSeparatorValue() {
+            if (state.selects.separator && typeof state.selects.separator.getValue === 'function') {
+                return state.selects.separator.getValue() || '-';
+            }
+            return state.selects.separatorNative ? state.selects.separatorNative.value : '-';
+        }
+
+        function getMaxLenValue() {
+            if (state.inputs.maxLen && typeof state.inputs.maxLen.getValue === 'function') {
+                try {
+                    return Number(state.inputs.maxLen.getValue());
+                } catch (e) {}
+            }
+            const el = $('maxLenNative');
+            return el ? Number(el.value) : 64;
+        }
+
+        function getPublishAtValue() {
+            if (state.pickers.publishAt && typeof state.pickers.publishAt.getValue === 'function') {
+                try {
+                    return state.pickers.publishAt.getValue();
+                } catch (e) {}
+            }
+            const el = $('publishAtNative');
+            return el ? el.value : '';
+        }
+
+        function notify(message, type = 'info') {
+            if (state.plugins.notification) state.plugins.notification.show(message, type);
+            else console.log(`[${type}] ${message}`);
+        }
+
+        function modal(content) {
+            if (state.plugins.modal) state.plugins.modal.alert(content);
+            else alert(String(content).replace(/<[^>]*>/g, ''));
+        }
+
+        function setHealth(level, text) {
+            const dot = $('healthDot');
+            const label = $('healthText');
+            if (label) label.textContent = text;
+            if (!dot) return;
+            dot.className = 'dot' + (level === 'warn' ? ' warn' : level === 'danger' ? ' danger' : '');
+        }
+
+        function normalizeStopWords(text) {
+            // 非严格语义的 stop words：只用于英文标题轻量清理
+            const stop = new Set([
+                'a', 'an', 'the', 'and', 'or', 'but',
+                'to', 'of', 'in', 'on', 'for', 'with',
+                'is', 'are', 'was', 'were', 'be', 'been',
+                'at', 'by', 'from', 'as'
+            ]);
+            const words = String(text).split(/\s+/).filter(Boolean);
+            return words.filter(w => !stop.has(w.toLowerCase())).join(' ');
+        }
+
+        function applyMaxLen(slug, maxLen, sep) {
+            const n = Math.max(8, Math.min(120, Math.round(Number(maxLen) || 64)));
+            let s = String(slug);
+            if (s.length <= n) return s;
+            s = s.slice(0, n);
+            s = s.replace(new RegExp(`${escapeRegExp(sep)}+$`), '');
+            return s;
+        }
+
+        function buildPermalink({ baseUrl, category, datePrefix, slug }) {
+            const parts = [baseUrl.replace(/\/+$/g, '')];
+            if (category) parts.push(encodeURIComponent(category));
+            if (datePrefix) parts.push(datePrefix.split('/').map(encodeURIComponent).join('/'));
+            if (slug) parts.push(encodeURIComponent(slug));
+            return parts.join('/').replace(/\/{2,}/g, '/');
+        }
+
+        function scoreSeo(slug) {
+            const len = slug.length;
+            const hasCJK = /[\u4e00-\u9fff]/.test(slug);
+            const hasUpper = /[A-Z]/.test(slug);
+            const hasSep = /[-_.]/.test(slug);
+            const empty = !slug;
+
+            if (empty) return { level: 'bad', text: 'SEO：空' };
+            if (hasUpper) return { level: 'warn', text: 'SEO：建议小写' };
+            if (len > 80) return { level: 'warn', text: 'SEO：偏长' };
+            if (!hasSep && !hasCJK && len > 24) return { level: 'warn', text: 'SEO：建议分词' };
+            if (len < 8) return { level: 'warn', text: 'SEO：偏短' };
+            if (!hasSep && hasCJK && len > 18) return { level: 'warn', text: 'SEO：建议分隔' };
+            return { level: 'good', text: 'SEO：良好' };
+        }
+
+        function calcCurrent() {
+            const title = safeText($('titleInput')?.value);
+            const baseUrl = safeText($('baseUrlInput')?.value || 'https://example.com');
+            const category = getCategoryValue();
+            const sep = getSeparatorValue();
+            const maxLen = getMaxLenValue();
+            const publishAt = getPublishAtValue();
+
+            const lowercase = getOption('optLowercase');
+            const strict = getOption('optStrict');
+            const removeStop = getOption('optStopWords');
+            const addDate = getOption('optDatePrefix');
+            const keepCjk = getOption('optKeepCjk');
+
+            let working = title;
+            if (removeStop) working = normalizeStopWords(working);
+
+            let out = slugify(working, {
+                separator: sep,
+                lowercase,
+                strict,
+                allowCjk: keepCjk
+            });
+
+            out = applyMaxLen(out, maxLen, sep);
+
+            const datePrefix = addDate ? formatDatePrefix(publishAt) : '';
+            const permalink = buildPermalink({ baseUrl, category, datePrefix, slug: out });
+
+            const meta = {
+                title,
+                category,
+                separator: sep,
+                maxLen: Math.max(8, Math.min(120, Math.round(Number(maxLen) || 64))),
+                publishAt: publishAt || '',
+                datePrefix: datePrefix || '',
+                options: {
+                    lowercase, strict,
+                    removeStopWords: removeStop,
+                    addDatePrefix: addDate,
+                    keepCjk
+                }
+            };
+
+            return { slug: out, permalink, meta };
+        }
+
+        function renderPreview() {
+            const { slug, permalink, meta } = calcCurrent();
+            const slugOut = $('slugOut');
+            const urlOut = $('urlOut');
+            const metaOut = $('metaOut');
+            if (slugOut) slugOut.textContent = slug || '-';
+            if (urlOut) urlOut.textContent = permalink || '-';
+            if (metaOut) metaOut.textContent = JSON.stringify(meta);
+
+            const seo = scoreSeo(slug);
+            const pillQuality = $('pillQuality');
+            if (pillQuality) {
+                pillQuality.textContent = seo.text;
+                pillQuality.className = `pill ${seo.level}`;
+            }
+
+            // 单条：冲突只对历史里做一次轻检测
+            const collision = state.history.some((h) => h.slug === slug && slug);
+            const pillCollision = $('pillCollision');
+            if (pillCollision) {
+                pillCollision.textContent = collision ? '冲突：历史已存在' : '冲突：未发现';
+                pillCollision.className = `pill ${collision ? 'warn' : 'good'}`;
+            }
+
+            // 顶部健康指示：空标题 / slug 为空 / 冲突
+            if (!safeText($('titleInput')?.value)) setHealth('warn', '等待输入');
+            else if (!slug) setHealth('danger', '无法生成');
+            else if (collision) setHealth('warn', '可能冲突');
+            else setHealth('ok', '就绪');
+        }
+
+        async function copyText(text) {
+            const s = String(text ?? '');
+            if (!s) return false;
+            try {
+                await navigator.clipboard.writeText(s);
+                return true;
+            } catch (e) {
+                // 降级：execCommand（旧环境）
+                const ta = document.createElement('textarea');
+                ta.value = s;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            }
+        }
+
+        function pushHistory(entry) {
+            const item = {
+                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                ts: Date.now(),
+                ...entry
+            };
+            state.history.unshift(item);
+            state.history = state.history.slice(0, 12);
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const box = $('history');
+            const count = $('historyCount');
+            if (count) count.textContent = String(state.history.length);
+            if (!box) return;
+            box.innerHTML = '';
+            if (!state.history.length) {
+                const empty = document.createElement('div');
+                empty.className = 'item';
+                empty.innerHTML = `<div class="item-title">暂无历史</div><div class="item-sub">生成一次后会在这里出现</div>`;
+                box.appendChild(empty);
+                return;
+            }
+
+            state.history.forEach((h) => {
+                const d = new Date(h.ts);
+                const time = d.toLocaleString('zh-CN');
+                const el = document.createElement('div');
+                el.className = 'item';
+                el.innerHTML = `
+                    <div class="item-top">
+                        <div>
+                            <div class="item-title">${escapeHtml(h.title || '(无标题)')}</div>
+                            <div class="item-sub">${escapeHtml(time)} · /${escapeHtml(h.category)}/${escapeHtml(h.datePrefix ? h.datePrefix + '/' : '')}${escapeHtml(h.slug)}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="mini" data-act="restore" data-id="${h.id}">恢复</button>
+                            <button class="mini" data-act="copyUrl" data-id="${h.id}">复制链接</button>
+                            <button class="mini danger" data-act="remove" data-id="${h.id}">删除</button>
+                        </div>
+                    </div>
+                    <div class="mono" style="color: rgba(226,232,240,0.90);">${escapeHtml(h.permalink)}</div>
+                `;
+                box.appendChild(el);
+            });
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function setupPlugins() {
+            try {
+                state.plugins.modal = new Modal();
+            } catch (e) {}
+            try {
+                state.plugins.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function setupSelects() {
+            const cat = $('categorySelect');
+            const sep = $('separatorSelect');
+
+            if (cat) {
+                try {
+                    state.selects.category = new Select({
+                        container: cat,
+                        options: categoryOptions,
+                        onChange: () => renderPreview()
+                    });
+                    state.selects.category.setValue('blog');
+                } catch (e) {
+                    const sel = document.createElement('select');
+                    categoryOptions.forEach((o) => {
+                        const opt = document.createElement('option');
+                        opt.value = o.value;
+                        opt.textContent = o.label;
+                        sel.appendChild(opt);
+                    });
+                    sel.value = 'blog';
+                    sel.addEventListener('change', renderPreview);
+                    cat.appendChild(sel);
+                    state.selects.categoryNative = sel;
+                }
+            }
+
+            if (sep) {
+                try {
+                    state.selects.separator = new Select({
+                        container: sep,
+                        options: separatorOptions,
+                        onChange: () => renderPreview()
+                    });
+                    state.selects.separator.setValue('-');
+                } catch (e) {
+                    const sel = document.createElement('select');
+                    separatorOptions.forEach((o) => {
+                        const opt = document.createElement('option');
+                        opt.value = o.value;
+                        opt.textContent = o.label;
+                        sel.appendChild(opt);
+                    });
+                    sel.value = '-';
+                    sel.addEventListener('change', renderPreview);
+                    sep.appendChild(sel);
+                    state.selects.separatorNative = sel;
+                }
+            }
+        }
+
+        function setupInputs() {
+            const maxLen = $('maxLenInput');
+            if (!maxLen) return;
+            try {
+                state.inputs.maxLen = new InputNumber({
+                    container: maxLen,
+                    min: 8,
+                    max: 120,
+                    step: 1,
+                    value: 64,
+                    onChange: () => renderPreview()
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = 'maxLenNative';
+                input.min = '8';
+                input.max = '120';
+                input.step = '1';
+                input.value = '64';
+                input.addEventListener('input', renderPreview);
+                maxLen.appendChild(input);
+            }
+        }
+
+        function setupPicker() {
+            const wrap = $('publishAtPicker');
+            if (!wrap) return;
+            try {
+                state.pickers.publishAt = new DateTimePicker({
+                    container: '#publishAtPicker',
+                    value: nowLocalValue(),
+                    placeholder: '选择发布时间',
+                    onChange: () => renderPreview()
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'datetime-local';
+                input.id = 'publishAtNative';
+                input.value = nowLocalValue();
+                input.addEventListener('input', renderPreview);
+                wrap.appendChild(input);
+            }
+
+            // 关键：日期面板会跨列，抬高左侧 .panel，避免被右侧 .panel 遮挡
+            const pickerEl = wrap.querySelector('.ew-datetime-picker');
+            const panelEl = wrap.closest('.panel');
+            if (pickerEl && panelEl) {
+                const sync = () => {
+                    if (pickerEl.classList.contains('open')) panelEl.classList.add('is-elevated');
+                    else panelEl.classList.remove('is-elevated');
+                };
+                sync();
+                const mo = new MutationObserver(sync);
+                mo.observe(pickerEl, { attributes: true, attributeFilter: ['class'] });
+                window.addEventListener('blur', () => panelEl.classList.remove('is-elevated'));
+            }
+        }
+
+        function setupCheckboxes() {
+            const container = $('optionsCheckbox');
+            if (!container) return;
+
+            const options = [
+                { id: 'optLowercase', label: '强制小写（推荐）', checked: true },
+                { id: 'optStrict', label: '严格清理符号', checked: true },
+                { id: 'optStopWords', label: '移除英文停用词（a/the/of...）', checked: true },
+                { id: 'optDatePrefix', label: 'URL 加日期前缀（YYYY/MM/DD）', checked: false },
+                { id: 'optKeepCjk', label: '保留中文（用于中文 slug）', checked: true }
+            ];
+            state.options = options;
+
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: options.map((o) => ({
+                        id: o.id,
+                        label: o.label,
+                        checked: o.checked
+                    })),
+                    onChange: () => renderPreview()
+                });
+                container.appendChild(group.container);
+                state.plugins.checkboxGroup = group;
+            } catch (e) {
+                options.forEach((o) => {
+                    const line = document.createElement('div');
+                    line.style.marginBottom = '10px';
+                    line.innerHTML = `
+                        <input type="checkbox" id="${o.id}" ${o.checked ? 'checked' : ''} />
+                        <label for="${o.id}" style="margin-left:8px; cursor:pointer;">${o.label}</label>
+                    `;
+                    line.querySelector('input')?.addEventListener('change', renderPreview);
+                    container.appendChild(line);
+                });
+            }
+        }
+
+        function getBaseUrl() {
+            const el = $('baseUrlInput');
+            return el ? el.value : 'https://example.com';
+        }
+
+        function ensureBaseUrlRow() {
+            // 不用插件：直接插入一个 baseUrl 输入行，方便更贴近真实“站点配置”
+            const panel = document.querySelector('.panel');
+            if (!panel) return;
+
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = `
+                <label for="baseUrlInput">站点域名</label>
+                <input id="baseUrlInput" type="url" placeholder="https://your-site.com" value="https://example.com" />
+                <small>生成永久链接时会用到；你也可以切换为自己的域名。</small>
+            `;
+
+            // 插在标题输入后面
+            const titleRow = $('titleInput')?.closest('.row');
+            if (titleRow && titleRow.parentNode) {
+                titleRow.parentNode.insertBefore(row, titleRow.nextSibling);
+            } else {
+                panel.insertBefore(row, panel.children[1] || null);
+            }
+            $('baseUrlInput')?.addEventListener('input', renderPreview);
+        }
+
+        function bindEvents() {
+            $('titleInput')?.addEventListener('input', renderPreview);
+
+            $('copyBtn')?.addEventListener('click', async () => {
+                const current = calcCurrent();
+                const { permalink } = current;
+                const ok = await copyText(permalink);
+                notify(ok ? '已复制永久链接' : '复制失败', ok ? 'success' : 'error');
+                if (ok && current.slug) pushHistory({
+                    title: current.meta.title,
+                    slug: current.slug,
+                    permalink: current.permalink,
+                    category: current.meta.category,
+                    separator: current.meta.separator,
+                    maxLen: current.meta.maxLen,
+                    publishAt: current.meta.publishAt,
+                    datePrefix: current.meta.datePrefix,
+                    options: {
+                        optLowercase: current.meta.options.lowercase,
+                        optStrict: current.meta.options.strict,
+                        optStopWords: current.meta.options.removeStopWords,
+                        optDatePrefix: current.meta.options.addDatePrefix,
+                        optKeepCjk: current.meta.options.keepCjk
+                    }
+                });
+            });
+
+            $('copySlugBtn')?.addEventListener('click', async () => {
+                const current = calcCurrent();
+                const { slug } = current;
+                const ok = await copyText(slug);
+                notify(ok ? '已复制 slug' : '复制失败', ok ? 'success' : 'error');
+                if (ok && current.slug) pushHistory({
+                    title: current.meta.title,
+                    slug: current.slug,
+                    permalink: current.permalink,
+                    category: current.meta.category,
+                    separator: current.meta.separator,
+                    maxLen: current.meta.maxLen,
+                    publishAt: current.meta.publishAt,
+                    datePrefix: current.meta.datePrefix,
+                    options: {
+                        optLowercase: current.meta.options.lowercase,
+                        optStrict: current.meta.options.strict,
+                        optStopWords: current.meta.options.removeStopWords,
+                        optDatePrefix: current.meta.options.addDatePrefix,
+                        optKeepCjk: current.meta.options.keepCjk
+                    }
+                });
+            });
+
+            $('addToBatchBtn')?.addEventListener('click', () => {
+                const title = safeText($('titleInput')?.value);
+                if (!title) {
+                    notify('请输入标题再加入批量区', 'warning');
+                    return;
+                }
+                const batch = $('batchInput');
+                if (!batch) return;
+                batch.value = (batch.value ? batch.value.replace(/\s+$/g, '') + '\n' : '') + title;
+                notify('已加入批量区', 'success');
+                $('modeText').textContent = '批量处理';
+                renderBatch();
+            });
+
+            $('exportBtn')?.addEventListener('click', () => {
+                const current = calcCurrent();
+                const payload = {
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    current,
+                    batch: getBatchLines().map((t) => ({ title: t, slug: toSlugForTitle(t).slug })),
+                    history: state.history
+                };
+                const pretty = escapeHtml(JSON.stringify(payload, null, 2));
+                modal(`<div style="padding:12px 10px;">
+                    <div style="font-weight:900; margin-bottom:10px;">导出 JSON（可复制保存）</div>
+                    <pre style="margin:0; max-height:420px; overflow:auto; padding:10px 12px; border-radius:12px; border:1px solid #e2e8f0; background:#0b1020; color:#f8fafc;"><code>${pretty}</code></pre>
+                </div>`);
+                notify('已生成导出内容', 'info');
+            });
+
+            $('clearBtn')?.addEventListener('click', () => {
+                $('titleInput').value = '';
+                $('batchInput').value = '';
+                $('batchOut').value = '';
+                $('modeText').textContent = '单条生成';
+                $('batchCount').textContent = '0';
+                $('batchDupCount').textContent = '0';
+                $('pillCollision').textContent = '冲突：未检测';
+                $('pillCollision').className = 'pill';
+                setHealth('warn', '等待输入');
+                notify('已清空', 'info');
+                renderPreview();
+                renderHistory();
+            });
+
+            $('helpBtn')?.addEventListener('click', () => {
+                const content = `
+                    <div style="padding:12px 10px; color:#0f172a;">
+                        <div style="font-weight:900; font-size:16px; margin-bottom:10px;">slug 规则说明（本页实现）</div>
+                        <div style="line-height:1.75; font-size:14px;">
+                            <div><b>1）清理</b>：默认移除多数符号，保留字母数字、下划线、空格、短横线与中文。</div>
+                            <div><b>2）分词</b>：连续空格/下划线/短横线会被压缩为你选择的分隔符。</div>
+                            <div><b>3）中文与英文粘连</b>：会自动在“中文-英文/数字”边界插入空格，提升可读性。</div>
+                            <div><b>4）长度裁剪</b>：先生成再裁剪，最后清理末尾分隔符，避免出现 <code>-</code> 结尾。</div>
+                            <div><b>5）冲突检测</b>：批量模式会检测重复 slug，并在预览区显示。</div>
+                        </div>
+                    </div>
+                `;
+                modal(content);
+            });
+
+            $('batchInput')?.addEventListener('input', () => {
+                $('modeText').textContent = '批量处理';
+                renderBatch();
+            });
+
+            $('batchRunBtn')?.addEventListener('click', () => {
+                $('modeText').textContent = '批量处理';
+                renderBatch(true);
+            });
+
+            $('batchCopyBtn')?.addEventListener('click', async () => {
+                const out = $('batchOut')?.value || '';
+                const ok = await copyText(out);
+                notify(ok ? '已复制批量结果' : '复制失败', ok ? 'success' : 'error');
+            });
+
+            $('batchClearBtn')?.addEventListener('click', () => {
+                $('batchInput').value = '';
+                $('batchOut').value = '';
+                $('batchCount').textContent = '0';
+                $('batchDupCount').textContent = '0';
+                $('pillCollision').textContent = '冲突：未检测';
+                $('pillCollision').className = 'pill';
+                notify('已清空批量区', 'info');
+                renderPreview();
+            });
+
+            $('history')?.addEventListener('click', async (e) => {
+                const btn = e.target && e.target.closest ? e.target.closest('button[data-act]') : null;
+                if (!btn) return;
+                const id = btn.getAttribute('data-id');
+                const act = btn.getAttribute('data-act');
+                const item = state.history.find((h) => h.id === id);
+                if (!item) return;
+
+                if (act === 'restore') {
+                    $('titleInput').value = item.title || '';
+                    if (state.selects.category && typeof state.selects.category.setValue === 'function') state.selects.category.setValue(item.category || 'blog');
+                    else if (state.selects.categoryNative) state.selects.categoryNative.value = item.category || 'blog';
+                    if (state.selects.separator && typeof state.selects.separator.setValue === 'function') state.selects.separator.setValue(item.separator || '-');
+                    else if (state.selects.separatorNative) state.selects.separatorNative.value = item.separator || '-';
+                    if (state.inputs.maxLen && typeof state.inputs.maxLen.setValue === 'function') state.inputs.maxLen.setValue(item.maxLen || 64);
+                    else if ($('maxLenNative')) $('maxLenNative').value = String(item.maxLen || 64);
+
+                    if (state.pickers.publishAt && typeof state.pickers.publishAt.setValue === 'function') state.pickers.publishAt.setValue(item.publishAt || nowLocalValue());
+                    else if ($('publishAtNative')) $('publishAtNative').value = item.publishAt || nowLocalValue();
+
+                    // checkbox 恢复：插件组缺少 setAll API，就做最小恢复（仅在无插件时）
+                    if (!state.plugins.checkboxGroup) {
+                        ['optLowercase', 'optStrict', 'optStopWords', 'optDatePrefix', 'optKeepCjk'].forEach((k) => {
+                            const el = $(k);
+                            if (el && item.options && typeof item.options[k] !== 'undefined') el.checked = Boolean(item.options[k]);
+                        });
+                    }
+
+                    notify('已恢复到该条历史配置', 'success');
+                    renderPreview();
+                    return;
+                }
+
+                if (act === 'copyUrl') {
+                    const ok = await copyText(item.permalink);
+                    notify(ok ? '已复制该条永久链接' : '复制失败', ok ? 'success' : 'error');
+                    return;
+                }
+
+                if (act === 'remove') {
+                    state.history = state.history.filter((h) => h.id !== id);
+                    renderHistory();
+                    notify('已删除该条历史', 'info');
+                }
+            });
+        }
+
+        function getBatchLines() {
+            const raw = safeText($('batchInput')?.value);
+            return raw
+                .split(/\r?\n/g)
+                .map((s) => s.trim())
+                .filter(Boolean);
+        }
+
+        function toSlugForTitle(title) {
+            const current = calcCurrent();
+            const sep = current.meta.separator;
+            const maxLen = current.meta.maxLen;
+            const lowercase = current.meta.options.lowercase;
+            const strict = current.meta.options.strict;
+            const removeStop = current.meta.options.removeStopWords;
+
+            let w = title;
+            if (removeStop) w = normalizeStopWords(w);
+            let s = slugify(w, { separator: sep, lowercase, strict });
+            s = applyMaxLen(s, maxLen, sep);
+            return { slug: s };
+        }
+
+        function renderBatch(pushToHistory = false) {
+            const lines = getBatchLines();
+            const slugs = lines.map((t) => toSlugForTitle(t).slug);
+
+            const map = new Map();
+            slugs.forEach((s) => map.set(s, (map.get(s) || 0) + 1));
+            const dup = [...map.entries()].filter(([k, v]) => k && v > 1);
+
+            $('batchCount').textContent = String(slugs.length);
+            $('batchDupCount').textContent = String(dup.reduce((acc, [, v]) => acc + (v - 1), 0));
+
+            const outLines = slugs.map((s, idx) => {
+                const t = lines[idx];
+                const flag = map.get(s) > 1 ? '  #DUP' : '';
+                return `${s}${flag}  // ${t}`;
+            });
+            $('batchOut').value = outLines.join('\n');
+
+            const pillCollision = $('pillCollision');
+            if (pillCollision) {
+                pillCollision.textContent = dup.length ? `冲突：${dup.length} 组重复` : '冲突：无重复';
+                pillCollision.className = `pill ${dup.length ? 'warn' : 'good'}`;
+            }
+
+            if (pushToHistory && lines.length) {
+                const current = calcCurrent();
+                pushHistory({
+                    title: current.meta.title,
+                    slug: current.slug,
+                    permalink: current.permalink,
+                    category: current.meta.category,
+                    separator: current.meta.separator,
+                    maxLen: current.meta.maxLen,
+                    publishAt: current.meta.publishAt,
+                    datePrefix: current.meta.datePrefix,
+                    options: {
+                        optLowercase: current.meta.options.lowercase,
+                        optStrict: current.meta.options.strict,
+                        optStopWords: current.meta.options.removeStopWords,
+                        optDatePrefix: current.meta.options.addDatePrefix,
+                        optKeepCjk: current.meta.options.keepCjk
+                    },
+                    batch: {
+                        inputCount: lines.length,
+                        dupGroups: dup.length
+                    }
+                });
+                notify('已把当前配置写入历史', 'success');
+            }
+
+            renderPreview();
+        }
+
+        function init() {
+            setupPlugins();
+            ensureBaseUrlRow();
+            setupSelects();
+            setupInputs();
+            setupPicker();
+            setupCheckboxes();
+            bindEvents();
+
+            renderHistory();
+            renderPreview();
+
+            // 默认示例值：让页面一打开就“像个产品”
+            $('titleInput').value = '用 slugify 实现一个复杂的 Web 实战示例';
+            renderPreview();
+            notify('已加载 slugify 实战示例', 'success');
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    </script>
+</body>
+
+</html>
