@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>smoothScroll 实战：锚点导航与滚动容器</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #e8eef5;
+            color: #0f172a;
+            padding: 24px 20px 80px;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .header {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px 26px;
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+        }
+
+        .header h1 {
+            font-size: 1.65rem;
+            font-weight: 800;
+        }
+
+        .header .sub {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.07);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-row label {
+            font-size: 0.88rem;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .form-row small {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 520px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .actions button {
+            border: none;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .actions button.primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .actions button.secondary {
+            background: #0f766e;
+            color: #fff;
+        }
+
+        .actions button.ghost {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+        }
+
+        .actions button.ghost:hover {
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.65;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        /* 顶部固定导航：演示 offset + scroll-margin */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 0;
+            margin: 0 -20px 0;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .top-nav-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .top-nav a {
+            color: #1d4ed8;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #eff6ff;
+        }
+
+        .top-nav a:hover {
+            background: #dbeafe;
+        }
+
+        .section {
+            min-height: 55vh;
+            padding: 32px 24px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            scroll-margin-top: var(--scroll-margin, 72px);
+        }
+
+        .section h3 {
+            font-size: 1.35rem;
+            margin-bottom: 12px;
+        }
+
+        .section p {
+            color: #475569;
+            line-height: 1.75;
+            max-width: 62ch;
+        }
+
+        #intro {
+            background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+        }
+
+        #features {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        #api {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        #faq {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+        }
+
+        #footer-anchor {
+            background: #1e293b;
+            color: #f8fafc;
+            min-height: 40vh;
+        }
+
+        #footer-anchor h3 {
+            color: #f8fafc;
+        }
+
+        #footer-anchor p {
+            color: #cbd5e1;
+        }
+
+        /* 内部滚动容器 */
+        .scroll-stage-title {
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        #innerScrollHost {
+            height: 320px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 16px;
+            background: #fafafa;
+            scroll-behavior: smooth;
+        }
+
+        .inner-block {
+            min-height: 140px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            scroll-margin-top: 12px;
+        }
+
+        .inner-a {
+            background: #fee2e2;
+        }
+
+        .inner-b {
+            background: #fef9c3;
+        }
+
+        .inner-c {
+            background: #dbeafe;
+        }
+
+        .log {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 12px;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            max-height: 120px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .panel .ew-select {
+            width: 100%;
+        }
+
+        .panel .ew-select .select-header span,
+        .panel .ew-select .select-option {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .grid > .panel {
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid > .panel.is-elevated {
+            z-index: 9000;
+        }
+
+        .ew-datetime-picker.open {
+            z-index: 7000;
+        }
+
+        .ew-datetime-picker .datetime-panel {
+            z-index: 9001;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>smoothScroll 实战：单页锚点 + 嵌套滚动容器</h1>
+            <p class="sub">
+                基于 <code>scrollIntoView({ behavior: 'smooth' })</code> 封装；配合自定义 Select / InputNumber / Checkbox / Modal / Notification / DateTimePicker
+                完成可配置跳转、议程演示与日志记录。
+            </p>
+        </div>
+
+        <nav class="top-nav" aria-label="页面内锚点">
+            <div class="top-nav-inner">
+                <span style="font-weight:800;font-size:0.85rem;color:#64748b;margin-right:4px;">快速跳转：</span>
+                <a href="#intro" data-smooth="#intro">简介</a>
+                <a href="#features" data-smooth="#features">特性</a>
+                <a href="#api" data-smooth="#api">API</a>
+                <a href="#faq" data-smooth="#faq">FAQ</a>
+                <a href="#footer-anchor" data-smooth="#footer-anchor">页尾</a>
+            </div>
+        </nav>
+
+        <div class="grid">
+            <div class="card panel" id="configPanel">
+                <h2>滚动配置</h2>
+
+                <div class="form-row">
+                    <label>跳转目标（页面主文档）</label>
+                    <div id="targetSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>块级对齐 block</label>
+                    <div id="blockSelect"></div>
+                    <small>对应 scrollIntoView 的 block 选项。</small>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>scroll-margin-top（px）</label>
+                        <div id="marginInput"></div>
+                    </div>
+                    <div class="form-row">
+                        <label>议程时间（演示）</label>
+                        <div id="agendaPicker"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" id="btnScrollMain" class="primary">滚动到选中目标</button>
+                    <button type="button" id="btnScrollInner" class="secondary">滚动内部容器</button>
+                    <button type="button" id="btnAgenda" class="secondary">模拟议程到时滚动</button>
+                    <button type="button" id="btnHelp" class="ghost">API 说明</button>
+                </div>
+
+                <div class="chip-row">
+                    <span class="chip" id="chipLast">上次：-</span>
+                    <span class="chip" id="chipCount">次数：0</span>
+                </div>
+
+                <div class="form-row">
+                    <label>事件日志</label>
+                    <div id="logBox" class="log"></div>
+                </div>
+
+                <div class="hint">
+                    内部容器为 <code>#innerScrollHost</code> 内子元素；浏览器会对最近可滚动祖先执行平滑滚动。
+                    勾选「到达后高亮」可短暂闪烁目标边框。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>主文档区块</h2>
+                <section id="intro" class="section">
+                    <h3>简介</h3>
+                    <p>
+                        本页演示在长页面中通过选择器平滑滚动到各区块。顶部导航与左侧按钮共用同一套
+                        <code>smoothScroll</code> 封装，便于在真实项目中统一行为与可访问性处理。
+                    </p>
+                </section>
+                <section id="features" class="section">
+                    <h3>特性</h3>
+                    <p>
+                        支持自定义 block / inline、可选失败提示、滚动完成后的通知与高亮。
+                        嵌套滚动区域可独立演示「文档不滚、只滚容器」的效果。
+                    </p>
+                </section>
+                <section id="api" class="section">
+                    <h3>API</h3>
+                    <p>
+                        <code>smoothScroll(selector, options?)</code>：第二个参数可传
+                        <code>{ block, inline, onMissing }</code>。若元素不存在可回调或通知。
+                    </p>
+                </section>
+                <section id="faq" class="section">
+                    <h3>FAQ</h3>
+                    <p>
+                        固定顶栏会挡住标题时，请调大 scroll-margin-top 或为区块设置 CSS
+                        <code>scroll-margin-top</code>（本页通过变量绑定）。
+                    </p>
+                </section>
+                <section id="footer-anchor" class="section">
+                    <h3>页尾区块</h3>
+                    <p>用于测试长距离平滑滚动与 scroll-margin 是否合适。</p>
+                </section>
+
+                <p class="scroll-stage-title">内部滚动容器（子锚点）</p>
+                <div id="innerScrollHost">
+                    <div id="inner-a" class="inner-block inner-a">
+                        <strong>内部 A</strong>
+                        <p>点击左侧「滚动内部容器」跳到这里。</p>
+                    </div>
+                    <div id="inner-b" class="inner-block inner-b">
+                        <strong>内部 B</strong>
+                        <p>中间块，用于观察平滑滚动路径。</p>
+                    </div>
+                    <div id="inner-c" class="inner-block inner-c">
+                        <strong>内部 C</strong>
+                        <p>底部块；可多次切换观察行为。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script>
+        const smoothScroll = (selector, options = {}) => {
+            const el = document.querySelector(selector);
+            const {
+                block = 'start',
+                inline = 'nearest',
+                onMissing
+            } = options;
+            if (!el) {
+                if (typeof onMissing === 'function') onMissing(selector);
+                return false;
+            }
+            el.scrollIntoView({ behavior: 'smooth', block, inline });
+            return true;
+        };
+
+        const state = {
+            modal: null,
+            notification: null,
+            checkboxGroup: null,
+            targetSelect: null,
+            targetNative: null,
+            blockSelect: null,
+            blockNative: null,
+            marginInput: null,
+            agendaPicker: null,
+            scrollCount: 0,
+            checkboxDefs: []
+        };
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function logLine(msg) {
+            const box = $('logBox');
+            if (!box) return;
+            const t = new Date().toLocaleTimeString('zh-CN');
+            box.textContent += `[${t}] ${msg}\n`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function notify(msg, type = 'info') {
+            if (!getOpt('notifyOnScroll')) return;
+            if (state.notification) state.notification.show(msg, type);
+            else console.log(`[${type}]`, msg);
+        }
+
+        function showModal(html) {
+            if (state.modal) state.modal.alert(html);
+            else alert(html.replace(/<[^>]+>/g, ''));
+        }
+
+        function getOpt(id) {
+            if (state.checkboxGroup && typeof state.checkboxGroup.getAllChecked === 'function') {
+                try {
+                    const arr = state.checkboxGroup.getAllChecked();
+                    const i = state.checkboxDefs.findIndex((d) => d.id === id);
+                    if (i >= 0) return Boolean(arr[i]);
+                } catch (e) {}
+            }
+            const el = $(id);
+            return el ? el.checked : false;
+        }
+
+        function getTargetSelector() {
+            if (state.targetSelect && typeof state.targetSelect.getValue === 'function') {
+                return state.targetSelect.getValue() || '#intro';
+            }
+            return state.targetNative ? state.targetNative.value : '#intro';
+        }
+
+        function getBlock() {
+            if (state.blockSelect && typeof state.blockSelect.getValue === 'function') {
+                return state.blockSelect.getValue() || 'start';
+            }
+            return state.blockNative ? state.blockNative.value : 'start';
+        }
+
+        function getMarginPx() {
+            if (state.marginInput && typeof state.marginInput.getValue === 'function') {
+                try {
+                    return Math.max(0, Math.min(200, Number(state.marginInput.getValue()) || 72));
+                } catch (e) {}
+            }
+            const n = $('marginNative');
+            return n ? Math.max(0, Math.min(200, Number(n.value) || 72)) : 72;
+        }
+
+        function applyScrollMargin() {
+            const px = getMarginPx();
+            document.documentElement.style.setProperty('--scroll-margin', `${px}px`);
+        }
+
+        function afterScrollOk(selector) {
+            state.scrollCount += 1;
+            $('chipCount').textContent = `次数：${state.scrollCount}`;
+            $('chipLast').textContent = `上次：${selector}`;
+            logLine(`scroll -> ${selector} block=${getBlock()}`);
+            notify('已发起平滑滚动', 'success');
+
+            if (getOpt('highlightTarget')) {
+                const el = document.querySelector(selector);
+                if (el) {
+                    const prev = el.style.outline;
+                    el.style.outline = '3px solid #2563eb';
+                    el.style.outlineOffset = '4px';
+                    setTimeout(() => {
+                        el.style.outline = prev;
+                        el.style.outlineOffset = '';
+                    }, 900);
+                }
+            }
+        }
+
+        function runScroll(selector, opts = {}) {
+            const block = opts.block || getBlock();
+            const ok = smoothScroll(selector, {
+                block,
+                inline: 'nearest',
+                onMissing: (sel) => {
+                    notify(`未找到元素：${sel}`, 'error');
+                    logLine(`missing: ${sel}`);
+                }
+            });
+            if (ok) afterScrollOk(selector);
+            return ok;
+        }
+
+        function initPlugins() {
+            try {
+                state.modal = new Modal();
+            } catch (e) {}
+            try {
+                state.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function setupSelects() {
+            const targets = [
+                { value: '#intro', label: '#intro 简介' },
+                { value: '#features', label: '#features 特性' },
+                { value: '#api', label: '#api API' },
+                { value: '#faq', label: '#faq FAQ' },
+                { value: '#footer-anchor', label: '#footer-anchor 页尾' }
+            ];
+            const blocks = [
+                { value: 'start', label: 'start（顶部对齐）' },
+                { value: 'center', label: 'center（居中）' },
+                { value: 'end', label: 'end（底部对齐）' },
+                { value: 'nearest', label: 'nearest' }
+            ];
+
+            const tEl = $('targetSelect');
+            if (tEl) {
+                try {
+                    state.targetSelect = new Select({
+                        container: tEl,
+                        options: targets,
+                        onChange: () => {}
+                    });
+                    state.targetSelect.setValue('#intro');
+                } catch (e) {
+                    const sel = document.createElement('select');
+                    targets.forEach((o) => {
+                        const opt = document.createElement('option');
+                        opt.value = o.value;
+                        opt.textContent = o.label;
+                        sel.appendChild(opt);
+                    });
+                    sel.value = '#intro';
+                    tEl.appendChild(sel);
+                    state.targetNative = sel;
+                }
+            }
+
+            const bEl = $('blockSelect');
+            if (bEl) {
+                try {
+                    state.blockSelect = new Select({
+                        container: bEl,
+                        options: blocks,
+                        onChange: () => applyScrollMargin()
+                    });
+                    state.blockSelect.setValue('start');
+                } catch (e) {
+                    const sel = document.createElement('select');
+                    blocks.forEach((o) => {
+                        const opt = document.createElement('option');
+                        opt.value = o.value;
+                        opt.textContent = o.label;
+                        sel.appendChild(opt);
+                    });
+                    sel.value = 'start';
+                    sel.addEventListener('change', applyScrollMargin);
+                    bEl.appendChild(sel);
+                    state.blockNative = sel;
+                }
+            }
+        }
+
+        function setupInputNumber() {
+            const wrap = $('marginInput');
+            if (!wrap) return;
+            try {
+                state.marginInput = new InputNumber({
+                    container: wrap,
+                    min: 0,
+                    max: 200,
+                    step: 4,
+                    value: 72,
+                    onChange: () => applyScrollMargin()
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = 'marginNative';
+                input.min = '0';
+                input.max = '200';
+                input.value = '72';
+                input.addEventListener('input', applyScrollMargin);
+                wrap.appendChild(input);
+            }
+        }
+
+        function setupPicker() {
+            const wrap = $('agendaPicker');
+            if (!wrap) return;
+            const now = () => {
+                const d = new Date();
+                const off = d.getTimezoneOffset();
+                const local = new Date(d.getTime() - off * 60 * 1000);
+                return local.toISOString().slice(0, 16);
+            };
+            try {
+                state.agendaPicker = new DateTimePicker({
+                    container: '#agendaPicker',
+                    value: now(),
+                    placeholder: '选择议程时间',
+                    onChange: () => {}
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'datetime-local';
+                input.id = 'agendaNative';
+                input.value = now();
+                wrap.appendChild(input);
+            }
+
+            const pickerEl = wrap.querySelector('.ew-datetime-picker');
+            const panelEl = $('configPanel');
+            if (pickerEl && panelEl) {
+                const sync = () => {
+                    if (pickerEl.classList.contains('open')) panelEl.classList.add('is-elevated');
+                    else panelEl.classList.remove('is-elevated');
+                };
+                sync();
+                const mo = new MutationObserver(sync);
+                mo.observe(pickerEl, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+
+        function getAgendaTimeText() {
+            if (state.agendaPicker && typeof state.agendaPicker.getValue === 'function') {
+                try {
+                    return state.agendaPicker.getValue() || '';
+                } catch (e) {}
+            }
+            const el = $('agendaNative');
+            return el ? el.value : '';
+        }
+
+        function setupCheckboxes() {
+            const container = $('optionCheckbox');
+            if (!container) return;
+            const items = [
+                { id: 'notifyOnScroll', label: '滚动后显示通知', checked: true },
+                { id: 'interceptNav', label: '拦截顶栏链接用 smoothScroll（推荐）', checked: true },
+                { id: 'highlightTarget', label: '到达后高亮目标 0.9s', checked: true }
+            ];
+            state.checkboxDefs = items;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: items.map((x) => ({
+                        id: x.id,
+                        label: x.label,
+                        checked: x.checked
+                    })),
+                    onChange: () => {}
+                });
+                container.appendChild(group.container);
+                state.checkboxGroup = group;
+            } catch (e) {
+                items.forEach((x) => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '8px';
+                    div.innerHTML = `<input type="checkbox" id="${x.id}" ${x.checked ? 'checked' : ''}/><label for="${x.id}" style="margin-left:8px;cursor:pointer;">${x.label}</label>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function bindNavLinks() {
+            document.querySelectorAll('a[data-smooth]').forEach((a) => {
+                a.addEventListener('click', (e) => {
+                    if (!getOpt('interceptNav')) return;
+                    const sel = a.getAttribute('data-smooth');
+                    if (!sel) return;
+                    e.preventDefault();
+                    runScroll(sel);
+                });
+            });
+        }
+
+        function bindButtons() {
+            $('btnScrollMain')?.addEventListener('click', () => {
+                applyScrollMargin();
+                runScroll(getTargetSelector());
+            });
+
+            $('btnScrollInner')?.addEventListener('click', () => {
+                applyScrollMargin();
+                const innerTargets = ['#inner-a', '#inner-b', '#inner-c'];
+                const pick = innerTargets[Math.floor(Math.random() * innerTargets.length)];
+                runScroll(pick);
+            });
+
+            $('btnAgenda')?.addEventListener('click', () => {
+                const time = getAgendaTimeText() || '(未选择)';
+                const target = getTargetSelector();
+                showModal(
+                    `<div style="padding:14px 12px;color:#0f172a;line-height:1.7;">
+                        <div style="font-weight:900;font-size:16px;margin-bottom:10px;">议程演示</div>
+                        <div>预定时间：<b>${time}</b></div>
+                        <div>将滚动至：<b>${target}</b>（模拟到时跳转）</div>
+                        <div style="margin-top:10px;color:#64748b;font-size:13px;">实际项目中可结合定时器或服务端推送触发 <code>smoothScroll</code>。</div>
+                    </div>`
+                );
+                setTimeout(() => {
+                    applyScrollMargin();
+                    runScroll(target);
+                }, 400);
+            });
+
+            $('btnHelp')?.addEventListener('click', () => {
+                showModal(
+                    `<div style="padding:14px 12px;color:#0f172a;font-size:14px;line-height:1.75;">
+                        <div style="font-weight:900;margin-bottom:10px;">smoothScroll 说明</div>
+                        <pre style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px;border-radius:10px;overflow:auto;max-height:280px;">const smoothScroll = (selector, options = {}) => {
+  const el = document.querySelector(selector);
+  const { block = 'start', inline = 'nearest', onMissing } = options;
+  if (!el) {
+    if (typeof onMissing === 'function') onMissing(selector);
+    return false;
+  }
+  el.scrollIntoView({ behavior: 'smooth', block, inline });
+  return true;
+};</pre>
+                    </div>`
+                );
+            });
+        }
+
+        function init() {
+            initPlugins();
+            setupSelects();
+            setupInputNumber();
+            setupPicker();
+            setupCheckboxes();
+            applyScrollMargin();
+            bindNavLinks();
+            bindButtons();
+            logLine('页面就绪');
+            notify('smooth-scroll 实战页已加载', 'info');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+
+</html>

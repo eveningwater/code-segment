@@ -570,7 +570,7 @@
 - [求大小--2023-04-13](codes/javascript/size.md)
 - [延迟异步函数--2023-04-14](codes/javascript/sleep.md)
 - [将字符串用短横线连接--2023-04-15](codes/javascript/slugify.md)
-- [平滑滚动--2023-04-16](codes/javascript/smoothScroll.md)
+- [平滑滚动--2023-04-16](codes/javascript/smooth-scroll.md)
 - [对字符串排序--2023-04-17](codes/javascript/sortCharactersInString.md)
 - [排序索引值--2023-04-18](codes/javascript/sortedIndex.md)
 - [根据回调函数查找排序索引值--2023-04-19](codes/javascript/sortedIndexBy.md)
