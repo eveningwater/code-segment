@@ -565,7 +565,7 @@
 - [将字符串用短横线连接--2023-04-15](codes/javascript/slugify.md)
 - [平滑滚动--2023-04-16](codes/javascript/smooth-scroll.md)
 - [对字符串排序--2023-04-17](codes/javascript/sort-characters-in-string.md)
-- [排序索引值--2023-04-18](codes/javascript/sortedIndex.md)
+- [排序索引值--2023-04-18](codes/javascript/sorted-index.md)
 - [根据回调函数查找排序索引值--2023-04-19](codes/javascript/sortedIndexBy.md)
 - [查找排序最后插入索引值--2023-04-20](codes/javascript/sortedLastIndex.md)
 - [根据回调函数查找排序最后插入索引值--2023-04-21](codes/javascript/sortedLastIndexBy.md)
