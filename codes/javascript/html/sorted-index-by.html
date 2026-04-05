@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sortedIndexBy 实战：按迭代器求插入下标</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f0f4ff;
+            background-image: linear-gradient(165deg, #eef2ff 0%, #faf5ff 50%, #ecfeff 100%);
+            color: #0f172a;
+            min-height: 100vh;
+            padding: 26px 16px 40px;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            padding: 20px 24px;
+            box-shadow: 0 16px 40px rgba(79, 70, 229, 0.1);
+            border: 1px solid #e0e7ff;
+        }
+
+        .header h1 {
+            font-size: 1.55rem;
+            font-weight: 800;
+        }
+
+        .header .sub {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        @media (max-width: 920px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-row label {
+            font-size: 0.84rem;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .form-row small {
+            color: #94a3b8;
+            font-size: 0.74rem;
+            line-height: 1.5;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-family: ui-monospace, Menlo, Consolas, monospace;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .actions button {
+            border: none;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.84rem;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .actions button.primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: #fff;
+        }
+
+        .actions button.secondary {
+            background: #0d9488;
+            color: #fff;
+        }
+
+        .actions button.ghost {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.22);
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.6;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .viz {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 10px;
+            min-height: 100px;
+            padding: 14px;
+            background: linear-gradient(180deg, #fafafa, #fff);
+            border: 2px dashed #c7d2fe;
+            border-radius: 14px;
+        }
+
+        .bar-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bar {
+            width: 44px;
+            border-radius: 8px 8px 0 0;
+            background: linear-gradient(180deg, #a5b4fc, #6366f1);
+            min-height: 8px;
+            max-height: 120px;
+        }
+
+        .bar-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            text-align: center;
+            max-width: 56px;
+            word-break: break-word;
+        }
+
+        .slot-insert {
+            align-self: stretch;
+            min-width: 40px;
+            border: 3px dashed #059669;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #047857;
+            background: rgba(16, 185, 129, 0.12);
+            padding: 8px 6px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        .chip {
+            display: inline-flex;
+            padding: 5px 11px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .chip.asc {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .chip.desc {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .chip.idx {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .stat {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .stat-k {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .stat-v {
+            font-size: 0.95rem;
+            font-weight: 800;
+            font-family: ui-monospace, Menlo, monospace;
+            margin-top: 2px;
+        }
+
+        .log {
+            font-family: ui-monospace, Menlo, monospace;
+            font-size: 11px;
+            background: #1e1b4b;
+            color: #e0e7ff;
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 100px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        table.batch {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        table.batch th,
+        table.batch td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        table.batch th {
+            background: #f8fafc;
+            font-weight: 800;
+        }
+
+        .panel .ew-select {
+            width: 100%;
+        }
+
+        .panel .ew-select .select-header span,
+        .panel .ew-select .select-option {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .grid > .panel {
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid > .panel.is-elevated {
+            z-index: 9000;
+        }
+
+        .ew-datetime-picker.open {
+            z-index: 7000;
+        }
+
+        .ew-datetime-picker .datetime-panel {
+            z-index: 9001;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>sortedIndexBy 实战：迭代器轴上的插入下标</h1>
+            <p class="sub">
+                在有序数组上，用 <code>fn</code> 把元素与待插入值 <code>n</code> 映射到可比较标量，再求最小插入下标。
+                本页用 JSON 描述数组与 <code>n</code>，通过 Select 选择常用 <code>fn</code>（按字段或恒等），并支持可视化与批量探测。
+            </p>
+        </div>
+
+        <div class="grid">
+            <div class="card panel" id="configPanel">
+                <h2>配置</h2>
+
+                <div class="form-row">
+                    <label>预设场景</label>
+                    <div id="presetSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>迭代器 fn（映射到排序键）</label>
+                    <div id="fnSelect"></div>
+                    <small>内部实现为 <code>(el) => el[field]</code> 或 <code>(el) => el</code>（数字数组）。</small>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>批量探测：多个 n（每行一个 JSON）</label>
+                        <textarea id="batchNInput" style="min-height:72px;" placeholder='{"x":3}&#10;{"x":6}'></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>随机数组长度（生成演示数据）</label>
+                        <div id="randLenInput"></div>
+                    </div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>导出快照时间</label>
+                        <div id="snapshotPicker"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" id="btnCalc" class="primary">计算 sortedIndexBy</button>
+                    <button type="button" id="btnInsert" class="secondary">模拟插入</button>
+                    <button type="button" id="btnBatch" class="secondary">批量计算</button>
+                    <button type="button" id="btnRandom" class="ghost">随机有序数组</button>
+                    <button type="button" id="btnCopy" class="ghost">复制插入后 JSON</button>
+                    <button type="button" id="btnExport" class="ghost">导出 JSON</button>
+                    <button type="button" id="btnApi" class="ghost">查看函数源码</button>
+                </div>
+
+                <div class="form-row">
+                    <label>数组 JSON（对象数组或数字数组）</label>
+                    <textarea id="arrJson" placeholder='[{"x":4},{"x":5}]'></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label>待插入 n（JSON）</label>
+                    <textarea id="nJson" style="min-height:52px;" placeholder='{"x":4}'></textarea>
+                </div>
+
+                <div class="hint">
+                    与 Lodash 一致：比较时使用 <code>fn(el)</code> 与 <code>fn(n)</code>。
+                    文档中若写成 <code>val &lt;= el</code> 对对象数组无法成立，本实战已按轴值比较实现。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>结果与可视化</h2>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <span id="chipOrder" class="chip asc">方向：-</span>
+                    <span id="chipIdx" class="chip idx">sortedIndexBy：-</span>
+                </div>
+                <div class="form-row" style="margin-top:8px;">
+                    <label>fn 值条形图（绿框为插入位置）</label>
+                    <div id="viz" class="viz"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-k">长度</div>
+                        <div class="stat-v" id="stLen">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-k">fn(n)</div>
+                        <div class="stat-v" id="stVal">-</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-k">迭代键</div>
+                        <div class="stat-v" id="stKey">-</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>插入后的数组（JSON）</label>
+                    <textarea id="afterJson" readonly style="min-height:72px;background:#1e1b4b;color:#e0e7ff;border-color:#4338ca;"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>批量结果</label>
+                    <div style="overflow:auto;max-height:160px;">
+                        <table class="batch" id="batchTable">
+                            <thead>
+                                <tr>
+                                    <th>n</th>
+                                    <th>fn(n)</th>
+                                    <th>index</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>日志</label>
+                    <div id="logBox" class="log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const sortedIndexBy = (arr, n, fn) => {
+            const isDescending = fn(arr[0]) > fn(arr[arr.length - 1]);
+            const val = fn(n);
+            const index = arr.findIndex((el) => (isDescending ? val >= fn(el) : val <= fn(el)));
+            return index === -1 ? arr.length : index;
+        };
+
+        const state = {
+            modal: null,
+            notification: null,
+            checkboxGroup: null,
+            presetSelect: null,
+            presetNative: null,
+            fnSelect: null,
+            fnNative: null,
+            randLenInput: null,
+            snapshotPicker: null,
+            checkboxDefs: [],
+            lastArr: [],
+            lastN: null,
+            lastIndex: 0,
+            lastIteratee: null
+        };
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function log(msg) {
+            const box = $('logBox');
+            if (!box) return;
+            const t = new Date().toLocaleTimeString('zh-CN');
+            box.textContent += `[${t}] ${msg}\n`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function notify(msg, type = 'info') {
+            if (!getCb('showNotify')) return;
+            if (state.notification) state.notification.show(msg, type);
+            else console.log(`[${type}]`, msg);
+        }
+
+        function modal(html) {
+            if (state.modal) state.modal.alert(html);
+            else alert(html.replace(/<[^>]+>/g, ''));
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function getCb(id) {
+            if (state.checkboxGroup && typeof state.checkboxGroup.getAllChecked === 'function') {
+                try {
+                    const arr = state.checkboxGroup.getAllChecked();
+                    const i = state.checkboxDefs.findIndex((d) => d.id === id);
+                    if (i >= 0) return Boolean(arr[i]);
+                } catch (e) {}
+            }
+            const el = $(id);
+            return el ? el.checked : false;
+        }
+
+        function getIterateeKey() {
+            if (state.fnSelect && typeof state.fnSelect.getValue === 'function') {
+                return state.fnSelect.getValue() || '_';
+            }
+            return state.fnNative ? state.fnNative.value : '_';
+        }
+
+        function makeIteratee(key) {
+            if (key === '_' || key === 'identity') return (el) => el;
+            return (el) => {
+                if (el == null || typeof el !== 'object') return el;
+                return el[key];
+            };
+        }
+
+        function parseJson(text, label) {
+            const s = String(text || '').trim();
+            if (!s) return { ok: false, error: `${label} 为空` };
+            try {
+                return { ok: true, data: JSON.parse(s) };
+            } catch (e) {
+                return { ok: false, error: `${label} JSON 无效` };
+            }
+        }
+
+        function inferDescending(arr, fn) {
+            if (arr.length < 2) return false;
+            return fn(arr[0]) > fn(arr[arr.length - 1]);
+        }
+
+        function monotonicBy(arr, fn, desc) {
+            for (let i = 1; i < arr.length; i++) {
+                const a = fn(arr[i - 1]);
+                const b = fn(arr[i]);
+                if (Number.isNaN(a) || Number.isNaN(b)) return false;
+                if (desc) {
+                    if (a < b) return false;
+                } else if (a > b) return false;
+            }
+            return true;
+        }
+
+        function nowLocal() {
+            const d = new Date();
+            const off = d.getTimezoneOffset();
+            return new Date(d.getTime() - off * 60 * 1000).toISOString().slice(0, 16);
+        }
+
+        function getSnapshotTime() {
+            if (state.snapshotPicker && typeof state.snapshotPicker.getValue === 'function') {
+                try {
+                    return state.snapshotPicker.getValue() || '';
+                } catch (e) {}
+            }
+            const el = $('snapshotNative');
+            return el ? el.value : '';
+        }
+
+        function getRandLen() {
+            if (state.randLenInput && typeof state.randLenInput.getValue === 'function') {
+                try {
+                    return Math.max(3, Math.min(24, Number(state.randLenInput.getValue()) || 8));
+                } catch (e) {}
+            }
+            const el = $('randLenNative');
+            return el ? Math.max(3, Math.min(24, Number(el.value) || 8)) : 8;
+        }
+
+        function renderViz(arr, fn, insertAt, val) {
+            const host = $('viz');
+            host.innerHTML = '';
+            const keys = arr.map((el, i) => {
+                const v = fn(el);
+                return { i, v, label: String(v).slice(0, 8) };
+            });
+            const magnitudes = keys.map((k) => {
+                const n = Number(k.v);
+                return Number.isFinite(n) ? Math.abs(n) : 1;
+            });
+            const vm = Number(val);
+            const max = Math.max(1, ...magnitudes, Number.isFinite(vm) ? Math.abs(vm) : 1);
+
+            function insertSlot(label) {
+                const slot = document.createElement('div');
+                slot.className = 'slot-insert';
+                slot.textContent = label;
+                slot.title = `sortedIndexBy = ${insertAt}，fn(n)=${val}`;
+                host.appendChild(slot);
+            }
+
+            function addBar(k) {
+                const wrap = document.createElement('div');
+                wrap.className = 'bar-wrap';
+                const n = Number(k.v);
+                const mag = Number.isFinite(n) ? Math.abs(n) : 1;
+                const h = Math.max(14, (mag / max) * 110);
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${Math.min(120, h)}px`;
+                bar.title = `fn(arr[${k.i}]) = ${k.v}`;
+                const lab = document.createElement('div');
+                lab.className = 'bar-label';
+                lab.textContent = `[${k.i}] ${k.label}`;
+                wrap.appendChild(bar);
+                wrap.appendChild(lab);
+                host.appendChild(wrap);
+            }
+
+            for (let i = 0; i < arr.length; i++) {
+                if (i === insertAt) insertSlot(`插入↓${insertAt}`);
+                addBar(keys[i]);
+            }
+            if (insertAt === arr.length) insertSlot(`末尾↓${insertAt}`);
+        }
+
+        function runCalc(silent) {
+            const fnKey = getIterateeKey();
+            const fn = makeIteratee(fnKey);
+            state.lastIteratee = fnKey;
+
+            const arrP = parseJson($('arrJson').value, '数组');
+            if (!arrP.ok) {
+                if (!silent) notify(arrP.error, 'error');
+                log(arrP.error);
+                return null;
+            }
+            const arr = arrP.data;
+            if (!Array.isArray(arr)) {
+                if (!silent) notify('数组 JSON 必须是数组', 'error');
+                return null;
+            }
+
+            const nP = parseJson($('nJson').value, 'n');
+            if (!nP.ok) {
+                if (!silent) notify(nP.error, 'error');
+                return null;
+            }
+            const n = nP.data;
+
+            if (arr.length === 0) {
+                const idx = sortedIndexBy(arr, n, fn);
+                state.lastArr = [...arr];
+                state.lastN = n;
+                state.lastIndex = idx;
+                $('chipOrder').textContent = '方向：空数组';
+                $('chipOrder').className = 'chip asc';
+                $('chipIdx').textContent = `sortedIndexBy：${idx}`;
+                $('stLen').textContent = '0';
+                $('stVal').textContent = String(fn(n));
+                $('stKey').textContent = fnKey === '_' ? 'identity' : fnKey;
+                $('viz').innerHTML = '';
+                if (!silent) notify(`下标 ${idx}`, 'success');
+                return { arr, n, fn, idx };
+            }
+
+            try {
+                fn(arr[0]);
+                fn(n);
+            } catch (e) {
+                if (!silent) notify('fn 执行失败：' + String(e.message || e), 'error');
+                return null;
+            }
+
+            const desc = inferDescending(arr, fn);
+            $('chipOrder').textContent = desc ? '方向：降序（首尾 fn 推断）' : '方向：升序（首尾 fn 推断）';
+            $('chipOrder').className = desc ? 'chip desc' : 'chip asc';
+
+            if (getCb('checkMono') && !monotonicBy(arr, fn, desc)) {
+                log('警告：按 fn 值非单调，结果仅供参考');
+                if (!silent) notify('fn 轴上非单调', 'warning');
+            }
+
+            const idx = sortedIndexBy(arr, n, fn);
+            const val = fn(n);
+            state.lastArr = [...arr];
+            state.lastN = n;
+            state.lastIndex = idx;
+
+            $('chipIdx').textContent = `sortedIndexBy：${idx}`;
+            $('stLen').textContent = String(arr.length);
+            $('stVal').textContent = String(val);
+            $('stKey').textContent = fnKey === '_' ? 'identity' : fnKey;
+            renderViz(arr, fn, idx, val);
+            if (!silent) notify(`sortedIndexBy = ${idx}`, 'success');
+            log(`index=${idx} fn(n)=${val}`);
+            return { arr, n, fn, idx };
+        }
+
+        function doInsert() {
+            const r = runCalc(true);
+            if (!r) {
+                notify('请先修正输入', 'warning');
+                return;
+            }
+            const { arr, n, idx } = r;
+            const next = [...arr.slice(0, idx), n, ...arr.slice(idx)];
+            $('afterJson').value = JSON.stringify(next, null, 2);
+            notify('已生成插入后的数组', 'success');
+        }
+
+        function doBatch() {
+            const r = runCalc(true);
+            if (!r) return;
+            const { arr, fn } = r;
+            const lines = $('batchNInput').value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+            if (!lines.length) {
+                notify('请填写至少一行 n 的 JSON', 'warning');
+                return;
+            }
+            const tbody = $('batchTable').querySelector('tbody');
+            tbody.innerHTML = '';
+            lines.forEach((line) => {
+                const p = parseJson(line, 'n');
+                if (!p.ok) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="3">${escapeHtml(line)} — ${escapeHtml(p.error)}</td>`;
+                    tbody.appendChild(tr);
+                    return;
+                }
+                const n = p.data;
+                let fv;
+                try {
+                    fv = fn(n);
+                } catch (e) {
+                    fv = 'err';
+                }
+                const idx = sortedIndexBy(arr, n, fn);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${escapeHtml(JSON.stringify(n))}</td><td>${escapeHtml(String(fv))}</td><td>${idx}</td>`;
+                tbody.appendChild(tr);
+            });
+            notify(`批量完成 ${lines.length} 行`, 'success');
+        }
+
+        function doRandom() {
+            const len = getRandLen();
+            const desc = Math.random() > 0.5;
+            const base = Math.floor(Math.random() * 40) + 1;
+            const arr = [];
+            for (let i = 0; i < len; i++) {
+                const step = Math.floor(Math.random() * 8) + 1;
+                const prev = arr.length ? arr[arr.length - 1].x : base;
+                const x = desc ? prev - step : prev + step;
+                arr.push({ x, name: `i${i}` });
+            }
+            $('arrJson').value = JSON.stringify(arr, null, 2);
+            const pick = arr[Math.floor(Math.random() * arr.length)];
+            const jitter = (Math.random() - 0.5) * 20;
+            $('nJson').value = JSON.stringify({ x: Math.round(pick.x + jitter), name: 'n' });
+            if (state.fnSelect && typeof state.fnSelect.setValue === 'function') state.fnSelect.setValue('x');
+            else if (state.fnNative) state.fnNative.value = 'x';
+            runCalc(false);
+            notify('已生成随机有序对象数组（按 x）', 'info');
+        }
+
+        async function doCopy() {
+            const t = $('afterJson').value;
+            if (!t.trim()) {
+                notify('请先「模拟插入」', 'warning');
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(t);
+                notify('已复制', 'success');
+            } catch (e) {
+                notify('复制失败', 'error');
+            }
+        }
+
+        function doExport() {
+            const r = runCalc(true);
+            const payload = {
+                snapshotAt: getSnapshotTime() || nowLocal(),
+                iterateeKey: state.lastIteratee,
+                array: r ? r.arr : null,
+                n: r ? r.n : null,
+                sortedIndexBy: r ? r.idx : null,
+                afterInsert: r ? [...r.arr.slice(0, r.idx), r.n, ...r.arr.slice(r.idx)] : null
+            };
+            const esc = escapeHtml(JSON.stringify(payload, null, 2));
+            modal(`<div style="padding:14px 12px;color:#0f172a;">
+                <div style="font-weight:900;margin-bottom:10px;">导出 JSON</div>
+                <pre style="margin:0;max-height:380px;overflow:auto;padding:12px;border-radius:10px;border:1px solid #e2e8f0;background:#1e1b4b;color:#e0e7ff;font-size:12px;"><code>${esc}</code></pre>
+            </div>`);
+            notify('已生成导出', 'info');
+        }
+
+        function doApi() {
+            const src = `const sortedIndexBy = (arr, n, fn) => {
+  const isDescending = fn(arr[0]) > fn(arr[arr.length - 1]);
+  const val = fn(n);
+  const index = arr.findIndex((el) => (isDescending ? val >= fn(el) : val <= fn(el)));
+  return index === -1 ? arr.length : index;
+};`;
+            const escaped = escapeHtml(src);
+            modal(`<div style="padding:14px 12px;color:#0f172a;font-size:14px;line-height:1.75;">
+                <div style="font-weight:900;margin-bottom:10px;">sortedIndexBy（本页实现）</div>
+                <p style="margin-bottom:10px;color:#64748b;font-size:13px;">比较的是 <code>fn(el)</code> 与 <code>fn(n)</code>，与文档示例 <code>[{x:4},{x:5}], {x:4}, o =&gt; o.x</code> 一致。</p>
+                <pre style="margin:0;padding:0;border-radius:10px;border:1px solid #e2e8f0;overflow:auto;max-height:420px;"><code data-hl="sorted-index-by" class="language-javascript">${escaped}</code></pre>
+            </div>`);
+            setTimeout(() => {
+                if (!window.hljs) return;
+                document.querySelectorAll('code[data-hl="sorted-index-by"]').forEach((el) => window.hljs.highlightElement(el));
+            }, 0);
+        }
+
+        function applyPreset() {
+            let key = 'custom';
+            if (state.presetSelect && typeof state.presetSelect.getValue === 'function') {
+                key = state.presetSelect.getValue() || 'custom';
+            } else if (state.presetNative) key = state.presetNative.value;
+            const presets = {
+                doc: {
+                    arr: JSON.stringify([{ x: 4 }, { x: 5 }], null, 2),
+                    n: JSON.stringify({ x: 4 }),
+                    fn: 'x'
+                },
+                asc: {
+                    arr: JSON.stringify([{ id: 1, score: 10 }, { id: 2, score: 30 }, { id: 3, score: 50 }], null, 2),
+                    n: JSON.stringify({ id: 0, score: 25 }),
+                    fn: 'score'
+                },
+                desc: {
+                    arr: JSON.stringify([{ p: 100 }, { p: 60 }, { p: 20 }], null, 2),
+                    n: JSON.stringify({ p: 75 }),
+                    fn: 'p'
+                },
+                nums: {
+                    arr: JSON.stringify([2, 5, 9, 12], null, 2),
+                    n: '7',
+                    fn: '_'
+                }
+            };
+            const p = presets[key];
+            if (!p) return;
+            $('arrJson').value = p.arr;
+            $('nJson').value = p.n;
+            if (state.fnSelect && typeof state.fnSelect.setValue === 'function') state.fnSelect.setValue(p.fn);
+            else if (state.fnNative) state.fnNative.value = p.fn;
+            runCalc(false);
+        }
+
+        function initPlugins() {
+            try {
+                state.modal = new Modal();
+            } catch (e) {}
+            try {
+                state.notification = new Notification({ position: 'top-right' });
+            } catch (e) {}
+        }
+
+        function setupSelects() {
+            const presets = [
+                { value: 'custom', label: '自定义' },
+                { value: 'doc', label: '文档：{x:4},{x:5} 与 n={x:4}' },
+                { value: 'asc', label: '按 score 升序 + n=25' },
+                { value: 'desc', label: '按 p 降序 + n=75' },
+                { value: 'nums', label: '数字数组 + n=7' }
+            ];
+            const fns = [
+                { value: 'x', label: '字段 x' },
+                { value: 'score', label: '字段 score' },
+                { value: 'p', label: '字段 p' },
+                { value: 'age', label: '字段 age' },
+                { value: '_', label: '恒等（数字数组）' }
+            ];
+
+            const pEl = $('presetSelect');
+            if (pEl) {
+                try {
+                    state.presetSelect = new Select({
+                        container: pEl,
+                        options: presets,
+                        onChange: () => applyPreset()
+                    });
+                    state.presetSelect.setValue('doc');
+                } catch (e) {
+                    const sel = document.createElement('select');
+                    presets.forEach((o) => {
+                        const opt = document.createElement('option');
+                        opt.value = o.value;
+                        opt.textContent = o.label;
+                        sel.appendChild(opt);
+                    });
+                    sel.addEventListener('change', applyPreset);
+                    sel.value = 'doc';
+                    pEl.appendChild(sel);
+                    state.presetNative = sel;
+                }
+            }
+
+            const fEl = $('fnSelect');
+            if (fEl) {
+                try {
+                    state.fnSelect = new Select({
+                        container: fEl,
+                        options: fns,
+                        onChange: () => {
+                            if (getCb('liveUpdate')) runCalc(true);
+                        }
+                    });
+                    state.fnSelect.setValue('x');
+                } catch (e) {
+                    const sel = document.createElement('select');
+                    fns.forEach((o) => {
+                        const opt = document.createElement('option');
+                        opt.value = o.value;
+                        opt.textContent = o.label;
+                        sel.appendChild(opt);
+                    });
+                    sel.value = 'x';
+                    sel.addEventListener('change', () => {
+                        if (getCb('liveUpdate')) runCalc(true);
+                    });
+                    fEl.appendChild(sel);
+                    state.fnNative = sel;
+                }
+            }
+        }
+
+        function setupInputNumber() {
+            const wrap = $('randLenInput');
+            if (!wrap) return;
+            try {
+                state.randLenInput = new InputNumber({
+                    container: wrap,
+                    min: 3,
+                    max: 24,
+                    step: 1,
+                    value: 8,
+                    onChange: () => {}
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = 'randLenNative';
+                input.min = '3';
+                input.max = '24';
+                input.value = '8';
+                wrap.appendChild(input);
+            }
+        }
+
+        function setupPicker() {
+            const wrap = $('snapshotPicker');
+            if (!wrap) return;
+            try {
+                state.snapshotPicker = new DateTimePicker({
+                    container: '#snapshotPicker',
+                    value: nowLocal(),
+                    placeholder: '快照时间',
+                    onChange: () => {}
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'datetime-local';
+                input.id = 'snapshotNative';
+                input.value = nowLocal();
+                wrap.appendChild(input);
+            }
+            const pickerEl = wrap.querySelector('.ew-datetime-picker');
+            const panelEl = $('configPanel');
+            if (pickerEl && panelEl) {
+                const sync = () => {
+                    if (pickerEl.classList.contains('open')) panelEl.classList.add('is-elevated');
+                    else panelEl.classList.remove('is-elevated');
+                };
+                sync();
+                new MutationObserver(sync).observe(pickerEl, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+
+        function setupCheckbox() {
+            const container = $('optionCheckbox');
+            if (!container) return;
+            const items = [
+                { id: 'checkMono', label: '检测 fn 轴单调性', checked: true },
+                { id: 'liveUpdate', label: '修改 JSON / fn 时自动重算', checked: true },
+                { id: 'showNotify', label: '显示通知', checked: true }
+            ];
+            state.checkboxDefs = items;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: items.map((x) => ({ id: x.id, label: x.label, checked: x.checked })),
+                    onChange: () => runCalc(true)
+                });
+                container.appendChild(group.container);
+                state.checkboxGroup = group;
+            } catch (e) {
+                items.forEach((x) => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '6px';
+                    div.innerHTML = `<input type="checkbox" id="${x.id}" ${x.checked ? 'checked' : ''}/><label for="${x.id}" style="margin-left:8px;cursor:pointer;">${x.label}</label>`;
+                    div.querySelector('input').addEventListener('change', () => runCalc(true));
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function bind() {
+            $('btnCalc').addEventListener('click', () => runCalc(false));
+            $('btnInsert').addEventListener('click', doInsert);
+            $('btnBatch').addEventListener('click', doBatch);
+            $('btnRandom').addEventListener('click', doRandom);
+            $('btnCopy').addEventListener('click', doCopy);
+            $('btnExport').addEventListener('click', doExport);
+            $('btnApi').addEventListener('click', doApi);
+            ['arrJson', 'nJson'].forEach((id) => {
+                $(id).addEventListener('input', () => {
+                    if (getCb('liveUpdate')) runCalc(true);
+                });
+            });
+        }
+
+        function init() {
+            initPlugins();
+            setupSelects();
+            setupInputNumber();
+            setupPicker();
+            setupCheckbox();
+            bind();
+            applyPreset();
+            log('就绪');
+            notify('sortedIndexBy 工作台已加载', 'info');
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    </script>
+</body>
+
+</html>
