@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sortedLastIndex 实战：去重插入与区间落点</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #fff7ed;
+            background-image: linear-gradient(160deg, #fff7ed 0%, #ecfeff 50%, #f5f3ff 100%);
+            color: #0f172a;
+            min-height: 100vh;
+            padding: 26px 16px 40px;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 18px;
+            padding: 20px 24px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .header h1 {
+            font-size: 1.55rem;
+            font-weight: 900;
+        }
+
+        .header .sub {
+            margin-top: 8px;
+            color: #475569;
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        @media (max-width: 920px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            font-weight: 900;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-row label {
+            font-size: 0.84rem;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .form-row small {
+            color: #94a3b8;
+            font-size: 0.74rem;
+            line-height: 1.5;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-family: ui-monospace, Menlo, Consolas, monospace;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 92px;
+            resize: vertical;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus {
+            border-color: #fb923c;
+            box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.22);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .actions button {
+            border: none;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.84rem;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .actions button.primary {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+        }
+
+        .actions button.secondary {
+            background: #0d9488;
+            color: #fff;
+        }
+
+        .actions button.ghost {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .actions button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(234, 88, 12, 0.22);
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.6;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .viz {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 10px;
+            min-height: 86px;
+            padding: 14px;
+            background: linear-gradient(180deg, #fafafa, #fff);
+            border: 2px dashed #fed7aa;
+            border-radius: 14px;
+        }
+
+        .cell {
+            min-width: 64px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            font-weight: 900;
+            font-family: ui-monospace, Menlo, monospace;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .cell .idx {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .slot-insert {
+            min-width: 56px;
+            border: 3px dashed #16a34a;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: #166534;
+            background: rgba(22, 163, 74, 0.12);
+            padding: 8px 8px;
+        }
+
+        .slot-insert strong {
+            font-size: 12px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .chip.asc {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .chip.desc {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .chip.idx {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .chip.warn {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+        }
+
+        .stat {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .stat-k {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-v {
+            font-size: 0.98rem;
+            font-weight: 900;
+            font-family: ui-monospace, Menlo, monospace;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+
+        .log {
+            font-family: ui-monospace, Menlo, monospace;
+            font-size: 11px;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 110px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        table.batch {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        table.batch th,
+        table.batch td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        table.batch th {
+            background: #f8fafc;
+            font-weight: 900;
+        }
+
+        /* 插件在深色/渐变背景上的可读性兜底 */
+        .panel .ew-select {
+            width: 100%;
+        }
+
+        .panel .ew-select .select-header span,
+        .panel .ew-select .select-option {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* 日期面板遮挡兜底：抬升左侧面板层级 */
+        .grid>.panel {
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid>.panel.is-elevated {
+            z-index: 9000;
+        }
+
+        .ew-datetime-picker.open {
+            z-index: 7000;
+        }
+
+        .ew-datetime-picker .datetime-panel {
+            z-index: 9001;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>sortedLastIndex 实战：去重插入与区间落点</h1>
+            <p class="sub">
+                目标：对<strong>已排序</strong>数组，找到把 <code>n</code> 插入后仍保持顺序的<strong>最高索引</strong>（等于值插在“最后一个相等元素”后面）。
+                本页提供：可视化插槽、模拟插入、批量查询、单调性检测、导出快照与源码高亮。
+            </p>
+        </div>
+
+        <div class="grid">
+            <div class="card panel" id="configPanel">
+                <h2>配置</h2>
+
+                <div class="form-row">
+                    <label>预设</label>
+                    <div id="presetSelect"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>n（InputNumber）</label>
+                    <div id="nInput"></div>
+                    <small>会计算 <code>sortedLastIndex(arr, n)</code> 并标出插入位置。</small>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-row">
+                        <label>批量 n（逗号分隔）</label>
+                        <input id="batchNs" type="text" placeholder="例：0, 30, 35, 99" />
+                    </div>
+                    <div class="form-row">
+                        <label>导出快照时间</label>
+                        <div id="snapshotPicker"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>选项</label>
+                    <div id="optionCheckbox"></div>
+                </div>
+
+                <div class="actions">
+                    <button id="btnCalc" class="primary" type="button">计算下标</button>
+                    <button id="btnInsert" class="secondary" type="button">模拟插入</button>
+                    <button id="btnBatch" class="secondary" type="button">批量计算</button>
+                    <button id="btnCopy" class="ghost" type="button">复制插入后数组</button>
+                    <button id="btnExport" class="ghost" type="button">导出 JSON</button>
+                    <button id="btnApi" class="ghost" type="button">查看函数源码</button>
+                </div>
+
+                <div class="form-row">
+                    <label>数组（数字，逗号或空格分隔）</label>
+                    <textarea id="arrInput" placeholder="10, 20, 30, 30, 40"></textarea>
+                </div>
+
+                <div class="hint">
+                    <b>关键点</b>：<code>reverse()</code> 会原地修改数组；本实现会在副本上操作，避免副作用。
+                    同时会把“从尾部找到的位置”换算回“插入下标”。\n
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>结果与可视化</h2>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <span id="chipOrder" class="chip warn">方向：-</span>
+                    <span id="chipIdx" class="chip idx">sortedLastIndex：-</span>
+                </div>
+
+                <div class="form-row" style="margin-top:8px;">
+                    <label>插入位置（绿色为插入点）</label>
+                    <div id="viz" class="viz"></div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-k">长度</div>
+                        <div class="stat-v" id="stLen">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-k">n</div>
+                        <div class="stat-v" id="stN">-</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-k">插入下标</div>
+                        <div class="stat-v" id="stIdx">-</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>插入后的数组</label>
+                    <textarea id="afterInsert" readonly style="min-height:72px;background:#0f172a;color:#e2e8f0;border-color:#334155;"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label>批量结果</label>
+                    <div style="overflow:auto;max-height:170px;">
+                        <table class="batch" id="batchTable">
+                            <thead>
+                                <tr>
+                                    <th>n</th>
+                                    <th>sortedLastIndex</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>日志</label>
+                    <div id="logBox" class="log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 基于文档思路修正实现：求“最高插入下标”（相等值插到最后一个相等元素后）
+        const sortedLastIndex = (arr, n) => {
+            if (!Array.isArray(arr) || arr.length === 0) return 0;
+            const isDescending = arr[0] > arr[arr.length - 1];
+            const reversed = [...arr].reverse(); // 避免 reverse() 破坏原数组
+            const foundFromEnd = reversed.findIndex((el) => (isDescending ? n >= el : el <= n));
+            // foundFromEnd 是从尾部开始的偏移：插入点 = arr.length - foundFromEnd
+            return foundFromEnd === -1 ? 0 : arr.length - foundFromEnd;
+        };
+
+        const state = {
+            modal: null,
+            notification: null,
+            checkboxGroup: null,
+            presetSelect: null,
+            presetNative: null,
+            nInput: null,
+            snapshotPicker: null,
+            checkboxDefs: []
+        };
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function log(msg) {
+            const box = $('logBox');
+            if (!box) return;
+            const t = new Date().toLocaleTimeString('zh-CN');
+            box.textContent += `[${t}] ${msg}\n`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function notify(msg, type = 'info') {
+            if (!getCb('showNotify')) return;
+            if (state.notification) state.notification.show(msg, type);
+            else console.log(`[${type}]`, msg);
+        }
+
+        function modal(html) {
+            if (state.modal) state.modal.alert(html);
+            else alert(String(html).replace(/<[^>]+>/g, ''));
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function getCb(id) {
+            if (state.checkboxGroup && typeof state.checkboxGroup.getAllChecked === 'function') {
+                try {
+                    const arr = state.checkboxGroup.getAllChecked();
+                    const i = state.checkboxDefs.findIndex((d) => d.id === id);
+                    if (i >= 0) return Boolean(arr[i]);
+                } catch (e) { }
+            }
+            const el = $(id);
+            return el ? el.checked : false;
+        }
+
+        function parseNumberArray(text) {
+            const raw = String(text || '').trim();
+            if (!raw) return [];
+            const parts = raw.split(/[\s,，;；]+/).filter(Boolean);
+            const nums = parts.map((p) => Number(p));
+            if (nums.some((x) => Number.isNaN(x))) return null;
+            return nums;
+        }
+
+        function inferDescending(arr) {
+            if (arr.length < 2) return false;
+            return arr[0] > arr[arr.length - 1];
+        }
+
+        function isWeaklyMonotonic(arr, desc) {
+            for (let i = 1; i < arr.length; i++) {
+                if (desc) {
+                    if (arr[i - 1] < arr[i]) return false;
+                } else {
+                    if (arr[i - 1] > arr[i]) return false;
+                }
+            }
+            return true;
+        }
+
+        function nowLocal() {
+            const d = new Date();
+            const off = d.getTimezoneOffset();
+            return new Date(d.getTime() - off * 60 * 1000).toISOString().slice(0, 16);
+        }
+
+        function getSnapshotTime() {
+            if (state.snapshotPicker && typeof state.snapshotPicker.getValue === 'function') {
+                try {
+                    return state.snapshotPicker.getValue() || '';
+                } catch (e) { }
+            }
+            const el = $('snapshotNative');
+            return el ? el.value : '';
+        }
+
+        function getN() {
+            if (state.nInput && typeof state.nInput.getValue === 'function') {
+                try {
+                    return Number(state.nInput.getValue());
+                } catch (e) { }
+            }
+            const el = $('nNative');
+            return el ? Number(el.value) : NaN;
+        }
+
+        function renderViz(arr, insertAt, n) {
+            const host = $('viz');
+            host.innerHTML = '';
+            for (let i = 0; i < arr.length; i++) {
+                if (i === insertAt) {
+                    const slot = document.createElement('div');
+                    slot.className = 'slot-insert';
+                    slot.innerHTML = `<strong>n</strong><div>@${insertAt}</div>`;
+                    slot.title = `插入下标 ${insertAt}`;
+                    host.appendChild(slot);
+                }
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = String(arr[i]);
+                const idx = document.createElement('span');
+                idx.className = 'idx';
+                idx.textContent = `[${i}]`;
+                cell.appendChild(idx);
+                host.appendChild(cell);
+            }
+            if (insertAt === arr.length) {
+                const slot = document.createElement('div');
+                slot.className = 'slot-insert';
+                slot.innerHTML = `<strong>n</strong><div>@${insertAt}</div>`;
+                slot.title = `插入下标 ${insertAt}`;
+                host.appendChild(slot);
+            }
+            if (arr.length === 0) {
+                const slot = document.createElement('div');
+                slot.className = 'slot-insert';
+                slot.innerHTML = `<strong>n</strong><div>@0</div>`;
+                host.appendChild(slot);
+            }
+        }
+
+        function runCalc(silent) {
+            const arr = parseNumberArray($('arrInput').value);
+            if (arr === null) {
+                if (!silent) notify('数组解析失败：请使用数字与逗号/空格', 'error');
+                log('parse error');
+                return null;
+            }
+            const n = getN();
+            if (Number.isNaN(n)) {
+                if (!silent) notify('n 不是有效数字', 'error');
+                return null;
+            }
+
+            const desc = inferDescending(arr);
+            $('chipOrder').textContent = arr.length < 2 ? '方向：-'
+                : (desc ? '方向：降序（首尾推断）' : '方向：升序（首尾推断）');
+            $('chipOrder').className = 'chip ' + (arr.length < 2 ? 'warn' : (desc ? 'desc' : 'asc'));
+
+            if (getCb('checkMono') && arr.length >= 2) {
+                const ok = isWeaklyMonotonic(arr, desc);
+                if (!ok) {
+                    log('警告：数组与推断方向不一致（非单调）');
+                    if (!silent) notify('数组可能无序，结果仅供参考', 'warning');
+                } else {
+                    log('单调性检查通过');
+                }
+            }
+
+            const idx = sortedLastIndex(arr, n);
+            $('chipIdx').textContent = `sortedLastIndex：${idx}`;
+            $('stLen').textContent = String(arr.length);
+            $('stN').textContent = String(n);
+            $('stIdx').textContent = String(idx);
+            renderViz(arr, idx, n);
+            log(`sortedLastIndex([${arr.join(',')}], ${n}) => ${idx}`);
+            if (!silent) notify(`sortedLastIndex = ${idx}`, 'success');
+            return { arr, n, idx };
+        }
+
+        function doInsert() {
+            const r = runCalc(true);
+            if (!r) {
+                notify('请先修正输入', 'warning');
+                return;
+            }
+            const next = [...r.arr.slice(0, r.idx), r.n, ...r.arr.slice(r.idx)];
+            $('afterInsert').value = JSON.stringify(next);
+            notify('已生成插入后的数组', 'success');
+            log(`insert @${r.idx} -> ${JSON.stringify(next)}`);
+        }
+
+        function doBatch() {
+            const arr = parseNumberArray($('arrInput').value);
+            if (arr === null) {
+                notify('数组解析失败', 'error');
+                return;
+            }
+            const raw = $('batchNs').value.trim();
+            if (!raw) {
+                notify('请填写批量 n 列表', 'warning');
+                return;
+            }
+            const ns = parseNumberArray(raw.replace(/，/g, ','));
+            if (ns === null) {
+                notify('批量 n 解析失败', 'error');
+                return;
+            }
+            const tbody = $('batchTable').querySelector('tbody');
+            tbody.innerHTML = '';
+            ns.forEach((n) => {
+                const idx = sortedLastIndex(arr, n);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${n}</td><td>${idx}</td>`;
+                tbody.appendChild(tr);
+            });
+            notify(`已计算 ${ns.length} 项`, 'success');
+            log(`batch ${ns.length} values`);
+        }
+
+        async function doCopy() {
+            const t = $('afterInsert').value;
+            if (!t.trim()) {
+                notify('请先「模拟插入」', 'warning');
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(t);
+                notify('已复制', 'success');
+            } catch (e) {
+                notify('复制失败', 'error');
+            }
+        }
+
+        function doExport() {
+            const r = runCalc(true);
+            const payload = {
+                snapshotAt: getSnapshotTime() || nowLocal(),
+                array: r ? r.arr : null,
+                n: r ? r.n : null,
+                sortedLastIndex: r ? r.idx : null,
+                afterInsert: r ? [...r.arr.slice(0, r.idx), r.n, ...r.arr.slice(r.idx)] : null
+            };
+            const esc = escapeHtml(JSON.stringify(payload, null, 2));
+            modal(`<div style="padding:14px 12px;color:#0f172a;">
+                <div style="font-weight:900;margin-bottom:10px;">导出 JSON</div>
+                <pre style="margin:0;max-height:380px;overflow:auto;padding:12px;border-radius:10px;border:1px solid #e2e8f0;background:#0f172a;color:#f8fafc;font-size:12px;"><code>${esc}</code></pre>
+            </div>`);
+            notify('已生成导出', 'info');
+        }
+
+        function doApi() {
+            const src = `const sortedLastIndex = (arr, n) => {
+  if (!Array.isArray(arr) || arr.length === 0) return 0;
+  const isDescending = arr[0] > arr[arr.length - 1];
+  const reversed = [...arr].reverse(); // avoid mutating
+  const foundFromEnd = reversed.findIndex((el) => (isDescending ? n >= el : el <= n));
+  return foundFromEnd === -1 ? 0 : arr.length - foundFromEnd;
+};`;
+            const escaped = escapeHtml(src);
+            modal(`<div style="padding:14px 12px;color:#0f172a;font-size:14px;line-height:1.75;">
+                <div style="font-weight:900;margin-bottom:10px;">sortedLastIndex（本页实现）</div>
+                <p style="margin-bottom:10px;color:#64748b;font-size:13px;">插入到“最后一个相等元素”之后，因此是<strong>最高索引</strong>。</p>
+                <pre style="margin:0;padding:0;border-radius:10px;border:1px solid #e2e8f0;overflow:auto;max-height:420px;"><code data-hl="sorted-last-index" class="language-javascript">${escaped}</code></pre>
+            </div>`);
+            setTimeout(() => {
+                if (!window.hljs) return;
+                document.querySelectorAll('code[data-hl="sorted-last-index"]').forEach((el) => window.hljs.highlightElement(el));
+            }, 0);
+        }
+
+        function applyPreset() {
+            let key = 'doc';
+            if (state.presetSelect && typeof state.presetSelect.getValue === 'function') key = state.presetSelect.getValue() || 'doc';
+            else if (state.presetNative) key = state.presetNative.value;
+
+            const presets = {
+                doc: { arr: '10, 20, 30, 30, 40', n: 30 },
+                ascGap: { arr: '10, 20, 40, 50', n: 35 },
+                descDoc: { arr: '40, 30, 30, 20, 10', n: 30 },
+                descGap: { arr: '100, 60, 20', n: 75 },
+                single: { arr: '42', n: 42 },
+                empty: { arr: '', n: 7 }
+            };
+            const p = presets[key];
+            if (!p) return;
+            $('arrInput').value = p.arr;
+            if (state.nInput && typeof state.nInput.setValue === 'function') state.nInput.setValue(p.n);
+            else if ($('nNative')) $('nNative').value = String(p.n);
+            runCalc(false);
+        }
+
+        function initPlugins() {
+            try { state.modal = new Modal(); } catch (e) { }
+            try { state.notification = new Notification({ position: 'top-right' }); } catch (e) { }
+        }
+
+        function setupSelect() {
+            const options = [
+                { value: 'doc', label: '文档：10,20,30,30,40 与 n=30' },
+                { value: 'ascGap', label: '升序：10,20,40,50 与 n=35' },
+                { value: 'descDoc', label: '降序：40,30,30,20,10 与 n=30' },
+                { value: 'descGap', label: '降序：100,60,20 与 n=75' },
+                { value: 'single', label: '单元素：42 与 n=42' },
+                { value: 'empty', label: '空数组：n=7' }
+            ];
+            const el = $('presetSelect');
+            if (!el) return;
+            try {
+                state.presetSelect = new Select({
+                    container: el,
+                    options,
+                    onChange: () => applyPreset()
+                });
+                state.presetSelect.setValue('doc');
+            } catch (e) {
+                const sel = document.createElement('select');
+                options.forEach((o) => {
+                    const opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.textContent = o.label;
+                    sel.appendChild(opt);
+                });
+                sel.value = 'doc';
+                sel.addEventListener('change', applyPreset);
+                el.appendChild(sel);
+                state.presetNative = sel;
+            }
+        }
+
+        function setupNInput() {
+            const wrap = $('nInput');
+            if (!wrap) return;
+            try {
+                state.nInput = new InputNumber({
+                    container: wrap,
+                    min: -1e9,
+                    max: 1e9,
+                    step: 1,
+                    value: 30,
+                    onChange: () => { if (getCb('liveUpdate')) runCalc(true); }
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = 'nNative';
+                input.value = '30';
+                input.addEventListener('input', () => { if (getCb('liveUpdate')) runCalc(true); });
+                wrap.appendChild(input);
+            }
+        }
+
+        function setupPicker() {
+            const wrap = $('snapshotPicker');
+            if (!wrap) return;
+            try {
+                state.snapshotPicker = new DateTimePicker({
+                    container: '#snapshotPicker',
+                    value: nowLocal(),
+                    placeholder: '快照时间',
+                    onChange: () => { }
+                });
+            } catch (e) {
+                const input = document.createElement('input');
+                input.type = 'datetime-local';
+                input.id = 'snapshotNative';
+                input.value = nowLocal();
+                wrap.appendChild(input);
+            }
+            const pickerEl = wrap.querySelector('.ew-datetime-picker');
+            const panelEl = $('configPanel');
+            if (pickerEl && panelEl) {
+                const sync = () => {
+                    if (pickerEl.classList.contains('open')) panelEl.classList.add('is-elevated');
+                    else panelEl.classList.remove('is-elevated');
+                };
+                sync();
+                new MutationObserver(sync).observe(pickerEl, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+
+        function setupCheckbox() {
+            const container = $('optionCheckbox');
+            if (!container) return;
+            const items = [
+                { id: 'checkMono', label: '检测单调性', checked: true },
+                { id: 'liveUpdate', label: '修改数组/n 自动重算', checked: true },
+                { id: 'showNotify', label: '显示通知', checked: true }
+            ];
+            state.checkboxDefs = items;
+            try {
+                const group = Checkbox.createCheckboxGroup({
+                    items: items.map((x) => ({ id: x.id, label: x.label, checked: x.checked })),
+                    onChange: () => runCalc(true)
+                });
+                container.appendChild(group.container);
+                state.checkboxGroup = group;
+            } catch (e) {
+                items.forEach((x) => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '6px';
+                    div.innerHTML = `<input type="checkbox" id="${x.id}" ${x.checked ? 'checked' : ''}/><label for="${x.id}" style="margin-left:8px;cursor:pointer;">${x.label}</label>`;
+                    div.querySelector('input').addEventListener('change', () => runCalc(true));
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function bind() {
+            $('btnCalc').addEventListener('click', () => runCalc(false));
+            $('btnInsert').addEventListener('click', doInsert);
+            $('btnBatch').addEventListener('click', doBatch);
+            $('btnCopy').addEventListener('click', doCopy);
+            $('btnExport').addEventListener('click', doExport);
+            $('btnApi').addEventListener('click', doApi);
+            $('arrInput').addEventListener('input', () => { if (getCb('liveUpdate')) runCalc(true); });
+        }
+
+        function init() {
+            initPlugins();
+            setupSelect();
+            setupNInput();
+            setupPicker();
+            setupCheckbox();
+            bind();
+            applyPreset();
+            log('就绪');
+            notify('sortedLastIndex 工作台已加载', 'info');
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    </script>
+</body>
+
+</html>

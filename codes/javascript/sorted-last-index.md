@@ -17,6 +17,8 @@ const sortedLastIndex = (arr, n) => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/sorted-last-index.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -24,3 +26,11 @@ sortedLastIndex([10, 20, 30, 30, 40], 30); // 4
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/sorted-last-index.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/sorted-last-index.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/sorted-last-index.html"></iframe>
