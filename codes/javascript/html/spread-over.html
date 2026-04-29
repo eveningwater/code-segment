@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>spread-over - 预算分摊实战工作台</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1d4ed8);
+            color: #0f172a;
+            padding: 22px;
+        }
+
+        .app {
+            max-width: 1380px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            color: #f8fafc;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 2.1rem;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            opacity: 0.92;
+            line-height: 1.7;
+            max-width: 920px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 390px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: rgba(248, 250, 252, 0.97);
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            border-radius: 16px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.24);
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+            font-size: 1.08rem;
+            color: #1e293b;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .input,
+        .textarea {
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .textarea {
+            min-height: 170px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .input:focus,
+        .textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .btn.warn {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+        }
+
+        .btn.dark {
+            background: linear-gradient(135deg, #334155, #1e293b);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .stat {
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.35rem;
+            color: #1d4ed8;
+        }
+
+        .stat span {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .table-wrap {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            overflow: auto;
+            max-height: 450px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            min-width: 840px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.86rem;
+            color: #1f2937;
+            vertical-align: top;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 0.74rem;
+            font-weight: 700;
+        }
+
+        .tag.dev {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag.qa {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .tag.design {
+            background: #fee2e2;
+            color: #be123c;
+        }
+
+        .tag.ops {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .code-preview {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            line-height: 1.6;
+            font-size: 0.82rem;
+            font-family: Menlo, Monaco, Consolas, monospace;
+            overflow: auto;
+            max-height: 260px;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        @media (max-width: 1200px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="hero">
+            <h1>spreadOver 预算分摊与工时成本模拟器</h1>
+            <p>
+                这个实战示例演示如何将配置数组通过 <strong>spreadOver</strong> 展开为函数参数，
+                用在预算分摊、工时成本、风险因子计算等场景中。适用于项目管理、外包结算、研发成本预估。
+            </p>
+        </header>
+
+        <div class="layout">
+            <aside>
+                <section class="card">
+                    <h2>1) 输入成员与小时</h2>
+                    <div class="field">
+                        <label for="memberInput">成员工时（每行：姓名,角色,小时）</label>
+                        <textarea id="memberInput" class="textarea" placeholder="例如：
+张三,dev,42
+李四,qa,28
+王五,design,24
+赵六,ops,20"></textarea>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn dark" id="fillDemoBtn">填充示例</button>
+                        <button class="btn warn" id="clearBtn">清空输入</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>2) 预算参数</h2>
+                    <div class="field">
+                        <label>预算模式</label>
+                        <div id="modeSelect"></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label>总预算（元）</label>
+                            <div id="budgetInput"></div>
+                        </div>
+                        <div class="field">
+                            <label>风险因子（%）</label>
+                            <div id="riskInput"></div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="roleRateInput">角色倍率（JSON）</label>
+                        <input id="roleRateInput" class="input" value='{"dev":1.2,"qa":1.0,"design":1.1,"ops":1.15}' />
+                    </div>
+                    <div id="optionChecks"></div>
+                </section>
+
+                <section class="card">
+                    <h2>3) 执行</h2>
+                    <div class="btn-row">
+                        <button class="btn primary" id="calcBtn">计算分摊</button>
+                        <button class="btn success" id="exportBtn">导出 CSV</button>
+                        <button class="btn dark" id="resetBtn">重置状态</button>
+                    </div>
+                    <p class="muted">导出会复制到剪贴板，便于贴入表格工具。</p>
+                </section>
+            </aside>
+
+            <main>
+                <section class="card">
+                    <h2>统计面板</h2>
+                    <div class="stats">
+                        <div class="stat"><strong id="memberCount">0</strong><span>成员数</span></div>
+                        <div class="stat"><strong id="totalHours">0</strong><span>总工时</span></div>
+                        <div class="stat"><strong id="finalBudget">0</strong><span>实际预算</span></div>
+                        <div class="stat"><strong id="avgCost">0</strong><span>平均人力成本</span></div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>分摊结果</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>姓名</th>
+                                    <th>角色</th>
+                                    <th>工时</th>
+                                    <th>权重工时</th>
+                                    <th>分摊金额</th>
+                                    <th>单小时成本</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultBody">
+                                <tr>
+                                    <td colspan="7" class="muted">暂无结果，请先执行计算。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>spreadOver 计算过程</h2>
+                    <div id="formulaPreview" class="code-preview">等待计算...</div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+
+    <script>
+        const spreadOver = fn => argsArr => fn(...argsArr);
+
+        class SpreadOverBudgetWorkbench {
+            constructor() {
+                this.plugins = {};
+                this.members = [];
+                this.rows = [];
+                this.optionOrder = ["confirmBeforeCalc", "roundAmount", "excludeZeroHours"];
+                this.demoText = [
+                    "张三,dev,42",
+                    "李四,qa,28",
+                    "王五,design,24",
+                    "赵六,ops,20",
+                    "钱七,dev,36"
+                ].join("\n");
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.mountPlugins();
+                this.fillDemo();
+                this.toast("预算分摊工作台已就绪", "success");
+            }
+
+            bindEvents() {
+                document.getElementById("fillDemoBtn")?.addEventListener("click", () => {
+                    this.fillDemo();
+                    this.toast("示例数据已填充", "info");
+                });
+
+                document.getElementById("clearBtn")?.addEventListener("click", () => {
+                    const el = document.getElementById("memberInput");
+                    if (el) el.value = "";
+                    this.rows = [];
+                    this.renderTable();
+                    this.resetStats();
+                });
+
+                document.getElementById("calcBtn")?.addEventListener("click", () => this.handleCalc());
+                document.getElementById("exportBtn")?.addEventListener("click", () => this.handleExport());
+                document.getElementById("resetBtn")?.addEventListener("click", () => this.handleReset());
+            }
+
+            mountPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn("基础插件加载失败:", error);
+                }
+
+                this.mountSelect();
+                this.mountNumbers();
+                this.mountChecks();
+            }
+
+            mountSelect() {
+                try {
+                    const el = document.getElementById("modeSelect");
+                    if (!el) return;
+                    this.plugins.modeSelect = new Select({
+                        options: [
+                            { value: "weight", label: "按权重工时分摊（推荐）" },
+                            { value: "hours", label: "按原始工时分摊" },
+                            { value: "equal", label: "平均分摊" }
+                        ],
+                        placeholder: "预算模式"
+                    });
+                    this.plugins.modeSelect.mount(el);
+                } catch (error) {
+                    console.warn("Select 插件初始化失败:", error);
+                }
+            }
+
+            mountNumbers() {
+                try {
+                    const budgetEl = document.getElementById("budgetInput");
+                    const riskEl = document.getElementById("riskInput");
+                    if (budgetEl) {
+                        this.plugins.budgetInput = new InputNumber({
+                            min: 1000,
+                            max: 10000000,
+                            step: 1000,
+                            value: 300000
+                        });
+                        this.plugins.budgetInput.mount(budgetEl);
+                    }
+                    if (riskEl) {
+                        this.plugins.riskInput = new InputNumber({
+                            min: 0,
+                            max: 100,
+                            step: 1,
+                            value: 12
+                        });
+                        this.plugins.riskInput.mount(riskEl);
+                    }
+                } catch (error) {
+                    console.warn("InputNumber 插件初始化失败:", error);
+                }
+            }
+
+            mountChecks() {
+                const el = document.getElementById("optionChecks");
+                if (!el) return;
+                try {
+                    this.plugins.optionChecks = Checkbox.createCheckboxGroup({
+                        items: [
+                            { id: "confirmBeforeCalc", label: "计算前二次确认", checked: true },
+                            { id: "roundAmount", label: "金额四舍五入到分", checked: true },
+                            { id: "excludeZeroHours", label: "过滤零工时成员", checked: true }
+                        ]
+                    });
+                    el.appendChild(this.plugins.optionChecks.container);
+                } catch (error) {
+                    console.warn("Checkbox 插件初始化失败:", error);
+                }
+            }
+
+            fillDemo() {
+                const el = document.getElementById("memberInput");
+                if (el) el.value = this.demoText;
+                this.resetStats();
+                this.renderFormula("等待计算...");
+            }
+
+            getOptions() {
+                const defaults = [true, true, true];
+                const states = this.plugins.optionChecks?.getAllChecked ? this.plugins.optionChecks.getAllChecked() : defaults;
+                const options = {};
+                this.optionOrder.forEach((name, idx) => {
+                    options[name] = Boolean(states[idx]);
+                });
+                return options;
+            }
+
+            async handleCalc() {
+                const options = this.getOptions();
+                if (options.confirmBeforeCalc && this.plugins.modal?.confirm) {
+                    const ok = await this.plugins.modal.confirm("确认使用当前参数执行预算分摊计算？");
+                    if (!ok) return;
+                }
+                this.calculate();
+            }
+
+            calculate() {
+                const baseBudget = this.plugins.budgetInput?.getValue?.() || 0;
+                const riskPercent = this.plugins.riskInput?.getValue?.() || 0;
+                const mode = this.plugins.modeSelect?.getValue?.() || "weight";
+                const roleRates = this.parseRoleRates();
+                const options = this.getOptions();
+
+                this.members = this.parseMembers(options.excludeZeroHours);
+                if (this.members.length === 0) {
+                    this.toast("没有可计算的成员数据", "warning");
+                    this.rows = [];
+                    this.renderTable();
+                    this.resetStats();
+                    return;
+                }
+
+                const calcBudget = spreadOver((budget, risk) => budget * (1 + risk / 100));
+                const finalBudgetRaw = calcBudget([baseBudget, riskPercent]);
+                const finalBudget = options.roundAmount ? this.roundMoney(finalBudgetRaw) : finalBudgetRaw;
+
+                const totals = this.computeTotals(this.members, roleRates, mode);
+                this.rows = this.members.map((member, index) => {
+                    const weightedHours = this.weightedHours(member, roleRates, mode);
+                    const amount = this.allocateAmount(finalBudget, weightedHours, totals.base);
+                    const finalAmount = options.roundAmount ? this.roundMoney(amount) : amount;
+                    const hourCost = member.hours > 0 ? finalAmount / member.hours : 0;
+                    return {
+                        index: index + 1,
+                        name: member.name,
+                        role: member.role,
+                        hours: member.hours,
+                        weightedHours: this.round2(weightedHours),
+                        amount: finalAmount,
+                        hourCost: this.round2(hourCost)
+                    };
+                });
+
+                this.renderTable();
+                this.renderStats(finalBudget);
+                this.renderFormula(this.buildFormulaText(baseBudget, riskPercent, finalBudget, mode, roleRates, totals));
+                this.toast("预算分摊计算完成", "success");
+            }
+
+            parseMembers(excludeZeroHours) {
+                const text = document.getElementById("memberInput")?.value || "";
+                const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+                const parsed = [];
+                lines.forEach(line => {
+                    const [name = "", role = "", hoursText = "0"] = line.split(",").map(item => item.trim());
+                    const hours = Number(hoursText);
+                    if (!name || !role || Number.isNaN(hours)) return;
+                    if (excludeZeroHours && hours <= 0) return;
+                    parsed.push({ name, role: role.toLowerCase(), hours });
+                });
+                return parsed;
+            }
+
+            parseRoleRates() {
+                const text = document.getElementById("roleRateInput")?.value || "{}";
+                try {
+                    const data = JSON.parse(text);
+                    return Object.keys(data).reduce((acc, key) => {
+                        const val = Number(data[key]);
+                        if (!Number.isNaN(val) && val > 0) {
+                            acc[key.toLowerCase()] = val;
+                        }
+                        return acc;
+                    }, {});
+                } catch (error) {
+                    this.toast("角色倍率 JSON 解析失败，已使用默认 1.0", "warning");
+                    return {};
+                }
+            }
+
+            computeTotals(members, roleRates, mode) {
+                const rawHours = members.reduce((sum, m) => sum + m.hours, 0);
+                if (mode === "equal") {
+                    return { rawHours, base: members.length };
+                }
+                if (mode === "hours") {
+                    return { rawHours, base: rawHours };
+                }
+                const weighted = members.reduce((sum, m) => sum + this.weightedHours(m, roleRates, "weight"), 0);
+                return { rawHours, base: weighted };
+            }
+
+            weightedHours(member, roleRates, mode) {
+                if (mode === "equal") return 1;
+                if (mode === "hours") return member.hours;
+                const rate = roleRates[member.role] || 1;
+                return member.hours * rate;
+            }
+
+            allocateAmount(totalBudget, weight, totalWeight) {
+                if (!totalWeight) return 0;
+                const alloc = spreadOver((budget, part, all) => budget * (part / all));
+                return alloc([totalBudget, weight, totalWeight]);
+            }
+
+            buildFormulaText(baseBudget, riskPercent, finalBudget, mode, roleRates, totals) {
+                return [
+                    "// 1) 基础函数",
+                    "const spreadOver = fn => argsArr => fn(...argsArr);",
+                    "",
+                    "// 2) 总预算（含风险）",
+                    `baseBudget = ${baseBudget}`,
+                    `riskPercent = ${riskPercent}%`,
+                    `finalBudget = spreadOver((b, r) => b * (1 + r / 100))([${baseBudget}, ${riskPercent}])`,
+                    `finalBudget -> ${this.currency(finalBudget)}`,
+                    "",
+                    "// 3) 分摊模式",
+                    `mode = "${mode}"`,
+                    `roleRates = ${JSON.stringify(roleRates)}`,
+                    `totalHours = ${totals.rawHours}`,
+                    `allocationBase = ${this.round2(totals.base)}`,
+                    "",
+                    "// 4) 单人成本",
+                    "amount = spreadOver((budget, part, all) => budget * (part / all))([finalBudget, weight, totalWeight])"
+                ].join("\n");
+            }
+
+            renderTable() {
+                const body = document.getElementById("resultBody");
+                if (!body) return;
+                if (this.rows.length === 0) {
+                    body.innerHTML = '<tr><td colspan="7" class="muted">暂无结果，请先执行计算。</td></tr>';
+                    return;
+                }
+                body.innerHTML = this.rows.map(row => `
+                    <tr>
+                        <td>${row.index}</td>
+                        <td>${this.escapeHtml(row.name)}</td>
+                        <td>${this.roleTag(row.role)}</td>
+                        <td>${this.round2(row.hours)}</td>
+                        <td>${this.round2(row.weightedHours)}</td>
+                        <td>${this.currency(row.amount)}</td>
+                        <td>${this.currency(row.hourCost)}</td>
+                    </tr>
+                `).join("");
+            }
+
+            roleTag(role) {
+                const map = {
+                    dev: "dev",
+                    qa: "qa",
+                    design: "design",
+                    ops: "ops"
+                };
+                const cls = map[role] || "dev";
+                return `<span class="tag ${cls}">${this.escapeHtml(role)}</span>`;
+            }
+
+            renderStats(finalBudget = 0) {
+                const memberCount = this.rows.length;
+                const totalHours = this.rows.reduce((sum, row) => sum + row.hours, 0);
+                const avg = memberCount ? finalBudget / memberCount : 0;
+                document.getElementById("memberCount").textContent = String(memberCount);
+                document.getElementById("totalHours").textContent = String(this.round2(totalHours));
+                document.getElementById("finalBudget").textContent = this.currency(finalBudget);
+                document.getElementById("avgCost").textContent = this.currency(avg);
+            }
+
+            resetStats() {
+                document.getElementById("memberCount").textContent = "0";
+                document.getElementById("totalHours").textContent = "0";
+                document.getElementById("finalBudget").textContent = "0";
+                document.getElementById("avgCost").textContent = "0";
+            }
+
+            renderFormula(text) {
+                const el = document.getElementById("formulaPreview");
+                if (el) el.textContent = text;
+            }
+
+            handleExport() {
+                if (this.rows.length === 0) {
+                    this.toast("没有可导出的分摊结果", "warning");
+                    return;
+                }
+                const header = "name,role,hours,weightedHours,amount,hourCost";
+                const rows = this.rows.map(row => [
+                    row.name,
+                    row.role,
+                    row.hours,
+                    row.weightedHours,
+                    row.amount,
+                    row.hourCost
+                ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(","));
+                const csv = [header].concat(rows).join("\n");
+
+                if (navigator.clipboard?.writeText) {
+                    navigator.clipboard.writeText(csv).then(() => {
+                        this.toast("CSV 已复制到剪贴板", "success");
+                    }).catch(() => {
+                        this.copyFallback(csv);
+                    });
+                } else {
+                    this.copyFallback(csv);
+                }
+            }
+
+            copyFallback(text) {
+                const area = document.createElement("textarea");
+                area.value = text;
+                document.body.appendChild(area);
+                area.select();
+                document.execCommand("copy");
+                area.remove();
+                this.toast("CSV 已复制（兼容模式）", "info");
+            }
+
+            async handleReset() {
+                if (this.plugins.modal?.confirm) {
+                    const ok = await this.plugins.modal.confirm("确定重置输入、参数和结果吗？");
+                    if (!ok) return;
+                }
+                this.fillDemo();
+                this.rows = [];
+                this.renderTable();
+                this.resetStats();
+                const roleRate = document.getElementById("roleRateInput");
+                if (roleRate) {
+                    roleRate.value = '{"dev":1.2,"qa":1.0,"design":1.1,"ops":1.15}';
+                }
+                this.toast("已重置到默认状态", "success");
+            }
+
+            round2(n) {
+                return Math.round(Number(n) * 100) / 100;
+            }
+
+            roundMoney(n) {
+                return Math.round(Number(n) * 100) / 100;
+            }
+
+            currency(n) {
+                const val = Number(n) || 0;
+                return val.toLocaleString("zh-CN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            toast(message, type = "info") {
+                if (this.plugins.notification?.show) {
+                    this.plugins.notification.show(message, type);
+                    return;
+                }
+                console.log(`[${type}] ${message}`);
+            }
+
+            escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            window.spreadOverBudgetWorkbench = new SpreadOverBudgetWorkbench();
+        });
+    </script>
+</body>
+
+</html>
