@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>split-lines - 智能日志解析工作台</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(120deg, #111827 0%, #1d4ed8 100%);
+            color: #0f172a;
+            padding: 24px;
+        }
+
+        .page {
+            max-width: 1380px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            color: #f8fafc;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.2px;
+        }
+
+        .hero p {
+            opacity: 0.9;
+            line-height: 1.75;
+            max-width: 900px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 390px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            background: rgba(248, 250, 252, 0.97);
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.24);
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            color: #1e293b;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 200px;
+            resize: vertical;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            transition: all 0.2s;
+        }
+
+        .textarea:focus,
+        .input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .input {
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.92rem;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #f8fafc;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .btn.warning {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+        }
+
+        .btn.dark {
+            background: linear-gradient(135deg, #334155, #0f172a);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .stat {
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.4rem;
+            color: #1d4ed8;
+            margin-bottom: 2px;
+        }
+
+        .stat span {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        .main-panel .card {
+            margin-bottom: 18px;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            max-height: 410px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            min-width: 840px;
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 0.87rem;
+            color: #1f2937;
+            vertical-align: top;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #eff6ff;
+            color: #1e40af;
+            z-index: 1;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 0.74rem;
+            font-weight: 700;
+        }
+
+        .tag.error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .tag.warn {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .tag.info {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag.debug {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .raw-list {
+            max-height: 250px;
+            overflow: auto;
+            border: 1px solid #cbd5e1;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: Menlo, Monaco, Consolas, monospace;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+
+        .raw-line {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 4px 0;
+        }
+
+        .raw-line:last-child {
+            border-bottom: none;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        @media (max-width: 1180px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="hero">
+            <h1>splitLines 智能日志解析工作台</h1>
+            <p>
+                该示例展示如何用 <strong>splitLines</strong> 做真实业务处理：日志分行、等级过滤、时间范围筛选、批量告警判定、结果导出。
+                适用于监控平台接入、客服工单排障、线上故障快查等场景。
+            </p>
+        </div>
+
+        <div class="layout">
+            <aside>
+                <section class="card">
+                    <h2>1) 输入日志文本</h2>
+                    <div class="field">
+                        <label for="sourceText">原始文本</label>
+                        <textarea id="sourceText" class="textarea" placeholder="每行一条日志，例如：
+2026-04-29 09:21:31|ERROR|payment|扣款失败：余额不足
+2026-04-29 09:23:11|INFO|order|订单创建成功"></textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn dark" id="fillDemoBtn">填充示例数据</button>
+                        <button class="btn warning" id="clearTextBtn">清空文本</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>2) 解析与过滤规则</h2>
+                    <div class="field">
+                        <label>日志等级筛选</label>
+                        <div id="levelSelect"></div>
+                    </div>
+                    <div class="row">
+                        <div class="field">
+                            <label>最少关键字命中数</label>
+                            <div id="keywordCountInput"></div>
+                        </div>
+                        <div class="field">
+                            <label for="keywordsInput">关键字（逗号分隔）</label>
+                            <input id="keywordsInput" class="input" value="失败,超时,异常,拒绝" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>时间范围</label>
+                        <div class="row">
+                            <div id="startDatePicker"></div>
+                            <div id="endDatePicker"></div>
+                        </div>
+                    </div>
+                    <div id="optionChecks"></div>
+                </section>
+
+                <section class="card">
+                    <h2>3) 执行动作</h2>
+                    <div class="btn-group">
+                        <button class="btn primary" id="parseBtn">解析并生成报表</button>
+                        <button class="btn success" id="exportBtn">导出筛选结果</button>
+                        <button class="btn dark" id="resetBtn">重置状态</button>
+                    </div>
+                    <p class="muted">导出使用 CSV 文本格式，可直接粘贴到表格工具。</p>
+                </section>
+            </aside>
+
+            <main class="main-panel">
+                <section class="card">
+                    <h2>解析统计</h2>
+                    <div class="stats">
+                        <div class="stat">
+                            <strong id="totalLines">0</strong>
+                            <span>总行数</span>
+                        </div>
+                        <div class="stat">
+                            <strong id="validLines">0</strong>
+                            <span>有效日志</span>
+                        </div>
+                        <div class="stat">
+                            <strong id="alertLines">0</strong>
+                            <span>告警条目</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>结构化结果</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>时间</th>
+                                    <th>等级</th>
+                                    <th>模块</th>
+                                    <th>消息</th>
+                                    <th>命中关键字</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultBody">
+                                <tr>
+                                    <td colspan="6" class="muted">尚未解析，请先填写日志文本并执行解析。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>分行预览（splitLines 输出）</h2>
+                    <div id="rawLineList" class="raw-list">
+                        <div class="raw-line">暂无内容</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        const splitLines = str => str.split(/\r?\n/);
+
+        class LogWorkbench {
+            constructor() {
+                this.plugins = {};
+                this.parsedRows = [];
+                this.filteredRows = [];
+                this.optionOrder = ["trimEmpty", "caseInsensitive", "strictTimestamp", "confirmBeforeParse"];
+                this.demoText = [
+                    "2026-04-29 09:21:31|ERROR|payment|扣款失败：余额不足",
+                    "2026-04-29 09:22:05|WARN|gateway|第三方网关响应超时，已重试",
+                    "2026-04-29 09:23:11|INFO|order|订单创建成功",
+                    "2026-04-29 09:25:47|ERROR|auth|token校验异常，用户被拒绝访问",
+                    "2026-04-29 09:28:02|DEBUG|cache|缓存刷新完成，用时82ms",
+                    "2026-04-29 09:31:19|INFO|payment|支付任务进入队列",
+                    "2026-04-29 09:34:44|WARN|inventory|库存服务响应波动",
+                    "2026-04-29 09:40:13|ERROR|order|订单状态更新失败：数据库超时"
+                ].join("\n");
+                this.init();
+            }
+
+            init() {
+                this.bindBaseEvents();
+                this.initPlugins();
+                this.fillDemoText();
+                this.toast("日志工作台已就绪", "success");
+            }
+
+            bindBaseEvents() {
+                document.getElementById("fillDemoBtn")?.addEventListener("click", () => {
+                    this.fillDemoText();
+                    this.toast("已填充示例日志", "info");
+                });
+
+                document.getElementById("clearTextBtn")?.addEventListener("click", () => {
+                    const source = document.getElementById("sourceText");
+                    if (source) {
+                        source.value = "";
+                    }
+                    this.renderRawLines([]);
+                    this.resetStats();
+                });
+
+                document.getElementById("parseBtn")?.addEventListener("click", () => this.handleParse());
+                document.getElementById("exportBtn")?.addEventListener("click", () => this.handleExport());
+                document.getElementById("resetBtn")?.addEventListener("click", () => this.handleReset());
+            }
+
+            initPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn("基础插件加载失败:", error);
+                }
+
+                this.mountSelect();
+                this.mountInputNumber();
+                this.mountDatePickers();
+                this.mountCheckboxes();
+            }
+
+            mountSelect() {
+                try {
+                    const levelSelectEl = document.getElementById("levelSelect");
+                    if (!levelSelectEl) return;
+                    this.plugins.levelSelect = new Select({
+                        options: [
+                            { value: "ALL", label: "全部等级" },
+                            { value: "ERROR", label: "仅 ERROR" },
+                            { value: "WARN", label: "仅 WARN" },
+                            { value: "INFO", label: "仅 INFO" },
+                            { value: "DEBUG", label: "仅 DEBUG" },
+                            { value: "ERROR_WARN", label: "ERROR + WARN" }
+                        ],
+                        placeholder: "请选择等级",
+                        onChange: () => {
+                            if (this.parsedRows.length > 0) {
+                                this.applyFilters();
+                            }
+                        }
+                    });
+                    this.plugins.levelSelect.mount(levelSelectEl);
+                } catch (error) {
+                    console.warn("Select 插件初始化失败:", error);
+                }
+            }
+
+            mountInputNumber() {
+                try {
+                    const countInputEl = document.getElementById("keywordCountInput");
+                    if (!countInputEl) return;
+                    this.plugins.keywordCount = new InputNumber({
+                        min: 0,
+                        max: 10,
+                        step: 1,
+                        value: 1
+                    });
+                    this.plugins.keywordCount.mount(countInputEl);
+                } catch (error) {
+                    console.warn("InputNumber 插件初始化失败:", error);
+                }
+            }
+
+            mountDatePickers() {
+                const startEl = document.getElementById("startDatePicker");
+                const endEl = document.getElementById("endDatePicker");
+                if (!startEl || !endEl) return;
+
+                try {
+                    this.plugins.startDate = new DateTimePicker({
+                        placeholder: "开始时间"
+                    });
+                    this.plugins.endDate = new DateTimePicker({
+                        placeholder: "结束时间"
+                    });
+                    this.plugins.startDate.mount(startEl);
+                    this.plugins.endDate.mount(endEl);
+                } catch (error) {
+                    console.warn("DateTimePicker 插件初始化失败:", error);
+                }
+            }
+
+            mountCheckboxes() {
+                const optionEl = document.getElementById("optionChecks");
+                if (!optionEl) return;
+                try {
+                    this.plugins.options = Checkbox.createCheckboxGroup({
+                        items: [
+                            { id: "trimEmpty", label: "自动移除空行", checked: true },
+                            { id: "caseInsensitive", label: "关键字忽略大小写", checked: true },
+                            { id: "strictTimestamp", label: "严格校验时间格式", checked: true },
+                            { id: "confirmBeforeParse", label: "解析前弹窗确认", checked: false }
+                        ],
+                        onChange: () => {
+                            if (this.parsedRows.length > 0) {
+                                this.applyFilters();
+                            }
+                        }
+                    });
+                    optionEl.appendChild(this.plugins.options.container);
+                } catch (error) {
+                    console.warn("Checkbox 插件初始化失败:", error);
+                }
+            }
+
+            fillDemoText() {
+                const source = document.getElementById("sourceText");
+                if (source) {
+                    source.value = this.demoText;
+                }
+                this.renderRawLines(splitLines(this.demoText));
+            }
+
+            getOptionStates() {
+                const fallback = [true, true, true, false];
+                const states = this.plugins.options?.getAllChecked ? this.plugins.options.getAllChecked() : fallback;
+                const options = {};
+                this.optionOrder.forEach((key, index) => {
+                    options[key] = Boolean(states[index]);
+                });
+                return options;
+            }
+
+            async handleParse() {
+                const options = this.getOptionStates();
+                if (options.confirmBeforeParse && this.plugins.modal?.confirm) {
+                    const accepted = await this.plugins.modal.confirm("确认按照当前规则重新解析日志吗？");
+                    if (!accepted) return;
+                }
+                this.parseNow();
+            }
+
+            parseNow() {
+                const source = document.getElementById("sourceText");
+                const rawText = source?.value || "";
+                if (!rawText.trim()) {
+                    this.toast("请先输入日志文本", "warning");
+                    return;
+                }
+
+                const options = this.getOptionStates();
+                let lines = splitLines(rawText);
+                if (options.trimEmpty) {
+                    lines = lines.filter(line => line.trim() !== "");
+                }
+                this.renderRawLines(lines);
+
+                const strictReg = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\|[A-Z]+\|[^|]+\|.+$/;
+                this.parsedRows = lines.map((line, index) => {
+                    const valid = !options.strictTimestamp || strictReg.test(line.trim());
+                    const [time = "", level = "UNKNOWN", module = "-", ...rest] = line.split("|");
+                    return {
+                        index: index + 1,
+                        raw: line,
+                        valid,
+                        time: time.trim(),
+                        level: (level || "UNKNOWN").trim().toUpperCase(),
+                        module: module.trim() || "-",
+                        message: rest.join("|").trim()
+                    };
+                }).filter(item => item.valid);
+
+                this.applyFilters();
+                this.toast("日志解析完成", "success");
+            }
+
+            applyFilters() {
+                const levelRule = this.plugins.levelSelect?.getValue?.() || "ALL";
+                const keywordText = document.getElementById("keywordsInput")?.value || "";
+                const keywordThreshold = this.plugins.keywordCount?.getValue?.() || 0;
+                const options = this.getOptionStates();
+                const startDate = this.getDateValue(this.plugins.startDate);
+                const endDate = this.getDateValue(this.plugins.endDate);
+                const keywords = keywordText.split(",").map(item => item.trim()).filter(Boolean);
+
+                this.filteredRows = this.parsedRows.filter(row => {
+                    if (!this.matchLevel(row.level, levelRule)) return false;
+                    if (!this.matchTime(row.time, startDate, endDate)) return false;
+
+                    const hitCount = this.countKeywordHits(row.message, keywords, options.caseInsensitive);
+                    row.hitCount = hitCount;
+                    row.hitKeywords = this.collectHitKeywords(row.message, keywords, options.caseInsensitive);
+                    row.isAlert = row.level === "ERROR" || hitCount >= keywordThreshold;
+                    return true;
+                });
+
+                this.renderResultTable();
+                this.renderStats();
+            }
+
+            matchLevel(level, rule) {
+                if (rule === "ALL") return true;
+                if (rule === "ERROR_WARN") return ["ERROR", "WARN"].includes(level);
+                return level === rule;
+            }
+
+            matchTime(timeText, startDate, endDate) {
+                if (!startDate && !endDate) return true;
+                const rowTime = new Date(timeText.replace(" ", "T")).getTime();
+                if (Number.isNaN(rowTime)) return false;
+                if (startDate && rowTime < startDate.getTime()) return false;
+                if (endDate && rowTime > endDate.getTime()) return false;
+                return true;
+            }
+
+            countKeywordHits(text, keywords, caseInsensitive) {
+                if (keywords.length === 0) return 0;
+                const source = caseInsensitive ? text.toLowerCase() : text;
+                return keywords.reduce((count, word) => {
+                    const target = caseInsensitive ? word.toLowerCase() : word;
+                    return source.includes(target) ? count + 1 : count;
+                }, 0);
+            }
+
+            collectHitKeywords(text, keywords, caseInsensitive) {
+                if (keywords.length === 0) return [];
+                const source = caseInsensitive ? text.toLowerCase() : text;
+                return keywords.filter(word => {
+                    const target = caseInsensitive ? word.toLowerCase() : word;
+                    return source.includes(target);
+                });
+            }
+
+            renderStats() {
+                const alertCount = this.filteredRows.filter(item => item.isAlert).length;
+                document.getElementById("totalLines").textContent = String(this.getCurrentRawLineCount());
+                document.getElementById("validLines").textContent = String(this.filteredRows.length);
+                document.getElementById("alertLines").textContent = String(alertCount);
+            }
+
+            resetStats() {
+                document.getElementById("totalLines").textContent = "0";
+                document.getElementById("validLines").textContent = "0";
+                document.getElementById("alertLines").textContent = "0";
+                this.renderResultTable([]);
+            }
+
+            getCurrentRawLineCount() {
+                const source = document.getElementById("sourceText")?.value || "";
+                const options = this.getOptionStates();
+                let lines = splitLines(source);
+                if (options.trimEmpty) {
+                    lines = lines.filter(line => line.trim() !== "");
+                }
+                return lines.length;
+            }
+
+            renderRawLines(lines) {
+                const listEl = document.getElementById("rawLineList");
+                if (!listEl) return;
+                if (!lines || lines.length === 0) {
+                    listEl.innerHTML = '<div class="raw-line">暂无内容</div>';
+                    return;
+                }
+                listEl.innerHTML = lines.map((line, index) => {
+                    const safe = this.escapeHtml(line);
+                    return `<div class="raw-line"><strong>${index + 1}.</strong> ${safe}</div>`;
+                }).join("");
+            }
+
+            renderResultTable() {
+                const body = document.getElementById("resultBody");
+                if (!body) return;
+                if (this.filteredRows.length === 0) {
+                    body.innerHTML = '<tr><td colspan="6" class="muted">没有匹配结果，请调整筛选条件后重试。</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = this.filteredRows.map((row, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${this.escapeHtml(row.time)}</td>
+                        <td>${this.levelTag(row.level)}</td>
+                        <td>${this.escapeHtml(row.module)}</td>
+                        <td>${this.escapeHtml(row.message || "(空消息)")}</td>
+                        <td>${row.hitKeywords?.length ? row.hitKeywords.map(item => `<span class="tag warn">${this.escapeHtml(item)}</span>`).join(" ") : '<span class="muted">无</span>'}</td>
+                    </tr>
+                `).join("");
+            }
+
+            levelTag(level) {
+                const map = {
+                    ERROR: "error",
+                    WARN: "warn",
+                    INFO: "info",
+                    DEBUG: "debug"
+                };
+                const cls = map[level] || "debug";
+                return `<span class="tag ${cls}">${this.escapeHtml(level)}</span>`;
+            }
+
+            handleExport() {
+                if (this.filteredRows.length === 0) {
+                    this.toast("没有可导出的数据，请先解析", "warning");
+                    return;
+                }
+                const header = "time,level,module,message,hitKeywords";
+                const rows = this.filteredRows.map(item => {
+                    const values = [
+                        item.time,
+                        item.level,
+                        item.module,
+                        item.message,
+                        (item.hitKeywords || []).join("|")
+                    ];
+                    return values.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+                });
+                const csv = [header].concat(rows).join("\n");
+
+                if (navigator.clipboard?.writeText) {
+                    navigator.clipboard.writeText(csv).then(() => {
+                        this.toast("CSV 已复制到剪贴板", "success");
+                    }).catch(() => {
+                        this.fallbackExport(csv);
+                    });
+                } else {
+                    this.fallbackExport(csv);
+                }
+            }
+
+            fallbackExport(text) {
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                textarea.remove();
+                this.toast("CSV 已复制（兼容模式）", "info");
+            }
+
+            async handleReset() {
+                if (this.plugins.modal?.confirm) {
+                    const accepted = await this.plugins.modal.confirm("确定要重置解析结果和筛选状态吗？");
+                    if (!accepted) return;
+                }
+
+                this.parsedRows = [];
+                this.filteredRows = [];
+                this.fillDemoText();
+                document.getElementById("keywordsInput").value = "失败,超时,异常,拒绝";
+                this.renderResultTable();
+                this.resetStats();
+                this.toast("状态已重置", "success");
+            }
+
+            getDateValue(plugin) {
+                if (!plugin || typeof plugin.getValue !== "function") return null;
+                const value = plugin.getValue();
+                if (!value) return null;
+                const date = new Date(value);
+                return Number.isNaN(date.getTime()) ? null : date;
+            }
+
+            toast(message, type = "info") {
+                if (this.plugins.notification?.show) {
+                    this.plugins.notification.show(message, type);
+                    return;
+                }
+                console.log(`[${type}] ${message}`);
+            }
+
+            escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            window.logWorkbench = new LogWorkbench();
+        });
+    </script>
+</body>
+
+</html>
