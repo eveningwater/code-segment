@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>stable-sort - 工单排序实验室</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(130deg, #0b1220 0%, #1e3a8a 55%, #0b1220 100%);
+            color: #0f172a;
+            padding: 22px;
+        }
+
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            color: #f8fafc;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            font-size: 2.1rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.2px;
+        }
+
+        .hero p {
+            opacity: 0.92;
+            line-height: 1.75;
+            max-width: 980px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: rgba(248, 250, 252, 0.97);
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            border-radius: 16px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.24);
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .card h2 {
+            color: #1e293b;
+            font-size: 1.08rem;
+            margin-bottom: 10px;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .input {
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .btn.warn {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+        }
+
+        .btn.dark {
+            background: linear-gradient(135deg, #334155, #0f172a);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .stat {
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.3rem;
+            color: #1d4ed8;
+        }
+
+        .stat span {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .table-wrap {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            overflow: auto;
+            max-height: 520px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            min-width: 980px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.86rem;
+            color: #1f2937;
+            vertical-align: top;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #eff6ff;
+            color: #1e40af;
+            z-index: 1;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .tag.p0 {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .tag.p1 {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .tag.p2 {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .tag.p3 {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag.open {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag.progress {
+            background: #e9d5ff;
+            color: #6d28d9;
+        }
+
+        .tag.blocked {
+            background: #ffe4e6;
+            color: #be123c;
+        }
+
+        .tag.done {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .tag.sla-good {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .tag.sla-risk {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .tag.sla-bad {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .panel-title h3 {
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .code-preview {
+            background: #0b1220;
+            color: #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            line-height: 1.6;
+            font-size: 0.82rem;
+            font-family: Menlo, Monaco, Consolas, monospace;
+            overflow: auto;
+            max-height: 250px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            overflow: visible;
+        }
+
+        .filter-row > div {
+            min-width: 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .filter-row .ew-datetime-picker {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .filter-row .datetime-input {
+            min-width: 0;
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .filter-row .datetime-icon {
+            padding: 10px 12px;
+        }
+
+        .filter-row .datetime-panel {
+            left: 0;
+            right: auto;
+            width: max(100%, 360px);
+            z-index: 5000;
+        }
+
+        .filter-row .ew-datetime-picker.open {
+            z-index: 5000;
+        }
+
+        @media (max-width: 1220px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .split {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        .ew-select {
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="hero">
+            <h1>stableSort 工单排序实验室</h1>
+            <p>
+                你可以把它当作“工单看板 / 运营任务 / 客服队列”的排序引擎验证台：支持多字段排序、筛选、SLA 风险标记，
+                并提供 <strong>稳定排序</strong> 与“非稳定排序（模拟）”的可视化对比，直观看到：当比较结果相等时，稳定排序会保留原始相对顺序。
+            </p>
+        </header>
+
+        <div class="layout">
+            <aside>
+                <section class="card">
+                    <h2>1) 生成与过滤数据</h2>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label>工单数量</label>
+                            <div id="countInput"></div>
+                        </div>
+                        <div class="field">
+                            <label for="seedInput">随机种子</label>
+                            <input id="seedInput" class="input mono" value="20260430" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>创建时间范围（筛选）</label>
+                        <div class="filter-row">
+                            <div id="startDate"></div>
+                            <div id="endDate"></div>
+                        </div>
+                        <p class="muted" style="margin-top:6px;">留空表示不按时间过滤。</p>
+                    </div>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label>状态筛选</label>
+                            <div id="statusSelect"></div>
+                        </div>
+                        <div class="field">
+                            <label>负责人与模块</label>
+                            <div id="ownerSelect"></div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="keywordInput">关键字（标题/描述）</label>
+                        <input id="keywordInput" class="input" placeholder="例如：超时 / 支付 / 登录 / 退款" />
+                    </div>
+                    <div id="optionChecks"></div>
+                    <div class="btn-row">
+                        <button class="btn dark" id="genBtn">生成数据</button>
+                        <button class="btn warn" id="clearFilterBtn">清空筛选</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>2) 排序规则（多字段）</h2>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label>主排序字段</label>
+                            <div id="primaryField"></div>
+                        </div>
+                        <div class="field">
+                            <label>主排序方向</label>
+                            <div id="primaryDir"></div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label>次排序字段</label>
+                            <div id="secondaryField"></div>
+                        </div>
+                        <div class="field">
+                            <label>次排序方向</label>
+                            <div id="secondaryDir"></div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label>三排序字段</label>
+                            <div id="tertiaryField"></div>
+                        </div>
+                        <div class="field">
+                            <label>三排序方向</label>
+                            <div id="tertiaryDir"></div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn primary" id="sortBtn">执行排序并对比</button>
+                        <button class="btn success" id="exportBtn">导出当前结果 CSV</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>3) stableSort 说明</h2>
+                    <div class="code-preview" id="codePreview"></div>
+                    <p class="muted" style="margin-top:10px;">
+                        对比规则：当比较结果为 0（相等）时，稳定排序保留原始顺序；此页面的“非稳定排序”会对相等项随机打散，以便直观看出差异。
+                    </p>
+                </section>
+            </aside>
+
+            <main>
+                <section class="card">
+                    <h2>统计面板</h2>
+                    <div class="stats">
+                        <div class="stat"><strong id="statTotal">0</strong><span>总工单</span></div>
+                        <div class="stat"><strong id="statFiltered">0</strong><span>筛选后</span></div>
+                        <div class="stat"><strong id="statTieGroups">0</strong><span>相等比较组</span></div>
+                        <div class="stat"><strong id="statDiff">0</strong><span>对比差异行数</span></div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="panel-title">
+                        <h3>排序对比</h3>
+                        <div class="muted">左：稳定排序（stableSort） / 右：非稳定排序（模拟）</div>
+                    </div>
+                    <div class="split">
+                        <div>
+                            <div class="panel-title">
+                                <h3>稳定排序结果</h3>
+                                <div class="muted" id="stableHint">-</div>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>原序</th>
+                                            <th>工单</th>
+                                            <th>优先级</th>
+                                            <th>状态</th>
+                                            <th>负责人</th>
+                                            <th>创建时间</th>
+                                            <th>SLA</th>
+                                            <th>分值</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="stableBody">
+                                        <tr><td colspan="9" class="muted">请先生成数据并执行排序。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="panel-title">
+                                <h3>非稳定排序（模拟）</h3>
+                                <div class="muted" id="unstableHint">-</div>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>原序</th>
+                                            <th>工单</th>
+                                            <th>优先级</th>
+                                            <th>状态</th>
+                                            <th>负责人</th>
+                                            <th>创建时间</th>
+                                            <th>SLA</th>
+                                            <th>分值</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="unstableBody">
+                                        <tr><td colspan="9" class="muted">请先生成数据并执行排序。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        const stableSort = (arr, compare) =>
+            arr
+                .map((item, index) => ({ item, index }))
+                .sort((a, b) => compare(a.item, b.item) || a.index - b.index)
+                .map(({ item }) => item);
+
+        class TicketSortLab {
+            constructor() {
+                this.plugins = {};
+                this.allTickets = [];
+                this.filteredTickets = [];
+                this.stableSorted = [];
+                this.unstableSorted = [];
+                this.optionOrder = ["compareMode", "confirmBeforeSort", "markSlaRisk", "highlightDiff"];
+                this.sortFieldOptions = [
+                    { value: "priority", label: "优先级（P0→P3）" },
+                    { value: "status", label: "状态（Open→Done）" },
+                    { value: "createdAt", label: "创建时间" },
+                    { value: "slaHours", label: "SLA 剩余（小时）" },
+                    { value: "score", label: "综合分值" },
+                    { value: "owner", label: "负责人" },
+                    { value: "module", label: "模块" }
+                ];
+                this.dirOptions = [
+                    { value: "asc", label: "升序（↑）" },
+                    { value: "desc", label: "降序（↓）" }
+                ];
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.mountPlugins();
+                this.renderCodePreview();
+                this.toast("排序实验室已就绪", "success");
+            }
+
+            bindEvents() {
+                document.getElementById("genBtn")?.addEventListener("click", () => this.generateData());
+                document.getElementById("clearFilterBtn")?.addEventListener("click", () => this.clearFilters());
+                document.getElementById("sortBtn")?.addEventListener("click", () => this.handleSort());
+                document.getElementById("exportBtn")?.addEventListener("click", () => this.exportCsv());
+                document.getElementById("keywordInput")?.addEventListener("input", () => {
+                    if (this.allTickets.length) this.applyFilters();
+                });
+            }
+
+            mountPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (error) {
+                    console.warn("基础插件加载失败:", error);
+                }
+
+                this.mountNumbers();
+                this.mountSelects();
+                this.mountChecks();
+                this.mountDatePickers();
+            }
+
+            mountNumbers() {
+                try {
+                    const el = document.getElementById("countInput");
+                    if (!el) return;
+                    this.plugins.countInput = new InputNumber({
+                        min: 10,
+                        max: 200,
+                        step: 10,
+                        value: 60
+                    });
+                    this.plugins.countInput.mount(el);
+                } catch (error) {
+                    console.warn("InputNumber 插件初始化失败:", error);
+                }
+            }
+
+            mountDatePickers() {
+                const startEl = document.getElementById("startDate");
+                const endEl = document.getElementById("endDate");
+                if (!startEl || !endEl) return;
+                try {
+                    this.plugins.startDate = new DateTimePicker({ placeholder: "开始时间" });
+                    this.plugins.endDate = new DateTimePicker({ placeholder: "结束时间" });
+                    this.plugins.startDate.mount(startEl);
+                    this.plugins.endDate.mount(endEl);
+                } catch (error) {
+                    console.warn("DateTimePicker 插件初始化失败:", error);
+                }
+            }
+
+            mountSelects() {
+                const safeMount = (key, elId, options, placeholder, onChange) => {
+                    try {
+                        const el = document.getElementById(elId);
+                        if (!el) return;
+                        const ins = new Select({ options, placeholder, onChange });
+                        ins.mount(el);
+                        this.plugins[key] = ins;
+                    } catch (error) {
+                        console.warn("Select 插件初始化失败:", key, error);
+                    }
+                };
+
+                safeMount("statusSelect", "statusSelect", [
+                    { value: "ALL", label: "全部状态" },
+                    { value: "OPEN", label: "Open" },
+                    { value: "IN_PROGRESS", label: "In Progress" },
+                    { value: "BLOCKED", label: "Blocked" },
+                    { value: "DONE", label: "Done" }
+                ], "选择状态", () => this.applyFilters());
+
+                safeMount("ownerSelect", "ownerSelect", [
+                    { value: "ALL", label: "全部负责人/模块" },
+                    { value: "owner:alice", label: "负责人：Alice" },
+                    { value: "owner:bob", label: "负责人：Bob" },
+                    { value: "owner:chen", label: "负责人：Chen" },
+                    { value: "owner:dana", label: "负责人：Dana" },
+                    { value: "module:payment", label: "模块：Payment" },
+                    { value: "module:order", label: "模块：Order" },
+                    { value: "module:auth", label: "模块：Auth" },
+                    { value: "module:gateway", label: "模块：Gateway" },
+                    { value: "module:inventory", label: "模块：Inventory" }
+                ], "负责人/模块", () => this.applyFilters());
+
+                safeMount("primaryField", "primaryField", this.sortFieldOptions, "主排序字段");
+                safeMount("secondaryField", "secondaryField", [{ value: "none", label: "（无）" }].concat(this.sortFieldOptions), "次排序字段");
+                safeMount("tertiaryField", "tertiaryField", [{ value: "none", label: "（无）" }].concat(this.sortFieldOptions), "三排序字段");
+
+                safeMount("primaryDir", "primaryDir", this.dirOptions, "方向");
+                safeMount("secondaryDir", "secondaryDir", this.dirOptions, "方向");
+                safeMount("tertiaryDir", "tertiaryDir", this.dirOptions, "方向");
+            }
+
+            mountChecks() {
+                const el = document.getElementById("optionChecks");
+                if (!el) return;
+                try {
+                    this.plugins.optionChecks = Checkbox.createCheckboxGroup({
+                        items: [
+                            { id: "compareMode", label: "展示稳定 vs 非稳定对比", checked: true },
+                            { id: "confirmBeforeSort", label: "排序前弹窗确认", checked: false },
+                            { id: "markSlaRisk", label: "标记 SLA 风险", checked: true },
+                            { id: "highlightDiff", label: "高亮对比差异（右侧）", checked: true }
+                        ],
+                        onChange: () => {
+                            if (this.allTickets.length) {
+                                this.renderTables();
+                                this.renderStats();
+                            }
+                        }
+                    });
+                    el.appendChild(this.plugins.optionChecks.container);
+                } catch (error) {
+                    console.warn("Checkbox 插件初始化失败:", error);
+                }
+            }
+
+            getOptions() {
+                const fallback = [true, false, true, true];
+                const states = this.plugins.optionChecks?.getAllChecked ? this.plugins.optionChecks.getAllChecked() : fallback;
+                const options = {};
+                this.optionOrder.forEach((key, idx) => {
+                    options[key] = Boolean(states[idx]);
+                });
+                return options;
+            }
+
+            generateData() {
+                const count = this.plugins.countInput?.getValue?.() || 60;
+                const seedText = document.getElementById("seedInput")?.value || "0";
+                const seed = this.hashSeed(seedText);
+                const rng = this.mulberry32(seed);
+
+                this.allTickets = this.makeTickets(count, rng);
+                this.toast(`已生成 ${this.allTickets.length} 条工单`, "success");
+                this.applyFilters();
+                this.renderTables();
+            }
+
+            clearFilters() {
+                document.getElementById("keywordInput").value = "";
+                this.plugins.statusSelect?.setValue?.("ALL");
+                this.plugins.ownerSelect?.setValue?.("ALL");
+                if (this.plugins.startDate?.setValue) this.plugins.startDate.setValue("");
+                if (this.plugins.endDate?.setValue) this.plugins.endDate.setValue("");
+                this.applyFilters();
+                this.toast("筛选条件已清空", "info");
+            }
+
+            applyFilters() {
+                const status = this.plugins.statusSelect?.getValue?.() || "ALL";
+                const ownerOrModule = this.plugins.ownerSelect?.getValue?.() || "ALL";
+                const keyword = (document.getElementById("keywordInput")?.value || "").trim();
+                const start = this.getDateValue(this.plugins.startDate);
+                const end = this.getDateValue(this.plugins.endDate);
+
+                this.filteredTickets = this.allTickets.filter(t => {
+                    if (status !== "ALL" && t.status !== status) return false;
+                    if (ownerOrModule !== "ALL") {
+                        const [kind, value] = ownerOrModule.split(":");
+                        if (kind === "owner" && t.owner.toLowerCase() !== value) return false;
+                        if (kind === "module" && t.module.toLowerCase() !== value) return false;
+                    }
+                    if (keyword) {
+                        const hay = (t.title + " " + t.desc).toLowerCase();
+                        if (!hay.includes(keyword.toLowerCase())) return false;
+                    }
+                    if (start || end) {
+                        const ts = t.createdAt.getTime();
+                        if (start && ts < start.getTime()) return false;
+                        if (end && ts > end.getTime()) return false;
+                    }
+                    return true;
+                });
+
+                this.stableSorted = [];
+                this.unstableSorted = [];
+                this.renderTables();
+                this.renderStats();
+            }
+
+            async handleSort() {
+                if (this.filteredTickets.length === 0) {
+                    this.toast("没有可排序的数据，请先生成并调整筛选", "warning");
+                    return;
+                }
+
+                const options = this.getOptions();
+                if (options.confirmBeforeSort && this.plugins.modal?.confirm) {
+                    const ok = await this.plugins.modal.confirm("确认按当前多字段规则执行排序并生成对比？");
+                    if (!ok) return;
+                }
+
+                const criteria = this.getSortCriteria();
+                const cmp = this.composeComparator(criteria);
+                const base = this.filteredTickets.slice();
+
+                this.stableSorted = stableSort(base, cmp);
+                this.unstableSorted = this.unstableSort(base, cmp, this.mulberry32(this.hashSeed((document.getElementById("seedInput")?.value || "") + "_unstable")));
+
+                this.renderTables();
+                this.renderStats();
+                this.toast("排序完成，已生成对比结果", "success");
+            }
+
+            getSortCriteria() {
+                const readField = (key, fallback) => this.plugins[key]?.getValue?.() || fallback;
+                const primary = { field: readField("primaryField", "priority"), dir: readField("primaryDir", "asc") };
+                const secondary = { field: readField("secondaryField", "none"), dir: readField("secondaryDir", "asc") };
+                const tertiary = { field: readField("tertiaryField", "none"), dir: readField("tertiaryDir", "asc") };
+                return [primary, secondary, tertiary].filter(c => c.field && c.field !== "none");
+            }
+
+            composeComparator(criteria) {
+                return (a, b) => {
+                    for (const c of criteria) {
+                        const raw = this.compareByField(a, b, c.field);
+                        if (raw !== 0) return c.dir === "desc" ? -raw : raw;
+                    }
+                    return 0;
+                };
+            }
+
+            compareByField(a, b, field) {
+                const get = {
+                    priority: (t) => ({ P0: 0, P1: 1, P2: 2, P3: 3 }[t.priority] ?? 9),
+                    status: (t) => ({ OPEN: 0, IN_PROGRESS: 1, BLOCKED: 2, DONE: 3 }[t.status] ?? 9),
+                    createdAt: (t) => t.createdAt.getTime(),
+                    slaHours: (t) => t.slaHours,
+                    score: (t) => t.score,
+                    owner: (t) => t.owner,
+                    module: (t) => t.module
+                }[field];
+
+                if (!get) return 0;
+                const av = get(a);
+                const bv = get(b);
+                if (typeof av === "number" && typeof bv === "number") return av - bv;
+                return String(av).localeCompare(String(bv), "zh-CN");
+            }
+
+            unstableSort(arr, compare, rng) {
+                return arr
+                    .map((item, index) => ({ item, index, tie: rng() }))
+                    .sort((a, b) => compare(a.item, b.item) || (a.tie - b.tie) || (a.index - b.index))
+                    .map(x => x.item);
+            }
+
+            renderTables() {
+                const stableBody = document.getElementById("stableBody");
+                const unstableBody = document.getElementById("unstableBody");
+                if (!stableBody || !unstableBody) return;
+
+                const options = this.getOptions();
+                const left = this.stableSorted.length ? this.stableSorted : this.filteredTickets;
+                const right = this.unstableSorted.length ? this.unstableSorted : this.filteredTickets;
+
+                document.getElementById("stableHint").textContent = this.stableSorted.length ? `已排序（${left.length}）` : `未排序（展示筛选结果 ${left.length}）`;
+                document.getElementById("unstableHint").textContent = this.unstableSorted.length ? `已排序（${right.length}）` : `未排序（展示筛选结果 ${right.length}）`;
+
+                stableBody.innerHTML = left.length ? left.map((t, idx) => this.renderRow(t, idx, null, options)).join("") :
+                    '<tr><td colspan="9" class="muted">无数据，请先生成。</td></tr>';
+
+                if (!options.compareMode) {
+                    unstableBody.innerHTML = '<tr><td colspan="9" class="muted">已关闭对比展示。</td></tr>';
+                    return;
+                }
+
+                const stableIds = new Map(left.map((t, i) => [t.id, i]));
+                unstableBody.innerHTML = right.length ? right.map((t, idx) => {
+                    const stablePos = stableIds.has(t.id) ? stableIds.get(t.id) : null;
+                    return this.renderRow(t, idx, stablePos, options);
+                }).join("") :
+                    '<tr><td colspan="9" class="muted">无数据，请先生成。</td></tr>';
+            }
+
+            renderRow(t, idx, stablePos, options) {
+                const diff = (stablePos !== null && stablePos !== idx);
+                const diffStyle = (options.highlightDiff && diff) ? ' style="background:#fff7ed;"' : "";
+                const slaTag = options.markSlaRisk ? this.slaTag(t.slaHours) : `<span class="muted">${t.slaHours}h</span>`;
+                return `
+                    <tr${diffStyle}>
+                        <td>${idx + 1}</td>
+                        <td class="mono">${t.originalIndex}</td>
+                        <td>
+                            <div style="font-weight:800;">#${t.id} ${this.escapeHtml(t.title)}</div>
+                            <div class="muted">${this.escapeHtml(t.desc)}</div>
+                        </td>
+                        <td>${this.priorityTag(t.priority)}</td>
+                        <td>${this.statusTag(t.status)}</td>
+                        <td>${this.escapeHtml(t.owner)}<div class="muted">${this.escapeHtml(t.module)}</div></td>
+                        <td class="mono">${this.formatDate(t.createdAt)}</td>
+                        <td>${slaTag}</td>
+                        <td class="mono">${t.score}</td>
+                    </tr>
+                `;
+            }
+
+            renderStats() {
+                const options = this.getOptions();
+                const base = this.filteredTickets;
+                const stable = this.stableSorted.length ? this.stableSorted : base;
+                const unstable = (options.compareMode && this.unstableSorted.length) ? this.unstableSorted : stable;
+
+                document.getElementById("statTotal").textContent = String(this.allTickets.length);
+                document.getElementById("statFiltered").textContent = String(base.length);
+                document.getElementById("statTieGroups").textContent = String(this.countTieGroups(stable));
+                document.getElementById("statDiff").textContent = String(options.compareMode ? this.countDiffLines(stable, unstable) : 0);
+            }
+
+            countTieGroups(arr) {
+                const criteria = this.getSortCriteria();
+                if (criteria.length === 0) return 0;
+                const keyFn = (t) => criteria.map(c => `${c.field}:${this.sortKeyValue(t, c.field)}`).join("|");
+                const map = new Map();
+                arr.forEach(t => {
+                    const k = keyFn(t);
+                    map.set(k, (map.get(k) || 0) + 1);
+                });
+                let groups = 0;
+                for (const [, count] of map.entries()) {
+                    if (count >= 2) groups++;
+                }
+                return groups;
+            }
+
+            countDiffLines(aArr, bArr) {
+                const posA = new Map(aArr.map((t, i) => [t.id, i]));
+                let diff = 0;
+                bArr.forEach((t, i) => {
+                    if (posA.has(t.id) && posA.get(t.id) !== i) diff++;
+                });
+                return diff;
+            }
+
+            sortKeyValue(t, field) {
+                if (field === "createdAt") return t.createdAt.getTime();
+                return t[field];
+            }
+
+            exportCsv() {
+                const rows = (this.stableSorted.length ? this.stableSorted : this.filteredTickets);
+                if (!rows.length) {
+                    this.toast("没有可导出的数据", "warning");
+                    return;
+                }
+                const header = "id,originalIndex,title,priority,status,owner,module,createdAt,slaHours,score";
+                const lines = rows.map(t => {
+                    const values = [
+                        t.id,
+                        t.originalIndex,
+                        t.title,
+                        t.priority,
+                        t.status,
+                        t.owner,
+                        t.module,
+                        this.formatDate(t.createdAt),
+                        t.slaHours,
+                        t.score
+                    ];
+                    return values.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+                });
+                const csv = [header].concat(lines).join("\n");
+                this.copyToClipboard(csv);
+            }
+
+            copyToClipboard(text) {
+                if (navigator.clipboard?.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.toast("CSV 已复制到剪贴板", "success");
+                    }).catch(() => {
+                        this.copyFallback(text);
+                    });
+                    return;
+                }
+                this.copyFallback(text);
+            }
+
+            copyFallback(text) {
+                const area = document.createElement("textarea");
+                area.value = text;
+                document.body.appendChild(area);
+                area.select();
+                document.execCommand("copy");
+                area.remove();
+                this.toast("CSV 已复制（兼容模式）", "info");
+            }
+
+            makeTickets(count, rng) {
+                const owners = ["Alice", "Bob", "Chen", "Dana"];
+                const modules = ["Payment", "Order", "Auth", "Gateway", "Inventory"];
+                const priorities = ["P0", "P1", "P2", "P3"];
+                const statuses = ["OPEN", "IN_PROGRESS", "BLOCKED", "DONE"];
+                const titles = [
+                    "支付回调超时",
+                    "登录失败重试异常",
+                    "订单创建慢查询",
+                    "库存扣减并发冲突",
+                    "网关签名校验失败",
+                    "退款单状态不一致",
+                    "验证码服务波动",
+                    "消息队列积压告警"
+                ];
+
+                const now = Date.now();
+                const daysBack = 21;
+                const baseList = [];
+                for (let i = 0; i < count; i++) {
+                    const priority = priorities[Math.floor(rng() * priorities.length)];
+                    const status = statuses[Math.floor(rng() * statuses.length)];
+                    const owner = owners[Math.floor(rng() * owners.length)];
+                    const module = modules[Math.floor(rng() * modules.length)];
+                    const title = titles[Math.floor(rng() * titles.length)];
+                    const desc = this.makeDesc(rng);
+                    const createdAt = new Date(now - Math.floor(rng() * daysBack) * 24 * 3600 * 1000 - Math.floor(rng() * 6) * 3600 * 1000);
+                    const slaHours = Math.max(-24, Math.floor((rng() * 120) - 18));
+                    const score = this.computeScore({ priority, status, slaHours, createdAt }, rng);
+                    baseList.push({
+                        id: 10000 + i,
+                        originalIndex: i + 1,
+                        title,
+                        desc,
+                        priority,
+                        status,
+                        owner,
+                        module,
+                        createdAt,
+                        slaHours,
+                        score
+                    });
+                }
+
+                return baseList;
+            }
+
+            computeScore({ priority, status, slaHours, createdAt }, rng) {
+                const p = { P0: 100, P1: 70, P2: 45, P3: 25 }[priority] ?? 0;
+                const s = { OPEN: 18, IN_PROGRESS: 12, BLOCKED: 22, DONE: -30 }[status] ?? 0;
+                const sla = slaHours < 0 ? 35 : (slaHours < 12 ? 20 : (slaHours < 24 ? 10 : 0));
+                const freshness = Math.max(0, 20 - Math.floor((Date.now() - createdAt.getTime()) / (24 * 3600 * 1000)));
+                const noise = Math.floor(rng() * 9);
+                return p + s + sla + freshness + noise;
+            }
+
+            makeDesc(rng) {
+                const parts = [
+                    "影响用户下单链路",
+                    "仅在高峰期复现",
+                    "可能与缓存回源有关",
+                    "日志显示重试次数异常",
+                    "建议增加幂等保护",
+                    "需要协同三方排查"
+                ];
+                const pick = () => parts[Math.floor(rng() * parts.length)];
+                return `${pick()}；${pick()}。`;
+            }
+
+            priorityTag(p) {
+                const cls = { P0: "p0", P1: "p1", P2: "p2", P3: "p3" }[p] || "p3";
+                return `<span class="tag ${cls}">${p}</span>`;
+            }
+
+            statusTag(s) {
+                const cls = { OPEN: "open", IN_PROGRESS: "progress", BLOCKED: "blocked", DONE: "done" }[s] || "open";
+                const text = { OPEN: "Open", IN_PROGRESS: "In Progress", BLOCKED: "Blocked", DONE: "Done" }[s] || s;
+                return `<span class="tag ${cls}">${text}</span>`;
+            }
+
+            slaTag(hours) {
+                if (hours < 0) return `<span class="tag sla-bad">已超时 ${Math.abs(hours)}h</span>`;
+                if (hours < 12) return `<span class="tag sla-risk">仅剩 ${hours}h</span>`;
+                return `<span class="tag sla-good">${hours}h</span>`;
+            }
+
+            renderCodePreview() {
+                const el = document.getElementById("codePreview");
+                if (!el) return;
+                el.textContent = [
+                    "const stableSort = (arr, compare) =>",
+                    "  arr",
+                    "    .map((item, index) => ({ item, index }))",
+                    "    .sort((a, b) => compare(a.item, b.item) || a.index - b.index)",
+                    "    .map(({ item }) => item);",
+                    "",
+                    "// 关键点：compare(a, b) 为 0 时，按原 index 再排一次，保证稳定性。"
+                ].join("\n");
+            }
+
+            formatDate(d) {
+                const pad = (n) => String(n).padStart(2, "0");
+                const y = d.getFullYear();
+                const m = pad(d.getMonth() + 1);
+                const day = pad(d.getDate());
+                const hh = pad(d.getHours());
+                const mm = pad(d.getMinutes());
+                return `${y}-${m}-${day} ${hh}:${mm}`;
+            }
+
+            getDateValue(plugin) {
+                if (!plugin || typeof plugin.getValue !== "function") return null;
+                const value = plugin.getValue();
+                if (!value) return null;
+                const date = new Date(value);
+                return Number.isNaN(date.getTime()) ? null : date;
+            }
+
+            toast(message, type = "info") {
+                if (this.plugins.notification?.show) {
+                    this.plugins.notification.show(message, type);
+                    return;
+                }
+                console.log(`[${type}] ${message}`);
+            }
+
+            hashSeed(text) {
+                const s = String(text);
+                let h = 2166136261;
+                for (let i = 0; i < s.length; i++) {
+                    h ^= s.charCodeAt(i);
+                    h = Math.imul(h, 16777619);
+                }
+                return (h >>> 0);
+            }
+
+            mulberry32(seed) {
+                let a = seed >>> 0;
+                return function () {
+                    a |= 0;
+                    a = (a + 0x6D2B79F5) | 0;
+                    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+                    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                };
+            }
+
+            escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            window.ticketSortLab = new TicketSortLab();
+        });
+    </script>
+</body>
+
+</html>

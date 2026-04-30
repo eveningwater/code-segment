@@ -17,6 +17,8 @@ const stableSort = (arr, compare) =>
     .map(({ item }) => item);
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/stable-sort.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -25,3 +27,11 @@ const stable = stableSort(arr, () => 0); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/stable-sort.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/stable-sort.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/stable-sort.html"></iframe>
