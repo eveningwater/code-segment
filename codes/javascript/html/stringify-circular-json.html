@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>stringify-circular-json - 循环引用安全序列化台</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 45%, #0f172a 100%);
+            color: #0f172a;
+            padding: 22px;
+        }
+
+        .app {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            color: #e2e8f0;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            font-size: 1.9rem;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            opacity: 0.92;
+            line-height: 1.75;
+            max-width: 900px;
+        }
+
+        .hero code {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.88em;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: rgba(248, 250, 252, 0.97);
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.25);
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 160px;
+            resize: vertical;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            font-family: ui-monospace, Menlo, Consolas, monospace;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .out {
+            width: 100%;
+            min-height: 140px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            font-family: ui-monospace, Menlo, Consolas, monospace;
+            background: #0f172a;
+            color: #e2e8f0;
+            overflow: auto;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f8fafc;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .btn.warn {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+        }
+
+        .btn.dark {
+            background: linear-gradient(135deg, #475569, #1e293b);
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .tag.ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .tag.err {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .report-date-row>div {
+            min-width: 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .report-date-row .ew-datetime-picker {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .report-date-row .datetime-input {
+            min-width: 0;
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .report-date-row .datetime-icon {
+            padding: 10px 12px;
+        }
+
+        .report-date-row .datetime-panel {
+            left: 0;
+            right: auto;
+            width: max(100%, 320px);
+            z-index: 5000;
+        }
+
+        .report-date-row .ew-datetime-picker.open {
+            z-index: 5000;
+        }
+
+        @media (max-width: 1080px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .split {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="hero">
+            <h1>stringifyCircularJSON 循环引用安全序列化台</h1>
+            <p>
+                使用 <code>WeakSet</code> 记录已遍历对象，在 <code>JSON.stringify</code> 的 replacer 中遇到重复引用则省略（循环处数据会丢失，属预期行为）。
+                本页可对比原生 <code>JSON.stringify</code> 抛错、加载多种环结构预设，并导出带时间戳的文本快照。
+            </p>
+        </header>
+
+        <div class="layout">
+            <aside>
+                <section class="card">
+                    <h2>1) 场景与选项</h2>
+                    <div class="field">
+                        <label>结构预设</label>
+                        <div id="presetSelect"></div>
+                    </div>
+                    <div class="field">
+                        <label>缩进（美化输出，仅展示用）</label>
+                        <div id="indentInput"></div>
+                    </div>
+                    <div class="field">
+                        <label>导出快照时间（可选）</label>
+                        <div class="report-date-row">
+                            <div id="reportDatePicker"></div>
+                        </div>
+                    </div>
+                    <div id="optionChecks"></div>
+                    <div class="btn-row">
+                        <button class="btn primary" id="runBtn">序列化</button>
+                        <button class="btn success" id="copyBtn">复制结果</button>
+                        <button class="btn warn" id="compareBtn">对比原生 stringify</button>
+                        <button class="btn dark" id="clearBtn">清空</button>
+                    </div>
+                    <p class="muted" style="margin-top:10px;">
+                        说明：replacer 标准签名为 <code>(key, value)</code>，与部分文档字面参数名不同；此处按标准实现以保证与文档示例一致（如
+                        <code>{"n":42}</code> 自引用）。
+                    </p>
+                </section>
+            </aside>
+
+            <main>
+                <section class="card">
+                    <h2>对象说明（当前内存图）</h2>
+                    <p id="graphHint" class="muted">选择预设或点击序列化后更新。</p>
+                </section>
+
+                <section class="card">
+                    <div class="split">
+                        <div>
+                            <h2>安全序列化结果</h2>
+                            <div id="safeStatus" style="margin-bottom:8px;"></div>
+                            <pre class="out" id="safeOut">（空）</pre>
+                        </div>
+                        <div>
+                            <h2>原生 JSON.stringify（对比）</h2>
+                            <div id="nativeStatus" style="margin-bottom:8px;"></div>
+                            <pre class="out" id="nativeOut">点击「对比原生 stringify」</pre>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+
+    <script>
+        /**
+         * JSON.stringify 的 replacer 为 (key, value)。
+         * 使用 WeakSet 跳过已序列化过的同一对象引用，避免循环引用导致栈溢出。
+         */
+        const stringifyCircularJSON = obj => {
+            const seen = new WeakSet();
+            return JSON.stringify(obj, (key, value) => {
+                if (value !== null && typeof value === "object") {
+                    if (seen.has(value)) {
+                        return;
+                    }
+                    seen.add(value);
+                }
+                return value;
+            });
+        };
+
+        class CircularJsonLab {
+            constructor() {
+                this.plugins = {};
+                this.currentObject = null;
+                this.optionOrder = ["prettyAfter", "confirmClear", "autoCompare"];
+                this.init();
+            }
+
+            init() {
+                this.mountPlugins();
+                this.bindEvents();
+                this.plugins.presetSelect?.setValue?.("self");
+                this.loadPreset("self");
+                this.run(false);
+                this.toast("循环 JSON 工作台已就绪", "success");
+            }
+
+            mountPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (e) {
+                    console.warn(e);
+                }
+
+                try {
+                    const el = document.getElementById("presetSelect");
+                    if (el) {
+                        this.plugins.presetSelect = new Select({
+                            options: [
+                                { value: "self", label: "自引用：{ n, obj→自身 }" },
+                                { value: "mutual", label: "互引用：a↔b" },
+                                { value: "triangle", label: "三角环：a→b→c→a" },
+                                { value: "array", label: "数组自引用" },
+                                { value: "plain", label: "无环普通对象" }
+                            ],
+                            placeholder: "预设",
+                            onChange: (v) => this.loadPreset(v)
+                        });
+                        this.plugins.presetSelect.mount(el);
+                    }
+                } catch (e) {
+                    console.warn("Select", e);
+                }
+
+                try {
+                    const ind = document.getElementById("indentInput");
+                    if (ind) {
+                        this.plugins.indent = new InputNumber({
+                            min: 0,
+                            max: 8,
+                            step: 2,
+                            value: 2
+                        });
+                        this.plugins.indent.mount(ind);
+                    }
+                } catch (e) {
+                    console.warn("InputNumber", e);
+                }
+
+                try {
+                    const rd = document.getElementById("reportDatePicker");
+                    if (rd) {
+                        this.plugins.reportDate = new DateTimePicker({ placeholder: "快照时间（可选）" });
+                        this.plugins.reportDate.mount(rd);
+                    }
+                } catch (e) {
+                    console.warn("DateTimePicker", e);
+                }
+
+                const opt = document.getElementById("optionChecks");
+                if (opt) {
+                    try {
+                        this.plugins.options = Checkbox.createCheckboxGroup({
+                            items: [
+                                { id: "prettyAfter", label: "对安全结果尝试 JSON 美化", checked: true },
+                                { id: "confirmClear", label: "清空前二次确认", checked: true },
+                                { id: "autoCompare", label: "每次序列化后自动对比原生", checked: false }
+                            ]
+                        });
+                        opt.appendChild(this.plugins.options.container);
+                    } catch (e) {
+                        console.warn("Checkbox", e);
+                    }
+                }
+            }
+
+            getOptions() {
+                const fb = [true, true, false];
+                const st = this.plugins.options?.getAllChecked?.() || fb;
+                const o = {};
+                this.optionOrder.forEach((k, i) => {
+                    o[k] = !!st[i];
+                });
+                return o;
+            }
+
+            bindEvents() {
+                document.getElementById("runBtn")?.addEventListener("click", () => this.run(true));
+                document.getElementById("copyBtn")?.addEventListener("click", () => this.copyOut());
+                document.getElementById("compareBtn")?.addEventListener("click", () => this.compareNative());
+                document.getElementById("clearBtn")?.addEventListener("click", () => this.clear());
+            }
+
+            loadPreset(key) {
+                let obj;
+                let hint = "";
+                if (key === "self") {
+                    obj = { n: 42 };
+                    obj.obj = obj;
+                    hint = "obj.obj === obj，序列化后 obj 键被省略，仅保留 n。";
+                } else if (key === "mutual") {
+                    const a = { name: "a" };
+                    const b = { name: "b" };
+                    a.ref = b;
+                    b.ref = a;
+                    obj = { root: a };
+                    hint = "root.a ↔ root.b 互指，第二处引用被省略。";
+                } else if (key === "triangle") {
+                    const a = { id: "A" };
+                    const b = { id: "B" };
+                    const c = { id: "C" };
+                    a.next = b;
+                    b.next = c;
+                    c.next = a;
+                    obj = { entry: a };
+                    hint = "A→B→C→A，回到 A 时环被截断。";
+                } else if (key === "array") {
+                    const arr = [1, 2, 3];
+                    arr.push(arr);
+                    obj = { list: arr };
+                    hint = "数组第三项指向数组自身。";
+                } else {
+                    obj = { ok: true, items: [1, 2, { x: 3 }] };
+                    hint = "无环，可与原生 stringify 结果一致。";
+                }
+                this.currentObject = obj;
+                document.getElementById("graphHint").textContent = hint;
+                const opts = this.getOptions();
+                if (opts.autoCompare) {
+                    this.run(false);
+                    this.compareNative();
+                }
+            }
+
+            pretty(raw) {
+                const opts = this.getOptions();
+                const spaces = this.plugins.indent?.getValue?.() ?? 2;
+                if (!opts.prettyAfter || spaces <= 0) return raw;
+                try {
+                    const o = JSON.parse(raw);
+                    return JSON.stringify(o, null, spaces);
+                } catch {
+                    return raw;
+                }
+            }
+
+            run(showToast) {
+                if (!this.currentObject) {
+                    this.toast("无对象可序列化", "warning");
+                    return;
+                }
+                let raw;
+                try {
+                    raw = stringifyCircularJSON(this.currentObject);
+                } catch (e) {
+                    document.getElementById("safeOut").textContent = String(e.message || e);
+                    document.getElementById("safeStatus").innerHTML = '<span class="tag err">失败</span>';
+                    this.toast("stringifyCircularJSON 异常", "warning");
+                    return;
+                }
+                const display = this.pretty(raw);
+                document.getElementById("safeOut").textContent = display;
+                document.getElementById("safeStatus").innerHTML = '<span class="tag ok">成功</span>';
+                if (this.getOptions().autoCompare) this.compareNative();
+                if (showToast) this.toast("序列化完成", "success");
+            }
+
+            compareNative() {
+                if (!this.currentObject) return;
+                const el = document.getElementById("nativeOut");
+                const st = document.getElementById("nativeStatus");
+                try {
+                    const s = JSON.stringify(this.currentObject);
+                    el.textContent = s;
+                    st.innerHTML = '<span class="tag ok">未抛错（无环或环境特殊）</span>';
+                } catch (e) {
+                    el.textContent = String(e.message || e);
+                    st.innerHTML = '<span class="tag err">TypeError（循环引用）</span>';
+                }
+            }
+
+            copyOut() {
+                const t = document.getElementById("safeOut")?.textContent || "";
+                if (!t.trim()) {
+                    this.toast("没有可复制内容", "warning");
+                    return;
+                }
+                const ts = this.plugins.reportDate?.getValue?.() || "";
+                const block = (ts ? `# snapshot_at: ${ts}\n` : "") + t;
+                if (navigator.clipboard?.writeText) {
+                    navigator.clipboard.writeText(block).then(() => this.toast("已复制到剪贴板", "success")).catch(() => this.fallbackCopy(block));
+                } else this.fallbackCopy(block);
+            }
+
+            fallbackCopy(text) {
+                const ta = document.createElement("textarea");
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand("copy");
+                ta.remove();
+                this.toast("已复制（兼容模式）", "info");
+            }
+
+            async clear() {
+                const o = this.getOptions();
+                if (o.confirmClear && this.plugins.modal?.confirm) {
+                    const ok = await this.plugins.modal.confirm("确定清空展示与当前内存对象？");
+                    if (!ok) return;
+                }
+                this.currentObject = null;
+                document.getElementById("safeOut").textContent = "（空）";
+                document.getElementById("nativeOut").textContent = "—";
+                document.getElementById("safeStatus").innerHTML = "";
+                document.getElementById("nativeStatus").innerHTML = "";
+                document.getElementById("graphHint").textContent = "已清空。";
+                this.toast("已清空", "info");
+            }
+
+            toast(msg, type) {
+                if (this.plugins.notification?.show) this.plugins.notification.show(msg, type);
+                else console.log(type, msg);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            window.circularJsonLab = new CircularJsonLab();
+        });
+    </script>
+</body>
+
+</html>
