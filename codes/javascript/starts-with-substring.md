@@ -18,6 +18,8 @@ const startsWithSubstring = (text, word) => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/starts-with-substring.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -25,3 +27,11 @@ startsWithSubstring('/>Lorem ipsum dolor sit amet', '<br />'); // '/>'
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/starts-with-substring.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/starts-with-substring.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/starts-with-substring.html"></iframe>

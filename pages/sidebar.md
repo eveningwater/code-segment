@@ -573,7 +573,7 @@
 - [处理参数的函数--2023-04-23](codes/javascript/spread-over.md)
 - [稳定排序--2023-04-24](codes/javascript/stable-sort.md)
 - [标准差--2023-04-25](codes/javascript/standard-deviation.md)
-- [字符串以子字符串开头--2023-04-26](codes/javascript/startsWithSubstring.md)
+- [字符串以子字符串开头--2023-04-26](codes/javascript/starts-with-substring.md)
 - [字符串排列--2023-04-27](codes/javascript/stringPermutations.md)
 - [将循环对象序列化成字符串--2023-04-28](codes/javascript/stringifyCircularJSON.md)
 - [从字符串删除 HTML 标签--2023-04-29](codes/javascript/stripHTMLTags.md)
