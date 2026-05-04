@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>standard-deviation - 指标波动分析台</title>
+    <link rel="stylesheet" href="../../demo/plugins/modal/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/checkbox/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/notification/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/select/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/input-number/style.css">
+    <link rel="stylesheet" href="../../demo/plugins/datetime-picker/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0c4a6e 0%, #0f172a 45%, #134e4a 100%);
+            color: #0f172a;
+            padding: 22px;
+        }
+
+        .app {
+            max-width: 1360px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            color: #ecfeff;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .hero p {
+            opacity: 0.92;
+            line-height: 1.75;
+            max-width: 920px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: rgba(248, 250, 252, 0.97);
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 16px;
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.28);
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 140px;
+            resize: vertical;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: #0891b2;
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.22);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f8fafc;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .btn.warn {
+            background: linear-gradient(135deg, #d97706, #b45309);
+        }
+
+        .btn.dark {
+            background: linear-gradient(135deg, #334155, #1e293b);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .stat {
+            background: #fff;
+            border: 1px solid #cffafe;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.15rem;
+            color: #0e7490;
+            word-break: break-all;
+        }
+
+        .stat span {
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+
+        .chart-wrap {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .chart-wrap h3 {
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        #distCanvas {
+            width: 100%;
+            height: 200px;
+            display: block;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .table-wrap {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: auto;
+            max-height: 320px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 0.82rem;
+        }
+
+        th,
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #ecfeff;
+            color: #0e7490;
+            z-index: 1;
+        }
+
+        tr.outlier td {
+            background: #fff7ed;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .tag.out {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        pre.code-preview {
+            margin: 0;
+            background: #282c34;
+            border-radius: 10px;
+            padding: 12px;
+            overflow: auto;
+            max-height: 200px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        pre.code-preview code {
+            font-family: Menlo, Monaco, Consolas, monospace;
+            font-size: 0.78rem;
+            line-height: 1.55;
+            display: block;
+            white-space: pre;
+            tab-size: 2;
+            word-break: break-word;
+        }
+
+        pre.code-preview code.hljs {
+            background: transparent;
+            padding: 0;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .report-date-row > div {
+            min-width: 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .report-date-row .ew-datetime-picker {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .report-date-row .datetime-input {
+            min-width: 0;
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .report-date-row .datetime-icon {
+            padding: 10px 12px;
+        }
+
+        .report-date-row .datetime-panel {
+            left: 0;
+            right: auto;
+            width: max(100%, 320px);
+            z-index: 5000;
+        }
+
+        .report-date-row .ew-datetime-picker.open {
+            z-index: 5000;
+        }
+
+        @media (max-width: 1180px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero h1 {
+                font-size: 1.65rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="hero">
+            <h1>standardDeviation 指标波动分析台</h1>
+            <p>
+                基于 <strong>standardDeviation</strong> 计算样本或总体标准差，结合均值与离群倍数（如 3σ）做
+                SRE / 质量监控里常见的「波动是否异常」判断；支持手动输入、示例数据与随机模拟，并可导出报告元数据。
+            </p>
+        </header>
+
+        <div class="layout">
+            <aside>
+                <section class="card">
+                    <h2>1) 数据与数据源</h2>
+                    <div class="field">
+                        <label>数据源</label>
+                        <div id="sourceSelect"></div>
+                    </div>
+                    <div class="field">
+                        <label for="dataText">数值（逗号、空格或换行分隔）</label>
+                        <textarea id="dataText" class="textarea" placeholder="例如：120, 118, 135, 402, 119"></textarea>
+                    </div>
+                    <div class="grid-2">
+                        <div class="field">
+                            <label>随机样本量</label>
+                            <div id="sampleCountInput"></div>
+                        </div>
+                        <div class="field">
+                            <label>离群倍数 k（k×σ）</label>
+                            <div id="sigmaKInput"></div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>报告时间（导出元数据）</label>
+                        <div class="report-date-row">
+                            <div id="reportDatePicker"></div>
+                        </div>
+                        <p class="muted" style="margin-top:6px;">可选；写入 CSV 首行注释。</p>
+                    </div>
+                    <div id="optionChecks"></div>
+                    <div class="btn-row">
+                        <button class="btn primary" id="computeBtn">计算分析</button>
+                        <button class="btn success" id="exportBtn">导出 CSV</button>
+                        <button class="btn warn" id="clearBtn">清空数据</button>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>2) 函数说明</h2>
+                    <pre class="code-preview"><code class="language-javascript" id="fnPreview"></code></pre>
+                    <p class="muted" style="margin-top:10px;">
+                        第二个参数为 <code>true</code> 时使用总体标准差（除以 n）；默认样本标准差（除以 n−1）。样本量 n&lt;2 时样本标准差无定义，页面会提示并跳过。
+                    </p>
+                </section>
+            </aside>
+
+            <main>
+                <section class="card">
+                    <h2>统计结果</h2>
+                    <div class="stats">
+                        <div class="stat"><strong id="statN">0</strong><span>样本数 n</span></div>
+                        <div class="stat"><strong id="statMean">—</strong><span>均值 μ</span></div>
+                        <div class="stat"><strong id="statVar">—</strong><span>方差（同 σ 口径）</span></div>
+                        <div class="stat"><strong id="statSigma">—</strong><span>标准差 σ</span></div>
+                        <div class="stat"><strong id="statOutliers">0</strong><span>离群点数量</span></div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="chart-wrap">
+                        <h3>分布直方图（相对均值）</h3>
+                        <canvas id="distCanvas" width="900" height="200"></canvas>
+                    </div>
+                    <h2 style="margin-bottom:8px;">明细（偏差与离群）</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>值</th>
+                                    <th>距均值</th>
+                                    <th>|z|（相对当前 σ）</th>
+                                    <th>标记</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailBody">
+                                <tr>
+                                    <td colspan="5" class="muted">请点击「计算分析」。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="../../demo/plugins/modal/index.js"></script>
+    <script src="../../demo/plugins/checkbox/index.js"></script>
+    <script src="../../demo/plugins/notification/index.js"></script>
+    <script src="../../demo/plugins/select/index.js"></script>
+    <script src="../../demo/plugins/input-number/index.js"></script>
+    <script src="../../demo/plugins/datetime-picker/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+        const standardDeviation = (arr, usePopulation = false) => {
+            const mean = arr.reduce((acc, val) => acc + val, 0) / arr.length;
+            return Math.sqrt(
+                arr
+                    .reduce((acc, val) => acc.concat((val - mean) ** 2), [])
+                    .reduce((acc, val) => acc + val, 0) /
+                (arr.length - (usePopulation ? 0 : 1))
+            );
+        };
+
+        class DeviationLab {
+            constructor() {
+                this.plugins = {};
+                this.lastNumbers = [];
+                this.lastSigma = null;
+                this.lastMean = null;
+                this.optionOrder = ["usePopulation", "markOutliers", "confirmBeforeClear"];
+                this.init();
+            }
+
+            init() {
+                this.renderFnPreview();
+                this.mountPlugins();
+                this.bindEvents();
+                this.plugins.sourceSelect?.setValue?.("demo");
+                this.loadDemoData();
+                this.compute(false);
+                this.toast("分析台已就绪", "success");
+            }
+
+            renderFnPreview() {
+                const el = document.getElementById("fnPreview");
+                if (!el) return;
+                el.textContent = [
+                    "const standardDeviation = (arr, usePopulation = false) => {",
+                    "  const mean = arr.reduce((a, v) => a + v, 0) / arr.length;",
+                    "  return Math.sqrt(",
+                    "    arr.reduce((a, v) => a.concat((v - mean) ** 2), [])",
+                    "      .reduce((a, v) => a + v, 0) /",
+                    "      (arr.length - (usePopulation ? 0 : 1))",
+                    "  );",
+                    "};"
+                ].join("\n");
+                if (window.hljs) {
+                    hljs.highlightElement(el);
+                }
+            }
+
+            mountPlugins() {
+                try {
+                    this.plugins.modal = new Modal();
+                    this.plugins.notification = new Notification();
+                } catch (e) {
+                    console.warn(e);
+                }
+
+                try {
+                    const el = document.getElementById("sourceSelect");
+                    if (el) {
+                        this.plugins.sourceSelect = new Select({
+                            options: [
+                                { value: "manual", label: "手动输入" },
+                                { value: "demo", label: "示例：接口延迟(ms)" },
+                                { value: "random", label: "随机：正态近似延迟" }
+                            ],
+                            placeholder: "数据源",
+                            onChange: (v) => this.onSourceChange(v)
+                        });
+                        this.plugins.sourceSelect.mount(el);
+                    }
+                } catch (e) {
+                    console.warn("Select", e);
+                }
+
+                try {
+                    const c = document.getElementById("sampleCountInput");
+                    if (c) {
+                        this.plugins.sampleCount = new InputNumber({
+                            min: 20,
+                            max: 500,
+                            step: 10,
+                            value: 80
+                        });
+                        this.plugins.sampleCount.mount(c);
+                    }
+                    const k = document.getElementById("sigmaKInput");
+                    if (k) {
+                        this.plugins.sigmaK = new InputNumber({
+                            min: 1,
+                            max: 6,
+                            step: 0.5,
+                            value: 3
+                        });
+                        this.plugins.sigmaK.mount(k);
+                    }
+                } catch (e) {
+                    console.warn("InputNumber", e);
+                }
+
+                try {
+                    const rd = document.getElementById("reportDatePicker");
+                    if (rd) {
+                        this.plugins.reportDate = new DateTimePicker({
+                            placeholder: "报告时间（可选）"
+                        });
+                        this.plugins.reportDate.mount(rd);
+                    }
+                } catch (e) {
+                    console.warn("DateTimePicker", e);
+                }
+
+                const optEl = document.getElementById("optionChecks");
+                if (optEl) {
+                    try {
+                        this.plugins.options = Checkbox.createCheckboxGroup({
+                            items: [
+                                { id: "usePopulation", label: "使用总体标准差（除以 n）", checked: false },
+                                { id: "markOutliers", label: "按 k×σ 标记离群点", checked: true },
+                                { id: "confirmBeforeClear", label: "清空前二次确认", checked: true }
+                            ]
+                        });
+                        optEl.appendChild(this.plugins.options.container);
+                    } catch (e) {
+                        console.warn("Checkbox", e);
+                    }
+                }
+            }
+
+            getOptions() {
+                const fb = [false, true, true];
+                const st = this.plugins.options?.getAllChecked?.() || fb;
+                return {
+                    usePopulation: !!st[0],
+                    markOutliers: !!st[1],
+                    confirmBeforeClear: !!st[2]
+                };
+            }
+
+            bindEvents() {
+                document.getElementById("computeBtn")?.addEventListener("click", () => this.compute(true));
+                document.getElementById("exportBtn")?.addEventListener("click", () => this.exportCsv());
+                document.getElementById("clearBtn")?.addEventListener("click", () => this.clearData());
+            }
+
+            onSourceChange(v) {
+                if (v === "demo") this.loadDemoData();
+                if (v === "random") this.loadRandomData();
+            }
+
+            loadDemoData() {
+                const demo = [118, 122, 119, 121, 402, 120, 119, 123, 118, 124, 120, 117, 121, 119, 125];
+                document.getElementById("dataText").value = demo.join(", ");
+                this.toast("已加载示例数据", "info");
+            }
+
+            loadRandomData() {
+                const n = this.plugins.sampleCount?.getValue?.() || 80;
+                const base = 95 + Math.random() * 25;
+                const noise = 18 + Math.random() * 12;
+                const arr = [];
+                for (let i = 0; i < n; i++) {
+                    const u = (Math.random() + Math.random() + Math.random() + Math.random() - 2) / 2;
+                    let v = base + u * noise;
+                    if (Math.random() < 0.04) v += 180 + Math.random() * 120;
+                    arr.push(Math.round(v * 10) / 10);
+                }
+                document.getElementById("dataText").value = arr.join("\n");
+                this.toast(`已生成 ${n} 个随机样本`, "info");
+            }
+
+            parseNumbers(text) {
+                return String(text || "")
+                    .split(/[\s,，;；]+/)
+                    .map(s => s.trim())
+                    .filter(Boolean)
+                    .map(Number)
+                    .filter(n => !Number.isNaN(n));
+            }
+
+            compute(showToast) {
+                const raw = document.getElementById("dataText")?.value || "";
+                const nums = this.parseNumbers(raw);
+                const opts = this.getOptions();
+
+                if (nums.length === 0) {
+                    this.toast("请输入至少一个有效数字", "warning");
+                    this.resetDisplay();
+                    return;
+                }
+
+                if (!opts.usePopulation && nums.length < 2) {
+                    this.toast("样本标准差需要至少 2 个数据点", "warning");
+                    this.resetDisplay();
+                    return;
+                }
+
+                const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+                let sigma;
+                try {
+                    sigma = standardDeviation(nums, opts.usePopulation);
+                } catch (e) {
+                    this.toast("计算失败：" + (e.message || e), "warning");
+                    this.resetDisplay();
+                    return;
+                }
+
+                if (!Number.isFinite(sigma)) {
+                    this.toast("标准差无定义（请检查数据量与口径）", "warning");
+                    this.resetDisplay();
+                    return;
+                }
+
+                const k = this.plugins.sigmaK?.getValue?.() || 3;
+                const threshold = sigma > 0 ? k * sigma : 0;
+                let outCount = 0;
+
+                const body = document.getElementById("detailBody");
+                body.innerHTML = nums.map((v, i) => {
+                    const dev = v - mean;
+                    const z = sigma > 0 ? Math.abs(dev) / sigma : 0;
+                    const isOut = opts.markOutliers && sigma > 0 && Math.abs(dev) > threshold;
+                    if (isOut) outCount++;
+                    return `
+                        <tr class="${isOut ? "outlier" : ""}">
+                            <td>${i + 1}</td>
+                            <td>${v}</td>
+                            <td>${dev >= 0 ? "+" : ""}${this.fmt(dev)}</td>
+                            <td>${this.fmt(z)}</td>
+                            <td>${isOut ? '<span class="tag out">离群</span>' : "—"}</td>
+                        </tr>`;
+                }).join("");
+
+                document.getElementById("statN").textContent = String(nums.length);
+                document.getElementById("statMean").textContent = this.fmt(mean);
+                const variance = sigma * sigma;
+                document.getElementById("statVar").textContent = this.fmt(variance);
+                document.getElementById("statSigma").textContent = this.fmt(sigma) +
+                    (opts.usePopulation ? "（总体）" : "（样本）");
+                document.getElementById("statOutliers").textContent = String(outCount);
+
+                this.lastNumbers = nums;
+                this.lastSigma = sigma;
+                this.lastMean = mean;
+                this.drawHistogram(nums, mean, sigma, threshold, opts.markOutliers);
+
+                if (showToast) this.toast("分析完成", "success");
+            }
+
+            resetDisplay() {
+                document.getElementById("statN").textContent = "0";
+                ["statMean", "statVar", "statSigma"].forEach(id => {
+                    document.getElementById(id).textContent = "—";
+                });
+                document.getElementById("statOutliers").textContent = "0";
+                document.getElementById("detailBody").innerHTML =
+                    '<tr><td colspan="5" class="muted">无有效数据。</td></tr>';
+                this.lastNumbers = [];
+                this.lastSigma = null;
+                this.lastMean = null;
+                this.drawHistogram([], 0, 0, 0, false);
+            }
+
+            drawHistogram(values, mean, sigma, threshold, markOutliers) {
+                const canvas = document.getElementById("distCanvas");
+                if (!canvas || !canvas.getContext) return;
+                const ctx = canvas.getContext("2d");
+                const w = canvas.width;
+                const h = canvas.height;
+                ctx.fillStyle = "#f8fafc";
+                ctx.fillRect(0, 0, w, h);
+                if (!values.length) return;
+
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                const bins = Math.min(24, Math.max(8, Math.ceil(values.length / 6)));
+                const step = (max - min) / bins || 1;
+                const counts = new Array(bins).fill(0);
+                values.forEach(v => {
+                    let i = Math.floor((v - min) / step);
+                    if (i >= bins) i = bins - 1;
+                    if (i < 0) i = 0;
+                    counts[i]++;
+                });
+                const maxC = Math.max(...counts, 1);
+                const barW = (w - 40) / bins;
+                ctx.strokeStyle = "#cbd5e1";
+                ctx.strokeRect(20, 10, w - 40, h - 30);
+                counts.forEach((c, i) => {
+                    const bh = ((h - 40) * c) / maxC;
+                    const x = 20 + i * barW + 1;
+                    const y = h - 20 - bh;
+                    ctx.fillStyle = "#22d3ee";
+                    ctx.fillRect(x, y, barW - 2, bh);
+                });
+                ctx.fillStyle = "#475569";
+                ctx.font = "11px sans-serif";
+                ctx.fillText(`μ=${this.fmt(mean)}  σ=${this.fmt(sigma)}  k×σ=${markOutliers && sigma > 0 ? this.fmt(threshold) : "—"}`, 24, h - 6);
+            }
+
+            async clearData() {
+                const o = this.getOptions();
+                if (o.confirmBeforeClear && this.plugins.modal?.confirm) {
+                    const ok = await this.plugins.modal.confirm("确定清空当前输入与统计展示？");
+                    if (!ok) return;
+                }
+                document.getElementById("dataText").value = "";
+                this.resetDisplay();
+                this.toast("已清空", "info");
+            }
+
+            exportCsv() {
+                if (!this.lastNumbers.length || this.lastSigma == null) {
+                    this.toast("请先完成一次有效计算", "warning");
+                    return;
+                }
+                const opts = this.getOptions();
+                const reportTs = this.plugins.reportDate?.getValue?.() || "";
+                const lines = [];
+                if (reportTs) lines.push(`# report_at,${reportTs}`);
+                lines.push("# n,mean,sigma,usePopulation");
+                lines.push([
+                    this.lastNumbers.length,
+                    this.lastMean,
+                    this.lastSigma,
+                    opts.usePopulation ? "population" : "sample"
+                ].join(","));
+                lines.push("index,value,deviation_from_mean,z_abs,outlier");
+                const k = this.plugins.sigmaK?.getValue?.() || 3;
+                const thr = this.lastSigma > 0 ? k * this.lastSigma : 0;
+                this.lastNumbers.forEach((v, i) => {
+                    const dev = v - this.lastMean;
+                    const z = this.lastSigma > 0 ? Math.abs(dev) / this.lastSigma : 0;
+                    const out = opts.markOutliers && this.lastSigma > 0 && Math.abs(dev) > thr ? 1 : 0;
+                    lines.push([i + 1, v, dev, z, out].join(","));
+                });
+                const csv = lines.join("\n");
+                if (navigator.clipboard?.writeText) {
+                    navigator.clipboard.writeText(csv).then(() => this.toast("CSV 已复制到剪贴板", "success")).catch(() => this.fallbackCopy(csv));
+                } else this.fallbackCopy(csv);
+            }
+
+            fallbackCopy(text) {
+                const t = document.createElement("textarea");
+                t.value = text;
+                document.body.appendChild(t);
+                t.select();
+                document.execCommand("copy");
+                t.remove();
+                this.toast("已复制（兼容模式）", "info");
+            }
+
+            fmt(n) {
+                const x = Number(n);
+                if (!Number.isFinite(x)) return "—";
+                return x.toLocaleString("zh-CN", { maximumFractionDigits: 4 });
+            }
+
+            toast(msg, type) {
+                if (this.plugins.notification?.show) this.plugins.notification.show(msg, type);
+                else console.log(type, msg);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            window.deviationLab = new DeviationLab();
+        });
+    </script>
+</body>
+
+</html>

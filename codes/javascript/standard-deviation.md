@@ -19,6 +19,8 @@ const standardDeviation = (arr, usePopulation = false) => {
 };
 ```
 
+<div class="code-editor" data-url="codes/javascript/ts/standard-deviation.ts" data-language="typescript"></div>
+
 > 调用方式:
 
 ```js
@@ -28,3 +30,11 @@ standardDeviation([10, 2, 38, 23, 38, 23, 21], true);
 ```
 
 > 应用场景
+
+以下是一个实战<a href="codes/javascript/html/standard-deviation.html" target="_blank" rel="noopener noreferrer">示例</a>:
+
+<div class="code-editor" data-url="codes/javascript/html/standard-deviation.html" data-language="html"></div>
+
+结果如下:
+
+<iframe src="codes/javascript/html/standard-deviation.html"></iframe>
